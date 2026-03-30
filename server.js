@@ -4,28 +4,26 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+// Configuración para recibir datos del panel
 app.use(express.json());
 
-// 🚀 ESTO CORRIGE LA PANTALLA BLANCA
-// Obliga al servidor a servir los archivos desde la carpeta principal
-app.use(express.static(path.join(__dirname, '.')));
+// 🚀 ESTO ES LO QUE RESUELVE LA PANTALLA BLANCA
+// Le dice al servidor que busque los archivos en la carpeta principal
+app.use(express.static(__dirname));
 
 const DB_PATH = path.join(__dirname, 'productos.json');
 
+// Crear la base de datos si no existe
 if (!fs.existsSync(DB_PATH)) {
     fs.writeFileSync(DB_PATH, JSON.stringify([]));
 }
 
-// Ruta para ver la web principal
+// Ruta principal para ver la tienda
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Ruta para ver el panel
-app.get('/mxl-panel-2026.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'mxl-panel-2026.html'));
-});
-
+// Ruta para recibir los productos del botón verde
 app.post('/api/publicar', (req, res) => {
     try {
         const data = JSON.parse(fs.readFileSync(DB_PATH));
@@ -37,6 +35,7 @@ app.post('/api/publicar', (req, res) => {
     }
 });
 
+// Ruta para que la web lea los productos guardados
 app.get('/api/productos', (req, res) => {
     try {
         const data = JSON.parse(fs.readFileSync(DB_PATH));
@@ -47,5 +46,5 @@ app.get('/api/productos', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 MXL GOLD MINER activo en puerto ${PORT}`);
+    console.log(`🚀 MXL GOLD MINER ACTIVO EN PUERTO ${PORT}`);
 });
