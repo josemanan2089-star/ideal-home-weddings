@@ -30,7 +30,6 @@ try {
 // Archivos
 const ARTICULOS_PATH = path.join(__dirname, 'articulos.json');
 const CURIOSIDADES_PATH = path.join(__dirname, 'curiosidades.json');
-const PLANTILLAS_PATH = path.join(__dirname, 'plantillas.json');
 
 // Inicializar archivos
 if (!fs.existsSync(ARTICULOS_PATH)) fs.writeFileSync(ARTICULOS_PATH, JSON.stringify([]));
@@ -105,7 +104,6 @@ const plantillasArticulos = [
 
 // ============ FUNCIÓN PARA USAR GEMINI SOLO CUANDO ES NECESARIO ============
 async function usarGeminiSoloCuandoNecesario(prompt, tipo) {
-    // Verificar si tenemos plantillas disponibles
     if (tipo === 'curiosidad' && plantillasCuriosidades.length > 0) {
         const indice = Math.floor(Math.random() * plantillasCuriosidades.length);
         console.log(`📦 Usando plantilla de curiosidad (sin gastar API): ${plantillasCuriosidades[indice].titulo}`);
@@ -118,7 +116,6 @@ async function usarGeminiSoloCuandoNecesario(prompt, tipo) {
         return plantillasArticulos[indice];
     }
     
-    // Solo si no hay plantillas, usar Gemini
     if (!model) {
         console.log('⚠️ No hay plantillas ni Gemini disponible');
         return null;
@@ -136,16 +133,14 @@ async function usarGeminiSoloCuandoNecesario(prompt, tipo) {
     }
 }
 
-// ============ GENERAR CURIOSIDAD (CON PLANTILLAS PRIMERO) ============
+// ============ GENERAR CURIOSIDAD ============
 async function generarCuriosidadFemenina() {
-    // Usar plantilla primero
     const plantilla = await usarGeminiSoloCuandoNecesario(null, 'curiosidad');
     
     if (plantilla && !plantilla.titulo?.includes('Gemini')) {
         return plantilla;
     }
     
-    // Si no hay plantilla, usar Gemini
     const prompt = `
     Genera una CURIOSIDAD FEMENINA sobre hogar, lujo, estilo de vida en USA.
     Formato: TITULO: ... DATO: ... REFLEXION: ... CIERRE: ...
@@ -162,18 +157,15 @@ async function generarCuriosidadFemenina() {
         };
     }
     
-    // Fallback final
     return plantillasCuriosidades[0];
 }
 
-// ============ GENERAR ARTÍCULO (CON PLANTILLAS PRIMERO) ============
-async function generarArticuloConProducto(url, imagenUrl = '') {
-    // Extraer ASIN
+// ============ GENERAR ARTÍCULO ============
+async function generarArticuloConProducto(url, imagenUrl = '', imageSize = 'medium', imagePosition = 'center') {
     let asin = '';
     const asinMatch = url.match(/(?:dp|product)\/([A-Z0-9]{10})/);
     if (asinMatch) asin = asinMatch[1];
     
-    // Usar plantilla primero
     const plantilla = await usarGeminiSoloCuandoNecesario(null, 'articulo');
     
     if (plantilla && !plantilla.titulo?.includes('Gemini')) {
@@ -187,13 +179,15 @@ async function generarArticuloConProducto(url, imagenUrl = '') {
             beneficio: plantilla.beneficio,
             cierre: plantilla.cierre,
             imagen: imagenUrl || (asin ? `https://images-na.ssl-images-amazon.com/images/I/51${asin}._AC_.jpg` : 'https://picsum.photos/400/300'),
+            imageSize: imageSize,
+            imagePosition: imagePosition,
             link: url,
             fecha: new Date().toISOString(),
-            clicks: 0
+            clicks: 0,
+            orden: 0
         };
     }
     
-    // Si no hay plantilla, usar Gemini
     const prompt = `
     Genera un ARTÍCULO para producto Amazon: ${url}
     Formato JSON: {"titulo":"...", "intro":"...", "problema":"...", "solucion":"...", "beneficio":"...", "cierre":"..."}
@@ -210,16 +204,18 @@ async function generarArticuloConProducto(url, imagenUrl = '') {
                 asin: asin,
                 ...content,
                 imagen: imagenUrl || (asin ? `https://images-na.ssl-images-amazon.com/images/I/51${asin}._AC_.jpg` : 'https://picsum.photos/400/300'),
+                imageSize: imageSize,
+                imagePosition: imagePosition,
                 link: url,
                 fecha: new Date().toISOString(),
-                clicks: 0
+                clicks: 0,
+                orden: 0
             };
         } catch (e) {
             console.error('Error parsing:', e);
         }
     }
     
-    // Fallback final
     return {
         id: Date.now(),
         asin: asin,
@@ -230,13 +226,16 @@ async function generarArticuloConProducto(url, imagenUrl = '') {
         beneficio: "Join thousands of women who already made the switch",
         cierre: "The women who know, already have theirs",
         imagen: imagenUrl || (asin ? `https://images-na.ssl-images-amazon.com/images/I/51${asin}._AC_.jpg` : 'https://picsum.photos/400/300'),
+        imageSize: imageSize,
+        imagePosition: imagePosition,
         link: url,
         fecha: new Date().toISOString(),
-        clicks: 0
+        clicks: 0,
+        orden: 0
     };
 }
 
-// ============ BOT ROTADOR: REPUBLICA ARTÍCULOS EXISTENTES ============
+// ============ BOT ROTADOR ============
 async function botRotador() {
     console.log('🔄 Bot Rotador: Republicando artículos existentes...');
     
@@ -250,24 +249,20 @@ async function botRotador() {
             return;
         }
         
-        // Seleccionar un artículo aleatorio para "republicar" (mover al principio)
         if (articulos.length > 0) {
             const randomIndex = Math.floor(Math.random() * articulos.length);
             const articuloSeleccionado = articulos[randomIndex];
             
-            // Actualizar fecha para que aparezca como nuevo
             articuloSeleccionado.fecha = new Date().toISOString();
             articuloSeleccionado.republicado = (articuloSeleccionado.republicado || 0) + 1;
             
-            // Mover al principio
             articulos.splice(randomIndex, 1);
             articulos.unshift(articuloSeleccionado);
             
             fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(articulos, null, 2));
-            console.log(`✅ Republicado: "${articuloSeleccionado.titulo}" (veces: ${articuloSeleccionado.republicado})`);
+            console.log(`✅ Republicado: "${articuloSeleccionado.titulo}"`);
         }
         
-        // También rotar curiosidades
         if (curiosidades.length > 0) {
             const randomCuriosity = Math.floor(Math.random() * curiosidades.length);
             const curiosidadSeleccionada = curiosidades[randomCuriosity];
@@ -289,7 +284,7 @@ async function botRotador() {
     }
 }
 
-// ============ PUBLICACIÓN AUTOMÁTICA CON GEMINI (SOLO CADA 24H) ============
+// ============ PUBLICACIÓN AUTOMÁTICA ============
 async function publicarCuriosidadAutomatica() {
     console.log('🤖 Generando NUEVA curiosidad con Gemini (1 vez al día)...');
     try {
@@ -316,7 +311,7 @@ async function publicarCuriosidadAutomatica() {
     }
 }
 
-// ============ ENDPOINTS (SIN CAMBIOS) ============
+// ============ ENDPOINTS ============
 
 app.get('/health', (req, res) => {
     res.json({ 
@@ -336,7 +331,7 @@ app.get('/panel', (req, res) => {
     res.sendFile(path.join(__dirname, 'panel.html'));
 });
 
-// API endpoints igual que antes...
+// ============ API ARTÍCULOS ============
 app.get('/api/articulos', (req, res) => {
     const cached = cache.get('articulos');
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
@@ -351,18 +346,68 @@ app.get('/api/articulos', (req, res) => {
     }
 });
 
+// 🔥 ENDPOINT PARA PUBLICAR ARTÍCULO (con tamaño y posición)
 app.post('/api/publicar-articulo', async (req, res) => {
     try {
-        const { url, imagenUrl } = req.body;
+        const { url, imagenUrl, imageSize, imagePosition } = req.body;
         if (!url) {
             return res.status(400).json({ success: false, error: 'URL requerida' });
         }
-        const nuevoArticulo = await generarArticuloConProducto(url, imagenUrl);
+        const nuevoArticulo = await generarArticuloConProducto(url, imagenUrl, imageSize || 'medium', imagePosition || 'center');
         const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
         data.unshift(nuevoArticulo);
         fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(data, null, 2));
         cache.clear();
         res.json({ success: true, articulo: nuevoArticulo });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// 🔥 NUEVO ENDPOINT PARA ORDENAR ARTÍCULOS
+app.put('/api/ordenar-articulos', (req, res) => {
+    try {
+        const { articulos: nuevosArticulos } = req.body;
+        
+        if (!nuevosArticulos || !Array.isArray(nuevosArticulos)) {
+            return res.status(400).json({ success: false, error: 'Datos inválidos' });
+        }
+        
+        // Actualizar fechas para reflejar el nuevo orden
+        const articulosConOrden = nuevosArticulos.map((art, idx) => ({
+            ...art,
+            orden: idx,
+            fecha: new Date(Date.now() - idx * 60000).toISOString()
+        }));
+        
+        fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(articulosConOrden, null, 2));
+        cache.clear();
+        
+        res.json({ success: true });
+        
+    } catch (error) {
+        console.error('Error guardando orden:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// 🔥 NUEVO ENDPOINT PARA EDITAR ARTÍCULO
+app.put('/api/editar-articulo/:id', (req, res) => {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+        
+        const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
+        const index = data.findIndex(a => a.id == id);
+        
+        if (index !== -1) {
+            data[index] = { ...data[index], ...updates };
+            fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(data, null, 2));
+            cache.clear();
+            res.json({ success: true, articulo: data[index] });
+        } else {
+            res.status(404).json({ success: false, error: 'Artículo no encontrado' });
+        }
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
@@ -383,6 +428,7 @@ app.post('/api/click-articulo/:id', (req, res) => {
     }
 });
 
+// ============ API CURIOSIDADES ============
 app.get('/api/curiosidades', (req, res) => {
     const cached = cache.get('curiosidades');
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
@@ -434,14 +480,11 @@ app.post('/api/compartir-curiosidad/:id', (req, res) => {
 });
 
 // ============ CRON JOBS ============
-
-// Bot Rotador: cada 3 horas (republica contenido existente - SIN GASTAR API)
 cron.schedule('0 */3 * * *', () => {
     console.log('⏰ CRON: Ejecutando Bot Rotador...');
     botRotador();
 });
 
-// Gemini solo 1 vez al día (crea contenido NUEVO)
 cron.schedule('0 10 * * *', () => {
     console.log('⏰ CRON: Ejecutando Gemini (1 vez al día)...');
     publicarCuriosidadAutomatica();
@@ -449,16 +492,20 @@ cron.schedule('0 10 * * *', () => {
 
 // ============ INICIAR SERVIDOR ============
 app.listen(PORT, '0.0.0.0', () => {
+    const articulosCount = JSON.parse(fs.readFileSync(ARTICULOS_PATH)).length;
+    const curiosidadesCount = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH)).length;
+    
     console.log(`
     ╔══════════════════════════════════════════════════════════╗
     ║     ✨ SISTEMA HÍBRIDO: GEMINI + BOT ROTADOR ✨         ║
     ╠══════════════════════════════════════════════════════════╣
     ║  🚀 Puerto: ${PORT}                                       ║
-    ║  📰 Artículos: ${JSON.parse(fs.readFileSync(ARTICULOS_PATH)).length} guardados      ║
-    ║  💎 Curiosidades: ${JSON.parse(fs.readFileSync(CURIOSIDADES_PATH)).length} guardadas  ║
+    ║  📰 Artículos: ${articulosCount} guardados                ║
+    ║  💎 Curiosidades: ${curiosidadesCount} guardadas          ║
     ║  🤖 Gemini: ${model ? '✅ ACTIVADO (solo 1 vez/día)' : '❌ NO DISPONIBLE'}    
     ║  🔄 Bot Rotador: CADA 3 HORAS (republica sin gastar API)  ║
     ║  📦 Plantillas: ${plantillasCuriosidades.length + plantillasArticulos.length} pregrabadas ║
+    ║  🎨 Controles Visuales: Tamaño + Posición + Orden ✅      ║
     ║  💨 Cache: ACTIVADO (5 min)                               ║
     ╚══════════════════════════════════════════════════════════╝
     `);
