@@ -1,56 +1,10 @@
-[
-  {
-    "id": 1,
-    "title": "Premium Non-Stick Cookware Set",
-    "price": "$89.99",
-    "image": "https://m.media-amazon.com/images/I/81QzYz7tLxL._AC_SL1500_.jpg",
-    "link": "https://amazon.com/dp/B08XYZ1234",
-    "category": "kitchen",
-    "rating": 4.8
+{
+  "name": "ideal-home-weddings",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server.js"
   },
-  {
-    "id": 2,
-    "title": "Luxury 1000-Thread Count Sheets",
-    "price": "$59.99",
-    "image": "https://m.media-amazon.com/images/I/81qYxQ7tLxL._AC_SL1500_.jpg",
-    "link": "https://amazon.com/dp/B09ABC5678",
-    "category": "bedding",
-    "rating": 4.9
-  },
-  {
-    "id": 3,
-    "title": "Smart Wi-Fi Coffee Maker",
-    "price": "$129.99",
-    "image": "https://m.media-amazon.com/images/I/71KzYz7tLxL._AC_SL1500_.jpg",
-    "link": "https://amazon.com/dp/B07XYZ9012",
-    "category": "appliances",
-    "rating": 4.7
-  },
-  {
-    "id": 4,
-    "title": "Gold-Plated Flatware Set - 20 Pieces",
-    "price": "$79.99",
-    "image": "https://m.media-amazon.com/images/I/81QzYz7tLxL._AC_SL1500_.jpg",
-    "link": "https://amazon.com/dp/B08ABC3456",
-    "category": "dining",
-    "rating": 4.6
-  },
-  {
-    "id": 5,
-    "title": "Crystal Champagne Flutes - Set of 4",
-    "price": "$39.99",
-    "image": "https://m.media-amazon.com/images/I/71KzYz7tLxL._AC_SL1500_.jpg",
-    "link": "https://amazon.com/dp/B06XYZ7890",
-    "category": "barware",
-    "rating": 4.9
-  },
-  {
-    "id": 6,
-    "title": "Smart LED Floor Lamp with Alexa",
-    "price": "$89.99",
-    "image": "https://m.media-amazon.com/images/I/81QzYz7tLxL._AC_SL1500_.jpg",
-    "link": "https://amazon.com/dp/B09XYZ1234",
-    "category": "lighting",
-    "rating": 4.5
+  "dependencies": {
+    "express": "^4.18.2"
   }
-]
+}
