@@ -54,25 +54,112 @@ function extraerASIN(url) {
     return null;
 }
 
+// ============ 🎯 BUSCAR IMAGEN PARA CURIOSIDAD (GOOGLE/UNSPLASH) ============
+async function buscarImagenParaCuriosidad(promptImagen) {
+    console.log(`🔍 Buscando imagen para: "${promptImagen.substring(0, 50)}..."`);
+    
+    // Opción 1: Unsplash si hay API key
+    if (process.env.UNSPLASH_ACCESS_KEY) {
+        try {
+            const response = await axios.get('https://api.unsplash.com/search/photos', {
+                params: {
+                    query: promptImagen,
+                    per_page: 1,
+                    orientation: 'landscape'
+                },
+                headers: { 'Authorization': `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}` },
+                timeout: 8000
+            });
+            
+            if (response.data.results && response.data.results.length > 0) {
+                console.log('✅ Unsplash: imagen encontrada');
+                return {
+                    url: response.data.results[0].urls.regular,
+                    fuente: 'unsplash',
+                    credit: response.data.results[0].user.name
+                };
+            }
+        } catch(e) {
+            console.log('⚠️ Unsplash error:', e.message);
+        }
+    }
+    
+    // Opción 2: Google Custom Search
+    if (process.env.GOOGLE_API_KEY && process.env.GOOGLE_CX) {
+        try {
+            const response = await axios.get('https://www.googleapis.com/customsearch/v1', {
+                params: {
+                    key: process.env.GOOGLE_API_KEY,
+                    cx: process.env.GOOGLE_CX,
+                    q: promptImagen,
+                    searchType: 'image',
+                    num: 1,
+                    imgSize: 'large',
+                    safe: 'active'
+                },
+                timeout: 8000
+            });
+            
+            if (response.data.items && response.data.items.length > 0) {
+                console.log('✅ Google Images: imagen encontrada');
+                return {
+                    url: response.data.items[0].link,
+                    fuente: 'google',
+                    titulo: response.data.items[0].title
+                };
+            }
+        } catch(e) {
+            console.log('⚠️ Google Images error:', e.message);
+        }
+    }
+    
+    // Opción 3: Placeholder con imagen temática de Pexels (gratis)
+    const placeholders = {
+        kitchen: 'https://images.pexels.com/photos/2635038/pexels-photo-2635038.jpeg',
+        luxury: 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg',
+        woman: 'https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg',
+        home: 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg',
+        money: 'https://images.pexels.com/photos/4386361/pexels-photo-4386361.jpeg',
+        tech: 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg',
+        default: 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg'
+    };
+    
+    let placeholderKey = 'default';
+    const lowerPrompt = promptImagen.toLowerCase();
+    if (lowerPrompt.includes('kitchen')) placeholderKey = 'kitchen';
+    if (lowerPrompt.includes('luxury')) placeholderKey = 'luxury';
+    if (lowerPrompt.includes('woman') || lowerPrompt.includes('women')) placeholderKey = 'woman';
+    if (lowerPrompt.includes('home')) placeholderKey = 'home';
+    if (lowerPrompt.includes('money') || lowerPrompt.includes('save')) placeholderKey = 'money';
+    if (lowerPrompt.includes('tech') || lowerPrompt.includes('smart')) placeholderKey = 'tech';
+    
+    console.log(`📸 Usando placeholder: ${placeholderKey}`);
+    return {
+        url: placeholders[placeholderKey],
+        fuente: 'placeholder',
+        tipo: 'fallback'
+    };
+}
+
 // ============ 🎯 GEMINI GENERA CURIOSIDAD CON IMAGEN ============
 async function generarCuriosidadConGemini() {
     const prompt = `
-    Genera una CURIOSIDAD VIRAL para mujeres de USA (NYC, Miami, Beverly Hills) sobre hogar, lujo o estilo de vida.
+    Genera una CURIOSIDAD VIRAL para mujeres de USA (NYC, Miami, Beverly Hills) sobre hogar, lujo, dinero o estilo de vida.
     
     Debe ser un dato IMPACTANTE que haga decir "OMG" y que la gente quiera COMPARTIR.
     
     FORMATO JSON:
     {
         "titulo": "Título corto y magnético (máx 60 caracteres)",
-        "texto": "El dato sorprendente (2-3 líneas)",
-        "imagen_prompt": "Descripción para buscar/crear una imagen impactante que acompañe esta curiosidad"
+        "texto": "El dato sorprendente que atrapa (2-3 líneas)",
+        "imagen_prompt": "Descripción para buscar una imagen impactante que acompañe esta curiosidad (ej: luxury kitchen, elegant woman, NYC apartment)"
     }
     
     EJEMPLOS:
     {
         "titulo": "El secreto que las mujeres de NYC esconden en su cocina",
         "texto": "El 78% de las mujeres de alto poder adquisitivo en Manhattan consideran que un composter de lujo es más importante que un auto europeo en 2026.",
-        "imagen_prompt": "luxury modern kitchen with elegant woman, natural light, high-end appliances, NYC apartment view"
+        "imagen_prompt": "luxury modern kitchen with elegant woman, natural light, NYC apartment view"
     }
     
     Genera UNA curiosidad ÚNICA y SORPRENDENTE.
@@ -101,77 +188,33 @@ async function generarCuriosidadConGemini() {
     }
 }
 
-// ============ 🎯 BUSCAR IMAGEN PARA CURIOSIDAD (Google/Unsplash) ============
-async function buscarImagenParaCuriosidad(promptImagen) {
-    // Opción 1: Unsplash si hay API key
-    if (process.env.UNSPLASH_ACCESS_KEY) {
-        try {
-            const response = await axios.get('https://api.unsplash.com/search/photos', {
-                params: {
-                    query: promptImagen,
-                    per_page: 1,
-                    orientation: 'landscape'
-                },
-                headers: { 'Authorization': `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}` },
-                timeout: 5000
-            });
-            
-            if (response.data.results && response.data.results.length > 0) {
-                console.log('📸 Unsplash: imagen encontrada para curiosidad');
-                return {
-                    url: response.data.results[0].urls.regular,
-                    fuente: 'unsplash',
-                    credit: response.data.results[0].user.name
-                };
-            }
-        } catch(e) {}
-    }
+// ============ 🎯 GENERAR CURIOSIDAD COMPLETA CON IMAGEN ============
+async function generarCuriosidadCompleta() {
+    console.log('✨ Generando curiosidad con Gemini...');
     
-    // Opción 2: Google Custom Search
-    if (process.env.GOOGLE_API_KEY && process.env.GOOGLE_CX) {
-        try {
-            const response = await axios.get('https://www.googleapis.com/customsearch/v1', {
-                params: {
-                    key: process.env.GOOGLE_API_KEY,
-                    cx: process.env.GOOGLE_CX,
-                    q: promptImagen,
-                    searchType: 'image',
-                    num: 1,
-                    imgSize: 'large'
-                },
-                timeout: 5000
-            });
-            
-            if (response.data.items && response.data.items.length > 0) {
-                console.log('📸 Google Images: imagen encontrada para curiosidad');
-                return {
-                    url: response.data.items[0].link,
-                    fuente: 'google',
-                    titulo: response.data.items[0].title
-                };
-            }
-        } catch(e) {}
-    }
+    // 1. Gemini genera la curiosidad
+    const curiosidadGemini = await generarCuriosidadConGemini();
     
-    // Opción 3: Placeholder temático
-    const placeholders = {
-        kitchen: 'https://images.pexels.com/photos/2635038/pexels-photo-2635038.jpeg',
-        luxury: 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg',
-        woman: 'https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg',
-        default: 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg'
+    // 2. Buscar imagen para la curiosidad usando el prompt
+    console.log(`🔍 Buscando imagen para: "${curiosidadGemini.imagen_prompt}"`);
+    const imagen = await buscarImagenParaCuriosidad(curiosidadGemini.imagen_prompt);
+    
+    // 3. Retornar curiosidad completa con imagen
+    const curiosidadCompleta = {
+        id: Date.now(),
+        titulo: curiosidadGemini.titulo,
+        texto: curiosidadGemini.texto,
+        imagen: imagen.url,
+        imagenFuente: imagen.fuente,
+        imagenPrompt: curiosidadGemini.imagen_prompt,
+        fecha: new Date().toISOString(),
+        compartidas: 0
     };
     
-    let placeholderKey = 'default';
-    if (promptImagen.toLowerCase().includes('kitchen')) placeholderKey = 'kitchen';
-    if (promptImagen.toLowerCase().includes('luxury')) placeholderKey = 'luxury';
-    if (promptImagen.toLowerCase().includes('woman')) placeholderKey = 'woman';
+    console.log(`✅ Curiosidad generada: ${curiosidadCompleta.titulo}`);
+    console.log(`📸 Imagen: ${curiosidadCompleta.imagenFuente} - ${curiosidadCompleta.imagen.substring(0, 60)}...`);
     
-    console.log('📸 Usando placeholder para curiosidad');
-    return {
-        url: placeholders[placeholderKey],
-        fuente: 'placeholder',
-        tipo: 'fallback'
-    };
+    return curiosidadCompleta;
 }
 
 // ============ 🎯 GEMINI GENERA ARTÍCULO CON PRODUCTO ============
@@ -234,12 +277,12 @@ async function generarArticuloDuro(url, imagenUrl = '', categoria = "kitchen") {
     // Gemini genera el contenido del artículo
     const contenido = await generarArticuloConGemini(url, imagenUrl, categoria);
     
-    // Usar la imagen que el usuario puso (prioridad) o buscar una
+    // Usar la imagen que el usuario puso (prioridad)
     let imagen = imagenUrl;
     let imagenFuente = 'manual';
     
+    // Si no hay imagen manual y hay ASIN, buscar imagen real de Amazon
     if (!imagen && asin) {
-        // Si no hay imagen manual, buscar imagen real de Amazon
         const patrones = [
             `https://m.media-amazon.com/images/I/61${asin}._AC_SL1500_.jpg`,
             `https://m.media-amazon.com/images/I/71${asin}._AC_SL1500_.jpg`,
@@ -253,6 +296,7 @@ async function generarArticuloDuro(url, imagenUrl = '', categoria = "kitchen") {
                 if (response.status === 200) {
                     imagen = urlImg;
                     imagenFuente = 'amazon';
+                    console.log(`✅ Imagen Amazon encontrada: ${urlImg.substring(0, 60)}...`);
                     break;
                 }
             } catch(e) {}
@@ -263,9 +307,10 @@ async function generarArticuloDuro(url, imagenUrl = '', categoria = "kitchen") {
     if (!imagen) {
         imagen = `https://picsum.photos/seed/${asin || Date.now()}/800/600`;
         imagenFuente = 'placeholder';
+        console.log(`📸 Usando placeholder para imagen del artículo`);
     }
     
-    // Construir HTML completo
+    // Construir HTML completo del artículo
     const htmlCompleto = `
 <!DOCTYPE html>
 <html lang="en">
@@ -307,7 +352,7 @@ async function generarArticuloDuro(url, imagenUrl = '', categoria = "kitchen") {
         </div>
         
         <img src="${imagen}" alt="${contenido.titulo}" onerror="this.src='https://picsum.photos/800/600'">
-        <div class="image-credit">📸 ${imagenFuente === 'manual' ? 'Imagen del producto' : 'Imagen referencial'}</div>
+        <div class="image-credit">📸 ${imagenFuente === 'manual' ? 'Imagen del producto proporcionada' : imagenFuente === 'amazon' ? 'Imagen real del producto' : 'Imagen referencial'}</div>
         
         <div class="lead">${contenido.intro}</div>
         
@@ -349,26 +394,6 @@ async function generarArticuloDuro(url, imagenUrl = '', categoria = "kitchen") {
     };
 }
 
-// ============ GENERAR CURIOSIDAD CON IMAGEN ============
-async function generarCuriosidadCompleta() {
-    // Gemini genera la curiosidad
-    const curiosidadGemini = await generarCuriosidadConGemini();
-    
-    // Buscar imagen para la curiosidad
-    const imagen = await buscarImagenParaCuriosidad(curiosidadGemini.imagen_prompt);
-    
-    return {
-        id: Date.now(),
-        titulo: curiosidadGemini.titulo,
-        texto: curiosidadGemini.texto,
-        imagen: imagen.url,
-        imagenFuente: imagen.fuente,
-        imagenPrompt: curiosidadGemini.imagen_prompt,
-        fecha: new Date().toISOString(),
-        compartidas: 0
-    };
-}
-
 // ============ ENDPOINTS ============
 
 app.get('/health', (req, res) => {
@@ -387,7 +412,7 @@ app.get('/panel', (req, res) => {
     res.sendFile(path.join(__dirname, 'panel.html'));
 });
 
-// 🎯 PUBLICAR ARTÍCULO (con imagen que TÚ pones)
+// 🎯 PUBLICAR ARTÍCULO (TÚ pones la imagen)
 app.post('/api/publicar-articulo', async (req, res) => {
     try {
         const { url, imagenUrl, categoria } = req.body;
@@ -395,7 +420,7 @@ app.post('/api/publicar-articulo', async (req, res) => {
             return res.status(400).json({ success: false, error: 'URL requerida' });
         }
         
-        console.log('📝 Generando artículo con Gemini...');
+        console.log('📝 Publicando artículo con Gemini...');
         console.log(`🔗 URL: ${url}`);
         console.log(`🖼️ Imagen: ${imagenUrl || 'auto-buscar'}`);
         
@@ -414,10 +439,10 @@ app.post('/api/publicar-articulo', async (req, res) => {
     }
 });
 
-// 🎯 GENERAR CURIOSIDAD CON GEMINI E IMAGEN
+// 🎯 GENERAR CURIOSIDAD CON IMAGEN
 app.post('/api/generar-curiosidad', async (req, res) => {
     try {
-        console.log('✨ Generando curiosidad viral con Gemini...');
+        console.log('✨ Generando curiosidad viral con imagen...');
         const nuevaCuriosidad = await generarCuriosidadCompleta();
         
         const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
@@ -522,7 +547,7 @@ async function generarCuriosidadAutomatica() {
     if (data.length > 30) data.pop();
     fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify(data, null, 2));
     
-    console.log(`✨ Nueva curiosidad: ${nuevaCuriosidad.titulo}`);
+    console.log(`✨ Nueva curiosidad publicada: ${nuevaCuriosidad.titulo}`);
 }
 
 cron.schedule('0 */3 * * *', () => {
@@ -535,22 +560,22 @@ app.listen(PORT, '0.0.0.0', () => {
     const curiosidadesCount = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH)).length;
     
     console.log(`
-    ╔═══════════════════════════════════════════════════════════════╗
-    ║     🔥🔥🔥 SISTEMA GEMINI + IMÁGENES PARA CURIOSIDADES 🔥🔥🔥    ║
-    ╠═══════════════════════════════════════════════════════════════╣
-    ║  🚀 Puerto: ${PORT}                                            ║
-    ║  🤖 Gemini: ${model ? '✅ ACTIVADO' : '⚠️ NO DISPONIBLE'}                                    ║
-    ║  ✨ Curiosidades generadas: ${curiosidadesCount}                                  ║
-    ║  📰 Artículos publicados: ${articulosCount}                                    ║
-    ║  🖼️ Imágenes: Buscadas automáticamente para cada curiosidad    ║
-    ║  ⏰ Auto-curiosidades: CADA 3 HORAS                           ║
-    ║  📸 TÚ controlas las imágenes de los artículos de Amazon      ║
-    ╚═══════════════════════════════════════════════════════════════╝
+    ╔════════════════════════════════════════════════════════════════════╗
+    ║     🔥🔥🔥 SISTEMA COMPLETO: ARTÍCULOS + CURIOSIDADES 🔥🔥🔥       ║
+    ╠════════════════════════════════════════════════════════════════════╣
+    ║  🚀 Puerto: ${PORT}                                                 ║
+    ║  🤖 Gemini: ${model ? '✅ ACTIVADO' : '⚠️ NO DISPONIBLE'}                                         ║
+    ║  📰 Artículos guardados: ${articulosCount} (TÚ pones la imagen)                         ║
+    ║  💎 Curiosidades guardadas: ${curiosidadesCount} (Gemini + imagen automática)              ║
+    ║  🖼️ Imágenes curiosidades: Unsplash + Google Images + Placeholders     ║
+    ║  ⏰ Auto-curiosidades: CADA 3 HORAS                                    ║
+    ║  📸 TÚ controlas las imágenes de los productos de Amazon               ║
+    ╚════════════════════════════════════════════════════════════════════╝
     `);
     
     // Generar curiosidad inicial si no hay
     if (curiosidadesCount === 0) {
-        console.log('📦 Generando curiosidad inicial...');
+        console.log('📦 No hay curiosidades, generando primera...');
         setTimeout(() => generarCuriosidadAutomatica(), 3000);
     }
 });
