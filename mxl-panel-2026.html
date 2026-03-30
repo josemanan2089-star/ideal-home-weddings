@@ -3,134 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ideal Home & Weddings | Premium Amazon Essentials 2026</title>
+    <title>Ideal Home & Weddings | Premium Amazon Finds 2026</title>
     
-    <!-- SEO MAESTRO USA -->
-    <meta name="description" content="Handpicked Amazon registry essentials for modern homes. Shop top-rated decor and kitchen gadgets in USA.">
-    <meta name="keywords" content="Amazon Wedding Registry, Luxury Home Decor, Best Kitchen Gadgets">
+    <meta name="description" content="The #1 Bilingual Guide for Amazon Wedding Registry & Modern Home Decor. Exclusive deals on TikTok viral kitchen gadgets. Shop now for the best prices in USA.">
+    <meta name="keywords" content="Amazon Finds 2026, TikTok Viral Kitchen, Wedding Registry USA, Luxury Decor, Regalos de Boda USA">
+    
+    <meta name="geo.region" content="DO-32" />
+    <meta name="geo.placename" content="Santo Domingo Este" />
 
     <style>
-        :root { --gold: #b59410; --dark: #121212; --border: #F0F0F0; --red: #d9534f; }
+        :root { --gold: #b59410; --dark: #0a0a0a; --accent: #ff4500; --white: #ffffff; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #fff; color: var(--dark); overflow-x: hidden; }
+        body { font-family: 'Inter', 'Helvetica', sans-serif; background: #fff; color: var(--dark); line-height: 1.5; }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-        /* BARRA DE IDIOMA */
-        .mxl-lang-bar { background: var(--dark); padding: 10px 0; text-align: right; border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 2000; }
-        .lang-btn { background: none; border: 1px solid #444; color: #fff; font-size: 11px; padding: 5px 15px; cursor: pointer; text-transform: uppercase; margin-left: 10px; font-weight: bold; }
-        .lang-btn.active { border-color: var(--gold); color: var(--gold); }
+        /* BARRA VIP (NUEVO - CAPTURA DE CLIENTES) */
+        .vip-bar { background: var(--accent); color: white; text-align: center; padding: 12px; font-size: 12px; font-weight: bold; letter-spacing: 1px; }
 
-        header { padding: 40px 0; text-align: center; background: #fcfcfc; border-bottom: 1px solid var(--border); }
-        header h1 { font-weight: 300; letter-spacing: 4px; text-transform: uppercase; font-size: 26px; }
-        header h1 span { color: var(--gold); font-weight: bold; }
+        /* NAV PRO */
+        nav { background: #fff; padding: 20px 0; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .nav-flex { display: flex; justify-content: space-between; align-items: center; }
+        nav ul { list-style: none; display: flex; gap: 20px; }
+        nav a { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #333; text-decoration: none; }
+        .lang-btn { border: 1px solid #ddd; padding: 5px 10px; cursor: pointer; font-size: 10px; }
 
-        /* PRODUCT CARDS CON EFECTO VENTA */
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 40px; padding: 50px 0; }
-        .product-card { border: 1px solid var(--border); padding: 25px; text-align: center; transition: 0.3s; position: relative; border-radius: 8px; }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .product-card img { width: 100%; height: 260px; object-fit: contain; margin-bottom: 20px; }
+        /* PRODUCT CARD "EL FAROL STYLE" */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; padding: 40px 0; }
+        .card { border: 1px solid #eee; padding: 20px; border-radius: 12px; transition: 0.3s; position: relative; }
+        .card:hover { transform: scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+        .card img { width: 100%; height: 250px; object-fit: contain; }
         
-        /* ETIQUETA DE URGENCIA (NUEVO) */
-        .stock-tag { color: var(--red); font-size: 11px; font-weight: bold; margin-top: 10px; display: block; }
-
-        .btn-amazon { 
-            display: block; background: var(--dark); color: #fff; padding: 16px; font-size: 12px; 
-            font-weight: bold; text-transform: uppercase; text-decoration: none; margin-top: 20px; 
-            letter-spacing: 1px; border-radius: 4px; position: relative; overflow: hidden;
+        /* BOTÓN DE COMPRA AGRESIVA */
+        .btn-buy { 
+            display: block; background: var(--dark); color: white; padding: 15px; text-align: center; 
+            font-weight: 900; text-decoration: none; margin-top: 20px; border-radius: 6px;
+            box-shadow: 0 4px 0 #333; transition: 0.2s;
         }
-        /* EFECTO BRILLO (NUEVO) */
-        .btn-amazon::after {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
-            transform: rotate(45deg); animation: shine 3s infinite;
-        }
-        @keyframes shine { 0% { left: -100%; } 100% { left: 100%; } }
-
-        /* BURBUJA DE VENTA REAL (NUEVO) */
-        #sale-notif {
-            position: fixed; bottom: 20px; left: 20px; background: white; border: 1px solid var(--border);
-            padding: 15px; border-radius: 10px; display: flex; align-items: center; gap: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1); transform: translateX(-150%); transition: 0.5s; z-index: 3000;
-        }
-        #sale-notif.show { transform: translateX(0); }
+        .btn-buy:active { transform: translateY(4px); box-shadow: none; }
+        
+        .price-tag { font-size: 20px; font-weight: bold; color: var(--accent); margin: 10px 0; }
+        .viral-badge { position: absolute; top: 10px; right: 10px; background: #000; color: #fff; font-size: 8px; padding: 4px 8px; border-radius: 4px; }
 
         .lang-es { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="sale-notif">
-        <div style="background: var(--gold); width: 10px; height: 10px; border-radius: 50%;"></div>
-        <div style="font-size: 11px;">
-            <strong id="sale-city">New York</strong> <span class="lang-en">just bought this!</span><span class="lang-es">acaba de comprar esto!</span>
-        </div>
+    <div class="vip-bar">
+        <span class="lang-en">🔥 LIMITED TIME: GET EXCLUSIVE AMAZON DEALS IN YOUR EMAIL!</span>
+        <span class="lang-es">🔥 TIEMPO LIMITADO: ¡RECIBE OFERTAS EXCLUSIVAS DE AMAZON EN TU EMAIL!</span>
     </div>
 
-    <div class="mxl-lang-bar">
-        <div class="container">
-            <button class="lang-btn active" id="btn-en" onclick="setLang('en')">English</button>
-            <button class="lang-btn" id="btn-es" onclick="setLang('es')">Español</button>
+    <nav>
+        <div class="container nav-flex">
+            <h1 style="font-size: 18px; letter-spacing: 1px;">IDEAL <span>HOME</span></h1>
+            <ul>
+                <li><a href="#" onclick="setL('en')">EN</a></li>
+                <li><a href="#" onclick="setL('es')">ES</a></li>
+            </ul>
         </div>
-    </div>
-
-    <header>
-        <div class="container">
-            <h1>Ideal <span>Home</span> & Weddings</h1>
-            <p class="lang-en" style="font-size: 11px; color: #999; letter-spacing: 2px;">PREMIUM AMAZON SELECTIONS</p>
-            <p class="lang-es" style="font-size: 11px; color: #999; letter-spacing: 2px;">SELECCIONES PREMIUM DE AMAZON</p>
-        </div>
-    </header>
+    </nav>
 
     <div class="container">
-        <div class="product-grid" id="product-area">
-            <!-- PRODUCTO CON PSICOLOGÍA DE VENTA -->
-            <article class="product-card">
-                <img src="https://m.media-amazon.com/images/I/71X8k8u9L._AC_SL1500_.jpg" alt="Lamp">
+        <div class="product-grid">
+            <article class="card">
+                <div class="viral-badge">TIKTOK VIRAL ✨</div>
+                <img src="https://m.media-amazon.com/images/I/71X8k8u9L._AC_SL1500_.jpg" alt="Luxury Lamp">
+                
                 <div class="lang-en">
-                    <h3>Minimalist Luxury Lamp</h3>
-                    <span class="stock-tag">🔥 Only 3 left in stock - Order soon</span>
-                    <a href="#" class="btn-amazon" onclick="trackClick('Lamp')">CHECK TODAY'S DEAL</a>
+                    <h3 style="font-size:16px;">Modern Minimalist Table Lamp</h3>
+                    <p class="price-tag">Best Seller</p>
+                    <p style="font-size:12px; color:#666;">The #1 registry pick for 2026. Perfect for modern bedroom aesthetics.</p>
+                    <a href="#" class="btn-buy">GET THIS DEAL ON AMAZON</a>
                 </div>
+
                 <div class="lang-es">
-                    <h3>Lámpara de Lujo Minimalista</h3>
-                    <span class="stock-tag">🔥 Solo quedan 3 - Ordena pronto</span>
-                    <a href="#" class="btn-amazon" onclick="trackClick('Lamp')">VER PRECIO EN AMAZON</a>
+                    <h3 style="font-size:16px;">Lámpara de Mesa Moderna</h3>
+                    <p class="price-tag">Más Vendido</p>
+                    <p style="font-size:12px; color:#666;">La elección #1 para bodas en 2026. Perfecta para dormitorios modernos.</p>
+                    <a href="#" class="btn-buy">APROVECHA ESTA OFERTA</a>
                 </div>
             </article>
         </div>
     </div>
 
+    <footer style="background:#000; color:#fff; padding:60px 0; text-align:center; margin-top:50px;">
+        <div class="container">
+            <p style="font-size:10px; opacity:0.5; letter-spacing:2px;">&copy; 2026 IDEAL HOME & WEDDINGS | MXL PARTNER NETWORK</p>
+            <p style="font-size:10px; margin-top:10px;">Santo Domingo Este | Powered by Railway 8080</p>
+        </div>
+    </footer>
+
     <script>
-        function setLang(l) {
+        function setL(l) {
             const en = document.querySelectorAll('.lang-en');
             const es = document.querySelectorAll('.lang-es');
             if(l === 'es') {
                 en.forEach(e => e.style.display = 'none');
                 es.forEach(e => e.style.display = 'block');
-                document.getElementById('btn-es').classList.add('active');
-                document.getElementById('btn-en').classList.remove('active');
             } else {
                 en.forEach(e => e.style.display = 'block');
                 es.forEach(e => e.style.display = 'none');
-                document.getElementById('btn-en').classList.add('active');
-                document.getElementById('btn-es').classList.remove('active');
             }
-        }
-
-        // Lógica de Venta Real (Falsa pero efectiva)
-        const cities = ['Miami', 'New York', 'Los Angeles', 'Chicago', 'Houston', 'Santo Domingo Este'];
-        function showSale() {
-            const city = cities[Math.floor(Math.random() * cities.length)];
-            document.getElementById('sale-city').innerText = city;
-            const notif = document.getElementById('sale-notif');
-            notif.classList.add('show');
-            setTimeout(() => notif.classList.remove('show'), 5000);
-        }
-        setInterval(showSale, 15000); // Aparece cada 15 seg.
-
-        function trackClick(prod) {
-            console.log("Click en: " + prod);
-            // Aquí podrías enviar un correo automático o un log a Railway
         }
     </script>
 </body>
