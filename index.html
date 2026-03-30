@@ -1,37 +1,42 @@
-const express = require('express');
-const path = require('path');
-const fs = require('fs');
-const app = express();
-const PORT = process.env.PORT || 8080;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ideal Home & Weddings | Premium Amazon Essentials 2026</title>
+    
+    <!-- 💰 ADSENSE AUTH -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5280872495839888" crossorigin="anonymous"></script>
 
-app.use(express.json());
-app.use(express.static('.')); // Sirve tus archivos HTML
+    <!-- 🔍 SEO ESTRATÉGICO -->
+    <meta name="description" content="Handpicked Amazon registry essentials for modern homes. Shop top-rated decor and kitchen gadgets in USA. Guía experta bilingüe.">
+    <link rel="canonical" href="https://ideal-home-weddings-production.up.railway.app/" />
+    
+    <style>
+        :root { --gold: #b59410; --dark: #121212; --border: #F0F0F0; --accent: #ff4500; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #fff; color: var(--dark); line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-const DB_PATH = path.join(__dirname, 'productos.json');
+        .mxl-lang-bar { background: var(--dark); padding: 10px 0; text-align: right; border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 2000; }
+        .lang-btn { background: none; border: 1px solid #444; color: #fff; font-size: 11px; padding: 5px 15px; cursor: pointer; text-transform: uppercase; border-radius: 3px; margin-left: 10px; font-weight: bold; }
+        .lang-btn.active { border-color: var(--gold); color: var(--gold); }
 
-// Si no existe la base de datos, la creamos
-if (!fs.existsSync(DB_PATH)) {
-    fs.writeFileSync(DB_PATH, JSON.stringify([]));
-}
+        header { padding: 50px 0; text-align: center; background: #fcfcfc; border-bottom: 1px solid var(--border); }
+        header h1 { font-weight: 300; letter-spacing: 4px; text-transform: uppercase; font-size: 26px; }
+        header h1 span { color: var(--gold); font-weight: bold; }
 
-// 🚀 ESTA ES LA RUTA QUE TE FALTA (La que quita el error 404)
-app.post('/api/publicar', (req, res) => {
-    try {
-        const data = JSON.parse(fs.readFileSync(DB_PATH));
-        data.unshift(req.body); // Guarda el producto nuevo al principio
-        fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
-        res.json({ success: true });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
+        .main-content { display: grid; grid-template-columns: 1fr 320px; gap: 40px; margin-top: 40px; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
+        
+        .product-card { border: 1px solid var(--border); padding: 25px; text-align: center; transition: 0.3s; position: relative; border-radius: 12px; background: #fff; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.08); border-color: var(--gold); }
+        .product-card img { width: 100%; height: 250px; object-fit: contain; margin-bottom: 15px; }
+        
+        .btn-amazon { display: block; background: var(--dark); color: #fff; padding: 15px; font-size: 11px; font-weight: bold; text-transform: uppercase; text-decoration: none; margin-top: 15px; border-radius: 6px; }
+        .btn-amazon:hover { background: var(--gold); }
 
-// Ruta para que el index lea los productos
-app.get('/api/productos', (req, res) => {
-    const data = JSON.parse(fs.readFileSync(DB_PATH));
-    res.json(data);
-});
-
-app.listen(PORT, () => {
-    console.log(`🚀 MXL GOLD MINER activo en puerto ${PORT}`);
-});
+        aside { border-left: 1px solid var(--border); padding-left: 25px; }
+        footer { background: var(--dark); color: #fff; padding: 60px 0; text-align: center; font-size: 11px; margin-top: 80px; }
+        
+        #sale-popup { position: fixed; bottom: 20px; left: 20px; background: #fff; border: 1px solid var(--border); padding: 12px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 1
