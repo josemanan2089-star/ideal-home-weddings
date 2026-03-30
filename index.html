@@ -5,124 +5,150 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ideal Home & Weddings | Premium Amazon Essentials 2026</title>
     
-    <!-- SEO MAESTRO PARA USA -->
-    <meta name="description" content="Expert-curated guide for modern home decor and wedding registry essentials. Discover top-rated Amazon products.">
-    <meta name="keywords" content="Amazon Home Finds 2026, Wedding Registry, Luxury Home Decor">
+    <!-- SEO MULTI-IDIOMA USA -->
+    <meta name="description" content="Expert-curated guide for modern home decor. Guía experta para decoración del hogar y bodas en USA.">
     
     <!-- GEO-TAGGING SDE -->
     <meta name="geo.region" content="DO-32" />
     <meta name="geo.placename" content="Santo Domingo Este" />
-    <meta name="geo.position" content="18.4861;-69.8533" />
-    
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%23b59410%22>H</text></svg>">
 
     <style>
         :root {
             --primary-bg: #FFFFFF;
             --text-dark: #121212;
-            --text-light: #555555;
             --gold: #b59410;
             --border: #F0F0F0;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Helvetica Neue', sans-serif; background-color: var(--primary-bg); color: var(--text-dark); overflow-x: hidden; }
+        body { font-family: 'Helvetica Neue', sans-serif; background-color: var(--primary-bg); color: var(--text-dark); }
         .container { max-width: 1140px; margin: 0 auto; padding: 0 20px; }
 
-        /* AD CONTAINERS (Nuevas Funciones) */
-        .ad-container-top { width: 100%; text-align: center; padding: 20px 0; background: #f9f9f9; border-bottom: 1px solid var(--border); }
-        .main-content-layout { display: grid; grid-template-columns: 1fr 300px; gap: 30px; margin-top: 40px; }
-        .ad-container-sidebar { border-left: 1px solid var(--border); padding-left: 20px; }
+        /* BARRA DE IDIOMA (EL TOQUE MXL) */
+        .lang-bar { background: #111; padding: 8px 0; text-align: right; border-bottom: 1px solid var(--gold); }
+        .lang-btn { background: none; border: 1px solid #444; color: #fff; font-size: 10px; padding: 4px 12px; cursor: pointer; text-transform: uppercase; margin-left: 8px; border-radius: 2px; }
+        .lang-btn.active { border-color: var(--gold); color: var(--gold); font-weight: bold; }
 
-        @media (max-width: 900px) {
-            .main-content-layout { grid-template-columns: 1fr; }
-            .ad-container-sidebar { border-left: none; padding-left: 0; }
-        }
-
-        /* HEADER & NAV */
-        header { padding: 40px 0; text-align: center; }
-        header h1 { font-weight: 300; letter-spacing: 2px; text-transform: uppercase; font-size: 26px; }
+        header { padding: 40px 0; text-align: center; border-bottom: 1px solid var(--border); }
+        header h1 { font-weight: 300; letter-spacing: 2px; text-transform: uppercase; font-size: 24px; }
         header h1 span { color: var(--gold); }
+        
         nav { background: #fff; padding: 15px 0; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; text-align: center; }
         nav ul { list-style: none; display: inline-flex; gap: 25px; }
         nav a { font-size: 11px; font-weight: 600; text-transform: uppercase; color: #999; text-decoration: none; }
 
-        /* PRODUCT CARDS */
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 40px; }
-        .product-card { background: #fff; padding: 20px; text-align: center; transition: 0.4s; border: 1px solid transparent; }
-        .product-card:hover { border-color: var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .product-card img, .product-card video { width: 100%; height: 250px; object-fit: contain; margin-bottom: 15px; }
-        .tag { font-size: 9px; font-weight: bold; background: var(--gold); color: #fff; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; margin-bottom: 10px; display: inline-block; }
-        .btn-amazon { display: block; background: #000; color: #fff; padding: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; text-decoration: none; margin-top: 15px; }
+        .main-content { display: grid; grid-template-columns: 1fr 300px; gap: 30px; margin-top: 40px; }
 
-        footer { padding: 60px 0; background: #000; color: #fff; text-align: center; font-size: 11px; margin-top: 80px; }
+        /* PRODUCTOS */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
+        .product-card { background: #fff; padding: 20px; text-align: center; border: 1px solid transparent; transition: 0.3s; }
+        .product-card:hover { border-color: var(--border); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .product-card img { width: 100%; height: 220px; object-fit: contain; margin-bottom: 15px; }
+        
+        .btn-amazon { display: block; background: #000; color: #fff; padding: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; text-decoration: none; margin-top: 15px; }
+        .btn-amazon:hover { background: var(--gold); }
+
+        footer { padding: 50px 0; background: #000; color: #fff; text-align: center; font-size: 10px; margin-top: 60px; }
+
+        /* LÓGICA DE VISIBILIDAD */
+        .lang-es { display: none; }
     </style>
 </head>
-<body>
+<body id="mxl-body">
 
-    <!-- ⬆️ ESPACIO PUBLICITARIO SUPERIOR (TOP) -->
-    <div class="ad-container-top" id="ad-top">
-        <!-- Inyectar Banner desde Panel -->
+    <!-- SELECTOR DE IDIOMA -->
+    <div class="lang-bar">
+        <div class="container">
+            <button class="lang-btn active" id="btn-en" onclick="setLanguage('en')">English</button>
+            <button class="lang-btn" id="btn-es" onclick="setLanguage('es')">Español</button>
+        </div>
     </div>
 
     <header>
         <div class="container">
             <h1>Ideal <span>Home</span> & Weddings</h1>
-            <p style="font-size: 10px; letter-spacing: 3px; color: #888; text-transform: uppercase; margin-top: 10px;">The Luxury Selection</p>
+            <p class="lang-en" style="font-size: 9px; color: #888; letter-spacing: 2px;">THE LUXURY SELECTION FOR USA</p>
+            <p class="lang-es" style="font-size: 9px; color: #888; letter-spacing: 2px;">SELECCIÓN DE LUJO PARA USA</p>
         </div>
     </header>
 
     <nav>
         <div class="container">
-            <ul>
+            <ul class="lang-en">
                 <li><a href="#home">Home Finds</a></li>
                 <li><a href="#wedding">Wedding Registry</a></li>
                 <li><a href="#kitchen">Kitchen</a></li>
+            </ul>
+            <ul class="lang-es">
+                <li><a href="#home">Hogar</a></li>
+                <li><a href="#wedding">Bodas</a></li>
+                <li><a href="#kitchen">Cocina</a></li>
             </ul>
         </div>
     </nav>
 
     <div class="container">
-        <div class="main-content-layout">
+        <div class="main-content">
             
-            <!-- SECCIÓN PRINCIPAL DE PRODUCTOS -->
             <main id="home">
-                <h2 style="font-weight: 300; margin-bottom: 30px; letter-spacing: 2px;">EDITOR'S HIGHLIGHTS</h2>
+                <h2 class="lang-en" style="font-weight: 300; margin-bottom: 25px;">EDITOR'S HIGHLIGHTS</h2>
+                <h2 class="lang-es" style="font-weight: 300; margin-bottom: 25px;">LO MEJOR DEL EDITOR</h2>
                 
-                <div class="product-grid" id="product-list">
-                    <!-- Producto de Ejemplo 1 -->
+                <div class="product-grid">
+                    <!-- PRODUCTO 1 -->
                     <article class="product-card">
-                        <div class="tag">TOP CHOICE</div>
+                        <div style="background:var(--gold); color:#fff; font-size:8px; padding:2px 8px; display:inline-block; margin-bottom:10px;">TOP CHOICE</div>
                         <img src="https://m.media-amazon.com/images/I/71X8k8u9L._AC_SL1500_.jpg" alt="Luxury Lamp">
-                        <h3>Minimalist Ceramic Table Lamp</h3>
-                        <p style="font-size: 13px; color: #666;">Elevate your space with warm, sophisticated lighting.</p>
-                        <a href="#" class="btn-amazon">CHECK TODAY'S DEAL</a>
+                        
+                        <div class="lang-en">
+                            <h3 style="font-size:14px;">Minimalist Ceramic Table Lamp</h3>
+                            <p style="font-size:12px; color:#666; margin-top:5px;">Sophisticated lighting for modern interiors.</p>
+                            <a href="#" class="btn-amazon">CHECK TODAY'S DEAL</a>
+                        </div>
+                        
+                        <div class="lang-es">
+                            <h3 style="font-size:14px;">Lámpara de Mesa Minimalista</h3>
+                            <p style="font-size:12px; color:#666; margin-top:5px;">Iluminación sofisticada para interiores modernos.</p>
+                            <a href="#" class="btn-amazon">VER PRECIO EN AMAZON</a>
+                        </div>
                     </article>
-                    
-                    <!-- PEGAR NUEVOS PRODUCTOS AQUÍ -->
                 </div>
             </main>
 
-            <!-- ➡️ ESPACIO LATERAL (SIDEBAR) -->
-            <aside class="ad-container-sidebar" id="ad-sidebar">
-                <h4 style="font-size: 10px; color: #ccc; margin-bottom: 20px;">SPONSORED</h4>
-                <!-- Inyectar Banners Laterales desde Panel -->
+            <aside>
+                <h4 style="font-size: 9px; color: #ccc; margin-bottom: 15px;">SPONSORED / PATROCINADO</h4>
+                <!-- ESPACIO PARA TUS BANNERS DEL PANEL -->
             </aside>
 
         </div>
     </div>
 
-    <!-- ⬇️ ESPACIO INFERIOR (FOOTER AD) -->
-    <div class="ad-container-bottom" id="ad-bottom" style="text-align: center; padding: 40px 0;">
-        <!-- Inyectar Banner Footer desde Panel -->
-    </div>
-
     <footer>
         <div class="container">
             <p>&copy; 2026 IDEAL HOME & WEDDINGS | LUXURY AFFILIATE PARTNER</p>
-            <p style="margin-top:15px; opacity: 0.6;">Contact: jose.colorvision@gmail.com</p>
+            <p style="margin-top:10px; opacity:0.5;">Contact: jose.colorvision@gmail.com</p>
         </div>
     </footer>
 
+    <script>
+        function setLanguage(lang) {
+            const enEls = document.querySelectorAll('.lang-en');
+            const esEls = document.querySelectorAll('.lang-es');
+            const btnEn = document.getElementById('btn-en');
+            const btnEs = document.getElementById('btn-es');
+
+            if(lang === 'es') {
+                enEls.forEach(el => el.style.display = 'none');
+                esEls.forEach(el => el.style.display = 'block');
+                btnEs.classList.add('active');
+                btnEn.classList.remove('active');
+            } else {
+                enEls.forEach(el => el.style.display = 'block');
+                esEls.forEach(el => el.style.display = 'none');
+                btnEn.classList.add('active');
+                btnEs.classList.remove('active');
+            }
+        }
+    </script>
 </body>
 </html>
