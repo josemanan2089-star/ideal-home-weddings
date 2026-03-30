@@ -1,0 +1,17 @@
+{
+  "name": "ideal-home-weddings",
+  "version": "1.0.0",
+  "description": "Premium Amazon Essentials - MXL Gold Miner",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "path": "^0.12.7",
+    "fs": "0.0.1-security"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
