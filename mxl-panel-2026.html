@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MXL GOLD MINER | Panel del Director</title>
+    <title>MXL GOLD MINER | Luxury Home Trends USA 2026</title>
+    <meta name="description" content="Descubre las curiosidades más virales sobre lujo y estilo de vida en USA. Productos exclusivos para mujeres de alto poder adquisitivo en Manhattan, Miami y Beverly Hills.">
+    <meta name="keywords" content="luxury home, smart home, status symbol, NYC, Miami, Beverly Hills, zero-waste, elite living">
     <style>
         * {
             margin: 0;
@@ -12,638 +14,580 @@
         }
 
         body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Georgia', 'Times New Roman', 'Playfair Display', serif;
+            background: #fffaf7;
+            color: #2c2418;
+            line-height: 1.6;
+        }
+
+        /* Header Viral */
+        .viral-header {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            min-height: 100vh;
-            padding: 40px 20px;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .header h1 {
-            font-size: 2rem;
             color: white;
-            letter-spacing: 2px;
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
 
-        .header h1 span {
+        .viral-header::before {
+            content: "🔥 VIRAL 🔥";
+            position: absolute;
+            font-size: 100px;
+            opacity: 0.03;
+            right: 20px;
+            top: 20px;
+            font-weight: bold;
+            letter-spacing: 10px;
+            white-space: nowrap;
+        }
+
+        .viral-header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 15px;
+        }
+
+        .viral-header h1 span {
             background: linear-gradient(135deg, #ff4500, #ff6b35);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .header p {
-            color: #c9a87b;
-            margin-top: 10px;
+        .viral-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
         }
 
-        /* Tarjetas */
-        .card {
-            background: white;
-            border-radius: 28px;
-            padding: 35px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card h2 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: #2c2418;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .badge {
-            font-size: 0.7rem;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-weight: normal;
-        }
-
-        .badge-gemini {
+        .live-badge {
+            display: inline-block;
             background: #ff4500;
             color: white;
-        }
-
-        .badge-mxl {
-            background: #c9a87b;
-            color: #2c2418;
-        }
-
-        .sub {
-            color: #8b7355;
-            margin-bottom: 25px;
-            font-size: 0.9rem;
-            border-left: 3px solid #ff4500;
-            padding-left: 12px;
-        }
-
-        /* Formulario */
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #4a3727;
-            font-size: 0.85rem;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #f0e2d8;
-            border-radius: 16px;
-            font-size: 14px;
-            transition: all 0.3s;
-            font-family: inherit;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            border-color: #ff4500;
-            outline: none;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 120px;
-            font-family: monospace;
-        }
-
-        /* Controles de tamaño y posición */
-        .size-controls, .position-controls {
-            display: flex;
-            gap: 12px;
-            margin-top: 8px;
-        }
-
-        .size-btn, .pos-btn {
-            flex: 1;
-            padding: 10px;
-            background: #f5f0eb;
-            border: 2px solid #f0e2d8;
+            padding: 6px 18px;
             border-radius: 40px;
-            cursor: pointer;
+            font-size: 12px;
+            margin-top: 25px;
+            animation: pulse 1.5s infinite;
+            font-weight: bold;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 0.6; transform: scale(1); }
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 50px 20px;
+        }
+
+        /* Sección de Curiosidades */
+        .curiosidades-section {
+            margin-bottom: 70px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 35px;
             text-align: center;
-            font-size: 13px;
+            position: relative;
+        }
+
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: #ff4500;
+            margin: 15px auto 0;
+        }
+
+        .curiosidades-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .curiosidad-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid #f0e2d8;
+        }
+
+        .curiosidad-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .curiosidad-img {
+            height: 220px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .curiosidad-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .curiosidad-card:hover .curiosidad-img img {
+            transform: scale(1.05);
+        }
+
+        .viral-tag {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ff4500;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .curiosidad-content {
+            padding: 25px;
+        }
+
+        .curiosidad-content h3 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: #2c2418;
+            line-height: 1.4;
+        }
+
+        .curiosidad-content p {
+            color: #6b5a48;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .share-btn {
+            background: none;
+            border: none;
+            color: #ff4500;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0;
+            font-weight: 500;
             transition: all 0.2s;
         }
 
-        .size-btn.active, .pos-btn.active {
-            background: #ff4500;
-            border-color: #ff4500;
-            color: white;
+        .share-btn:hover {
+            color: #e03e00;
+            gap: 10px;
         }
 
-        /* Botones */
-        .btn-primary {
-            background: #ff4500;
-            color: white;
-            border: none;
-            padding: 14px 24px;
-            border-radius: 40px;
-            font-size: 15px;
-            font-weight: 600;
+        /* Sección de Productos */
+        .productos-section {
+            margin-top: 50px;
+        }
+
+        .productos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 35px;
+        }
+
+        .producto-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.4s;
             cursor: pointer;
-            width: 100%;
-            transition: all 0.3s;
-            margin-top: 10px;
+            border: 1px solid #f0e2d8;
         }
 
-        .btn-primary:hover {
-            background: #e03e00;
-            transform: translateY(-2px);
+        .producto-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 40px rgba(0,0,0,0.15);
         }
 
-        .btn-secondary {
-            background: #c9a87b;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .btn-secondary:hover {
-            background: #b89464;
-            transform: translateY(-2px);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid #ff4500;
-            color: #ff4500;
-            padding: 12px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 14px;
-            width: 100%;
-            transition: all 0.3s;
-        }
-
-        .btn-outline:hover {
-            background: #ff4500;
-            color: white;
-        }
-
-        /* Preview de imagen */
-        .preview-img {
-            margin-top: 15px;
-            text-align: center;
-            padding: 15px;
+        .producto-imagen {
+            height: 260px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background: #faf7f3;
-            border-radius: 16px;
-            display: none;
         }
 
-        .preview-img img {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        /* Copy preview */
-        .copy-preview {
-            background: #faf7f3;
+        .producto-imagen img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.5s;
             padding: 20px;
-            border-radius: 16px;
-            margin-top: 20px;
-            display: none;
-            border-left: 4px solid #ff4500;
         }
 
-        .copy-preview h4 {
+        .producto-card:hover .producto-imagen img {
+            transform: scale(1.03);
+        }
+
+        .producto-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ff4500;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .producto-contenido {
+            padding: 25px;
+        }
+
+        .producto-categoria {
+            display: inline-block;
+            background: #f7ede8;
             color: #ff4500;
-            margin-bottom: 15px;
-            font-size: 1rem;
+            font-size: 11px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
         }
 
-        .copy-preview p {
-            margin: 10px 0;
-            font-size: 0.85rem;
-            line-height: 1.5;
-        }
-
-        .copy-preview strong {
+        .producto-contenido h3 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            line-height: 1.3;
             color: #2c2418;
         }
 
-        /* Status */
-        .status {
-            margin-top: 15px;
-            padding: 12px;
-            border-radius: 12px;
-            display: none;
-            text-align: center;
-            font-size: 13px;
-        }
-
-        .status.success {
-            background: #e8f5e9;
-            color: #2e7d32;
-            display: block;
-        }
-
-        .status.error {
-            background: #ffebee;
-            color: #c62828;
-            display: block;
-        }
-
-        .status.info {
-            background: #e3f2fd;
-            color: #1565c0;
-            display: block;
-        }
-
-        hr {
-            margin: 25px 0;
-            border: none;
-            border-top: 2px solid #f0e2d8;
-        }
-
-        /* Estadísticas */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .stat-card {
-            background: #faf7f3;
-            padding: 15px;
-            border-radius: 20px;
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 1.8rem;
-            font-weight: bold;
+        .producto-curiosidad {
+            font-size: 0.85rem;
             color: #ff4500;
+            font-style: italic;
+            margin-bottom: 12px;
+            border-left: 2px solid #ff4500;
+            padding-left: 12px;
         }
 
-        .stat-label {
-            font-size: 0.75rem;
-            color: #8b7355;
+        .producto-desc {
+            color: #6b5a48;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            line-height: 1.5;
         }
 
-        @media (max-width: 700px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
+        .btn-comprar {
+            display: inline-block;
+            background: #2c2418;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+            transition: all 0.3s;
+            width: 100%;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-comprar:hover {
+            background: #ff4500;
+            transform: translateX(5px);
+        }
+
+        /* Newsletter */
+        .newsletter {
+            background: linear-gradient(135deg, #2c2418 0%, #4a3727 100%);
+            border-radius: 30px;
+            padding: 50px;
+            text-align: center;
+            margin: 60px 0;
+            color: white;
+        }
+
+        .newsletter h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .newsletter p {
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        .newsletter input {
+            padding: 12px 20px;
+            border-radius: 40px;
+            border: none;
+            width: 300px;
+            max-width: 80%;
+            margin-right: 10px;
+        }
+
+        .newsletter button {
+            background: #ff4500;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .newsletter button:hover {
+            background: #e03e00;
+            transform: scale(1.02);
+        }
+
+        footer {
+            background: #2c2418;
+            color: #f0e2d8;
+            text-align: center;
+            padding: 40px;
+            margin-top: 40px;
+            font-size: 12px;
+        }
+
+        /* Loader */
+        .loader {
+            text-align: center;
+            padding: 60px;
+            color: #c9a87b;
+            font-size: 1.1rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .curiosidad-card, .producto-card {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @media (max-width: 768px) {
+            .viral-header h1 { font-size: 1.8rem; }
+            .productos-grid { grid-template-columns: 1fr; }
+            .curiosidades-grid { grid-template-columns: 1fr; }
+            .newsletter input { width: 100%; margin-bottom: 10px; margin-right: 0; }
+            .newsletter button { width: 100%; }
         }
     </style>
 </head>
 <body>
+    <div class="viral-header">
+        <h1>🔥 The Secret <span>Women Are Talking About</span> in 2026</h1>
+        <p>What NYC, Miami & Beverly Hills elites don't want you to know</p>
+        <div class="live-badge">⚡ LIVE TRENDS ⚡</div>
+    </div>
+
     <div class="container">
-        <div class="header">
-            <h1>🏮 MXL <span>GOLD MINER</span></h1>
-            <p>Bot Gemini | Director mxl | Sistema Híbrido</p>
+        <!-- SECCIÓN CURIOSIDADES (Bot Gemini) -->
+        <div class="curiosidades-section">
+            <h2 class="section-title">💎 CURIOSIDADES QUE VUELVEN LOCA A LA GENTE</h2>
+            <div id="curiosidadesGrid" class="curiosidades-grid">
+                <div class="loader">🔥 Cargando secretos exclusivos...</div>
+            </div>
         </div>
 
-        <!-- ============ MÓDULO 1: CURIOSIDADES (BOT GEMINI AUTÓNOMO) ============ -->
-        <div class="card">
-            <h2>
-                💎 Curiosidades Virales 
-                <span class="badge badge-gemini">🤖 BOT GEMINI - AUTÓNOMO</span>
-            </h2>
-            <div class="sub">
-                Gemini genera curiosidades bilingües (ES/EN) + busca imagen automáticamente.<br>
-                Publica cada 3 horas automáticamente. Flujo continuo para Google News.
+        <!-- SECCIÓN PRODUCTOS (mxl) -->
+        <div class="productos-section">
+            <h2 class="section-title">💰 PRODUCTOS DE ALTO TICKET</h2>
+            <div id="productosGrid" class="productos-grid">
+                <div class="loader">💎 Cargando productos exclusivos...</div>
             </div>
-            
-            <button class="btn-outline" onclick="generarCuriosidadManual()">
-                🌸 GENERAR CURIOSIDAD AHORA (manual)
-            </button>
-            <div id="statusCuriosidad" class="status"></div>
         </div>
 
-        <!-- ============ MÓDULO 2: VENTAS AMAZON (MXL CONTROLA TODO) ============ -->
-        <div class="card">
-            <h2>
-                💰 Productos de Alto Ticket
-                <span class="badge badge-mxl">👑 MXL CONTROLA - IMAGEN, TAMAÑO, POSICIÓN</span>
-            </h2>
-            <div class="sub">
-                <strong>TÚ eliges:</strong> el producto ($500-$1,500), la imagen real de Amazon, el tamaño y la posición.<br>
-                <strong>Bot Gemini:</strong> solo redacta el copy de ventas (título, intro, problema, solución, beneficio).
-            </div>
-            
-            <!-- Paso 1: Link de Amazon -->
-            <div class="form-group">
-                <label>🔗 Link de Amazon (Alto Ticket USA)</label>
-                <input type="text" id="amazonUrl" placeholder="https://amazon.com/dp/XXXXXXXXXX">
-            </div>
-            
-            <div class="form-group">
-                <label>📂 Categoría</label>
-                <select id="categoria">
-                    <option value="kitchen">Kitchen - Luxury</option>
-                    <option value="smart-home">Smart Home - Elite</option>
-                    <option value="lifestyle">Lifestyle - Status</option>
-                    <option value="wedding">Wedding Registry - Premium</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label>💰 Precio Aproximado</label>
-                <input type="text" id="precio" placeholder="$1,200" value="$1,200">
-            </div>
-            
-            <button class="btn-secondary" onclick="generarCopy()">
-                📝 PASO 1: GENERAR COPY (Bot Gemini escribe)
-            </button>
-            <div id="statusCopy" class="status"></div>
-            
-            <!-- Copy generado por Gemini aparece aquí -->
-            <div id="copyPreview" class="copy-preview">
-                <h4>✍️ COPY GENERADO POR BOT GEMINI:</h4>
-                <div id="copyContent"></div>
-                <p style="font-size: 11px; color: #888; margin-top: 15px;">
-                    ✅ Revisa el copy. Si te gusta, completa los campos abajo y publica.
-                </p>
-            </div>
-            
-            <hr>
-            
-            <!-- Paso 2: mxl selecciona imagen y configura visual -->
-            <div class="form-group">
-                <label>🖼️ URL DE LA IMAGEN (TÚ la seleccionas - imagen real de Amazon)</label>
-                <input type="text" id="imagenUrl" placeholder="Pega la URL de la imagen real del producto">
-                <div class="preview-img" id="previewContainer">
-                    <img id="previewImg" src="" alt="Vista previa">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label>📐 Tamaño de la Imagen</label>
-                <div class="size-controls" id="sizeControls">
-                    <div class="size-btn" data-size="small">🔹 Pequeña</div>
-                    <div class="size-btn active" data-size="medium">🔸 Mediana</div>
-                    <div class="size-btn" data-size="large">🔹 Grande</div>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label>📍 Posición de la Imagen</label>
-                <div class="position-controls" id="positionControls">
-                    <div class="pos-btn" data-pos="left">◀ Izquierda</div>
-                    <div class="pos-btn active" data-pos="center">● Centro</div>
-                    <div class="pos-btn" data-pos="right">Derecha ▶</div>
-                </div>
-            </div>
-            
-            <button class="btn-primary" onclick="publicarVenta()">
-                🚀 PASO 2: PUBLICAR PRODUCTO EN EL PORTAL
-            </button>
-            <div id="statusVenta" class="status"></div>
-        </div>
-
-        <!-- ============ ESTADÍSTICAS ============ -->
-        <div class="card">
-            <h2>📊 Estadísticas del Portal</h2>
-            <div class="stats-grid" id="statsGrid">
-                <div class="stat-card">
-                    <div class="stat-number" id="statCuriosidades">0</div>
-                    <div class="stat-label">Curiosidades (Bot Gemini)</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="statArticulos">0</div>
-                    <div class="stat-label">Productos (mxl)</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="statClicks">0</div>
-                    <div class="stat-label">Clicks Totales</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="statCompartidas">0</div>
-                    <div class="stat-label">Curiosidades Compartidas</div>
-                </div>
-            </div>
-            <div style="margin-top: 20px; padding: 15px; background: #faf7f3; border-radius: 16px;">
-                <p style="font-size: 12px; color: #8b7355;">
-                    🤖 <strong>Bot Gemini:</strong> Curiosidades automáticas cada 3 horas | 
-                    👑 <strong>mxl:</strong> Control total de productos de alto ticket
-                </p>
-            </div>
+        <!-- NEWSLETTER -->
+        <div class="newsletter">
+            <h3>🔥 No te pierdas los próximos secretos</h3>
+            <p>Recibe las curiosidades más virales antes que nadie</p>
+            <input type="email" placeholder="tu@email.com" id="newsletterEmail">
+            <button onclick="suscribirNewsletter()">🔴 SUSCRIBIRME</button>
         </div>
     </div>
 
+    <footer>
+        <p>🔥 MXL GOLD MINER - El Club de Las Que Saben 🔥</p>
+        <p style="font-size: 11px; margin-top: 10px;">Descubre los secretos que todas quieren conocer | Somos afiliados de Amazon</p>
+        <p style="font-size: 10px; margin-top: 15px;">© 2026 Luxury Home Trends - Viral content for the modern American woman</p>
+    </footer>
+
     <script>
-        // Variables globales
-        let selectedSize = 'medium';
-        let selectedPosition = 'center';
-        let copyActual = null;
+        let curiosidades = [];
+        let productos = [];
 
-        // ============ CONTROLES VISUALES ============
-        document.querySelectorAll('#sizeControls .size-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('#sizeControls .size-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                selectedSize = btn.dataset.size;
-            });
-        });
+        // ============ CARGAR CURIOSIDADES (Bot Gemini) ============
+        async function cargarCuriosidades() {
+            try {
+                const res = await fetch('/api/curiosidades');
+                curiosidades = await res.json();
+                renderCuriosidades();
+            } catch (error) {
+                console.error('Error cargando curiosidades:', error);
+                document.getElementById('curiosidadesGrid').innerHTML = '<div class="loader">✨ Pronto más secretos exclusivos...</div>';
+            }
+        }
 
-        document.querySelectorAll('#positionControls .pos-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('#positionControls .pos-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                selectedPosition = btn.dataset.pos;
-            });
-        });
+        function renderCuriosidades() {
+            const grid = document.getElementById('curiosidadesGrid');
+            
+            if (!curiosidades || curiosidades.length === 0) {
+                grid.innerHTML = `
+                    <div class="curiosidad-card" style="grid-column: 1/-1;">
+                        <div class="curiosidad-content" style="text-align: center;">
+                            <h3>✨ Pronto más secretos exclusivos</h3>
+                            <p>El Bot Gemini está generando curiosidades virales cada 3 horas</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = curiosidades.map(cur => `
+                <div class="curiosidad-card">
+                    <div class="curiosidad-img">
+                        <div class="viral-tag">🔥 VIRAL</div>
+                        <img src="${cur.imagen || 'https://picsum.photos/400/300'}" 
+                             alt="${cur.titulo_es || 'Secreto'}"
+                             loading="lazy"
+                             onerror="this.src='https://picsum.photos/400/300'">
+                    </div>
+                    <div class="curiosidad-content">
+                        <h3>🔥 ${cur.titulo_es || 'Secreto Exclusivo'}</h3>
+                        <p>${cur.texto_es || 'Descubre el nuevo símbolo de estatus silencioso que todas quieren'}</p>
+                        <button class="share-btn" onclick="compartirCuriosidad('${cur.texto_es}')">
+                            📤 Compartir este secreto
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-        // Vista previa de imagen
-        document.getElementById('imagenUrl').addEventListener('input', function(e) {
-            const preview = document.getElementById('previewContainer');
-            const img = document.getElementById('previewImg');
-            if (e.target.value) {
-                preview.style.display = 'block';
-                img.src = e.target.value;
+        // ============ CARGAR PRODUCTOS (mxl) ============
+        async function cargarProductos() {
+            try {
+                const res = await fetch('/api/articulos');
+                productos = await res.json();
+                renderProductos();
+            } catch (error) {
+                console.error('Error cargando productos:', error);
+                document.getElementById('productosGrid').innerHTML = '<div class="loader">💎 Cargando productos exclusivos...</div>';
+            }
+        }
+
+        function renderProductos() {
+            const grid = document.getElementById('productosGrid');
+            
+            if (!productos || productos.length === 0) {
+                grid.innerHTML = `
+                    <div class="producto-card" style="grid-column: 1/-1;">
+                        <div class="producto-contenido" style="text-align: center;">
+                            <h3>💰 Próximamente productos exclusivos</h3>
+                            <p>Productos de alto ticket seleccionados por mxl para el mercado USA</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = productos.map(prod => `
+                <div class="producto-card" onclick="verProducto(${prod.id}, '${prod.link}')">
+                    <div class="producto-imagen">
+                        <div class="producto-badge">💎 ALTO TICKET</div>
+                        <img src="${prod.imagen || 'https://picsum.photos/400/300'}" 
+                             alt="${prod.titulo}"
+                             loading="lazy"
+                             onerror="this.src='https://picsum.photos/400/300'"
+                             style="${prod.imageSize === 'small' ? 'padding: 30px;' : prod.imageSize === 'large' ? 'padding: 10px;' : 'padding: 20px;'}">
+                    </div>
+                    <div class="producto-contenido">
+                        <span class="producto-categoria">${prod.categoria || 'LUXURY'}</span>
+                        <h3>${prod.titulo || 'The Secret Women Are Talking About'}</h3>
+                        ${prod.curiosidad ? `<div class="producto-curiosidad">✨ ${prod.curiosidad.substring(0, 100)}...</div>` : ''}
+                        <div class="producto-desc">
+                            ${(prod.meta || prod.intro || 'Descubre por qué todas están hablando de esto').substring(0, 120)}...
+                        </div>
+                        <button class="btn-comprar" onclick="event.stopPropagation(); trackClick(${prod.id}, '${prod.link}')">
+                            🔥 VER EN AMAZON →
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============ FUNCIONES ============
+        async function compartirCuriosidad(texto) {
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Secreto Exclusivo MXL',
+                        text: texto,
+                        url: window.location.href
+                    });
+                } catch(e) {}
             } else {
-                preview.style.display = 'none';
+                navigator.clipboard.writeText(texto);
+                alert('✅ Secreto copiado para compartir!');
             }
-        });
+        }
 
-        // ============ MÓDULO CURIOSIDADES ============
-        async function generarCuriosidadManual() {
-            mostrarStatus('statusCuriosidad', '🤖 Bot Gemini generando curiosidad viral...', 'info');
-            
+        async function trackClick(id, link) {
             try {
-                const res = await fetch('/api/generar-curiosidad', { method: 'POST' });
-                const data = await res.json();
-                if (data.success) {
-                    mostrarStatus('statusCuriosidad', `✅ "${data.curiosidad.titulo_es}"`, 'success');
-                    cargarStats();
-                } else {
-                    mostrarStatus('statusCuriosidad', '❌ Error al generar', 'error');
-                }
+                await fetch(`/api/click-articulo/${id}`, { method: 'POST' });
+                window.open(link, '_blank');
             } catch (e) {
-                mostrarStatus('statusCuriosidad', '❌ Error de conexión', 'error');
+                window.open(link, '_blank');
             }
         }
 
-        // ============ MÓDULO VENTAS - PASO 1: Gemini escribe el copy ============
-        async function generarCopy() {
-            const url = document.getElementById('amazonUrl').value;
-            const categoria = document.getElementById('categoria').value;
-            const precio = document.getElementById('precio').value;
-            
-            if (!url) {
-                mostrarStatus('statusCopy', '❌ Ingresa un link de Amazon', 'error');
-                return;
-            }
-            
-            mostrarStatus('statusCopy', '🤖 Bot Gemini redactando copy de ventas...', 'info');
-            
-            try {
-                const res = await fetch('/api/generar-copy-ventas', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url, categoria, precio })
-                });
-                
-                const data = await res.json();
-                if (data.success) {
-                    copyActual = data.copy;
-                    
-                    // Mostrar copy en el panel
-                    const copyDiv = document.getElementById('copyContent');
-                    copyDiv.innerHTML = `
-                        <p><strong>📰 TÍTULO:</strong> ${copyActual.titulo}</p>
-                        <p><strong>🎯 INTRO:</strong> ${copyActual.intro}</p>
-                        <p><strong>⚠️ PROBLEMA:</strong> ${copyActual.problema}</p>
-                        <p><strong>✨ SOLUCIÓN:</strong> ${copyActual.solucion}</p>
-                        <p><strong>💎 BENEFICIO DE ESTATUS:</strong> ${copyActual.beneficio_estatus}</p>
-                        <p><strong>👥 PRUEBA SOCIAL:</strong> ${copyActual.prueba_social}</p>
-                        <p><strong>🔥 CIERRE:</strong> ${copyActual.cierre}</p>
-                        <p><strong>💡 CURIOSIDAD:</strong> ${copyActual.curiosidad}</p>
-                        <p><strong>🔑 KEYWORDS:</strong> ${copyActual.palabras_clave.join(', ')}</p>
-                    `;
-                    document.getElementById('copyPreview').style.display = 'block';
-                    
-                    mostrarStatus('statusCopy', '✅ Copy generado. Revisa, selecciona imagen y publica.', 'success');
-                } else {
-                    mostrarStatus('statusCopy', '❌ Error: ' + data.error, 'error');
-                }
-            } catch (e) {
-                mostrarStatus('statusCopy', '❌ Error de conexión', 'error');
+        function verProducto(id, link) {
+            trackClick(id, link);
+        }
+
+        function suscribirNewsletter() {
+            const email = document.getElementById('newsletterEmail').value;
+            if (email && email.includes('@')) {
+                alert(`✅ ¡Gracias por suscribirte! Recibirás los secretos más exclusivos en ${email}`);
+                document.getElementById('newsletterEmail').value = '';
+            } else {
+                alert('📧 Por favor ingresa un email válido');
             }
         }
 
-        // ============ MÓDULO VENTAS - PASO 2: mxl publica con su imagen ============
-        async function publicarVenta() {
-            const url = document.getElementById('amazonUrl').value;
-            const imagenUrl = document.getElementById('imagenUrl').value;
-            const categoria = document.getElementById('categoria').value;
-            
-            if (!url) {
-                mostrarStatus('statusVenta', '❌ Ingresa un link de Amazon', 'error');
-                return;
-            }
-            if (!imagenUrl) {
-                mostrarStatus('statusVenta', '❌ TÚ debes seleccionar la imagen del producto', 'error');
-                return;
-            }
-            if (!copyActual) {
-                mostrarStatus('statusVenta', '❌ Primero genera el copy con el botón "GENERAR COPY"', 'error');
-                return;
-            }
-            
-            mostrarStatus('statusVenta', '💰 Publicando producto de alto ticket...', 'info');
-            
-            try {
-                const res = await fetch('/api/publicar-venta', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        url: url,
-                        imagenUrl: imagenUrl,
-                        categoria: categoria,
-                        imageSize: selectedSize,
-                        imagePosition: selectedPosition,
-                        copy: copyActual
-                    })
-                });
-                
-                const data = await res.json();
-                if (data.success) {
-                    mostrarStatus('statusVenta', `✅ Producto publicado: "${data.articulo.titulo}"`, 'success');
-                    
-                    // Limpiar campos
-                    document.getElementById('amazonUrl').value = '';
-                    document.getElementById('imagenUrl').value = '';
-                    document.getElementById('previewContainer').style.display = 'none';
-                    document.getElementById('copyPreview').style.display = 'none';
-                    copyActual = null;
-                    
-                    cargarStats();
-                } else {
-                    mostrarStatus('statusVenta', '❌ Error: ' + data.error, 'error');
-                }
-            } catch (e) {
-                mostrarStatus('statusVenta', '❌ Error de conexión', 'error');
-            }
+        // ============ AUTO-REFRESH ============
+        function cargarTodo() {
+            cargarCuriosidades();
+            cargarProductos();
         }
 
-        // ============ ESTADÍSTICAS ============
-        async function cargarStats() {
-            try {
-                const [resArt, resCur] = await Promise.all([
-                    fetch('/api/articulos'),
-                    fetch('/api/curiosidades')
-                ]);
-                
-                const articulos = await resArt.json();
-                const curiosidades = await resCur.json();
-                
-                const totalClicks = articulos.reduce((sum, a) => sum + (a.clicks || 0), 0);
-                const totalCompartidas = curiosidades.reduce((sum, c) => sum + (c.compartidas || 0), 0);
-                
-                document.getElementById('statArticulos').innerText = articulos.length;
-                document.getElementById('statCuriosidades').innerText = curiosidades.length;
-                document.getElementById('statClicks').innerText = totalClicks;
-                document.getElementById('statCompartidas').innerText = totalCompartidas;
-            } catch (e) {
-                console.error('Error stats:', e);
-            }
-        }
-
-        // ============ UTILIDADES ============
-        function mostrarStatus(elementId, msg, tipo) {
-            const status = document.getElementById(elementId);
-            status.textContent = msg;
-            status.className = `status ${tipo}`;
-            setTimeout(() => {
-                status.className = 'status';
-            }, 5000);
-        }
-
-        // Inicializar
-        cargarStats();
-        setInterval(cargarStats, 30000);
+        cargarTodo();
+        setInterval(() => {
+            cargarCuriosidades();
+            cargarProductos();
+        }, 45000);
     </script>
 </body>
 </html>
