@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ideal Home & Weddings | Premium Amazon Recommendations</title>
+    <meta name="description" content="Curated guide for modern home decor, wedding essentials, and smart lifestyle products.">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%23b59410%22>H</text></svg>">
+
+    <style>
+        /* Paleta de Colores Premium: Blanco, Negro, Dorado Suave y Gris Lujo */
+        :root {
+            --primary-bg: #FFFFFF;
+            --secondary-bg: #F8F9FA;
+            --text-dark: #111111;
+            --text-light: #555555;
+            --gold: #b59410; /* Dorado sutil, no chillón */
+            --border: #EEEEEE;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'optima', 'Georgia', serif; /* Tipografía elegante de base */
+            background-color: var(--primary-bg);
+            color: var(--text-dark);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Tipografía para títulos (Sans-serif limpia y moderna) */
+        h1, h2, h3 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-weight: 300; /* Peso ligero para elegancia */
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        a { text-decoration: none; color: inherit; transition: color 0.3s; }
+
+        /* Contenedor Principal */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* --- HEADER ELEGANTE --- */
+        header {
+            background-color: var(--primary-bg);
+            padding: 30px 0;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 24px;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        header h1 span { color: var(--gold); font-weight: 400; }
+
+        header p {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* --- NAVEGACIÓN LIGERA --- */
+        nav {
+            background-color: var(--secondary-bg);
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+
+        nav ul { list-style: none; display: inline-flex; gap: 20px; }
+
+        nav a {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        nav a:hover { color: var(--gold); }
+
+        /* --- SECCIÓN HERO (Presentación) --- */
+        .hero {
+            padding: 60px 0;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero h2 {
+            font-size: 32px;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            font-size: 16px;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* --- GRILLA DE PRODUCTOS (El Nicho) --- */
+        .products {
+            padding: 40px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 18px;
+            color: var(--gold);
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: ''; display: block; width: 50px; height: 1px; background: var(--gold); margin: 10px auto 0;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        /* TARJETA DE PRODUCTO MINIMALISTA */
+        .product-card {
+            background: var(--primary-bg);
+            border: 1px solid var(--border);
+            padding: 20px;
+            text-align: center;
+            transition: box-shadow 0.3s, border-color 0.3s;
+        }
+
+        .product-card:hover {
+            border-color: var(--gold);
+            box-shadow: 0 5px 15px rgba(181, 148, 16, 0.08);
+        }
+
+        .product-card img {
+            max-width: 100%;
+            height: 200px;
+            object-fit: contain; /* Para que no se corte la imagen */
+            margin-bottom: 15px;
+        }
+
+        .product-card h3 {
+            font-size: 14px;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            text-transform: none; /* Mantener nombre real */
+            font-weight: 600;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        .product-card p {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 15px;
+            height: 40px; /* Altura fija para alineación */
+            overflow: hidden;
+        }
+
+        /* BOTÓN DE COMPRA PREMIUM */
+        .btn-amazon {
+            display: inline-block;
+            background-color: var(--text-dark);
+            color: #FFFFFF;
+            padding: 10px 20px;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            border-radius: 2px;
+        }
+
+        .btn-amazon:hover {
+            background-color: var(--gold);
+        }
+
+        /* --- FOOTER LIGERO --- */
+        footer {
+            background-color: var(--secondary-bg);
+            padding: 30px 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: #888;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Responsive para celulares */
+        @media (max-width: 768px) {
+            .hero h2 { font-size: 26px; }
+            .product-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1>Ideal <span>Home</span> & Weddings</h1>
+            <p>Premium Amazon Recommendations</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="#home">Home Decor</a></li>
+                <li><a href="#wedding">Wedding Registry</a></li>
+                <li><a href="#kitchen">Smart Kitchen</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <h2>Elevate Your Lifestyle</h2>
+            <p>Discover a curated selection of sophisticated home essentials and timeless wedding pieces, handpicked from Amazon's finest collections.</p>
+        </div>
+    </section>
+
+    <main class="container products" id="home">
+        <h2 class="section-title">Home Essentials</h2>
+        <div class="product-grid">
+
+            <div class="product-card">
+                <img src="https://m.media-amazon.com/images/I/71X8k8u9L._AC_SL1500_.jpg" alt="Minimalist Table Lamp" loading="lazy">
+                <h3>Minimalist Ceramic Table Lamp</h3>
+                <p>Soft linen shade, perfect for modern bedside lighting.</p>
+                <a href="Pega_aquí_tu_Link_de_Amazon" target="_blank" rel="noopener sponsored" class="btn-amazon">Check Price on Amazon</a>
+            </div>
+
+            <div class="product-card">
+                <img src="https://m.media-amazon.com/images/I/61Nux8u8L._AC_SL1000_.jpg" alt="Velvet Throw Pillow Covers" loading="lazy">
+                <h3>Luxury Velvet Pillow Covers</h3>
+                <p>Set of 2 soft decorative covers in gold tone.</p>
+                <a href="Pega_aquí_tu_Link_de_Amazon" target="_blank" rel="noopener sponsored" class="btn-amazon">Check Price on Amazon</a>
+            </div>
+
+        </div>
+    </main>
+
+    <section class="container products" id="wedding" style="border-top: 1px solid #EEE;">
+        <h2 class="section-title">Wedding Registry Favorites</h2>
+        <p style="text-align:center; color:#888; font-size:13px;">Coming Soon: Timeless pieces for the perfect registry.</p>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Ideal Home & Weddings | Josemanan Santana | Elite Amazon Affiliate</p>
+            <p style="margin-top:5px; font-size:9px; text-transform:none;">As an Amazon Associate I earn from qualifying purchases.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
