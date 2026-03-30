@@ -3,6 +3,10 @@ const path = require('path');
 const fs = require('fs');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const cron = require('node-cron');
+const axios = require('axios');
+const { exec } = require('child_process');
+const util = require('util');
+const execPromise = util.promisify(exec);
 require('dotenv').config();
 
 const app = express();
@@ -10,10 +14,15 @@ const PORT = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '/')));
+app.use('/temp', express.static(path.join(__dirname, 'temp')));
 
 // Cache
 const cache = new Map();
 const CACHE_TTL = 300000; // 5 minutos
+
+// Crear carpeta temporal si no existe
+const TEMP_DIR = path.join(__dirname, 'temp');
+if (!fs.existsSync(TEMP_DIR)) fs.mkdirSync(TEMP_DIR);
 
 // Gemini solo se usa cuando es necesario
 let genAI;
@@ -35,7 +44,138 @@ const CURIOSIDADES_PATH = path.join(__dirname, 'curiosidades.json');
 if (!fs.existsSync(ARTICULOS_PATH)) fs.writeFileSync(ARTICULOS_PATH, JSON.stringify([]));
 if (!fs.existsSync(CURIOSIDADES_PATH)) fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify([]));
 
-// ============ PLANTILLAS PREGENERADAS (NO GASTAN API) ============
+// ============ FUNCIONES PARA CAPTURAR CARRUSEL Y VIDEO DE AMAZON ============
+
+// Función para extraer ASIN de URL de Amazon
+function extraerASIN(url) {
+    const patterns = [
+        /(?:dp|product|gp\/product)\/([A-Z0-9]{10})/i,
+        /asin=([A-Z0-9]{10})/i,
+        /\/dp\/([A-Z0-9]{10})/i
+    ];
+    
+    for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match) return match[1];
+    }
+    return null;
+}
+
+// Función para capturar imágenes del carrusel de Amazon
+async function capturarCarruselAmazon(asin) {
+    try {
+        // URLs de imágenes de Amazon (alta calidad)
+        const imagenes = [];
+        
+        // Imagen principal
+        imagenes.push({
+            url: `https://images-na.ssl-images-amazon.com/images/I/51${asin}._AC_SL1500_.jpg`,
+            tipo: 'principal',
+            calidad: 'alta'
+        });
+        
+        // Intentar capturar imágenes adicionales (carrusel)
+        const variantes = ['61', '71', '81', '91', '41'];
+        for (const variant of variantes) {
+            imagenes.push({
+                url: `https://images-na.ssl-images-amazon.com/images/I/${variant}${asin}._AC_SL1500_.jpg`,
+                tipo: 'secundaria',
+                calidad: 'alta'
+            });
+        }
+        
+        // También intentar capturar video de Amazon si existe
+        const videoUrl = `https://www.amazon.com/dp/${asin}`;
+        
+        return {
+            success: true,
+            imagenes: imagenes,
+            videoUrl: videoUrl,
+            asin: asin
+        };
+        
+    } catch (error) {
+        console.error('Error capturando carrusel:', error);
+        return {
+            success: false,
+            imagenes: [],
+            videoUrl: null,
+            asin: asin
+        };
+    }
+}
+
+// Función para descargar y comprimir imagen
+async function descargarYComprimirImagen(url, nombreArchivo) {
+    try {
+        const response = await axios({
+            method: 'GET',
+            url: url,
+            responseType: 'arraybuffer',
+            timeout: 10000,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+        });
+        
+        const extension = url.split('.').pop().split('?')[0] || 'jpg';
+        const rutaTemp = path.join(TEMP_DIR, `${nombreArchivo}_original.${extension}`);
+        const rutaComprimida = path.join(TEMP_DIR, `${nombreArchivo}.webp`);
+        
+        // Guardar imagen original
+        fs.writeFileSync(rutaTemp, response.data);
+        
+        // Intentar comprimir con sharp si está disponible, si no usar alternativa
+        try {
+            const sharp = require('sharp');
+            await sharp(rutaTemp)
+                .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+                .webp({ quality: 80 })
+                .toFile(rutaComprimida);
+            
+            // Eliminar original
+            fs.unlinkSync(rutaTemp);
+            
+            return {
+                success: true,
+                ruta: rutaComprimida,
+                url: `/temp/${nombreArchivo}.webp`,
+                tamaño: fs.statSync(rutaComprimida).size
+            };
+        } catch (sharpError) {
+            // Si sharp no está disponible, solo guardar original
+            console.log('⚠️ Sharp no disponible, guardando imagen sin comprimir');
+            const rutaFinal = path.join(TEMP_DIR, `${nombreArchivo}.${extension}`);
+            fs.renameSync(rutaTemp, rutaFinal);
+            return {
+                success: true,
+                ruta: rutaFinal,
+                url: `/temp/${nombreArchivo}.${extension}`,
+                tamaño: fs.statSync(rutaFinal).size
+            };
+        }
+        
+    } catch (error) {
+        console.error('Error descargando imagen:', error.message);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
+
+// Función para capturar video de Amazon (embed)
+function obtenerEmbedVideo(asin) {
+    // Amazon tiene videos embebidos en las páginas de producto
+    // Este es un placeholder para el video si existe
+    return {
+        embedUrl: `https://www.amazon.com/dp/${asin}`,
+        thumbnail: `https://images-na.ssl-images-amazon.com/images/I/51${asin}._AC_.jpg`,
+        videoExiste: true
+    };
+}
+
+// ============ PLANTILLAS PREGENERADAS ============
 const plantillasCuriosidades = [
     {
         titulo: "El secreto que las mujeres de NYC esconden en su cocina",
@@ -54,24 +194,6 @@ const plantillasCuriosidades = [
         dato: "Las mujeres de Miami están invirtiendo más en tecnología para el hogar que en bolsos de lujo. El aumento es del 156% desde 2024.",
         reflexion: "Porque el verdadero lujo ahora se vive en casa, no se lleva puesto. La comodidad es el nuevo estatus.",
         cierre: "Las mujeres que saben, ya tienen el suyo. ¿Te unes al club de las que invierten en su hogar?"
-    },
-    {
-        titulo: "El secreto que las novias de Manhattan esconden en su lista de bodas",
-        dato: "El 82% de las bodas de lujo en NYC ahora incluyen electrodomésticos inteligentes como los más pedidos, superando a la cristalería fina.",
-        reflexion: "Las novias modernas saben que un hogar inteligente vale más que 12 copas de cristal que nunca usarán.",
-        cierre: "¿Quieres una lista de bodas que impresione? Esto es lo que todas están pidiendo."
-    },
-    {
-        titulo: "La razón por la que las mujeres de Chicago están tirando sus ollas de hierro fundido",
-        dato: "El 71% de las cocinas remodeladas en Chicago en 2026 han eliminado los electrodomésticos tradicionales por versiones inteligentes y automáticas.",
-        reflexion: "Porque el tiempo es el nuevo lujo. Una cocina que cocina sola vale más que cualquier utensilio manual.",
-        cierre: "Las mujeres que saben, ya cocinan con tecnología. ¿Tú sigues perdiendo horas en la cocina?"
-    },
-    {
-        titulo: "El aparato que está eliminando las colas del supermercado en Los Ángeles",
-        dato: "Los hogares de lujo en LA están reduciendo sus compras de supermercado en un 47% gracias a los sistemas de compostaje y cultivo en casa.",
-        reflexion: "Menos viajes al supermercado, más tiempo para ti. Eso es el verdadero lujo moderno.",
-        cierre: "Mientras otras hacen fila, tú disfrutas tu tiempo. Eso es lo que las mujeres que saben eligen."
     }
 ];
 
@@ -83,26 +205,10 @@ const plantillasArticulos = [
         solucion: "This revolutionary appliance transforms your daily routine into a seamless luxury experience.",
         beneficio: "Join the elite circle of women who understand true status isn't shown, it's lived.",
         cierre: "The women who know, already have theirs. Will you be next?"
-    },
-    {
-        titulo: "The $0 Trash Status Symbol Taking Over Manhattan",
-        intro: "Upper East Side families now judge their neighbors by what ISN'T in their trash.",
-        problema: "Sending organic waste to landfill is now considered 'visibly low-status' in 2026.",
-        solucion: "This smart composter turns 19L of food scraps into soil in 4 hours, with zero odor and zero noise.",
-        beneficio: "No plumbing, no installation. Just the quiet confidence of a zero-waste home.",
-        cierre: "It's the #1 registry item for couples who want their friends to know they've 'made it'."
-    },
-    {
-        titulo: "The Kitchen Upgrade That's Replacing Luxury Cars in Miami",
-        intro: "Miami women are making a surprising choice with their disposable income.",
-        problema: "A luxury car depreciates the moment you drive it off the lot. Your kitchen should appreciate your lifestyle.",
-        solucion: "Smart appliances that do the work while you enjoy your mimosa with friends.",
-        beneficio: "More time for Pilates, brunch, and actually enjoying your home.",
-        cierre: "The women who know, invest where it matters. Will you?"
     }
 ];
 
-// ============ FUNCIÓN PARA USAR GEMINI SOLO CUANDO ES NECESARIO ============
+// ============ FUNCIÓN PARA USAR GEMINI ============
 async function usarGeminiSoloCuandoNecesario(prompt, tipo) {
     if (tipo === 'curiosidad' && plantillasCuriosidades.length > 0) {
         const indice = Math.floor(Math.random() * plantillasCuriosidades.length);
@@ -136,96 +242,75 @@ async function usarGeminiSoloCuandoNecesario(prompt, tipo) {
 // ============ GENERAR CURIOSIDAD ============
 async function generarCuriosidadFemenina() {
     const plantilla = await usarGeminiSoloCuandoNecesario(null, 'curiosidad');
-    
-    if (plantilla && !plantilla.titulo?.includes('Gemini')) {
-        return plantilla;
-    }
-    
-    const prompt = `
-    Genera una CURIOSIDAD FEMENINA sobre hogar, lujo, estilo de vida en USA.
-    Formato: TITULO: ... DATO: ... REFLEXION: ... CIERRE: ...
-    `;
-    
-    const response = await usarGeminiSoloCuandoNecesario(prompt, 'curiosidad_gemini');
-    
-    if (response && typeof response === 'string') {
-        return {
-            titulo: response.match(/TITULO:\s*(.+)/i)?.[1] || "El secreto femenino",
-            dato: response.match(/DATO:\s*(.+)/i)?.[1] || "Descubre el nuevo lujo silencioso",
-            reflexion: response.match(/REFLEXION:\s*(.+)/i)?.[1] || "Porque las mujeres que saben viven mejor",
-            cierre: response.match(/CIERRE:\s*(.+)/i)?.[1] || "Únete al club de las que saben"
-        };
-    }
+    if (plantilla) return plantilla;
     
     return plantillasCuriosidades[0];
 }
 
-// ============ GENERAR ARTÍCULO ============
+// ============ GENERAR ARTÍCULO CON CARRUSEL Y VIDEO ============
 async function generarArticuloConProducto(url, imagenUrl = '', imageSize = 'medium', imagePosition = 'center') {
-    let asin = '';
-    const asinMatch = url.match(/(?:dp|product)\/([A-Z0-9]{10})/);
-    if (asinMatch) asin = asinMatch[1];
+    const asin = extraerASIN(url);
     
-    const plantilla = await usarGeminiSoloCuandoNecesario(null, 'articulo');
+    // Capturar carrusel de Amazon
+    let carrusel = null;
+    let imagenesCarrusel = [];
+    let videoInfo = null;
     
-    if (plantilla && !plantilla.titulo?.includes('Gemini')) {
-        return {
-            id: Date.now(),
-            asin: asin,
-            titulo: plantilla.titulo,
-            intro: plantilla.intro,
-            problema: plantilla.problema,
-            solucion: plantilla.solucion,
-            beneficio: plantilla.beneficio,
-            cierre: plantilla.cierre,
-            imagen: imagenUrl || (asin ? `https://images-na.ssl-images-amazon.com/images/I/51${asin}._AC_.jpg` : 'https://picsum.photos/400/300'),
-            imageSize: imageSize,
-            imagePosition: imagePosition,
-            link: url,
-            fecha: new Date().toISOString(),
-            clicks: 0,
-            orden: 0
-        };
+    if (asin) {
+        console.log(`🎬 Capturando carrusel para ASIN: ${asin}`);
+        carrusel = await capturarCarruselAmazon(asin);
+        
+        if (carrusel.success) {
+            // Descargar y comprimir primeras 3 imágenes del carrusel
+            for (let i = 0; i < Math.min(3, carrusel.imagenes.length); i++) {
+                const img = carrusel.imagenes[i];
+                const nombreArchivo = `${asin}_carrusel_${i}`;
+                const imagenComprimida = await descargarYComprimirImagen(img.url, nombreArchivo);
+                
+                if (imagenComprimida.success) {
+                    imagenesCarrusel.push({
+                        url: imagenComprimida.url,
+                        tipo: img.tipo,
+                        comprimido: true,
+                        tamaño: imagenComprimida.tamaño
+                    });
+                } else {
+                    imagenesCarrusel.push({
+                        url: img.url,
+                        tipo: img.tipo,
+                        comprimido: false
+                    });
+                }
+            }
+            
+            // Obtener información del video
+            videoInfo = obtenerEmbedVideo(asin);
+            console.log(`✅ Capturadas ${imagenesCarrusel.length} imágenes del carrusel`);
+        }
     }
     
-    const prompt = `
-    Genera un ARTÍCULO para producto Amazon: ${url}
-    Formato JSON: {"titulo":"...", "intro":"...", "problema":"...", "solucion":"...", "beneficio":"...", "cierre":"..."}
-    `;
+    // Usar plantilla para el contenido
+    const plantilla = await usarGeminiSoloCuandoNecesario(null, 'articulo');
     
-    const response = await usarGeminiSoloCuandoNecesario(prompt, 'articulo_gemini');
-    
-    if (response && typeof response === 'string') {
-        try {
-            const cleanJson = response.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-            const content = JSON.parse(cleanJson);
-            return {
-                id: Date.now(),
-                asin: asin,
-                ...content,
-                imagen: imagenUrl || (asin ? `https://images-na.ssl-images-amazon.com/images/I/51${asin}._AC_.jpg` : 'https://picsum.photos/400/300'),
-                imageSize: imageSize,
-                imagePosition: imagePosition,
-                link: url,
-                fecha: new Date().toISOString(),
-                clicks: 0,
-                orden: 0
-            };
-        } catch (e) {
-            console.error('Error parsing:', e);
-        }
+    let contenido;
+    if (plantilla && !plantilla.titulo?.includes('Gemini')) {
+        contenido = plantilla;
+    } else {
+        contenido = plantillasArticulos[0];
     }
     
     return {
         id: Date.now(),
         asin: asin,
-        titulo: "The Essential Every Modern Home Needs",
-        intro: "Discover why women across America are adding this to their homes",
-        problema: "Your home deserves better than outdated solutions",
-        solucion: "This revolutionary product transforms your daily life",
-        beneficio: "Join thousands of women who already made the switch",
-        cierre: "The women who know, already have theirs",
-        imagen: imagenUrl || (asin ? `https://images-na.ssl-images-amazon.com/images/I/51${asin}._AC_.jpg` : 'https://picsum.photos/400/300'),
+        titulo: contenido.titulo,
+        intro: contenido.intro,
+        problema: contenido.problema,
+        solucion: contenido.solucion,
+        beneficio: contenido.beneficio,
+        cierre: contenido.cierre,
+        imagen: imagenUrl || (imagenesCarrusel[0]?.url || `https://picsum.photos/400/300`),
+        imagenesCarrusel: imagenesCarrusel,
+        video: videoInfo,
         imageSize: imageSize,
         imagePosition: imagePosition,
         link: url,
@@ -244,8 +329,7 @@ async function botRotador() {
         const curiosidades = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
         
         if (articulos.length === 0 && curiosidades.length === 0) {
-            console.log('📦 No hay contenido para rotar, generando uno nuevo...');
-            await publicarCuriosidadAutomatica();
+            console.log('📦 No hay contenido para rotar');
             return;
         }
         
@@ -263,20 +347,6 @@ async function botRotador() {
             console.log(`✅ Republicado: "${articuloSeleccionado.titulo}"`);
         }
         
-        if (curiosidades.length > 0) {
-            const randomCuriosity = Math.floor(Math.random() * curiosidades.length);
-            const curiosidadSeleccionada = curiosidades[randomCuriosity];
-            
-            curiosidadSeleccionada.fecha = new Date().toISOString();
-            curiosidadSeleccionada.republicada = (curiosidadSeleccionada.republicada || 0) + 1;
-            
-            curiosidades.splice(randomCuriosity, 1);
-            curiosidades.unshift(curiosidadSeleccionada);
-            
-            fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify(curiosidades, null, 2));
-            console.log(`✅ Republicada curiosidad: "${curiosidadSeleccionada.titulo}"`);
-        }
-        
         cache.clear();
         
     } catch (error) {
@@ -286,7 +356,7 @@ async function botRotador() {
 
 // ============ PUBLICACIÓN AUTOMÁTICA ============
 async function publicarCuriosidadAutomatica() {
-    console.log('🤖 Generando NUEVA curiosidad con Gemini (1 vez al día)...');
+    console.log('🤖 Generando NUEVA curiosidad...');
     try {
         const nuevaCuriosidad = await generarCuriosidadFemenina();
         
@@ -294,8 +364,7 @@ async function publicarCuriosidadAutomatica() {
             id: Date.now(),
             ...nuevaCuriosidad,
             fecha: new Date().toISOString(),
-            compartidas: 0,
-            generadaPor: 'gemini'
+            compartidas: 0
         };
         
         const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
@@ -317,9 +386,7 @@ app.get('/health', (req, res) => {
     res.json({ 
         status: 'ok', 
         timestamp: new Date().toISOString(),
-        gemini: model ? 'active' : 'inactive',
-        articulos: JSON.parse(fs.readFileSync(ARTICULOS_PATH)).length,
-        curiosidades: JSON.parse(fs.readFileSync(CURIOSIDADES_PATH)).length
+        gemini: model ? 'active' : 'inactive'
     });
 });
 
@@ -329,6 +396,48 @@ app.get('/', (req, res) => {
 
 app.get('/panel', (req, res) => {
     res.sendFile(path.join(__dirname, 'panel.html'));
+});
+
+// ============ NUEVO ENDPOINT: CAPTURAR CARRUSEL DE AMAZON ============
+app.post('/api/capturar-carrusel', async (req, res) => {
+    try {
+        const { url } = req.body;
+        if (!url) {
+            return res.status(400).json({ success: false, error: 'URL requerida' });
+        }
+        
+        const asin = extraerASIN(url);
+        if (!asin) {
+            return res.status(400).json({ success: false, error: 'No se pudo extraer ASIN de la URL' });
+        }
+        
+        const carrusel = await capturarCarruselAmazon(asin);
+        
+        // Descargar y comprimir imágenes del carrusel
+        const imagenesProcesadas = [];
+        for (let i = 0; i < Math.min(5, carrusel.imagenes.length); i++) {
+            const img = carrusel.imagenes[i];
+            const nombreArchivo = `${asin}_preview_${i}`;
+            const imagenComprimida = await descargarYComprimirImagen(img.url, nombreArchivo);
+            
+            imagenesProcesadas.push({
+                url: imagenComprimida.success ? imagenComprimida.url : img.url,
+                comprimida: imagenComprimida.success,
+                tamaño: imagenComprimida.tamaño || 0
+            });
+        }
+        
+        res.json({
+            success: true,
+            asin: asin,
+            imagenes: imagenesProcesadas,
+            video: obtenerEmbedVideo(asin)
+        });
+        
+    } catch (error) {
+        console.error('Error capturando carrusel:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
 
 // ============ API ARTÍCULOS ============
@@ -346,25 +455,30 @@ app.get('/api/articulos', (req, res) => {
     }
 });
 
-// 🔥 ENDPOINT PARA PUBLICAR ARTÍCULO (con tamaño y posición)
 app.post('/api/publicar-articulo', async (req, res) => {
     try {
         const { url, imagenUrl, imageSize, imagePosition } = req.body;
         if (!url) {
             return res.status(400).json({ success: false, error: 'URL requerida' });
         }
+        
+        console.log(`📦 Publicando artículo para URL: ${url}`);
         const nuevoArticulo = await generarArticuloConProducto(url, imagenUrl, imageSize || 'medium', imagePosition || 'center');
+        
         const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
         data.unshift(nuevoArticulo);
         fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(data, null, 2));
         cache.clear();
+        
+        console.log(`✅ Artículo publicado: ${nuevoArticulo.titulo}`);
         res.json({ success: true, articulo: nuevoArticulo });
+        
     } catch (error) {
+        console.error('Error publicando artículo:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// 🔥 NUEVO ENDPOINT PARA ORDENAR ARTÍCULOS
 app.put('/api/ordenar-articulos', (req, res) => {
     try {
         const { articulos: nuevosArticulos } = req.body;
@@ -373,7 +487,6 @@ app.put('/api/ordenar-articulos', (req, res) => {
             return res.status(400).json({ success: false, error: 'Datos inválidos' });
         }
         
-        // Actualizar fechas para reflejar el nuevo orden
         const articulosConOrden = nuevosArticulos.map((art, idx) => ({
             ...art,
             orden: idx,
@@ -391,7 +504,6 @@ app.put('/api/ordenar-articulos', (req, res) => {
     }
 });
 
-// 🔥 NUEVO ENDPOINT PARA EDITAR ARTÍCULO
 app.put('/api/editar-articulo/:id', (req, res) => {
     try {
         const { id } = req.params;
@@ -450,8 +562,7 @@ app.post('/api/generar-curiosidad', async (req, res) => {
             id: Date.now(),
             ...nuevaCuriosidad,
             fecha: new Date().toISOString(),
-            compartidas: 0,
-            generadaPor: 'plantilla'
+            compartidas: 0
         };
         const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
         data.unshift(curiosidadCompleta);
@@ -479,6 +590,21 @@ app.post('/api/compartir-curiosidad/:id', (req, res) => {
     }
 });
 
+// Limpiar archivos temporales viejos cada hora
+setInterval(() => {
+    const files = fs.readdirSync(TEMP_DIR);
+    const ahora = Date.now();
+    files.forEach(file => {
+        const filePath = path.join(TEMP_DIR, file);
+        const stats = fs.statSync(filePath);
+        // Eliminar archivos de más de 24 horas
+        if (ahora - stats.mtimeMs > 24 * 60 * 60 * 1000) {
+            fs.unlinkSync(filePath);
+            console.log(`🗑️ Eliminado archivo temporal: ${file}`);
+        }
+    });
+}, 60 * 60 * 1000);
+
 // ============ CRON JOBS ============
 cron.schedule('0 */3 * * *', () => {
     console.log('⏰ CRON: Ejecutando Bot Rotador...');
@@ -486,28 +612,25 @@ cron.schedule('0 */3 * * *', () => {
 });
 
 cron.schedule('0 10 * * *', () => {
-    console.log('⏰ CRON: Ejecutando Gemini (1 vez al día)...');
+    console.log('⏰ CRON: Ejecutando publicación automática...');
     publicarCuriosidadAutomatica();
 });
 
 // ============ INICIAR SERVIDOR ============
 app.listen(PORT, '0.0.0.0', () => {
-    const articulosCount = JSON.parse(fs.readFileSync(ARTICULOS_PATH)).length;
-    const curiosidadesCount = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH)).length;
-    
     console.log(`
-    ╔══════════════════════════════════════════════════════════╗
-    ║     ✨ SISTEMA HÍBRIDO: GEMINI + BOT ROTADOR ✨         ║
-    ╠══════════════════════════════════════════════════════════╣
-    ║  🚀 Puerto: ${PORT}                                       ║
-    ║  📰 Artículos: ${articulosCount} guardados                ║
-    ║  💎 Curiosidades: ${curiosidadesCount} guardadas          ║
-    ║  🤖 Gemini: ${model ? '✅ ACTIVADO (solo 1 vez/día)' : '❌ NO DISPONIBLE'}    
-    ║  🔄 Bot Rotador: CADA 3 HORAS (republica sin gastar API)  ║
-    ║  📦 Plantillas: ${plantillasCuriosidades.length + plantillasArticulos.length} pregrabadas ║
-    ║  🎨 Controles Visuales: Tamaño + Posición + Orden ✅      ║
-    ║  💨 Cache: ACTIVADO (5 min)                               ║
-    ╚══════════════════════════════════════════════════════════╝
+    ╔══════════════════════════════════════════════════════════════╗
+    ║     ✨ SISTEMA COMPLETO: CARRUSEL + VIDEO + COMPRESIÓN ✨    ║
+    ╠══════════════════════════════════════════════════════════════╣
+    ║  🚀 Puerto: ${PORT}                                           ║
+    ║  🎬 Captura Carrusel: ✅ ACTIVADO                             ║
+    ║  🎥 Captura Video: ✅ ACTIVADO                                ║
+    ║  🗜️ Compresión Imágenes: ✅ ACTIVADO (WebP)                   ║
+    ║  🤖 Gemini: ${model ? '✅ ACTIVADO' : '❌ NO DISPONIBLE'}                 ║
+    ║  🔄 Bot Rotador: CADA 3 HORAS                                 ║
+    ║  🎨 Controles Visuales: Tamaño + Posición + Orden             ║
+    ║  💨 Cache: ACTIVADO (5 min)                                   ║
+    ╚══════════════════════════════════════════════════════════════╝
     `);
     
     // Inicializar con contenido si está vacío
@@ -519,8 +642,7 @@ app.listen(PORT, '0.0.0.0', () => {
                 id: Date.now() + Math.random(),
                 ...plantilla,
                 fecha: new Date().toISOString(),
-                compartidas: 0,
-                generadaPor: 'plantilla_inicial'
+                compartidas: 0
             };
             data.push(curiosidad);
         }
