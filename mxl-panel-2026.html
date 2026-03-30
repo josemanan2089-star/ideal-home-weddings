@@ -1,52 +1,447 @@
-async function publicarDirecto() {
-    const status = document.getElementById('status-msg');
-    status.style.display = 'block';
-    status.innerText = "⏳ Conectando con Railway...";
-
-    const producto = {
-        tEn: document.getElementById('tEn').value,
-        tEs: document.getElementById('tEs').value,
-        dEn: document.getElementById('dEn').value,
-        dEs: document.getElementById('dEs').value,
-        img: document.getElementById('img').value,
-        link: document.getElementById('link').value,
-        fecha: new Date().toISOString()
-    };
-
-    // Validar campos obligatorios
-    if (!producto.tEn || !producto.link) {
-        status.innerText = "❌ Error: Título y Link son obligatorios";
-        status.style.background = "rgba(255,69,0,0.2)";
-        status.style.color = "#ff4500";
-        return;
-    }
-
-    try {
-        const res = await fetch('/api/publicar', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(producto)
-        });
-        const data = await res.json();
-        
-        if(data.success) {
-            status.className = "success";
-            status.style.background = "rgba(40,167,69,0.2)";
-            status.style.color = "#2ecc71";
-            status.innerText = "✅ ¡PUBLICADO! El producto ya está en vivo en Ideal Home.";
-            
-            // Limpiar campos después de 2 segundos
-            setTimeout(() => {
-                document.querySelectorAll('#tab-publisher input, #tab-publisher textarea').forEach(i => i.value = '');
-                status.style.display = 'none';
-            }, 2000);
-        } else {
-            status.innerText = "❌ Error: " + (data.error || "No se pudo publicar");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MXL GOLD MINER | Panel Editor Premium</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-    } catch (e) {
-        console.error(e);
-        status.innerText = "❌ Error: No se pudo conectar con el servidor";
-        status.style.background = "rgba(255,69,0,0.2)";
-        status.style.color = "#ff4500";
-    }
-}
+        
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+        }
+        
+        .grid-2cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            margin-bottom: 20px;
+            color: #333;
+            border-left: 4px solid #764ba2;
+            padding-left: 15px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .input-group input, .input-group textarea, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .input-group input:focus, .input-group textarea:focus {
+            border-color: #764ba2;
+            outline: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+        
+        .image-preview {
+            margin-top: 20px;
+            text-align: center;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .size-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .size-btn {
+            flex: 1;
+            padding: 10px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .size-btn.active {
+            background: #764ba2;
+            color: white;
+        }
+        
+        .products-list {
+            margin-top: 30px;
+        }
+        
+        .product-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .product-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        
+        .product-info {
+            flex: 1;
+        }
+        
+        .product-info h4 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .product-actions button {
+            margin-left: 10px;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .btn-edit {
+            background: #667eea;
+            color: white;
+        }
+        
+        .status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2cols {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏮 MXL GOLD MINER</h1>
+            <p>Editor Visual + IA Gemini | CTR Optimized for Women</p>
+        </div>
+        
+        <div class="grid-2cols">
+            <!-- Panel de Publicación -->
+            <div class="card">
+                <h2>✨ Publicar Producto con IA</h2>
+                <div class="input-group">
+                    <label>🔗 Link de Amazon</label>
+                    <input type="text" id="amazonUrl" placeholder="https://amazon.com/dp/XXXXXX">
+                </div>
+                
+                <div class="input-group">
+                    <label>🖼️ URL de Imagen (opcional)</label>
+                    <input type="text" id="customImage" placeholder="Dejar vacío para auto-detectar">
+                </div>
+                
+                <div class="input-group">
+                    <label>📐 Tamaño de Imagen</label>
+                    <div class="size-controls">
+                        <button class="size-btn" data-size="small">Pequeña</button>
+                        <button class="size-btn active" data-size="medium">Mediana</button>
+                        <button class="size-btn" data-size="large">Grande</button>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>📍 Posición de Imagen</label>
+                    <select id="imagePosition">
+                        <option value="left">Izquierda</option>
+                        <option value="center" selected>Centro</option>
+                        <option value="right">Derecha</option>
+                    </select>
+                </div>
+                
+                <button class="btn-primary" onclick="publicarConIA()">🚀 Generar con Gemini & Publicar</button>
+                
+                <div class="image-preview" id="imagePreview" style="display: none;">
+                    <h3>Vista Previa</h3>
+                    <img id="previewImg" src="" alt="Preview">
+                </div>
+            </div>
+            
+            <!-- Panel de Edición -->
+            <div class="card">
+                <h2>✏️ Editor Visual</h2>
+                <div class="input-group">
+                    <label>Seleccionar Producto</label>
+                    <select id="selectProduct" onchange="cargarProducto()">
+                        <option value="">-- Selecciona un producto --</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label>📝 Título (EN)</label>
+                    <input type="text" id="editTitleEn">
+                </div>
+                
+                <div class="input-group">
+                    <label>📝 Título (ES)</label>
+                    <input type="text" id="editTitleEs">
+                </div>
+                
+                <div class="input-group">
+                    <label>💬 Descripción (EN)</label>
+                    <textarea id="editDescEn" rows="3"></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label>💬 Descripción (ES)</label>
+                    <textarea id="editDescEs" rows="3"></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label>🖼️ Nueva URL de Imagen</label>
+                    <input type="text" id="editImage" placeholder="URL de la imagen">
+                </div>
+                
+                <button class="btn-primary" onclick="guardarEdicion()">💾 Guardar Cambios</button>
+            </div>
+        </div>
+        
+        <!-- Lista de Productos Publicados -->
+        <div class="card products-list" style="margin-top: 30px;">
+            <h2>📦 Productos Publicados</h2>
+            <div id="productsContainer"></div>
+        </div>
+    </div>
+    
+    <div id="status" class="status"></div>
+    
+    <script>
+        let selectedSize = 'medium';
+        
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedSize = btn.dataset.size;
+            });
+        });
+        
+        async function publicarConIA() {
+            const url = document.getElementById('amazonUrl').value;
+            if (!url) {
+                mostrarStatus('❌ Ingresa un link de Amazon', 'error');
+                return;
+            }
+            
+            mostrarStatus('🤖 Gemini está generando contenido...', 'info');
+            
+            try {
+                const res = await fetch('/api/publicar-con-ia', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        url: url,
+                        customImage: document.getElementById('customImage').value,
+                        imageSize: selectedSize,
+                        imagePosition: document.getElementById('imagePosition').value
+                    })
+                });
+                
+                const data = await res.json();
+                if (data.success) {
+                    mostrarStatus('✅ Producto publicado con IA', 'success');
+                    cargarProductos();
+                    document.getElementById('amazonUrl').value = '';
+                } else {
+                    mostrarStatus('❌ Error: ' + data.error, 'error');
+                }
+            } catch (e) {
+                mostrarStatus('❌ Error de conexión', 'error');
+            }
+        }
+        
+        async function cargarProductos() {
+            const res = await fetch('/api/productos');
+            const productos = await res.json();
+            
+            // Actualizar select
+            const select = document.getElementById('selectProduct');
+            select.innerHTML = '<option value="">-- Selecciona un producto --</option>' + 
+                productos.map(p => `<option value="${p.id}">${p.title_en || p.title}</option>`).join('');
+            
+            // Mostrar lista
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = productos.map(p => `
+                <div class="product-item">
+                    <img src="${p.image}" onerror="this.src='https://via.placeholder.com/80'">
+                    <div class="product-info">
+                        <h4>${p.title_en || p.title}</h4>
+                        <small>Clicks: ${p.clicks || 0} | ${new Date(p.fecha).toLocaleDateString()}</small>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn-edit" onclick="seleccionarProductoEditar(${p.id})">✏️ Editar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function seleccionarProductoEditar(id) {
+            document.getElementById('selectProduct').value = id;
+            cargarProducto();
+        }
+        
+        async function cargarProducto() {
+            const id = document.getElementById('selectProduct').value;
+            if (!id) return;
+            
+            const res = await fetch('/api/productos');
+            const productos = await res.json();
+            const producto = productos.find(p => p.id == id);
+            
+            if (producto) {
+                document.getElementById('editTitleEn').value = producto.title_en || '';
+                document.getElementById('editTitleEs').value = producto.title_es || '';
+                document.getElementById('editDescEn').value = producto.description_en || '';
+                document.getElementById('editDescEs').value = producto.description_es || '';
+                document.getElementById('editImage').value = producto.image || '';
+            }
+        }
+        
+        async function guardarEdicion() {
+            const id = document.getElementById('selectProduct').value;
+            if (!id) {
+                mostrarStatus('❌ Selecciona un producto', 'error');
+                return;
+            }
+            
+            const data = {
+                title_en: document.getElementById('editTitleEn').value,
+                title_es: document.getElementById('editTitleEs').value,
+                description_en: document.getElementById('editDescEn').value,
+                description_es: document.getElementById('editDescEs').value,
+                image: document.getElementById('editImage').value
+            };
+            
+            try {
+                const res = await fetch(`/api/editar-producto/${id}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await res.json();
+                if (result.success) {
+                    mostrarStatus('✅ Producto actualizado', 'success');
+                    cargarProductos();
+                } else {
+                    mostrarStatus('❌ Error al actualizar', 'error');
+                }
+            } catch (e) {
+                mostrarStatus('❌ Error de conexión', 'error');
+            }
+        }
+        
+        function mostrarStatus(msg, tipo) {
+            const status = document.getElementById('status');
+            status.textContent = msg;
+            status.style.display = 'block';
+            status.style.background = tipo === 'error' ? '#ff4757' : tipo === 'success' ? '#00a8ff' : '#f39c12';
+            status.style.color = 'white';
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Vista previa de imagen
+        document.getElementById('customImage').addEventListener('input', (e) => {
+            const preview = document.getElementById('imagePreview');
+            const img = document.getElementById('previewImg');
+            if (e.target.value) {
+                preview.style.display = 'block';
+                img.src = e.target.value;
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+        
+        cargarProductos();
+    </script>
+</body>
+</html>
