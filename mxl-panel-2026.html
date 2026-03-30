@@ -3,205 +3,647 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luxury Home Trends | The Secret Women Are Talking About in 2026</title>
+    <title>MXL GOLD MINER | Panel del Director</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Georgia', 'Times New Roman', serif;
-            background: #fffaf7;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: white;
+            letter-spacing: 2px;
+        }
+
+        .header h1 span {
+            background: linear-gradient(135deg, #ff4500, #ff6b35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #c9a87b;
+            margin-top: 10px;
+        }
+
+        /* Tarjetas */
+        .card {
+            background: white;
+            border-radius: 28px;
+            padding: 35px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #2c2418;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-weight: normal;
+        }
+
+        .badge-gemini {
+            background: #ff4500;
+            color: white;
+        }
+
+        .badge-mxl {
+            background: #c9a87b;
             color: #2c2418;
         }
-        .viral-header {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: white;
-            padding: 60px 20px;
+
+        .sub {
+            color: #8b7355;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+            border-left: 3px solid #ff4500;
+            padding-left: 12px;
+        }
+
+        /* Formulario */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a3727;
+            font-size: 0.85rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #f0e2d8;
+            border-radius: 16px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #ff4500;
+            outline: none;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: monospace;
+        }
+
+        /* Controles de tamaño y posición */
+        .size-controls, .position-controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .size-btn, .pos-btn {
+            flex: 1;
+            padding: 10px;
+            background: #f5f0eb;
+            border: 2px solid #f0e2d8;
+            border-radius: 40px;
+            cursor: pointer;
             text-align: center;
+            font-size: 13px;
+            transition: all 0.2s;
         }
-        .viral-header h1 { font-size: 2.5rem; }
-        .viral-header h1 span { background: linear-gradient(135deg, #ff4500, #ff6b35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .live-badge { background: #ff4500; padding: 5px 15px; border-radius: 30px; display: inline-block; margin-top: 20px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; transform: scale(1.05); } 100% { opacity: 0.6; } }
-        .container { max-width: 1300px; margin: 0 auto; padding: 40px 20px; }
-        .section-title { font-size: 1.8rem; text-align: center; margin-bottom: 30px; }
-        .section-title:after { content: ''; width: 80px; height: 3px; background: #ff4500; display: block; margin: 15px auto 0; }
-        
-        /* Curiosidades con imagen */
-        .curiosidades-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 30px;
-            margin-bottom: 60px;
+
+        .size-btn.active, .pos-btn.active {
+            background: #ff4500;
+            border-color: #ff4500;
+            color: white;
         }
-        .curiosidad-card {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+
+        /* Botones */
+        .btn-primary {
+            background: #ff4500;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            background: #e03e00;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #c9a87b;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 14px;
             transition: all 0.3s;
         }
-        .curiosidad-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.15); }
-        .curiosidad-img {
-            height: 200px;
-            overflow: hidden;
+
+        .btn-secondary:hover {
+            background: #b89464;
+            transform: translateY(-2px);
         }
-        .curiosidad-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s;
-        }
-        .curiosidad-card:hover .curiosidad-img img { transform: scale(1.05); }
-        .curiosidad-content { padding: 20px; }
-        .curiosidad-content h3 { font-size: 1.2rem; margin-bottom: 10px; color: #2c2418; }
-        .curiosidad-content p { color: #6b5a48; line-height: 1.5; margin-bottom: 15px; }
-        .share-btn { background: none; border: none; color: #ff4500; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px; }
-        
-        /* Artículos */
-        .articulos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: 35px;
-        }
-        .articulo-card {
-            background: white;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            transition: all 0.4s;
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #ff4500;
+            color: #ff4500;
+            padding: 12px 20px;
+            border-radius: 40px;
             cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            transition: all 0.3s;
         }
-        .articulo-card:hover { transform: translateY(-10px); box-shadow: 0 25px 40px rgba(0,0,0,0.15); }
-        .articulo-imagen { height: 220px; overflow: hidden; position: relative; }
-        .articulo-imagen img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
-        .articulo-card:hover .articulo-imagen img { transform: scale(1.05); }
-        .viral-tag { position: absolute; top: 15px; right: 15px; background: #ff4500; color: white; padding: 5px 12px; border-radius: 20px; font-size: 11px; }
-        .articulo-contenido { padding: 25px; }
-        .articulo-categoria { background: #f7ede8; color: #ff4500; font-size: 11px; padding: 4px 12px; border-radius: 20px; display: inline-block; margin-bottom: 12px; }
-        .articulo-contenido h3 { font-size: 1.2rem; margin-bottom: 12px; }
-        .articulo-curiosidad { color: #ff4500; font-style: italic; font-size: 0.9rem; margin-bottom: 12px; border-left: 2px solid #ff4500; padding-left: 12px; }
-        .btn-leer { background: #2c2418; color: white; padding: 10px 20px; border-radius: 40px; text-align: center; display: block; text-decoration: none; transition: all 0.3s; }
-        .btn-leer:hover { background: #ff4500; transform: translateX(5px); }
-        footer { background: #2c2418; color: #f0e2d8; text-align: center; padding: 40px; margin-top: 40px; }
-        .loader { text-align: center; padding: 50px; color: #c9a87b; }
+
+        .btn-outline:hover {
+            background: #ff4500;
+            color: white;
+        }
+
+        /* Preview de imagen */
+        .preview-img {
+            margin-top: 15px;
+            text-align: center;
+            padding: 15px;
+            background: #faf7f3;
+            border-radius: 16px;
+            display: none;
+        }
+
+        .preview-img img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Copy preview */
+        .copy-preview {
+            background: #faf7f3;
+            padding: 20px;
+            border-radius: 16px;
+            margin-top: 20px;
+            display: none;
+            border-left: 4px solid #ff4500;
+        }
+
+        .copy-preview h4 {
+            color: #ff4500;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .copy-preview p {
+            margin: 10px 0;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .copy-preview strong {
+            color: #2c2418;
+        }
+
+        /* Status */
+        .status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 12px;
+            display: none;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            display: block;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            display: block;
+        }
+
+        .status.info {
+            background: #e3f2fd;
+            color: #1565c0;
+            display: block;
+        }
+
+        hr {
+            margin: 25px 0;
+            border: none;
+            border-top: 2px solid #f0e2d8;
+        }
+
+        /* Estadísticas */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: #faf7f3;
+            padding: 15px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff4500;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #8b7355;
+        }
+
+        @media (max-width: 700px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="viral-header">
-        <h1>🔥 The Secret <span>Women Are Talking About</span> in 2026</h1>
-        <p>What NYC, Miami & Beverly Hills elites don't want you to know</p>
-        <div class="live-badge">⚡ LIVE TRENDS ⚡</div>
-    </div>
-
     <div class="container">
-        <!-- CURIOSIDADES CON IMAGEN -->
-        <h2 class="section-title">💎 CURIOSIDADES QUE VUELVEN LOCA A LA GENTE</h2>
-        <div id="curiosidadesGrid" class="curiosidades-grid">
-            <div class="loader">🔥 Cargando secretos exclusivos...</div>
+        <div class="header">
+            <h1>🏮 MXL <span>GOLD MINER</span></h1>
+            <p>Bot Gemini | Director mxl | Sistema Híbrido</p>
         </div>
 
-        <!-- ARTÍCULOS -->
-        <h2 class="section-title">📰 ARTÍCULOS QUE ESTÁN EXPLOTANDO</h2>
-        <div id="articulosGrid" class="articulos-grid">
-            <div class="loader">📰 Cargando artículos virales...</div>
+        <!-- ============ MÓDULO 1: CURIOSIDADES (BOT GEMINI AUTÓNOMO) ============ -->
+        <div class="card">
+            <h2>
+                💎 Curiosidades Virales 
+                <span class="badge badge-gemini">🤖 BOT GEMINI - AUTÓNOMO</span>
+            </h2>
+            <div class="sub">
+                Gemini genera curiosidades bilingües (ES/EN) + busca imagen automáticamente.<br>
+                Publica cada 3 horas automáticamente. Flujo continuo para Google News.
+            </div>
+            
+            <button class="btn-outline" onclick="generarCuriosidadManual()">
+                🌸 GENERAR CURIOSIDAD AHORA (manual)
+            </button>
+            <div id="statusCuriosidad" class="status"></div>
+        </div>
+
+        <!-- ============ MÓDULO 2: VENTAS AMAZON (MXL CONTROLA TODO) ============ -->
+        <div class="card">
+            <h2>
+                💰 Productos de Alto Ticket
+                <span class="badge badge-mxl">👑 MXL CONTROLA - IMAGEN, TAMAÑO, POSICIÓN</span>
+            </h2>
+            <div class="sub">
+                <strong>TÚ eliges:</strong> el producto ($500-$1,500), la imagen real de Amazon, el tamaño y la posición.<br>
+                <strong>Bot Gemini:</strong> solo redacta el copy de ventas (título, intro, problema, solución, beneficio).
+            </div>
+            
+            <!-- Paso 1: Link de Amazon -->
+            <div class="form-group">
+                <label>🔗 Link de Amazon (Alto Ticket USA)</label>
+                <input type="text" id="amazonUrl" placeholder="https://amazon.com/dp/XXXXXXXXXX">
+            </div>
+            
+            <div class="form-group">
+                <label>📂 Categoría</label>
+                <select id="categoria">
+                    <option value="kitchen">Kitchen - Luxury</option>
+                    <option value="smart-home">Smart Home - Elite</option>
+                    <option value="lifestyle">Lifestyle - Status</option>
+                    <option value="wedding">Wedding Registry - Premium</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>💰 Precio Aproximado</label>
+                <input type="text" id="precio" placeholder="$1,200" value="$1,200">
+            </div>
+            
+            <button class="btn-secondary" onclick="generarCopy()">
+                📝 PASO 1: GENERAR COPY (Bot Gemini escribe)
+            </button>
+            <div id="statusCopy" class="status"></div>
+            
+            <!-- Copy generado por Gemini aparece aquí -->
+            <div id="copyPreview" class="copy-preview">
+                <h4>✍️ COPY GENERADO POR BOT GEMINI:</h4>
+                <div id="copyContent"></div>
+                <p style="font-size: 11px; color: #888; margin-top: 15px;">
+                    ✅ Revisa el copy. Si te gusta, completa los campos abajo y publica.
+                </p>
+            </div>
+            
+            <hr>
+            
+            <!-- Paso 2: mxl selecciona imagen y configura visual -->
+            <div class="form-group">
+                <label>🖼️ URL DE LA IMAGEN (TÚ la seleccionas - imagen real de Amazon)</label>
+                <input type="text" id="imagenUrl" placeholder="Pega la URL de la imagen real del producto">
+                <div class="preview-img" id="previewContainer">
+                    <img id="previewImg" src="" alt="Vista previa">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>📐 Tamaño de la Imagen</label>
+                <div class="size-controls" id="sizeControls">
+                    <div class="size-btn" data-size="small">🔹 Pequeña</div>
+                    <div class="size-btn active" data-size="medium">🔸 Mediana</div>
+                    <div class="size-btn" data-size="large">🔹 Grande</div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>📍 Posición de la Imagen</label>
+                <div class="position-controls" id="positionControls">
+                    <div class="pos-btn" data-pos="left">◀ Izquierda</div>
+                    <div class="pos-btn active" data-pos="center">● Centro</div>
+                    <div class="pos-btn" data-pos="right">Derecha ▶</div>
+                </div>
+            </div>
+            
+            <button class="btn-primary" onclick="publicarVenta()">
+                🚀 PASO 2: PUBLICAR PRODUCTO EN EL PORTAL
+            </button>
+            <div id="statusVenta" class="status"></div>
+        </div>
+
+        <!-- ============ ESTADÍSTICAS ============ -->
+        <div class="card">
+            <h2>📊 Estadísticas del Portal</h2>
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-number" id="statCuriosidades">0</div>
+                    <div class="stat-label">Curiosidades (Bot Gemini)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statArticulos">0</div>
+                    <div class="stat-label">Productos (mxl)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statClicks">0</div>
+                    <div class="stat-label">Clicks Totales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statCompartidas">0</div>
+                    <div class="stat-label">Curiosidades Compartidas</div>
+                </div>
+            </div>
+            <div style="margin-top: 20px; padding: 15px; background: #faf7f3; border-radius: 16px;">
+                <p style="font-size: 12px; color: #8b7355;">
+                    🤖 <strong>Bot Gemini:</strong> Curiosidades automáticas cada 3 horas | 
+                    👑 <strong>mxl:</strong> Control total de productos de alto ticket
+                </p>
+            </div>
         </div>
     </div>
-
-    <footer>
-        <p>🔥 El Club de Las Que Saben 🔥</p>
-        <p style="font-size: 12px; margin-top: 10px;">Descubre los secretos que todas quieren conocer | Somos afiliados de Amazon</p>
-    </footer>
 
     <script>
-        async function cargarTodo() {
-            await Promise.all([cargarCuriosidades(), cargarArticulos()]);
-        }
+        // Variables globales
+        let selectedSize = 'medium';
+        let selectedPosition = 'center';
+        let copyActual = null;
 
-        async function cargarCuriosidades() {
-            try {
-                const res = await fetch('/api/curiosidades');
-                const curiosidades = await res.json();
-                const grid = document.getElementById('curiosidadesGrid');
-                
-                if (!curiosidades || curiosidades.length === 0) {
-                    grid.innerHTML = '<div class="loader">✨ Pronto más secretos exclusivos...</div>';
-                    return;
-                }
-                
-                grid.innerHTML = curiosidades.map(cur => `
-                    <div class="curiosidad-card">
-                        <div class="curiosidad-img">
-                            <img src="${cur.imagen || 'https://picsum.photos/400/200'}" 
-                                 alt="${cur.titulo}"
-                                 onerror="this.src='https://picsum.photos/400/200'">
-                        </div>
-                        <div class="curiosidad-content">
-                            <h3>🔥 ${cur.titulo || 'Secreto Exclusivo'}</h3>
-                            <p>${cur.texto || 'Descubre el nuevo símbolo de estatus silencioso'}</p>
-                            <button class="share-btn" onclick="compartir('${cur.texto}')">📤 Compartir este secreto</button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
+        // ============ CONTROLES VISUALES ============
+        document.querySelectorAll('#sizeControls .size-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#sizeControls .size-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedSize = btn.dataset.size;
+            });
+        });
 
-        async function cargarArticulos() {
-            try {
-                const res = await fetch('/api/articulos');
-                const articulos = await res.json();
-                const grid = document.getElementById('articulosGrid');
-                
-                if (!articulos || articulos.length === 0) {
-                    grid.innerHTML = '<div class="loader">🔥 Publicando nuevos artículos virales...</div>';
-                    return;
-                }
-                
-                grid.innerHTML = articulos.map(art => `
-                    <div class="articulo-card" onclick="verArticulo(${art.id}, '${art.link}')">
-                        <div class="articulo-imagen">
-                            <div class="viral-tag">🔥 VIRAL</div>
-                            <img src="${art.imagen || 'https://picsum.photos/400/300'}" 
-                                 alt="${art.titulo}"
-                                 onerror="this.src='https://picsum.photos/400/300'">
-                        </div>
-                        <div class="articulo-contenido">
-                            <span class="articulo-categoria">TRENDING</span>
-                            <h3>${art.titulo || 'The Secret Women Are Talking About'}</h3>
-                            ${art.curiosidad ? `<div class="articulo-curiosidad">✨ ${art.curiosidad.substring(0, 100)}...</div>` : ''}
-                            <button class="btn-leer" onclick="event.stopPropagation(); trackClick(${art.id}, '${art.link}')">
-                                🔥 LEER ARTÍCULO →
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
+        document.querySelectorAll('#positionControls .pos-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#positionControls .pos-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedPosition = btn.dataset.pos;
+            });
+        });
 
-        function compartir(texto) {
-            if (navigator.share) {
-                navigator.share({ title: 'Secreto Exclusivo', text: texto });
+        // Vista previa de imagen
+        document.getElementById('imagenUrl').addEventListener('input', function(e) {
+            const preview = document.getElementById('previewContainer');
+            const img = document.getElementById('previewImg');
+            if (e.target.value) {
+                preview.style.display = 'block';
+                img.src = e.target.value;
             } else {
-                navigator.clipboard.writeText(texto);
-                alert('✅ Secreto copiado para compartir!');
+                preview.style.display = 'none';
             }
-        }
+        });
 
-        async function trackClick(id, link) {
+        // ============ MÓDULO CURIOSIDADES ============
+        async function generarCuriosidadManual() {
+            mostrarStatus('statusCuriosidad', '🤖 Bot Gemini generando curiosidad viral...', 'info');
+            
             try {
-                await fetch(`/api/click-articulo/${id}`, { method: 'POST' });
-                window.open(link, '_blank');
+                const res = await fetch('/api/generar-curiosidad', { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    mostrarStatus('statusCuriosidad', `✅ "${data.curiosidad.titulo_es}"`, 'success');
+                    cargarStats();
+                } else {
+                    mostrarStatus('statusCuriosidad', '❌ Error al generar', 'error');
+                }
             } catch (e) {
-                window.open(link, '_blank');
+                mostrarStatus('statusCuriosidad', '❌ Error de conexión', 'error');
             }
         }
 
-        function verArticulo(id, link) { trackClick(id, link); }
+        // ============ MÓDULO VENTAS - PASO 1: Gemini escribe el copy ============
+        async function generarCopy() {
+            const url = document.getElementById('amazonUrl').value;
+            const categoria = document.getElementById('categoria').value;
+            const precio = document.getElementById('precio').value;
+            
+            if (!url) {
+                mostrarStatus('statusCopy', '❌ Ingresa un link de Amazon', 'error');
+                return;
+            }
+            
+            mostrarStatus('statusCopy', '🤖 Bot Gemini redactando copy de ventas...', 'info');
+            
+            try {
+                const res = await fetch('/api/generar-copy-ventas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, categoria, precio })
+                });
+                
+                const data = await res.json();
+                if (data.success) {
+                    copyActual = data.copy;
+                    
+                    // Mostrar copy en el panel
+                    const copyDiv = document.getElementById('copyContent');
+                    copyDiv.innerHTML = `
+                        <p><strong>📰 TÍTULO:</strong> ${copyActual.titulo}</p>
+                        <p><strong>🎯 INTRO:</strong> ${copyActual.intro}</p>
+                        <p><strong>⚠️ PROBLEMA:</strong> ${copyActual.problema}</p>
+                        <p><strong>✨ SOLUCIÓN:</strong> ${copyActual.solucion}</p>
+                        <p><strong>💎 BENEFICIO DE ESTATUS:</strong> ${copyActual.beneficio_estatus}</p>
+                        <p><strong>👥 PRUEBA SOCIAL:</strong> ${copyActual.prueba_social}</p>
+                        <p><strong>🔥 CIERRE:</strong> ${copyActual.cierre}</p>
+                        <p><strong>💡 CURIOSIDAD:</strong> ${copyActual.curiosidad}</p>
+                        <p><strong>🔑 KEYWORDS:</strong> ${copyActual.palabras_clave.join(', ')}</p>
+                    `;
+                    document.getElementById('copyPreview').style.display = 'block';
+                    
+                    mostrarStatus('statusCopy', '✅ Copy generado. Revisa, selecciona imagen y publica.', 'success');
+                } else {
+                    mostrarStatus('statusCopy', '❌ Error: ' + data.error, 'error');
+                }
+            } catch (e) {
+                mostrarStatus('statusCopy', '❌ Error de conexión', 'error');
+            }
+        }
 
-        cargarTodo();
-        setInterval(() => { cargarCuriosidades(); cargarArticulos(); }, 30000);
+        // ============ MÓDULO VENTAS - PASO 2: mxl publica con su imagen ============
+        async function publicarVenta() {
+            const url = document.getElementById('amazonUrl').value;
+            const imagenUrl = document.getElementById('imagenUrl').value;
+            const categoria = document.getElementById('categoria').value;
+            
+            if (!url) {
+                mostrarStatus('statusVenta', '❌ Ingresa un link de Amazon', 'error');
+                return;
+            }
+            if (!imagenUrl) {
+                mostrarStatus('statusVenta', '❌ TÚ debes seleccionar la imagen del producto', 'error');
+                return;
+            }
+            if (!copyActual) {
+                mostrarStatus('statusVenta', '❌ Primero genera el copy con el botón "GENERAR COPY"', 'error');
+                return;
+            }
+            
+            mostrarStatus('statusVenta', '💰 Publicando producto de alto ticket...', 'info');
+            
+            try {
+                const res = await fetch('/api/publicar-venta', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        url: url,
+                        imagenUrl: imagenUrl,
+                        categoria: categoria,
+                        imageSize: selectedSize,
+                        imagePosition: selectedPosition,
+                        copy: copyActual
+                    })
+                });
+                
+                const data = await res.json();
+                if (data.success) {
+                    mostrarStatus('statusVenta', `✅ Producto publicado: "${data.articulo.titulo}"`, 'success');
+                    
+                    // Limpiar campos
+                    document.getElementById('amazonUrl').value = '';
+                    document.getElementById('imagenUrl').value = '';
+                    document.getElementById('previewContainer').style.display = 'none';
+                    document.getElementById('copyPreview').style.display = 'none';
+                    copyActual = null;
+                    
+                    cargarStats();
+                } else {
+                    mostrarStatus('statusVenta', '❌ Error: ' + data.error, 'error');
+                }
+            } catch (e) {
+                mostrarStatus('statusVenta', '❌ Error de conexión', 'error');
+            }
+        }
+
+        // ============ ESTADÍSTICAS ============
+        async function cargarStats() {
+            try {
+                const [resArt, resCur] = await Promise.all([
+                    fetch('/api/articulos'),
+                    fetch('/api/curiosidades')
+                ]);
+                
+                const articulos = await resArt.json();
+                const curiosidades = await resCur.json();
+                
+                const totalClicks = articulos.reduce((sum, a) => sum + (a.clicks || 0), 0);
+                const totalCompartidas = curiosidades.reduce((sum, c) => sum + (c.compartidas || 0), 0);
+                
+                document.getElementById('statArticulos').innerText = articulos.length;
+                document.getElementById('statCuriosidades').innerText = curiosidades.length;
+                document.getElementById('statClicks').innerText = totalClicks;
+                document.getElementById('statCompartidas').innerText = totalCompartidas;
+            } catch (e) {
+                console.error('Error stats:', e);
+            }
+        }
+
+        // ============ UTILIDADES ============
+        function mostrarStatus(elementId, msg, tipo) {
+            const status = document.getElementById(elementId);
+            status.textContent = msg;
+            status.className = `status ${tipo}`;
+            setTimeout(() => {
+                status.className = 'status';
+            }, 5000);
+        }
+
+        // Inicializar
+        cargarStats();
+        setInterval(cargarStats, 30000);
     </script>
 </body>
 </html>
