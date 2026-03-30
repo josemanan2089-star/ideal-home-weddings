@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ideal Home & Weddings | Premium Amazon Essentials 2026</title>
     
-    <!-- SEO MAESTRO PARA USA (Mercado Gringo) -->
-    <meta name="description" content="Expert-curated guide for modern home decor and wedding registry essentials. Discover top-rated Amazon products for a sophisticated lifestyle.">
-    <meta name="keywords" content="Amazon Home Finds 2026, Wedding Registry Ideas, Modern Interior Design USA, Luxury Home Decor, Best Kitchen Gadgets">
-    <meta name="author" content="Ideal Home & Weddings">
+    <!-- SEO MAESTRO PARA USA -->
+    <meta name="description" content="Expert-curated guide for modern home decor and wedding registry essentials. Discover top-rated Amazon products.">
+    <meta name="keywords" content="Amazon Home Finds 2026, Wedding Registry, Luxury Home Decor">
     
-    <!-- GEO-TAGGING (SEO UBICACIÓN SDE) -->
+    <!-- GEO-TAGGING SDE -->
     <meta name="geo.region" content="DO-32" />
     <meta name="geo.placename" content="Santo Domingo Este" />
     <meta name="geo.position" content="18.4861;-69.8533" />
@@ -20,7 +19,6 @@
     <style>
         :root {
             --primary-bg: #FFFFFF;
-            --secondary-bg: #FDFDFD;
             --text-dark: #121212;
             --text-light: #555555;
             --gold: #b59410;
@@ -28,62 +26,49 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: var(--primary-bg); color: var(--text-dark); line-height: 1.6; -webkit-font-smoothing: antialiased; }
-        h1, h2, h3 { font-weight: 300; letter-spacing: 2px; text-transform: uppercase; }
-        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        body { font-family: 'Helvetica Neue', sans-serif; background-color: var(--primary-bg); color: var(--text-dark); overflow-x: hidden; }
         .container { max-width: 1140px; margin: 0 auto; padding: 0 20px; }
 
-        /* HEADER */
-        header { padding: 50px 0; border-bottom: 1px solid var(--border); text-align: center; }
-        header h1 { font-size: 26px; color: var(--text-dark); }
+        /* AD CONTAINERS (Nuevas Funciones) */
+        .ad-container-top { width: 100%; text-align: center; padding: 20px 0; background: #f9f9f9; border-bottom: 1px solid var(--border); }
+        .main-content-layout { display: grid; grid-template-columns: 1fr 300px; gap: 30px; margin-top: 40px; }
+        .ad-container-sidebar { border-left: 1px solid var(--border); padding-left: 20px; }
+
+        @media (max-width: 900px) {
+            .main-content-layout { grid-template-columns: 1fr; }
+            .ad-container-sidebar { border-left: none; padding-left: 0; }
+        }
+
+        /* HEADER & NAV */
+        header { padding: 40px 0; text-align: center; }
+        header h1 { font-weight: 300; letter-spacing: 2px; text-transform: uppercase; font-size: 26px; }
         header h1 span { color: var(--gold); }
-        header p { font-size: 10px; text-transform: uppercase; letter-spacing: 4px; color: var(--text-light); margin-top: 10px; }
-
-        /* NAV STICKY */
         nav { background: #fff; padding: 15px 0; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; text-align: center; }
-        nav ul { list-style: none; display: inline-flex; gap: 35px; }
-        nav a { font-size: 11px; font-weight: 600; text-transform: uppercase; color: #999; }
-        nav a:hover { color: var(--gold); }
+        nav ul { list-style: none; display: inline-flex; gap: 25px; }
+        nav a { font-size: 11px; font-weight: 600; text-transform: uppercase; color: #999; text-decoration: none; }
 
-        /* HERO SECTION */
-        .hero { padding: 100px 0; text-align: center; background: #fafafa; border-bottom: 1px solid var(--border); }
-        .hero h2 { font-size: 38px; margin-bottom: 20px; color: var(--text-dark); }
-        .hero p { font-size: 18px; color: var(--text-light); max-width: 650px; margin: 0 auto; font-style: italic; }
+        /* PRODUCT CARDS */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 40px; }
+        .product-card { background: #fff; padding: 20px; text-align: center; transition: 0.4s; border: 1px solid transparent; }
+        .product-card:hover { border-color: var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .product-card img, .product-card video { width: 100%; height: 250px; object-fit: contain; margin-bottom: 15px; }
+        .tag { font-size: 9px; font-weight: bold; background: var(--gold); color: #fff; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; margin-bottom: 10px; display: inline-block; }
+        .btn-amazon { display: block; background: #000; color: #fff; padding: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; text-decoration: none; margin-top: 15px; }
 
-        /* PRODUCTS GRID */
-        .products { padding: 80px 0; }
-        .section-title { text-align: center; font-size: 22px; margin-bottom: 50px; border-bottom: 1px solid var(--gold); display: inline-block; padding-bottom: 10px; margin-left: 50%; transform: translateX(-50%); }
-
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 50px; }
-
-        /* PRODUCT CARD USA STYLE */
-        .product-card { background: #fff; padding: 20px; text-align: center; border: 1px solid transparent; transition: 0.4s; position: relative; }
-        .product-card:hover { border-color: var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.03); }
-        
-        .tag { font-size: 9px; font-weight: bold; background: var(--gold); color: #fff; padding: 3px 10px; display: inline-block; margin-bottom: 15px; border-radius: 20px; text-transform: uppercase; }
-
-        .product-card img { width: 100%; height: 280px; object-fit: contain; margin-bottom: 25px; }
-        .stars { color: #FFD700; margin-bottom: 10px; font-size: 14px; }
-        .product-card h3 { font-size: 15px; font-weight: 500; text-transform: none; margin-bottom: 10px; }
-        .product-card p { font-size: 13px; color: var(--text-light); margin-bottom: 25px; min-height: 45px; }
-
-        .btn-amazon { display: block; background: #000; color: #fff; padding: 15px; font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
-        .btn-amazon:hover { background: var(--gold); }
-
-        /* FOOTER */
-        footer { padding: 80px 0; background: #000; color: #fff; text-align: center; font-size: 11px; letter-spacing: 1px; }
-        footer p { opacity: 0.5; }
-
-        @media (max-width: 768px) { .hero h2 { font-size: 30px; } .product-grid { grid-template-columns: 1fr; } }
+        footer { padding: 60px 0; background: #000; color: #fff; text-align: center; font-size: 11px; margin-top: 80px; }
     </style>
 </head>
 <body>
 
+    <!-- ⬆️ ESPACIO PUBLICITARIO SUPERIOR (TOP) -->
+    <div class="ad-container-top" id="ad-top">
+        <!-- Inyectar Banner desde Panel -->
+    </div>
+
     <header>
         <div class="container">
-            <p>The Curated Choice</p>
             <h1>Ideal <span>Home</span> & Weddings</h1>
-            <p>Premium Recommendations for the Modern Lifestyle</p>
+            <p style="font-size: 10px; letter-spacing: 3px; color: #888; text-transform: uppercase; margin-top: 10px;">The Luxury Selection</p>
         </div>
     </header>
 
@@ -92,44 +77,50 @@
             <ul>
                 <li><a href="#home">Home Finds</a></li>
                 <li><a href="#wedding">Wedding Registry</a></li>
-                <li><a href="#kitchen">Kitchen Essentials</a></li>
+                <li><a href="#kitchen">Kitchen</a></li>
             </ul>
         </div>
     </nav>
 
-    <section class="hero">
-        <div class="container">
-            <h2>Elevate Your <span>Everyday Living</span></h2>
-            <p>"Simplicity is the ultimate sophistication. Discover our handpicked Amazon favorites for a refined home."</p>
+    <div class="container">
+        <div class="main-content-layout">
+            
+            <!-- SECCIÓN PRINCIPAL DE PRODUCTOS -->
+            <main id="home">
+                <h2 style="font-weight: 300; margin-bottom: 30px; letter-spacing: 2px;">EDITOR'S HIGHLIGHTS</h2>
+                
+                <div class="product-grid" id="product-list">
+                    <!-- Producto de Ejemplo 1 -->
+                    <article class="product-card">
+                        <div class="tag">TOP CHOICE</div>
+                        <img src="https://m.media-amazon.com/images/I/71X8k8u9L._AC_SL1500_.jpg" alt="Luxury Lamp">
+                        <h3>Minimalist Ceramic Table Lamp</h3>
+                        <p style="font-size: 13px; color: #666;">Elevate your space with warm, sophisticated lighting.</p>
+                        <a href="#" class="btn-amazon">CHECK TODAY'S DEAL</a>
+                    </article>
+                    
+                    <!-- PEGAR NUEVOS PRODUCTOS AQUÍ -->
+                </div>
+            </main>
+
+            <!-- ➡️ ESPACIO LATERAL (SIDEBAR) -->
+            <aside class="ad-container-sidebar" id="ad-sidebar">
+                <h4 style="font-size: 10px; color: #ccc; margin-bottom: 20px;">SPONSORED</h4>
+                <!-- Inyectar Banners Laterales desde Panel -->
+            </aside>
+
         </div>
-    </section>
+    </div>
 
-    <main class="container products" id="home">
-        <h2 class="section-title">Editor's <span>Highlights</span></h2>
-        
-        <!-- AQUÍ SE PEGAN LOS PRODUCTOS DESDE EL PANEL -->
-        <div class="product-grid">
-
-            <!-- Producto de Ejemplo 1 -->
-            <article class="product-card">
-                <div class="tag">TOP RATED</div>
-                <img src="https://m.media-amazon.com/images/I/71X8k8u9L._AC_SL1500_.jpg" alt="Luxury Lamp">
-                <div class="stars">★★★★★</div>
-                <h3>Minimalist Ceramic Table Lamp</h3>
-                <p>Sophisticated warm lighting designed for high-end interiors. A true statement piece for your bedside.</p>
-                <a href="#" class="btn-amazon">CHECK TODAY'S DEAL</a>
-            </article>
-
-            <!-- PRODUCTOS NUEVOS VAN DEBAJO DE ESTA LÍNEA -->
-
-        </div>
-    </main>
+    <!-- ⬇️ ESPACIO INFERIOR (FOOTER AD) -->
+    <div class="ad-container-bottom" id="ad-bottom" style="text-align: center; padding: 40px 0;">
+        <!-- Inyectar Banner Footer desde Panel -->
+    </div>
 
     <footer>
         <div class="container">
             <p>&copy; 2026 IDEAL HOME & WEDDINGS | LUXURY AFFILIATE PARTNER</p>
-            <p style="margin-top:20px;">As an Amazon Associate I earn from qualifying purchases. Handpicked quality for your home.</p>
-            <p>Contact: jose.colorvision@gmail.com</p>
+            <p style="margin-top:15px; opacity: 0.6;">Contact: jose.colorvision@gmail.com</p>
         </div>
     </footer>
 
