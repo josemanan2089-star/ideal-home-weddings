@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Curiosidades de Lujo | Secretos que Toda Mujer Debe Saber</title>
-    <meta name="description" content="Descubre las curiosidades más fascinantes del hogar de lujo. Secretos que las mujeres de NYC, Miami y Beverly Hills ya conocen.">
+    <title>Curiosidades + Artículos | El Club Femenino de Lujo</title>
+    <meta name="description" content="Descubre curiosidades fascinantes y artículos exclusivos para tu hogar. El club de las mujeres que saben.">
     <style>
         * {
             margin: 0;
@@ -13,200 +13,278 @@
         }
         
         body {
-            font-family: 'Georgia', 'Times New Roman', 'Playfair Display', serif;
-            background: #fffaf5;
-            color: #2c1810;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #fffaf7;
+            color: #2c2418;
         }
         
-        /* Header elegante */
-        .hero {
-            background: linear-gradient(135deg, #f5e6d3 0%, #ffe6d5 100%);
-            padding: 60px 20px;
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #f7ede8 0%, #fff5f0 100%);
+            padding: 50px 20px;
             text-align: center;
-            position: relative;
-            border-bottom: 1px solid #e8d9cc;
+            border-bottom: 1px solid #f0e2d8;
         }
         
-        .hero h1 {
-            font-size: 3rem;
+        .header h1 {
+            font-size: 2.5rem;
             font-weight: 400;
             letter-spacing: -0.5px;
-            color: #4a2c1a;
         }
         
-        .hero h1 span {
+        .header h1 span {
             font-weight: 700;
-            background: linear-gradient(135deg, #c9a87b, #b8860b);
+            background: linear-gradient(135deg, #c9a87b, #b87a4a);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         
-        .hero p {
-            font-size: 1.2rem;
-            color: #8b6b4d;
+        .header p {
+            color: #8b7355;
             margin-top: 15px;
             font-style: italic;
         }
         
-        .badge-daily {
-            display: inline-block;
-            background: #c9a87b;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 30px;
-            font-size: 12px;
-            margin-top: 20px;
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 40px 20px;
         }
         
-        /* Grid de artículos - estilo Pinterest */
-        .magazine {
-            max-width: 1200px;
-            margin: 50px auto;
-            padding: 0 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: 40px;
+        /* Sección CURIOSIDADES - Estilo destacado */
+        .curiosidades-section {
+            margin-bottom: 70px;
         }
         
-        .card {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            transition: all 0.4s ease;
-            cursor: pointer;
-            border: 1px solid #f0e4d8;
-        }
-        
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
-            border-color: #c9a87b;
-        }
-        
-        .image-wrap {
-            height: 280px;
-            overflow: hidden;
-            background: #f9f0e8;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            text-align: center;
             position: relative;
         }
         
-        .image-wrap img {
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: #c9a87b;
+            margin: 15px auto 0;
+        }
+        
+        .curiosidad-destacada {
+            background: linear-gradient(135deg, #2c2418 0%, #4a3727 100%);
+            border-radius: 30px;
+            padding: 50px;
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .curiosidad-destacada::before {
+            content: "✨";
+            position: absolute;
+            font-size: 150px;
+            opacity: 0.05;
+            right: -30px;
+            bottom: -30px;
+            font-family: serif;
+        }
+        
+        .curiosidad-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 20px;
+            border-radius: 40px;
+            font-size: 12px;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+        }
+        
+        .curiosidad-destacada h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+        
+        .curiosidad-dato {
+            font-size: 1.3rem;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            font-style: italic;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .curiosidad-reflexion {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .curiosidad-cierre {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #c9a87b;
+            margin-top: 20px;
+        }
+        
+        .btn-compartir {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 40px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        
+        .btn-compartir:hover {
+            background: #c9a87b;
+            border-color: #c9a87b;
+        }
+        
+        /* Grid de curiosidades secundarias */
+        .curiosidades-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .curiosidad-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border: 1px solid #f0e2d8;
+            transition: all 0.3s;
+        }
+        
+        .curiosidad-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            border-color: #c9a87b;
+        }
+        
+        .curiosidad-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: #2c2418;
+        }
+        
+        .curiosidad-card p {
+            color: #6b5a48;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .small-cierre {
+            color: #c9a87b;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        
+        /* Sección ARTÍCULOS */
+        .articulos-section {
+            margin-top: 50px;
+        }
+        
+        .articulos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 35px;
+        }
+        
+        .articulo-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: all 0.4s;
+            cursor: pointer;
+            border: 1px solid #f0e2d8;
+        }
+        
+        .articulo-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        }
+        
+        .articulo-imagen {
+            height: 240px;
+            overflow: hidden;
+        }
+        
+        .articulo-imagen img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.6s;
+            transition: transform 0.5s;
         }
         
-        .card:hover .image-wrap img {
+        .articulo-card:hover .articulo-imagen img {
             transform: scale(1.05);
         }
         
-        .content {
+        .articulo-contenido {
             padding: 25px;
         }
         
-        .curiosity-badge {
+        .articulo-tag {
             display: inline-block;
-            background: #f0e4d8;
+            background: #f7ede8;
             color: #c9a87b;
             font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
             padding: 4px 12px;
             border-radius: 20px;
-            margin-bottom: 15px;
-            font-weight: 600;
+            margin-bottom: 12px;
+            text-transform: uppercase;
         }
         
-        .card h2 {
-            font-size: 1.6rem;
-            font-weight: 500;
-            margin-bottom: 15px;
+        .articulo-contenido h3 {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
             line-height: 1.3;
-            color: #2c1810;
         }
         
-        .curiosity-text {
-            font-size: 0.95rem;
-            color: #6b4e3a;
-            line-height: 1.6;
-            margin-bottom: 15px;
+        .articulo-intro {
+            color: #6b5a48;
             font-style: italic;
-            border-left: 3px solid #c9a87b;
-            padding-left: 15px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
         }
         
-        .benefit-text {
-            font-size: 0.9rem;
-            color: #4a2c1a;
-            margin-bottom: 20px;
+        .articulo-beneficio {
+            color: #2c2418;
             font-weight: 500;
+            margin-bottom: 15px;
         }
         
-        .closure {
-            font-size: 0.9rem;
-            color: #b8860b;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-        
-        .btn-shop {
+        .btn-ver {
             display: inline-block;
-            background: #2c1810;
+            background: #2c2418;
             color: white;
-            padding: 12px 25px;
-            text-decoration: none;
+            padding: 10px 20px;
             border-radius: 40px;
-            font-weight: 500;
+            text-decoration: none;
+            font-size: 13px;
             transition: all 0.3s;
             width: 100%;
             text-align: center;
-            border: none;
-            cursor: pointer;
-            font-family: inherit;
         }
         
-        .btn-shop:hover {
+        .btn-ver:hover {
             background: #c9a87b;
-            transform: translateX(5px);
-        }
-        
-        /* Sidebar de curiosidad del día */
-        .sidebar {
-            max-width: 1200px;
-            margin: 0 auto 50px;
-            padding: 0 20px;
-        }
-        
-        .daily-curiosity {
-            background: linear-gradient(135deg, #2c1810 0%, #4a2c1a 100%);
-            border-radius: 20px;
-            padding: 40px;
-            color: white;
-            text-align: center;
-        }
-        
-        .daily-curiosity h3 {
-            font-size: 1.2rem;
-            letter-spacing: 3px;
-            margin-bottom: 15px;
-            opacity: 0.8;
-        }
-        
-        .daily-curiosity p {
-            font-size: 1.4rem;
-            font-style: italic;
-            max-width: 700px;
-            margin: 0 auto;
         }
         
         footer {
-            background: #2c1810;
-            color: #f0e4d8;
+            background: #2c2418;
+            color: #f0e2d8;
             text-align: center;
             padding: 40px;
             margin-top: 60px;
@@ -217,130 +295,189 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        .card {
-            animation: fadeIn 0.6s ease forwards;
+        .curiosidad-card, .articulo-card {
+            animation: fadeIn 0.5s ease forwards;
         }
         
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2rem; }
-            .magazine { grid-template-columns: 1fr; }
-            .daily-curiosity p { font-size: 1.1rem; }
+            .header h1 { font-size: 1.8rem; }
+            .curiosidad-destacada { padding: 30px; }
+            .curiosidad-dato { font-size: 1.1rem; }
+            .articulos-grid { grid-template-columns: 1fr; }
         }
         
-        /* Spinner de carga */
         .loader {
             text-align: center;
-            padding: 60px;
-        }
-        
-        .loader::after {
-            content: "✨";
-            font-size: 40px;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            padding: 50px;
+            font-size: 1.2rem;
+            color: #c9a87b;
         }
     </style>
 </head>
 <body>
-    <div class="hero">
-        <div class="badge-daily">✨ EL CLUB DE LAS QUE SABEN ✨</div>
-        <h1>Curiosidades que <span>transforman</span><br>tu hogar</h1>
-        <p>Secretos de lujo que las mujeres de NYC, Miami y Beverly Hills ya conocen</p>
+    <div class="header">
+        <h1>El Club de <span>Las Que Saben</span></h1>
+        <p>Curiosidades que inspiran | Artículos que transforman tu hogar</p>
     </div>
     
-    <div class="sidebar">
-        <div class="daily-curiosity" id="dailyCuriosity">
-            <h3>🌸 CURIOSIDAD DEL DÍA</h3>
-            <p>Cargando el secreto más exclusivo...</p>
+    <div class="container">
+        <!-- SECCIÓN CURIOSIDADES -->
+        <div class="curiosidades-section">
+            <h2 class="section-title">💎 CURIOSIDADES QUE SORPRENDEN</h2>
+            
+            <div id="curiosidadDestacada" class="curiosidad-destacada">
+                <div class="loader">✨ Cargando secreto exclusivo...</div>
+            </div>
+            
+            <div id="curiosidadesGrid" class="curiosidades-grid">
+                <div class="loader">Cargando más curiosidades...</div>
+            </div>
+        </div>
+        
+        <!-- SECCIÓN ARTÍCULOS -->
+        <div class="articulos-section">
+            <h2 class="section-title">📰 ARTÍCULOS EXCLUSIVOS</h2>
+            <div id="articulosGrid" class="articulos-grid">
+                <div class="loader">Cargando artículos...</div>
+            </div>
         </div>
     </div>
     
-    <div class="magazine" id="articlesGrid">
-        <div class="loader">Cargando secretos...</div>
-    </div>
-    
     <footer>
-        <p>✨ El Club de las Que Saben ✨</p>
-        <p style="font-size: 12px; margin-top: 15px;">Descubre los secretos que todas quieren conocer. Somos afiliados de Amazon.</p>
+        <p>✨ El Club de Las Que Saben ✨</p>
+        <p style="font-size: 12px; margin-top: 10px;">Descubre los secretos que todas quieren conocer | Somos afiliados de Amazon</p>
     </footer>
     
     <script>
-        let articles = [];
+        let curiosidades = [];
+        let articulos = [];
         
-        async function loadArticles() {
+        // Cargar todo
+        async function cargarTodo() {
+            await Promise.all([cargarCuriosidades(), cargarArticulos()]);
+        }
+        
+        async function cargarCuriosidades() {
             try {
-                const res = await fetch('/api/articulos');
-                articles = await res.json();
-                renderArticles();
-                updateDailyCuriosity();
+                const res = await fetch('/api/curiosidades');
+                curiosidades = await res.json();
+                renderCuriosidades();
             } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('articlesGrid').innerHTML = '<p style="text-align:center;">✨ Cargando secretos exclusivos...</p>';
+                console.error('Error curiosidades:', error);
             }
         }
         
-        function renderArticles() {
-            const grid = document.getElementById('articlesGrid');
-            
-            if (articles.length === 0) {
-                grid.innerHTML = '<p style="text-align:center;">✨ Pronto revelaremos más secretos exclusivos...</p>';
+        async function cargarArticulos() {
+            try {
+                const res = await fetch('/api/articulos');
+                articulos = await res.json();
+                renderArticulos();
+            } catch (error) {
+                console.error('Error artículos:', error);
+            }
+        }
+        
+        function renderCuriosidades() {
+            if (curiosidades.length === 0) {
+                document.getElementById('curiosidadDestacada').innerHTML = `
+                    <div class="loader">✨ Pronto más secretos exclusivos...</div>
+                `;
                 return;
             }
             
-            grid.innerHTML = articles.map(article => `
-                <div class="card" onclick="trackAndRedirect(${article.id}, '${article.link}')">
-                    <div class="image-wrap">
-                        <img src="${article.imagen || 'https://picsum.photos/400/300?random=' + article.id}" 
-                             alt="${article.titulo}"
+            // Curiosidad destacada (la más reciente)
+            const destacada = curiosidades[0];
+            document.getElementById('curiosidadDestacada').innerHTML = `
+                <div class="curiosidad-badge">🌸 SECRETO EXCLUSIVO</div>
+                <h2>${destacada.titulo || 'El secreto que todas quieren saber'}</h2>
+                <div class="curiosidad-dato">✨ ${destacada.dato || 'Descubre el nuevo símbolo de estatus silencioso'}</div>
+                <div class="curiosidad-reflexion">💭 ${destacada.reflexion || 'Porque las mujeres que saben, viven mejor'}</div>
+                <div class="curiosidad-cierre">${destacada.cierre || 'Únete al club de las que saben'}</div>
+                <button class="btn-compartir" onclick="compartirCuriosidad(${destacada.id})">📤 Compartir este secreto</button>
+            `;
+            
+            // Las demás curiosidades
+            const otras = curiosidades.slice(1, 7);
+            const grid = document.getElementById('curiosidadesGrid');
+            
+            if (otras.length === 0) {
+                grid.innerHTML = '<p style="text-align:center; grid-column:1/-1;">✨ Nuevas curiosidades llegando pronto...</p>';
+                return;
+            }
+            
+            grid.innerHTML = otras.map(cur => `
+                <div class="curiosidad-card">
+                    <h3>✨ ${cur.titulo || 'Dato sorprendente'}</h3>
+                    <p>${cur.dato ? cur.dato.substring(0, 120) + '...' : 'Descubre este fascinante secreto'}</p>
+                    <div class="small-cierre">${cur.cierre?.substring(0, 80) || 'Las que saben, ya lo conocen'}</div>
+                </div>
+            `).join('');
+        }
+        
+        function renderArticulos() {
+            const grid = document.getElementById('articulosGrid');
+            
+            if (articulos.length === 0) {
+                grid.innerHTML = '<p style="text-align:center; grid-column:1/-1;">📰 Publica tu primer artículo desde el panel</p>';
+                return;
+            }
+            
+            grid.innerHTML = articulos.map(art => `
+                <div class="articulo-card" onclick="irArticulo(${art.id}, '${art.link}')">
+                    <div class="articulo-imagen">
+                        <img src="${art.imagen || 'https://picsum.photos/400/300?random=' + art.id}" 
+                             alt="${art.titulo}"
                              loading="lazy"
-                             onerror="this.src='https://picsum.photos/400/300?random=${article.id}'">
+                             onerror="this.src='https://picsum.photos/400/300?random=${art.id}'">
                     </div>
-                    <div class="content">
-                        <span class="curiosity-badge">🌸 SECRETO FEMENINO</span>
-                        <h2>${article.titulo || 'El secreto que todas quieren'}</h2>
-                        <div class="curiosity-text">✨ ${article.curiosidad || 'Descubre el nuevo símbolo de estatus silencioso'}</div>
-                        <div class="benefit-text">💎 ${article.beneficio || 'Transforma tu hogar con este esencial exclusivo'}</div>
-                        <div class="closure">${article.cierre || 'Las que saben, ya lo tienen. ¿Te unes?'}</div>
-                        <button class="btn-shop" onclick="event.stopPropagation(); trackClick(${article.id}, '${article.link}')">
-                            ✨ DESCUBRE EL SECRETO → ✨
+                    <div class="articulo-contenido">
+                        <span class="articulo-tag">✨ ARTÍCULO EXCLUSIVO</span>
+                        <h3>${art.titulo || 'Producto esencial'}</h3>
+                        <div class="articulo-intro">💡 ${art.intro || 'Descubre por qué todas quieren esto'}</div>
+                        <div class="articulo-beneficio">💎 ${art.beneficio?.substring(0, 100) || 'El nuevo símbolo de estatus silencioso'}</div>
+                        <button class="btn-ver" onclick="event.stopPropagation(); verArticulo(${art.id}, '${art.link}')">
+                            ✨ VER ARTÍCULO COMPLETO →
                         </button>
                     </div>
                 </div>
             `).join('');
         }
         
-        function updateDailyCuriosity() {
-            if (articles.length > 0) {
-                const random = articles[Math.floor(Math.random() * articles.length)];
-                const dailyDiv = document.getElementById('dailyCuriosity');
-                dailyDiv.innerHTML = `
-                    <h3>🌸 CURIOSIDAD DEL DÍA</h3>
-                    <p>✨ ${random.curiosidad || random.titulo}</p>
-                    <p style="font-size: 0.9rem; margin-top: 15px; opacity: 0.7;">💎 ${random.cierre?.substring(0, 80) || 'El secreto que todas quieren conocer'}</p>
-                `;
+        async function compartirCuriosidad(id) {
+            try {
+                await fetch(`/api/compartir-curiosidad/${id}`, { method: 'POST' });
+                alert('✨ ¡Gracias por compartir este secreto! ✨');
+                
+                // Opcional: compartir en redes
+                if (navigator.share) {
+                    const curiosidad = curiosidades.find(c => c.id === id);
+                    navigator.share({
+                        title: 'Curiosidad Femenina',
+                        text: curiosidad?.dato || 'Descubre este secreto exclusivo',
+                        url: window.location.href
+                    });
+                }
+            } catch (e) {
+                console.log('Compartido');
             }
         }
         
-        async function trackClick(id, link) {
+        async function verArticulo(id, link) {
             try {
-                await fetch(`/api/click/${id}`, { method: 'POST' });
+                await fetch(`/api/click-articulo/${id}`, { method: 'POST' });
                 window.open(link, '_blank');
             } catch (e) {
                 window.open(link, '_blank');
             }
         }
         
-        function trackAndRedirect(id, link) {
-            trackClick(id, link);
+        function irArticulo(id, link) {
+            verArticulo(id, link);
         }
         
         // Cargar al inicio y cada 30 segundos
-        loadArticles();
-        setInterval(loadArticles, 30000);
+        cargarTodo();
+        setInterval(cargarTodo, 30000);
     </script>
 </body>
 </html>
