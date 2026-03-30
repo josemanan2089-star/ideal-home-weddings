@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ideal Home & Weddings | Silent Luxury for Modern Homes</title>
-    <meta name="description" content="Curated luxury home essentials for the discerning couple. Smart home gadgets, zero-waste status symbols, and wedding registry must-haves.">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Curiosidades de Lujo | Secretos que Toda Mujer Debe Saber</title>
+    <meta name="description" content="Descubre las curiosidades más fascinantes del hogar de lujo. Secretos que las mujeres de NYC, Miami y Beverly Hills ya conocen.">
     <style>
         * {
             margin: 0;
@@ -14,280 +13,334 @@
         }
         
         body {
-            font-family: 'Inter', sans-serif;
-            background: #faf9f8;
-            color: #1a1a1a;
+            font-family: 'Georgia', 'Times New Roman', 'Playfair Display', serif;
+            background: #fffaf5;
+            color: #2c1810;
         }
         
-        /* Header de Lujo */
-        .luxury-header {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: white;
+        /* Header elegante */
+        .hero {
+            background: linear-gradient(135deg, #f5e6d3 0%, #ffe6d5 100%);
             padding: 60px 20px;
             text-align: center;
             position: relative;
-            overflow: hidden;
+            border-bottom: 1px solid #e8d9cc;
         }
         
-        .luxury-header::before {
-            content: "✦";
-            position: absolute;
-            font-size: 300px;
-            opacity: 0.03;
-            right: -50px;
-            top: -50px;
-            font-family: serif;
-        }
-        
-        .header-content {
-            max-width: 800px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .header-content h1 {
+        .hero h1 {
             font-size: 3rem;
-            font-weight: 300;
+            font-weight: 400;
             letter-spacing: -0.5px;
+            color: #4a2c1a;
         }
         
-        .header-content h1 span {
+        .hero h1 span {
             font-weight: 700;
-            background: linear-gradient(135deg, #f5af19, #f12711);
+            background: linear-gradient(135deg, #c9a87b, #b8860b);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         
-        .lang-switch {
-            margin-top: 30px;
+        .hero p {
+            font-size: 1.2rem;
+            color: #8b6b4d;
+            margin-top: 15px;
+            font-style: italic;
         }
         
-        .lang-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.3);
+        .badge-daily {
+            display: inline-block;
+            background: #c9a87b;
             color: white;
-            padding: 8px 20px;
-            margin: 0 5px;
+            padding: 5px 15px;
             border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s;
+            font-size: 12px;
+            margin-top: 20px;
         }
         
-        .lang-btn.active {
-            background: linear-gradient(135deg, #f5af19, #f12711);
-            border-color: transparent;
-        }
-        
-        /* Grid de Productos - Estilo Revista */
-        .magazine-grid {
+        /* Grid de artículos - estilo Pinterest */
+        .magazine {
             max-width: 1200px;
-            margin: 60px auto;
+            margin: 50px auto;
             padding: 0 20px;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
             gap: 40px;
         }
         
-        .article-card {
+        .card {
             background: white;
             border-radius: 20px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.4s ease;
             cursor: pointer;
+            border: 1px solid #f0e4d8;
         }
         
-        .article-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 25px 40px rgba(0,0,0,0.15);
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            border-color: #c9a87b;
         }
         
-        .image-container {
-            position: relative;
-            overflow: hidden;
-            background: #f5f5f5;
+        .image-wrap {
             height: 280px;
+            overflow: hidden;
+            background: #f9f0e8;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
         
-        .image-container img {
-            transition: transform 0.6s;
-            object-fit: contain;
+        .image-wrap img {
             width: 100%;
             height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s;
         }
         
-        .article-card:hover .image-container img {
+        .card:hover .image-wrap img {
             transform: scale(1.05);
         }
-        
-        /* Tamaños de imagen */
-        .image-small img { padding: 30px; }
-        .image-medium img { padding: 20px; }
-        .image-large img { padding: 10px; }
-        
-        /* Posiciones de imagen */
-        .position-left { justify-content: flex-start; }
-        .position-center { justify-content: center; }
-        .position-right { justify-content: flex-end; }
         
         .content {
             padding: 25px;
         }
         
-        .badge {
+        .curiosity-badge {
             display: inline-block;
-            background: linear-gradient(135deg, #f5af19, #f12711);
-            color: white;
+            background: #f0e4d8;
+            color: #c9a87b;
             font-size: 11px;
-            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
             padding: 4px 12px;
             border-radius: 20px;
             margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-weight: 600;
         }
         
-        .content h2 {
-            font-size: 1.5rem;
-            margin-bottom: 12px;
+        .card h2 {
+            font-size: 1.6rem;
+            font-weight: 500;
+            margin-bottom: 15px;
             line-height: 1.3;
+            color: #2c1810;
         }
         
-        .curiosity {
-            font-size: 0.9rem;
-            color: #666;
+        .curiosity-text {
+            font-size: 0.95rem;
+            color: #6b4e3a;
+            line-height: 1.6;
             margin-bottom: 15px;
             font-style: italic;
-            border-left: 3px solid #f5af19;
+            border-left: 3px solid #c9a87b;
             padding-left: 15px;
         }
         
-        .description {
-            color: #444;
-            line-height: 1.6;
+        .benefit-text {
+            font-size: 0.9rem;
+            color: #4a2c1a;
             margin-bottom: 20px;
-            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        
+        .closure {
+            font-size: 0.9rem;
+            color: #b8860b;
+            margin-bottom: 20px;
+            font-weight: 600;
         }
         
         .btn-shop {
             display: inline-block;
-            background: #1a1a2e;
+            background: #2c1810;
             color: white;
-            padding: 12px 30px;
+            padding: 12px 25px;
             text-decoration: none;
             border-radius: 40px;
-            font-weight: 600;
+            font-weight: 500;
             transition: all 0.3s;
-            border: none;
-            cursor: pointer;
             width: 100%;
             text-align: center;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
         }
         
         .btn-shop:hover {
-            background: linear-gradient(135deg, #f5af19, #f12711);
+            background: #c9a87b;
             transform: translateX(5px);
         }
         
-        footer {
-            background: #1a1a2e;
+        /* Sidebar de curiosidad del día */
+        .sidebar {
+            max-width: 1200px;
+            margin: 0 auto 50px;
+            padding: 0 20px;
+        }
+        
+        .daily-curiosity {
+            background: linear-gradient(135deg, #2c1810 0%, #4a2c1a 100%);
+            border-radius: 20px;
+            padding: 40px;
             color: white;
+            text-align: center;
+        }
+        
+        .daily-curiosity h3 {
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+        
+        .daily-curiosity p {
+            font-size: 1.4rem;
+            font-style: italic;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        footer {
+            background: #2c1810;
+            color: #f0e4d8;
             text-align: center;
             padding: 40px;
             margin-top: 60px;
         }
         
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card {
+            animation: fadeIn 0.6s ease forwards;
+        }
+        
         @media (max-width: 768px) {
-            .magazine-grid {
-                grid-template-columns: 1fr;
-            }
-            .header-content h1 {
-                font-size: 2rem;
-            }
+            .hero h1 { font-size: 2rem; }
+            .magazine { grid-template-columns: 1fr; }
+            .daily-curiosity p { font-size: 1.1rem; }
+        }
+        
+        /* Spinner de carga */
+        .loader {
+            text-align: center;
+            padding: 60px;
+        }
+        
+        .loader::after {
+            content: "✨";
+            font-size: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div class="luxury-header">
-        <div class="header-content">
-            <h1>Ideal Home & <span>Weddings</span></h1>
-            <p style="margin-top: 20px; opacity: 0.8;">Curated silent luxury for the modern household</p>
-            <div class="lang-switch">
-                <button class="lang-btn active" onclick="setLanguage('en')">ENGLISH</button>
-                <button class="lang-btn" onclick="setLanguage('es')">ESPAÑOL</button>
-            </div>
+    <div class="hero">
+        <div class="badge-daily">✨ EL CLUB DE LAS QUE SABEN ✨</div>
+        <h1>Curiosidades que <span>transforman</span><br>tu hogar</h1>
+        <p>Secretos de lujo que las mujeres de NYC, Miami y Beverly Hills ya conocen</p>
+    </div>
+    
+    <div class="sidebar">
+        <div class="daily-curiosity" id="dailyCuriosity">
+            <h3>🌸 CURIOSIDAD DEL DÍA</h3>
+            <p>Cargando el secreto más exclusivo...</p>
         </div>
     </div>
     
-    <div class="magazine-grid" id="productGrid"></div>
+    <div class="magazine" id="articlesGrid">
+        <div class="loader">Cargando secretos...</div>
+    </div>
     
     <footer>
-        <p>© 2026 Ideal Home & Weddings. As an Amazon Associate we earn from qualifying purchases.</p>
-        <p style="margin-top: 10px; font-size: 12px;">Silent Luxury | Zero-Waste Status | Smart Home Curated</p>
+        <p>✨ El Club de las Que Saben ✨</p>
+        <p style="font-size: 12px; margin-top: 15px;">Descubre los secretos que todas quieren conocer. Somos afiliados de Amazon.</p>
     </footer>
     
     <script>
-        let currentLang = 'en';
-        let products = [];
+        let articles = [];
         
-        async function loadProducts() {
-            const res = await fetch('/api/productos');
-            products = await res.json();
-            renderProducts();
+        async function loadArticles() {
+            try {
+                const res = await fetch('/api/articulos');
+                articles = await res.json();
+                renderArticles();
+                updateDailyCuriosity();
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('articlesGrid').innerHTML = '<p style="text-align:center;">✨ Cargando secretos exclusivos...</p>';
+            }
         }
         
-        function renderProducts() {
-            const grid = document.getElementById('productGrid');
-            grid.innerHTML = products.map(product => {
-                const title = currentLang === 'en' ? (product.title_en || product.title) : (product.title_es || product.title);
-                const curiosity = currentLang === 'en' ? product.curiosity_en : product.curiosity_es;
-                const description = currentLang === 'en' ? product.description_en : product.description_es;
-                
-                // Clases para tamaño y posición
-                const sizeClass = `image-${product.imageSize || 'medium'}`;
-                const positionClass = `position-${product.imagePosition || 'center'}`;
-                
-                return `
-                    <div class="article-card" onclick="trackClick(${product.id})">
-                        <div class="image-container ${sizeClass} ${positionClass}">
-                            <img src="${product.image}" alt="${title}" onerror="this.src='https://via.placeholder.com/400x300?text=Product'">
-                        </div>
-                        <div class="content">
-                            <span class="badge">✦ CURATED PICK</span>
-                            <h2>${title || 'Premium Product'}</h2>
-                            ${curiosity ? `<div class="curiosity">✨ ${curiosity}</div>` : ''}
-                            ${description ? `<div class="description">${description}</div>` : ''}
-                            <a href="${product.link}" class="btn-shop" target="_blank" onclick="event.stopPropagation(); registerClick(${product.id})">
-                                ${currentLang === 'en' ? '✨ DISCOVER ON AMAZON →' : '✨ DESCUBRE EN AMAZON →'}
-                            </a>
-                        </div>
+        function renderArticles() {
+            const grid = document.getElementById('articlesGrid');
+            
+            if (articles.length === 0) {
+                grid.innerHTML = '<p style="text-align:center;">✨ Pronto revelaremos más secretos exclusivos...</p>';
+                return;
+            }
+            
+            grid.innerHTML = articles.map(article => `
+                <div class="card" onclick="trackAndRedirect(${article.id}, '${article.link}')">
+                    <div class="image-wrap">
+                        <img src="${article.imagen || 'https://picsum.photos/400/300?random=' + article.id}" 
+                             alt="${article.titulo}"
+                             loading="lazy"
+                             onerror="this.src='https://picsum.photos/400/300?random=${article.id}'">
                     </div>
+                    <div class="content">
+                        <span class="curiosity-badge">🌸 SECRETO FEMENINO</span>
+                        <h2>${article.titulo || 'El secreto que todas quieren'}</h2>
+                        <div class="curiosity-text">✨ ${article.curiosidad || 'Descubre el nuevo símbolo de estatus silencioso'}</div>
+                        <div class="benefit-text">💎 ${article.beneficio || 'Transforma tu hogar con este esencial exclusivo'}</div>
+                        <div class="closure">${article.cierre || 'Las que saben, ya lo tienen. ¿Te unes?'}</div>
+                        <button class="btn-shop" onclick="event.stopPropagation(); trackClick(${article.id}, '${article.link}')">
+                            ✨ DESCUBRE EL SECRETO → ✨
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function updateDailyCuriosity() {
+            if (articles.length > 0) {
+                const random = articles[Math.floor(Math.random() * articles.length)];
+                const dailyDiv = document.getElementById('dailyCuriosity');
+                dailyDiv.innerHTML = `
+                    <h3>🌸 CURIOSIDAD DEL DÍA</h3>
+                    <p>✨ ${random.curiosidad || random.titulo}</p>
+                    <p style="font-size: 0.9rem; margin-top: 15px; opacity: 0.7;">💎 ${random.cierre?.substring(0, 80) || 'El secreto que todas quieren conocer'}</p>
                 `;
-            }).join('');
+            }
         }
         
-        async function registerClick(productId) {
-            await fetch(`/api/click/${productId}`, { method: 'POST' });
+        async function trackClick(id, link) {
+            try {
+                await fetch(`/api/click/${id}`, { method: 'POST' });
+                window.open(link, '_blank');
+            } catch (e) {
+                window.open(link, '_blank');
+            }
         }
         
-        function trackClick(productId) {
-            // Para analytics futuro
-            console.log('Clicked product:', productId);
+        function trackAndRedirect(id, link) {
+            trackClick(id, link);
         }
         
-        function setLanguage(lang) {
-            currentLang = lang;
-            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            renderProducts();
-        }
-        
-        loadProducts();
-        setInterval(loadProducts, 30000); // Recargar cada 30 segundos
+        // Cargar al inicio y cada 30 segundos
+        loadArticles();
+        setInterval(loadArticles, 30000);
     </script>
 </body>
 </html>
