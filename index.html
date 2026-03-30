@@ -3,261 +3,291 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ideal Home & Weddings | Premium Amazon Essentials 2026</title>
-    
-    <!-- ADSENSE AUTH -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5280872495839888" crossorigin="anonymous"></script>
-
-    <!-- SEO ESTRATÉGICO -->
-    <meta name="description" content="Handpicked Amazon registry essentials for modern homes. Shop top-rated decor and kitchen gadgets in USA. Guía experta bilingüe.">
-    <link rel="canonical" href="https://ideal-home-weddings-production.up.railway.app/" />
-    
+    <title>Ideal Home & Weddings | Silent Luxury for Modern Homes</title>
+    <meta name="description" content="Curated luxury home essentials for the discerning couple. Smart home gadgets, zero-waste status symbols, and wedding registry must-haves.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --gold: #b59410; 
-            --dark: #121212; 
-            --border: #F0F0F0; 
-            --accent: #ff4500; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #faf9f8;
+            color: #1a1a1a;
         }
         
-        body { 
-            font-family: 'Helvetica Neue', Arial, sans-serif; 
-            background: #fff; 
-            color: var(--dark); 
-            line-height: 1.6; 
+        /* Header de Lujo */
+        .luxury-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
         
-        .container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 0 20px; 
-        }
-
-        .mxl-lang-bar { 
-            background: var(--dark); 
-            padding: 10px 0; 
-            text-align: right; 
-            border-bottom: 2px solid var(--gold); 
-            position: sticky; 
-            top: 0; 
-            z-index: 2000; 
+        .luxury-header::before {
+            content: "✦";
+            position: absolute;
+            font-size: 300px;
+            opacity: 0.03;
+            right: -50px;
+            top: -50px;
+            font-family: serif;
         }
         
-        .lang-btn { 
-            background: none; 
-            border: 1px solid #444; 
-            color: #fff; 
-            font-size: 11px; 
-            padding: 5px 15px; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            border-radius: 3px; 
-            margin-left: 10px; 
-            font-weight: bold; 
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
         
-        .lang-btn.active { 
-            border-color: var(--gold); 
-            color: var(--gold); 
-        }
-
-        header { 
-            padding: 50px 0; 
-            text-align: center; 
-            background: #fcfcfc; 
-            border-bottom: 1px solid var(--border); 
+        .header-content h1 {
+            font-size: 3rem;
+            font-weight: 300;
+            letter-spacing: -0.5px;
         }
         
-        header h1 { 
-            font-weight: 300; 
-            letter-spacing: 4px; 
-            text-transform: uppercase; 
-            font-size: 26px; 
+        .header-content h1 span {
+            font-weight: 700;
+            background: linear-gradient(135deg, #f5af19, #f12711);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
-        header h1 span { 
-            color: var(--gold); 
-            font-weight: bold; 
-        }
-
-        .main-content { 
-            display: grid; 
-            grid-template-columns: 1fr 320px; 
-            gap: 40px; 
-            margin-top: 40px; 
+        .lang-switch {
+            margin-top: 30px;
         }
         
-        .product-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-            gap: 30px; 
+        .lang-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 20px;
+            margin: 0 5px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
         }
         
-        .product-card { 
-            border: 1px solid var(--border); 
-            padding: 25px; 
-            text-align: center; 
-            transition: 0.3s; 
-            position: relative; 
-            border-radius: 12px; 
-            background: #fff; 
+        .lang-btn.active {
+            background: linear-gradient(135deg, #f5af19, #f12711);
+            border-color: transparent;
         }
         
-        .product-card:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.08); 
-            border-color: var(--gold); 
+        /* Grid de Productos - Estilo Revista */
+        .magazine-grid {
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 40px;
         }
         
-        .product-card img { 
-            width: 100%; 
-            height: 250px; 
-            object-fit: contain; 
-            margin-bottom: 15px; 
+        .article-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
         }
         
-        .btn-amazon { 
-            display: block; 
-            background: var(--dark); 
-            color: #fff; 
-            padding: 15px; 
-            font-size: 11px; 
-            font-weight: bold; 
-            text-transform: uppercase; 
-            text-decoration: none; 
-            margin-top: 15px; 
-            border-radius: 6px; 
+        .article-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 40px rgba(0,0,0,0.15);
         }
         
-        .btn-amazon:hover { 
-            background: var(--gold); 
-        }
-
-        aside { 
-            border-left: 1px solid var(--border); 
-            padding-left: 25px; 
-        }
-        
-        footer { 
-            background: var(--dark); 
-            color: #fff; 
-            padding: 60px 0; 
-            text-align: center; 
-            font-size: 11px; 
-            margin-top: 80px; 
+        .image-container {
+            position: relative;
+            overflow: hidden;
+            background: #f5f5f5;
+            height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        #sale-popup { 
-            position: fixed; 
-            bottom: 20px; 
-            left: 20px; 
-            background: #fff; 
-            border: 1px solid var(--border); 
-            padding: 12px; 
-            border-radius: 8px; 
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1); 
-            display: flex; 
-            align-items: center; 
-            gap: 10px;
+        .image-container img {
+            transition: transform 0.6s;
+            object-fit: contain;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .article-card:hover .image-container img {
+            transform: scale(1.05);
+        }
+        
+        /* Tamaños de imagen */
+        .image-small img { padding: 30px; }
+        .image-medium img { padding: 20px; }
+        .image-large img { padding: 10px; }
+        
+        /* Posiciones de imagen */
+        .position-left { justify-content: flex-start; }
+        .position-center { justify-content: center; }
+        .position-right { justify-content: flex-end; }
+        
+        .content {
+            padding: 25px;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #f5af19, #f12711);
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .content h2 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+        
+        .curiosity {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+            font-style: italic;
+            border-left: 3px solid #f5af19;
+            padding-left: 15px;
+        }
+        
+        .description {
+            color: #444;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+        
+        .btn-shop {
+            display: inline-block;
+            background: #1a1a2e;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 40px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .btn-shop:hover {
+            background: linear-gradient(135deg, #f5af19, #f12711);
+            transform: translateX(5px);
+        }
+        
+        footer {
+            background: #1a1a2e;
+            color: white;
+            text-align: center;
+            padding: 40px;
+            margin-top: 60px;
         }
         
         @media (max-width: 768px) {
-            .main-content {
+            .magazine-grid {
                 grid-template-columns: 1fr;
             }
-            aside {
-                border-left: none;
-                padding-left: 0;
-                margin-top: 40px;
+            .header-content h1 {
+                font-size: 2rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="mxl-lang-bar">
-        <div class="container">
-            <button class="lang-btn active" onclick="setLanguage('en')">EN</button>
-            <button class="lang-btn" onclick="setLanguage('es')">ES</button>
-        </div>
-    </div>
-
-    <header>
-        <div class="container">
+    <div class="luxury-header">
+        <div class="header-content">
             <h1>Ideal Home & <span>Weddings</span></h1>
-            <p style="margin-top: 15px; color: #666;">Premium Amazon Essentials for Your New Life Together</p>
-        </div>
-    </header>
-
-    <div class="container">
-        <div class="main-content">
-            <main>
-                <div class="product-grid" id="product-grid">
-                    <!-- Productos cargados dinámicamente -->
-                </div>
-            </main>
-            <aside>
-                <h3>✨ Wedding Registry Tips</h3>
-                <ul style="margin-top: 20px; list-style: none;">
-                    <li>🎁 Top 10 Kitchen Essentials</li>
-                    <li>🏠 Smart Home Must-Haves</li>
-                    <li>💎 Luxury Under $100</li>
-                </ul>
-            </aside>
+            <p style="margin-top: 20px; opacity: 0.8;">Curated silent luxury for the modern household</p>
+            <div class="lang-switch">
+                <button class="lang-btn active" onclick="setLanguage('en')">ENGLISH</button>
+                <button class="lang-btn" onclick="setLanguage('es')">ESPAÑOL</button>
+            </div>
         </div>
     </div>
-
+    
+    <div class="magazine-grid" id="productGrid"></div>
+    
     <footer>
-        <div class="container">
-            <p>© 2026 Ideal Home & Weddings. As an Amazon Associate we earn from qualifying purchases.</p>
-        </div>
+        <p>© 2026 Ideal Home & Weddings. As an Amazon Associate we earn from qualifying purchases.</p>
+        <p style="margin-top: 10px; font-size: 12px;">Silent Luxury | Zero-Waste Status | Smart Home Curated</p>
     </footer>
-
-    <div id="sale-popup" style="display: none;">
-        <span>🎉</span>
-        <span>Limited Time Offer!</span>
-    </div>
-
+    
     <script>
-        function setLanguage(lang) {
-            const buttons = document.querySelectorAll('.lang-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            console.log('Language set to:', lang);
-            // Aquí puedes agregar lógica de traducción
-        }
-
-        // Cargar productos desde el backend
+        let currentLang = 'en';
+        let products = [];
+        
         async function loadProducts() {
-            try {
-                const response = await fetch('/api/productos');
-                const products = await response.json();
-                const grid = document.getElementById('product-grid');
-                
-                if (products.length === 0) {
-                    grid.innerHTML = '<p style="text-align: center;">Loading products...</p>';
-                    return;
-                }
-                
-                grid.innerHTML = products.map(product => `
-                    <div class="product-card">
-                        <img src="${product.image || 'https://via.placeholder.com/250'}" alt="${product.title}">
-                        <h3>${product.title}</h3>
-                        <p>${product.price || 'Check price on Amazon'}</p>
-                        <a href="${product.link || '#'}" class="btn-amazon" target="_blank">View on Amazon →</a>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading products:', error);
-            }
+            const res = await fetch('/api/productos');
+            products = await res.json();
+            renderProducts();
         }
-
+        
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = products.map(product => {
+                const title = currentLang === 'en' ? (product.title_en || product.title) : (product.title_es || product.title);
+                const curiosity = currentLang === 'en' ? product.curiosity_en : product.curiosity_es;
+                const description = currentLang === 'en' ? product.description_en : product.description_es;
+                
+                // Clases para tamaño y posición
+                const sizeClass = `image-${product.imageSize || 'medium'}`;
+                const positionClass = `position-${product.imagePosition || 'center'}`;
+                
+                return `
+                    <div class="article-card" onclick="trackClick(${product.id})">
+                        <div class="image-container ${sizeClass} ${positionClass}">
+                            <img src="${product.image}" alt="${title}" onerror="this.src='https://via.placeholder.com/400x300?text=Product'">
+                        </div>
+                        <div class="content">
+                            <span class="badge">✦ CURATED PICK</span>
+                            <h2>${title || 'Premium Product'}</h2>
+                            ${curiosity ? `<div class="curiosity">✨ ${curiosity}</div>` : ''}
+                            ${description ? `<div class="description">${description}</div>` : ''}
+                            <a href="${product.link}" class="btn-shop" target="_blank" onclick="event.stopPropagation(); registerClick(${product.id})">
+                                ${currentLang === 'en' ? '✨ DISCOVER ON AMAZON →' : '✨ DESCUBRE EN AMAZON →'}
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        async function registerClick(productId) {
+            await fetch(`/api/click/${productId}`, { method: 'POST' });
+        }
+        
+        function trackClick(productId) {
+            // Para analytics futuro
+            console.log('Clicked product:', productId);
+        }
+        
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderProducts();
+        }
+        
         loadProducts();
+        setInterval(loadProducts, 30000); // Recargar cada 30 segundos
     </script>
 </body>
 </html>
