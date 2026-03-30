@@ -1,144 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MXL GOLD MINER | Panel de Control Total</title>
-    <style>
-        :root { --orange: #ff4500; --dark: #0a0a0a; --gold: #b59410; --card: #161616; --blue: #007bff; --green: #28a745; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: #fff; padding: 15px; margin: 0; }
-        .container { max-width: 700px; margin: 0 auto; }
-        .header { border-bottom: 3px solid var(--orange); padding: 10px 0; margin-bottom: 20px; text-align: center; }
-        
-        .tabs { display: flex; gap: 5px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 12px; background: #222; border: none; color: #888; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; }
-        .tab-btn.active { background: var(--orange); color: #fff; }
+async function publicarDirecto() {
+    const status = document.getElementById('status-msg');
+    status.style.display = 'block';
+    status.innerText = "⏳ Conectando con Railway...";
 
-        .panel-box { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid #333; margin-bottom: 20px; display: none; }
-        .panel-box.active { display: block; }
+    const producto = {
+        tEn: document.getElementById('tEn').value,
+        tEs: document.getElementById('tEs').value,
+        dEn: document.getElementById('dEn').value,
+        dEs: document.getElementById('dEs').value,
+        img: document.getElementById('img').value,
+        link: document.getElementById('link').value,
+        fecha: new Date().toISOString()
+    };
 
-        label { display: block; font-size: 11px; color: var(--gold); text-transform: uppercase; margin-top: 15px; font-weight: bold; }
-        input, textarea, select { width: 100%; background: #222; border: 1px solid #444; color: white; padding: 12px; border-radius: 6px; margin-top: 5px; font-size: 14px; }
-        
-        .btn-main { background: var(--orange); color: white; border: none; width: 100%; padding: 18px; font-weight: 900; text-transform: uppercase; cursor: pointer; margin-top: 25px; border-radius: 8px; letter-spacing: 1px; }
-        .btn-direct { background: var(--green); margin-top: 10px; }
-        
-        #status-msg { margin-top: 15px; padding: 10px; border-radius: 5px; text-align: center; font-size: 12px; display: none; }
-        .success { background: rgba(40, 167, 69, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <div class="header">
-        <h1 style="font-size: 20px;">🏮 MXL <span>GOLD MINER</span> 8080</h1>
-        <p style="font-size: 10px; color: var(--gold); letter-spacing: 2px;">ADSENSE & AUTOMATION SYSTEM</p>
-    </div>
-
-    <div class="tabs">
-        <button class="tab-btn active" onclick="showTab('tab-publisher')">Publisher</button>
-        <button class="tab-btn" onclick="showTab('tab-bot')">IA Bot (Gemini)</button>
-    </div>
-
-    <!-- TAB 1: PUBLISHER MANUAL/DIRECTO -->
-    <div id="tab-publisher" class="panel-box active">
-        <label>1. URL DE IMAGEN (AMAZON)</label>
-        <input type="text" id="img" placeholder="Pegar link de imagen...">
-
-        <label>2. LINK DE AFILIADO (AMZN.TO)</label>
-        <input type="text" id="link" placeholder="Pegar tu link de socio...">
-
-        <label>3. TÍTULO DEL PRODUCTO</label>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <input type="text" id="tEn" placeholder="Title (EN)">
-            <input type="text" id="tEs" placeholder="Título (ES)">
-        </div>
-
-        <label>4. DESCRIPCIÓN (VENENO SEO)</label>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <textarea id="dEn" rows="3" placeholder="English"></textarea>
-            <textarea id="dEs" rows="3" placeholder="Español"></textarea>
-        </div>
-
-        <button class="btn-main btn-direct" onclick="publicarDirecto()">🚀 PUBLICAR DIRECTO A LA WEB</button>
-        <div id="status-msg"></div>
-    </div>
-
-    <!-- TAB 2: IA BOT GEMINI (LO QUE TU QUIERES) -->
-    <div id="tab-bot" class="panel-box">
-        <label>🤖 MODO PILOTO AUTOMÁTICO (LINK AMAZON)</label>
-        <input type="text" id="ai-url" placeholder="Pega cualquier link de Amazon aquí...">
-        <p style="font-size: 9px; color: #888; margin-top: 5px;">* Gemini extraerá la info y redactará el veneno solo.</p>
-        
-        <button class="btn-main" style="background: var(--blue);" onclick="llamarAlBotIA()">🔮 LANZAR BOT INTELIGENTE</button>
-    </div>
-</div>
-
-<script>
-    function showTab(tabId) {
-        document.querySelectorAll('.panel-box').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
+    // Validar campos obligatorios
+    if (!producto.tEn || !producto.link) {
+        status.innerText = "❌ Error: Título y Link son obligatorios";
+        status.style.background = "rgba(255,69,0,0.2)";
+        status.style.color = "#ff4500";
+        return;
     }
 
-    // FUNCIÓN PARA PUBLICAR SIN ENTRAR A GITHUB
-    async function publicarDirecto() {
-        const status = document.getElementById('status-msg');
-        status.style.display = 'block';
-        status.innerText = "⏳ Conectando con Railway...";
-
-        const producto = {
-            img: document.getElementById('img').value,
-            link: document.getElementById('link').value,
-            tEn: document.getElementById('tEn').value,
-            tEs: document.getElementById('tEs').value,
-            dEn: document.getElementById('dEn').value,
-            dEs: document.getElementById('dEs').value,
-            fecha: new Date().toISOString()
-        };
-
-        try {
-            const res = await fetch('/api/publicar', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(producto)
-            });
-            const data = await res.json();
-            
-            if(data.success) {
-                status.className = "success";
-                status.innerText = "✅ ¡PUBLICADO! El producto ya está en vivo en Ideal Home.";
-                // Limpiar campos
-                document.querySelectorAll('input, textarea').forEach(i => i.value = '');
-            }
-        } catch (e) {
-            status.innerText = "❌ Error: ¿Configuraste el server.js?";
-        }
-    }
-
-    // FUNCIÓN PARA QUE GEMINI TRABAJE POR TI
-    async function llamarAlBotIA() {
-        const url = document.getElementById('ai-url').value;
-        alert("🤖 Gemini está analizando el producto... espera 5 segundos.");
-        
-        const res = await fetch('/api/ia-bot', {
+    try {
+        const res = await fetch('/api/publicar', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ url: url })
+            body: JSON.stringify(producto)
         });
-        
         const data = await res.json();
+        
         if(data.success) {
-            // Llenamos el formulario con lo que inventó la IA
-            document.getElementById('tEn').value = data.tEn;
-            document.getElementById('tEs').value = data.tEs;
-            document.getElementById('dEn').value = data.dEn;
-            document.getElementById('dEs').value = data.dEs;
-            showTab('tab-publisher');
-            alert("✨ ¡IA completó la redacción! Revisa y dale a Publicar.");
+            status.className = "success";
+            status.style.background = "rgba(40,167,69,0.2)";
+            status.style.color = "#2ecc71";
+            status.innerText = "✅ ¡PUBLICADO! El producto ya está en vivo en Ideal Home.";
+            
+            // Limpiar campos después de 2 segundos
+            setTimeout(() => {
+                document.querySelectorAll('#tab-publisher input, #tab-publisher textarea').forEach(i => i.value = '');
+                status.style.display = 'none';
+            }, 2000);
+        } else {
+            status.innerText = "❌ Error: " + (data.error || "No se pudo publicar");
         }
+    } catch (e) {
+        console.error(e);
+        status.innerText = "❌ Error: No se pudo conectar con el servidor";
+        status.style.background = "rgba(255,69,0,0.2)";
+        status.style.color = "#ff4500";
     }
-</script>
-</body>
-</html>
+}
