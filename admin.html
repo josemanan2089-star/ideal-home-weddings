@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MXL SEO Admin | Ideal Home & Weddings</title>
+    <style>
+        :root { --gold: #b59410; --dark: #121212; --card: #1e1e1e; --text: #e0e0e0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--dark); color: var(--text); padding: 15px; line-height: 1.4; }
+        .container { max-width: 600px; margin: 0 auto; background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { color: var(--gold); text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; font-size: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .step { background: #252525; padding: 10px; border-radius: 5px; margin-bottom: 15px; border-left: 4px solid var(--gold); font-size: 13px; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: var(--gold); font-size: 12px; text-transform: uppercase; }
+        input, textarea, select { width: 100%; padding: 12px; margin-top: 5px; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 6px; font-size: 14px; }
+        input:focus { border-color: var(--gold); outline: none; }
+        .btn-gen { width: 100%; padding: 15px; background: var(--gold); border: none; color: black; font-weight: 900; margin-top: 25px; cursor: pointer; text-transform: uppercase; border-radius: 6px; transition: 0.3s; }
+        .btn-gen:hover { background: #d4af37; transform: translateY(-2px); }
+        #output-container { margin-top: 30px; display: none; }
+        #code-output { background: #000; padding: 15px; border: 1px dashed var(--gold); color: #00ff00; font-family: 'Courier New', Courier, monospace; font-size: 11px; white-space: pre-wrap; border-radius: 5px; overflow-x: auto; }
+        .copy-info { color: #888; font-size: 11px; margin-top: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>MXL SEO Publisher 🚀</h2>
+    <div class="step">1. Busca en Amazon &nbsp; | &nbsp; 2. Genera Código &nbsp; | &nbsp; 3. Pega en Index</div>
+
+    <label>Product Title (SEO keywords)</label>
+    <input type="text" id="title" placeholder="Ej: Luxury Gold Cutlery Set for Weddings">
+
+    <label>Image URL (.jpg / .png)</label>
+    <input type="text" id="img" placeholder="https://m.media-amazon.com/images/I/...">
+
+    <label>SEO Description (Para Google)</label>
+    <textarea id="seo_desc" rows="3" placeholder="Describe el producto usando palabras como 'home decor', 'gift', 'elegant'..."></textarea>
+
+    <label>Affiliate Link (amzn.to)</label>
+    <input type="text" id="link" placeholder="https://amzn.to/your-link">
+
+    <button class="btn-gen" onclick="generateSEO()">Generate SEO Block ✨</button>
+
+    <div id="output-container">
+        <label>Copy this code to your index.html:</label>
+        <div id="code-output"></div>
+        <p class="copy-info">Pega este bloque debajo de la etiqueta <strong>&lt;div class="product-grid"&gt;</strong></p>
+    </div>
+</div>
+
+<script>
+    function generateSEO() {
+        const title = document.getElementById('title').value;
+        const img = document.getElementById('img').value;
+        const desc = document.getElementById('seo_desc').value;
+        const link = document.getElementById('link').value;
+
+        if(!title || !img || !link) { alert("Socio, llena los campos principales"); return; }
+
+        // Código optimizado para SEO con etiquetas ALT y Rich Text
+        const html = `
+        <!-- Start Product: ${title} -->
+        <article class="product-card" itemscope itemtype="https://schema.org/Product">
+            <img src="${img}" alt="${title} - Premium Home Decor" itemprop="image" loading="lazy">
+            <h3 itemprop="name">${title}</h3>
+            <p itemprop="description">${desc}</p>
+            <div class="price-container">
+                <a href="${link}" target="_blank" rel="noopener sponsored" class="btn-amazon" itemprop="url">
+                    Check Price on Amazon
+                </a>
+            </div>
+        </article>
+        <!-- End Product -->`;
+
+        document.getElementById('code-output').innerText = html;
+        document.getElementById('output-container').style.display = 'block';
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+</script>
+
+</body>
+</html>
