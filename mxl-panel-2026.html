@@ -3,219 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel MXL | Publicar Artículo + Curiosidades</title>
+    <title>Luxury Home Trends | The Secret Women Are Talking About in 2026</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #f7ede8 0%, #fff5f0 100%);
-            min-height: 100vh;
-            padding: 40px 20px;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #fffaf7;
+            color: #2c2418;
         }
-        .container { max-width: 800px; margin: 0 auto; }
-        .card {
-            background: white;
-            border-radius: 28px;
-            padding: 35px;
-            margin-bottom: 25px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-        }
-        h2 { font-size: 1.5rem; margin-bottom: 10px; color: #2c2418; }
-        .sub { color: #8b7355; margin-bottom: 25px; font-size: 0.9rem; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a3727; }
-        input, select {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #f0e2d8;
-            border-radius: 16px;
-            font-size: 14px;
-        }
-        input:focus { border-color: #ff4500; outline: none; }
-        button {
-            background: #ff4500;
+        .viral-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: white;
-            border: none;
-            padding: 14px 24px;
-            border-radius: 40px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .viral-header h1 { font-size: 2.5rem; }
+        .viral-header h1 span { background: linear-gradient(135deg, #ff4500, #ff6b35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .live-badge { background: #ff4500; padding: 5px 15px; border-radius: 30px; display: inline-block; margin-top: 20px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; transform: scale(1.05); } 100% { opacity: 0.6; } }
+        .container { max-width: 1300px; margin: 0 auto; padding: 40px 20px; }
+        .section-title { font-size: 1.8rem; text-align: center; margin-bottom: 30px; }
+        .section-title:after { content: ''; width: 80px; height: 3px; background: #ff4500; display: block; margin: 15px auto 0; }
+        
+        /* Curiosidades con imagen */
+        .curiosidades-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        .curiosidad-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
             transition: all 0.3s;
         }
-        button:hover { background: #e03e00; transform: translateY(-2px); }
-        .btn-secondary { background: #c9a87b; margin-top: 10px; }
-        .btn-secondary:hover { background: #b89464; }
-        .status {
-            margin-top: 15px;
-            padding: 12px;
-            border-radius: 12px;
-            display: none;
-            text-align: center;
+        .curiosidad-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.15); }
+        .curiosidad-img {
+            height: 200px;
+            overflow: hidden;
         }
-        .success { background: #e8f5e9; color: #2e7d32; display: block; }
-        .error { background: #ffebee; color: #c62828; display: block; }
-        .info { background: #e3f2fd; color: #1565c0; display: block; }
-        .preview-img {
-            margin-top: 15px;
-            text-align: center;
+        .curiosidad-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
         }
-        .preview-img img {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 12px;
-            border: 2px solid #f0e2d8;
+        .curiosidad-card:hover .curiosidad-img img { transform: scale(1.05); }
+        .curiosidad-content { padding: 20px; }
+        .curiosidad-content h3 { font-size: 1.2rem; margin-bottom: 10px; color: #2c2418; }
+        .curiosidad-content p { color: #6b5a48; line-height: 1.5; margin-bottom: 15px; }
+        .share-btn { background: none; border: none; color: #ff4500; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px; }
+        
+        /* Artículos */
+        .articulos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 35px;
         }
-        hr { margin: 25px 0; border: none; border-top: 2px solid #f0e2d8; }
+        .articulo-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.4s;
+            cursor: pointer;
+        }
+        .articulo-card:hover { transform: translateY(-10px); box-shadow: 0 25px 40px rgba(0,0,0,0.15); }
+        .articulo-imagen { height: 220px; overflow: hidden; position: relative; }
+        .articulo-imagen img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        .articulo-card:hover .articulo-imagen img { transform: scale(1.05); }
+        .viral-tag { position: absolute; top: 15px; right: 15px; background: #ff4500; color: white; padding: 5px 12px; border-radius: 20px; font-size: 11px; }
+        .articulo-contenido { padding: 25px; }
+        .articulo-categoria { background: #f7ede8; color: #ff4500; font-size: 11px; padding: 4px 12px; border-radius: 20px; display: inline-block; margin-bottom: 12px; }
+        .articulo-contenido h3 { font-size: 1.2rem; margin-bottom: 12px; }
+        .articulo-curiosidad { color: #ff4500; font-style: italic; font-size: 0.9rem; margin-bottom: 12px; border-left: 2px solid #ff4500; padding-left: 12px; }
+        .btn-leer { background: #2c2418; color: white; padding: 10px 20px; border-radius: 40px; text-align: center; display: block; text-decoration: none; transition: all 0.3s; }
+        .btn-leer:hover { background: #ff4500; transform: translateX(5px); }
+        footer { background: #2c2418; color: #f0e2d8; text-align: center; padding: 40px; margin-top: 40px; }
+        .loader { text-align: center; padding: 50px; color: #c9a87b; }
     </style>
 </head>
 <body>
+    <div class="viral-header">
+        <h1>🔥 The Secret <span>Women Are Talking About</span> in 2026</h1>
+        <p>What NYC, Miami & Beverly Hills elites don't want you to know</p>
+        <div class="live-badge">⚡ LIVE TRENDS ⚡</div>
+    </div>
+
     <div class="container">
-        <!-- Publicar Artículo (TÚ pones la imagen) -->
-        <div class="card">
-            <h2>📰 Publicar Artículo</h2>
-            <div class="sub">Gemini escribe el artículo. TÚ pones la imagen del producto</div>
-            
-            <div class="form-group">
-                <label>🔗 Link de Amazon</label>
-                <input type="text" id="amazonUrl" placeholder="https://amazon.com/dp/XXXXXXXXXX">
-            </div>
-            
-            <div class="form-group">
-                <label>🖼️ URL de la Imagen del Producto</label>
-                <input type="text" id="imagenUrl" placeholder="Pega aquí la URL de la imagen real del producto">
-                <div class="preview-img" id="previewImgContainer" style="display: none;">
-                    <img id="previewImg" src="" alt="Vista previa">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label>📂 Categoría</label>
-                <select id="categoria">
-                    <option value="kitchen">Kitchen</option>
-                    <option value="smart-home">Smart Home</option>
-                    <option value="lifestyle">Lifestyle</option>
-                    <option value="wedding">Wedding Registry</option>
-                </select>
-            </div>
-            
-            <button onclick="publicarArticulo()">✨ PUBLICAR ARTÍCULO CON GEMINI</button>
-            <div id="statusArticulo" class="status"></div>
+        <!-- CURIOSIDADES CON IMAGEN -->
+        <h2 class="section-title">💎 CURIOSIDADES QUE VUELVEN LOCA A LA GENTE</h2>
+        <div id="curiosidadesGrid" class="curiosidades-grid">
+            <div class="loader">🔥 Cargando secretos exclusivos...</div>
         </div>
-        
-        <!-- Generar Curiosidad (Gemini escribe + busca imagen) -->
-        <div class="card">
-            <h2>💎 Generar Curiosidad Viral</h2>
-            <div class="sub">Gemini escribe la curiosidad y busca una imagen impactante</div>
-            <button class="btn-secondary" onclick="generarCuriosidad()">🌸 GENERAR NUEVA CURIOSIDAD</button>
-            <div id="statusCuriosidad" class="status"></div>
-        </div>
-        
-        <!-- Estadísticas -->
-        <div class="card">
-            <h2>📊 Estadísticas</h2>
-            <div id="stats">
-                <p>Cargando...</p>
-            </div>
+
+        <!-- ARTÍCULOS -->
+        <h2 class="section-title">📰 ARTÍCULOS QUE ESTÁN EXPLOTANDO</h2>
+        <div id="articulosGrid" class="articulos-grid">
+            <div class="loader">📰 Cargando artículos virales...</div>
         </div>
     </div>
-    
+
+    <footer>
+        <p>🔥 El Club de Las Que Saben 🔥</p>
+        <p style="font-size: 12px; margin-top: 10px;">Descubre los secretos que todas quieren conocer | Somos afiliados de Amazon</p>
+    </footer>
+
     <script>
-        // Vista previa de imagen
-        document.getElementById('imagenUrl').addEventListener('input', function(e) {
-            const preview = document.getElementById('previewImgContainer');
-            const img = document.getElementById('previewImg');
-            if (e.target.value) {
-                preview.style.display = 'block';
-                img.src = e.target.value;
+        async function cargarTodo() {
+            await Promise.all([cargarCuriosidades(), cargarArticulos()]);
+        }
+
+        async function cargarCuriosidades() {
+            try {
+                const res = await fetch('/api/curiosidades');
+                const curiosidades = await res.json();
+                const grid = document.getElementById('curiosidadesGrid');
+                
+                if (!curiosidades || curiosidades.length === 0) {
+                    grid.innerHTML = '<div class="loader">✨ Pronto más secretos exclusivos...</div>';
+                    return;
+                }
+                
+                grid.innerHTML = curiosidades.map(cur => `
+                    <div class="curiosidad-card">
+                        <div class="curiosidad-img">
+                            <img src="${cur.imagen || 'https://picsum.photos/400/200'}" 
+                                 alt="${cur.titulo}"
+                                 onerror="this.src='https://picsum.photos/400/200'">
+                        </div>
+                        <div class="curiosidad-content">
+                            <h3>🔥 ${cur.titulo || 'Secreto Exclusivo'}</h3>
+                            <p>${cur.texto || 'Descubre el nuevo símbolo de estatus silencioso'}</p>
+                            <button class="share-btn" onclick="compartir('${cur.texto}')">📤 Compartir este secreto</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function cargarArticulos() {
+            try {
+                const res = await fetch('/api/articulos');
+                const articulos = await res.json();
+                const grid = document.getElementById('articulosGrid');
+                
+                if (!articulos || articulos.length === 0) {
+                    grid.innerHTML = '<div class="loader">🔥 Publicando nuevos artículos virales...</div>';
+                    return;
+                }
+                
+                grid.innerHTML = articulos.map(art => `
+                    <div class="articulo-card" onclick="verArticulo(${art.id}, '${art.link}')">
+                        <div class="articulo-imagen">
+                            <div class="viral-tag">🔥 VIRAL</div>
+                            <img src="${art.imagen || 'https://picsum.photos/400/300'}" 
+                                 alt="${art.titulo}"
+                                 onerror="this.src='https://picsum.photos/400/300'">
+                        </div>
+                        <div class="articulo-contenido">
+                            <span class="articulo-categoria">TRENDING</span>
+                            <h3>${art.titulo || 'The Secret Women Are Talking About'}</h3>
+                            ${art.curiosidad ? `<div class="articulo-curiosidad">✨ ${art.curiosidad.substring(0, 100)}...</div>` : ''}
+                            <button class="btn-leer" onclick="event.stopPropagation(); trackClick(${art.id}, '${art.link}')">
+                                🔥 LEER ARTÍCULO →
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function compartir(texto) {
+            if (navigator.share) {
+                navigator.share({ title: 'Secreto Exclusivo', text: texto });
             } else {
-                preview.style.display = 'none';
+                navigator.clipboard.writeText(texto);
+                alert('✅ Secreto copiado para compartir!');
             }
-        });
-        
-        async function publicarArticulo() {
-            const url = document.getElementById('amazonUrl').value;
-            const imagenUrl = document.getElementById('imagenUrl').value;
-            const categoria = document.getElementById('categoria').value;
-            
-            if (!url) {
-                mostrarStatus('statusArticulo', '❌ Ingresa un link de Amazon', 'error');
-                return;
-            }
-            
-            mostrarStatus('statusArticulo', '🤖 Gemini está escribiendo el artículo...', 'info');
-            
+        }
+
+        async function trackClick(id, link) {
             try {
-                const res = await fetch('/api/publicar-articulo', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url, imagenUrl, categoria })
-                });
-                
-                const data = await res.json();
-                if (data.success) {
-                    mostrarStatus('statusArticulo', `✅ Artículo publicado: "${data.articulo.titulo}"`, 'success');
-                    document.getElementById('amazonUrl').value = '';
-                    cargarStats();
-                } else {
-                    mostrarStatus('statusArticulo', '❌ Error: ' + data.error, 'error');
-                }
+                await fetch(`/api/click-articulo/${id}`, { method: 'POST' });
+                window.open(link, '_blank');
             } catch (e) {
-                mostrarStatus('statusArticulo', '❌ Error de conexión', 'error');
+                window.open(link, '_blank');
             }
         }
-        
-        async function generarCuriosidad() {
-            mostrarStatus('statusCuriosidad', '✨ Gemini está creando una curiosidad viral...', 'info');
-            
-            try {
-                const res = await fetch('/api/generar-curiosidad', { method: 'POST' });
-                const data = await res.json();
-                if (data.success) {
-                    mostrarStatus('statusCuriosidad', `✅ "${data.curiosidad.titulo}"`, 'success');
-                    cargarStats();
-                } else {
-                    mostrarStatus('statusCuriosidad', '❌ Error al generar', 'error');
-                }
-            } catch (e) {
-                mostrarStatus('statusCuriosidad', '❌ Error de conexión', 'error');
-            }
-        }
-        
-        async function cargarStats() {
-            try {
-                const [resArt, resCur] = await Promise.all([
-                    fetch('/api/articulos'),
-                    fetch('/api/curiosidades')
-                ]);
-                
-                const articulos = await resArt.json();
-                const curiosidades = await resCur.json();
-                const totalClicks = articulos.reduce((sum, a) => sum + (a.clicks || 0), 0);
-                
-                document.getElementById('stats').innerHTML = `
-                    <p>📰 Artículos: ${articulos.length}</p>
-                    <p>👆 Clicks totales: ${totalClicks}</p>
-                    <p>💎 Curiosidades: ${curiosidades.length}</p>
-                    <p>✨ Última curiosidad: ${curiosidades[0]?.titulo || 'Ninguna'}</p>
-                `;
-            } catch (e) {
-                console.error('Error stats:', e);
-            }
-        }
-        
-        function mostrarStatus(elementId, msg, tipo) {
-            const status = document.getElementById(elementId);
-            status.textContent = msg;
-            status.className = `status ${tipo}`;
-            setTimeout(() => {
-                status.className = 'status';
-            }, 4000);
-        }
-        
-        cargarStats();
-        setInterval(cargarStats, 30000);
+
+        function verArticulo(id, link) { trackClick(id, link); }
+
+        cargarTodo();
+        setInterval(() => { cargarCuriosidades(); cargarArticulos(); }, 30000);
     </script>
 </body>
 </html>
