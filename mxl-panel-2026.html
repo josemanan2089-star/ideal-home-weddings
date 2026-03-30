@@ -3,40 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel | Publicar Curiosidad</title>
+    <title>Panel | Publicar Artículo + Curiosidad</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #f5e6d3, #ffe6d5);
+            font-family: system-ui, sans-serif;
+            background: linear-gradient(135deg, #f7ede8, #fff5f0);
             min-height: 100vh;
             padding: 40px 20px;
         }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
+        .container { max-width: 700px; margin: 0 auto; }
         .card {
             background: white;
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-radius: 28px;
+            padding: 35px;
+            margin-bottom: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
         }
-        h1 {
-            font-size: 1.8rem;
+        h2 {
+            font-size: 1.5rem;
             margin-bottom: 10px;
-            color: #2c1810;
+            color: #2c2418;
         }
         .sub {
-            color: #8b6b4d;
-            margin-bottom: 30px;
+            color: #8b7355;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
         }
         input, textarea {
             width: 100%;
             padding: 14px;
-            border: 2px solid #f0e4d8;
-            border-radius: 12px;
-            margin-bottom: 20px;
+            border: 2px solid #f0e2d8;
+            border-radius: 14px;
+            margin-bottom: 18px;
             font-size: 14px;
             transition: all 0.3s;
         }
@@ -45,90 +44,110 @@
             outline: none;
         }
         button {
-            background: #2c1810;
+            background: #2c2418;
             color: white;
             border: none;
-            padding: 16px;
-            width: 100%;
+            padding: 14px 24px;
             border-radius: 40px;
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            width: 100%;
         }
         button:hover {
             background: #c9a87b;
             transform: translateY(-2px);
         }
+        .btn-secondary {
+            background: #c9a87b;
+            margin-top: 10px;
+        }
+        .btn-secondary:hover {
+            background: #2c2418;
+        }
         .status {
-            margin-top: 20px;
+            margin-top: 15px;
             padding: 12px;
             border-radius: 12px;
             display: none;
             text-align: center;
         }
-        .success {
-            background: #e8f5e9;
-            color: #2e7d32;
-            display: block;
-        }
-        .error {
-            background: #ffebee;
-            color: #c62828;
-            display: block;
-        }
-        .info {
-            background: #e3f2fd;
-            color: #1565c0;
-            display: block;
+        .success { background: #e8f5e9; color: #2e7d32; display: block; }
+        .error { background: #ffebee; color: #c62828; display: block; }
+        .info { background: #e3f2fd; color: #1565c0; display: block; }
+        hr {
+            margin: 25px 0;
+            border: none;
+            border-top: 2px solid #f0e2d8;
         }
         .stats {
-            margin-top: 30px;
+            background: #f9f5f0;
             padding: 20px;
-            background: #f9f0e8;
-            border-radius: 16px;
+            border-radius: 20px;
+            margin-top: 20px;
         }
-        hr {
-            margin: 20px 0;
-            border: none;
-            border-top: 1px solid #f0e4d8;
+        .stats p {
+            margin: 8px 0;
+            color: #5a4a38;
+        }
+        .badge {
+            display: inline-block;
+            background: #c9a87b20;
+            color: #c9a87b;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Publicar Artículo -->
         <div class="card">
-            <h1>✨ Publicar Curiosidad</h1>
-            <p class="sub">Gemini generará un secreto irresistible para mujeres</p>
+            <div class="badge">📰 ARTÍCULO</div>
+            <h2>Publicar Artículo con Producto</h2>
+            <p class="sub">Gemini generará un artículo exclusivo para tu producto Amazon</p>
             
             <input type="text" id="amazonUrl" placeholder="Link de Amazon (ej: https://amazon.com/dp/XXXXXX)">
             <input type="text" id="imagenUrl" placeholder="URL de imagen (opcional)">
             
-            <button onclick="publicarCuriosidad()">🌸 GENERAR CURIOSIDAD CON GEMINI</button>
+            <button onclick="publicarArticulo()">✨ GENERAR ARTÍCULO CON GEMINI</button>
+            <div id="statusArticulo" class="status"></div>
+        </div>
+        
+        <!-- Generar Curiosidad -->
+        <div class="card">
+            <div class="badge">💎 CURIOSIDAD</div>
+            <h2>Generar Curiosidad Femenina</h2>
+            <p class="sub">Gemini creará un dato sorprendente que atrapará a tus lectoras</p>
             
-            <div id="status" class="status"></div>
-            
-            <hr>
-            
-            <div class="stats" id="stats">
-                <strong>📊 Estadísticas</strong>
+            <button onclick="generarCuriosidad()" class="btn-secondary">🌸 GENERAR NUEVA CURIOSIDAD</button>
+            <div id="statusCuriosidad" class="status"></div>
+        </div>
+        
+        <!-- Estadísticas -->
+        <div class="card">
+            <h2>📊 Estadísticas</h2>
+            <div id="stats" class="stats">
                 <p>Cargando...</p>
             </div>
         </div>
     </div>
     
     <script>
-        async function publicarCuriosidad() {
+        async function publicarArticulo() {
             const url = document.getElementById('amazonUrl').value;
             if (!url) {
-                mostrarStatus('❌ Ingresa un link de Amazon', 'error');
+                mostrarStatus('statusArticulo', '❌ Ingresa un link de Amazon', 'error');
                 return;
             }
             
-            mostrarStatus('🤖 Gemini está generando una curiosidad exclusiva...', 'info');
+            mostrarStatus('statusArticulo', '🤖 Gemini está creando tu artículo exclusivo...', 'info');
             
             try {
-                const res = await fetch('/api/publicar-curiosidad', {
+                const res = await fetch('/api/publicar-articulo', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
@@ -139,37 +158,67 @@
                 
                 const data = await res.json();
                 if (data.success) {
-                    mostrarStatus('✅ ¡Curiosidad publicada! Las mujeres ya pueden verla', 'success');
+                    mostrarStatus('statusArticulo', `✅ ¡Artículo publicado! "${data.articulo.titulo}"`, 'success');
                     document.getElementById('amazonUrl').value = '';
+                    document.getElementById('imagenUrl').value = '';
                     cargarStats();
                 } else {
-                    mostrarStatus('❌ Error: ' + data.error, 'error');
+                    mostrarStatus('statusArticulo', '❌ Error: ' + data.error, 'error');
                 }
             } catch (e) {
-                mostrarStatus('❌ Error de conexión', 'error');
+                mostrarStatus('statusArticulo', '❌ Error de conexión', 'error');
+            }
+        }
+        
+        async function generarCuriosidad() {
+            mostrarStatus('statusCuriosidad', '🤖 Gemini está creando una curiosidad fascinante...', 'info');
+            
+            try {
+                const res = await fetch('/api/generar-curiosidad', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                
+                const data = await res.json();
+                if (data.success) {
+                    mostrarStatus('statusCuriosidad', `✅ ¡Nueva curiosidad! "${data.curiosidad.titulo}"`, 'success');
+                    cargarStats();
+                } else {
+                    mostrarStatus('statusCuriosidad', '❌ Error al generar', 'error');
+                }
+            } catch (e) {
+                mostrarStatus('statusCuriosidad', '❌ Error de conexión', 'error');
             }
         }
         
         async function cargarStats() {
             try {
-                const res = await fetch('/api/articulos');
-                const articulos = await res.json();
+                const [resArt, resCur] = await Promise.all([
+                    fetch('/api/articulos'),
+                    fetch('/api/curiosidades')
+                ]);
+                
+                const articulos = await resArt.json();
+                const curiosidades = await resCur.json();
+                
                 const totalClicks = articulos.reduce((sum, a) => sum + (a.clicks || 0), 0);
+                const totalCompartidas = curiosidades.reduce((sum, c) => sum + (c.compartidas || 0), 0);
                 
                 document.getElementById('stats').innerHTML = `
-                    <strong>📊 Estadísticas</strong>
-                    <p>📰 Artículos publicados: ${articulos.length}</p>
-                    <p>👆 Clicks totales: ${totalClicks}</p>
-                    <p>✨ Último artículo: ${articulos[0]?.fecha ? new Date(articulos[0].fecha).toLocaleDateString() : 'Ninguno'}</p>
-                    <p>🤖 Auto-publicación: CADA 3 HORAS</p>
+                    <p>📰 <strong>Artículos:</strong> ${articulos.length}</p>
+                    <p>👆 <strong>Clicks en artículos:</strong> ${totalClicks}</p>
+                    <p>💎 <strong>Curiosidades:</strong> ${curiosidades.length}</p>
+                    <p>📤 <strong>Veces compartidas:</strong> ${totalCompartidas}</p>
+                    <p>✨ <strong>Última curiosidad:</strong> ${curiosidades[0]?.fecha ? new Date(curiosidades[0].fecha).toLocaleDateString() : 'Ninguna'}</p>
+                    <p>🤖 <strong>Auto-curiosidad:</strong> Cada 6 horas</p>
                 `;
             } catch (e) {
                 console.error('Error stats:', e);
             }
         }
         
-        function mostrarStatus(msg, tipo) {
-            const status = document.getElementById('status');
+        function mostrarStatus(elementId, msg, tipo) {
+            const status = document.getElementById(elementId);
             status.textContent = msg;
             status.className = `status ${tipo}`;
             setTimeout(() => {
