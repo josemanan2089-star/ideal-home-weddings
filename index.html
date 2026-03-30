@@ -3,269 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Curiosidades + Artículos | El Club Femenino de Lujo</title>
-    <meta name="description" content="Descubre curiosidades fascinantes y artículos exclusivos para tu hogar. El club de las mujeres que saben.">
+    <title>Luxury Home Trends | The Secret Women Are Talking About in 2026</title>
+    <meta name="description" content="Discover the viral home trends that American women are obsessed with. Curiosities, luxury gadgets, and secrets from NYC to Beverly Hills.">
+    <meta name="keywords" content="smart home, luxury kitchen, viral trends, USA home, wedding registry, silent luxury">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Georgia', 'Times New Roman', serif;
+            font-family: 'Georgia', 'Times New Roman', 'Playfair Display', serif;
             background: #fffaf7;
             color: #2c2418;
+            line-height: 1.6;
         }
-        
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #f7ede8 0%, #fff5f0 100%);
-            padding: 50px 20px;
+
+        /* Header con efecto viral */
+        .viral-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 60px 20px;
             text-align: center;
-            border-bottom: 1px solid #f0e2d8;
+            position: relative;
+            overflow: hidden;
         }
-        
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 400;
+
+        .viral-header::before {
+            content: "🔥 VIRAL 🔥";
+            position: absolute;
+            font-size: 80px;
+            opacity: 0.03;
+            right: 20px;
+            top: 20px;
+            font-weight: bold;
+            letter-spacing: 10px;
+        }
+
+        .viral-header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
             letter-spacing: -0.5px;
         }
-        
-        .header h1 span {
-            font-weight: 700;
-            background: linear-gradient(135deg, #c9a87b, #b87a4a);
+
+        .viral-header h1 span {
+            background: linear-gradient(135deg, #ff4500, #ff6b35);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        
-        .header p {
-            color: #8b7355;
+
+        .viral-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
             margin-top: 15px;
-            font-style: italic;
         }
-        
+
+        .live-badge {
+            display: inline-block;
+            background: #ff4500;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 12px;
+            margin-top: 20px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 0.6; transform: scale(1); }
+        }
+
         .container {
             max-width: 1300px;
             margin: 0 auto;
             padding: 40px 20px;
         }
-        
-        /* Sección CURIOSIDADES - Estilo destacado */
+
+        /* Sección de Curiosidades Virales */
         .curiosidades-section {
-            margin-bottom: 70px;
+            margin-bottom: 60px;
         }
-        
+
         .section-title {
             font-size: 1.8rem;
             margin-bottom: 30px;
             text-align: center;
             position: relative;
         }
-        
+
         .section-title:after {
             content: '';
             display: block;
-            width: 60px;
+            width: 80px;
             height: 3px;
-            background: #c9a87b;
+            background: #ff4500;
             margin: 15px auto 0;
         }
-        
-        .curiosidad-destacada {
-            background: linear-gradient(135deg, #2c2418 0%, #4a3727 100%);
-            border-radius: 30px;
-            padding: 50px;
-            color: white;
-            text-align: center;
-            margin-bottom: 40px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .curiosidad-destacada::before {
-            content: "✨";
-            position: absolute;
-            font-size: 150px;
-            opacity: 0.05;
-            right: -30px;
-            bottom: -30px;
-            font-family: serif;
-        }
-        
-        .curiosidad-badge {
-            display: inline-block;
-            background: rgba(255,255,255,0.2);
-            padding: 5px 20px;
-            border-radius: 40px;
-            font-size: 12px;
-            letter-spacing: 2px;
-            margin-bottom: 25px;
-        }
-        
-        .curiosidad-destacada h2 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            font-weight: 400;
-        }
-        
-        .curiosidad-dato {
-            font-size: 1.3rem;
-            line-height: 1.5;
-            margin-bottom: 25px;
-            font-style: italic;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .curiosidad-reflexion {
-            font-size: 1rem;
-            opacity: 0.9;
-            margin-bottom: 20px;
-        }
-        
-        .curiosidad-cierre {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #c9a87b;
-            margin-top: 20px;
-        }
-        
-        .btn-compartir {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            padding: 10px 25px;
-            border-radius: 40px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: all 0.3s;
-        }
-        
-        .btn-compartir:hover {
-            background: #c9a87b;
-            border-color: #c9a87b;
-        }
-        
-        /* Grid de curiosidades secundarias */
+
         .curiosidades-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 25px;
-            margin-top: 30px;
+            margin-bottom: 40px;
         }
-        
+
         .curiosidad-card {
             background: white;
             border-radius: 20px;
             padding: 25px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            border: 1px solid #f0e2d8;
+            border-left: 4px solid #ff4500;
             transition: all 0.3s;
+            cursor: pointer;
         }
-        
+
         .curiosidad-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-            border-color: #c9a87b;
         }
-        
+
+        .curiosidad-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
         .curiosidad-card h3 {
             font-size: 1.2rem;
             margin-bottom: 12px;
             color: #2c2418;
         }
-        
+
         .curiosidad-card p {
             color: #6b5a48;
             line-height: 1.5;
-            margin-bottom: 15px;
+            font-size: 1rem;
         }
-        
-        .small-cierre {
-            color: #c9a87b;
-            font-size: 0.85rem;
-            font-weight: bold;
+
+        .share-btn {
+            margin-top: 15px;
+            background: none;
+            border: none;
+            color: #ff4500;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
-        
-        /* Sección ARTÍCULOS */
+
+        /* Sección de Artículos Virales */
         .articulos-section {
-            margin-top: 50px;
+            margin-top: 40px;
         }
-        
+
         .articulos-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
             gap: 35px;
         }
-        
+
         .articulo-card {
             background: white;
             border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             transition: all 0.4s;
             cursor: pointer;
             border: 1px solid #f0e2d8;
         }
-        
+
         .articulo-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            transform: translateY(-10px);
+            box-shadow: 0 25px 40px rgba(0,0,0,0.15);
         }
-        
+
         .articulo-imagen {
             height: 240px;
             overflow: hidden;
+            position: relative;
         }
-        
+
         .articulo-imagen img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform 0.5s;
         }
-        
+
         .articulo-card:hover .articulo-imagen img {
             transform: scale(1.05);
         }
-        
+
+        .viral-tag {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ff4500;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            z-index: 10;
+        }
+
         .articulo-contenido {
             padding: 25px;
         }
-        
-        .articulo-tag {
+
+        .articulo-categoria {
             display: inline-block;
             background: #f7ede8;
-            color: #c9a87b;
+            color: #ff4500;
             font-size: 11px;
             padding: 4px 12px;
             border-radius: 20px;
             margin-bottom: 12px;
             text-transform: uppercase;
+            font-weight: bold;
         }
-        
+
         .articulo-contenido h3 {
             font-size: 1.3rem;
             margin-bottom: 12px;
             line-height: 1.3;
+            color: #2c2418;
         }
-        
-        .articulo-intro {
-            color: #6b5a48;
+
+        .articulo-curiosidad {
+            font-size: 0.9rem;
+            color: #ff4500;
             font-style: italic;
             margin-bottom: 12px;
+            border-left: 2px solid #ff4500;
+            padding-left: 12px;
+        }
+
+        .articulo-desc {
+            color: #6b5a48;
             font-size: 0.9rem;
-        }
-        
-        .articulo-beneficio {
-            color: #2c2418;
-            font-weight: 500;
             margin-bottom: 15px;
+            line-height: 1.5;
         }
-        
-        .btn-ver {
+
+        .btn-leer {
             display: inline-block;
             background: #2c2418;
             color: white;
@@ -273,196 +257,257 @@
             border-radius: 40px;
             text-decoration: none;
             font-size: 13px;
+            font-weight: bold;
             transition: all 0.3s;
             width: 100%;
             text-align: center;
+            border: none;
+            cursor: pointer;
         }
-        
-        .btn-ver:hover {
-            background: #c9a87b;
+
+        .btn-leer:hover {
+            background: #ff4500;
+            transform: translateX(5px);
         }
-        
+
+        /* Newsletter */
+        .newsletter {
+            background: linear-gradient(135deg, #2c2418 0%, #4a3727 100%);
+            border-radius: 30px;
+            padding: 50px;
+            text-align: center;
+            margin: 60px 0;
+            color: white;
+        }
+
+        .newsletter h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .newsletter p {
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        .newsletter input {
+            padding: 12px 20px;
+            border-radius: 40px;
+            border: none;
+            width: 300px;
+            max-width: 80%;
+            margin-right: 10px;
+        }
+
+        .newsletter button {
+            background: #ff4500;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
         footer {
             background: #2c2418;
             color: #f0e2d8;
             text-align: center;
             padding: 40px;
-            margin-top: 60px;
+            margin-top: 40px;
         }
-        
+
+        /* Loader */
+        .loader {
+            text-align: center;
+            padding: 50px;
+            color: #c9a87b;
+            font-size: 1.2rem;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         .curiosidad-card, .articulo-card {
             animation: fadeIn 0.5s ease forwards;
         }
-        
+
         @media (max-width: 768px) {
-            .header h1 { font-size: 1.8rem; }
-            .curiosidad-destacada { padding: 30px; }
-            .curiosidad-dato { font-size: 1.1rem; }
+            .viral-header h1 { font-size: 1.8rem; }
             .articulos-grid { grid-template-columns: 1fr; }
-        }
-        
-        .loader {
-            text-align: center;
-            padding: 50px;
-            font-size: 1.2rem;
-            color: #c9a87b;
+            .curiosidades-grid { grid-template-columns: 1fr; }
+            .newsletter input { width: 100%; margin-bottom: 10px; }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>El Club de <span>Las Que Saben</span></h1>
-        <p>Curiosidades que inspiran | Artículos que transforman tu hogar</p>
+    <div class="viral-header">
+        <h1>🔥 The Secret <span>Women Are Talking About</span> in 2026</h1>
+        <p>What NYC, Miami & Beverly Hills elites don't want you to know</p>
+        <div class="live-badge">⚡ LIVE TRENDS ⚡</div>
     </div>
-    
+
     <div class="container">
-        <!-- SECCIÓN CURIOSIDADES -->
+        <!-- SECCIÓN CURIOSIDADES VIRALES -->
         <div class="curiosidades-section">
-            <h2 class="section-title">💎 CURIOSIDADES QUE SORPRENDEN</h2>
-            
-            <div id="curiosidadDestacada" class="curiosidad-destacada">
-                <div class="loader">✨ Cargando secreto exclusivo...</div>
-            </div>
-            
+            <h2 class="section-title">💎 CURIOSIDADES QUE VUELVEN LOCA A LA GENTE</h2>
             <div id="curiosidadesGrid" class="curiosidades-grid">
-                <div class="loader">Cargando más curiosidades...</div>
+                <div class="loader">🔥 Cargando secretos exclusivos...</div>
             </div>
         </div>
-        
-        <!-- SECCIÓN ARTÍCULOS -->
+
+        <!-- SECCIÓN ARTÍCULOS VIRALES -->
         <div class="articulos-section">
-            <h2 class="section-title">📰 ARTÍCULOS EXCLUSIVOS</h2>
+            <h2 class="section-title">📰 ARTÍCULOS QUE ESTÁN EXPLOTANDO</h2>
             <div id="articulosGrid" class="articulos-grid">
-                <div class="loader">Cargando artículos...</div>
+                <div class="loader">📰 Cargando artículos virales...</div>
             </div>
+        </div>
+
+        <!-- NEWSLETTER -->
+        <div class="newsletter">
+            <h3>🔥 No te pierdas los próximos secretos</h3>
+            <p>Recibe las curiosidades más virales antes que nadie</p>
+            <input type="email" placeholder="tu@email.com" id="newsletterEmail">
+            <button onclick="suscribirNewsletter()">🔴 SUSCRIBIRME</button>
         </div>
     </div>
-    
+
     <footer>
-        <p>✨ El Club de Las Que Saben ✨</p>
+        <p>🔥 El Club de Las Que Saben 🔥</p>
         <p style="font-size: 12px; margin-top: 10px;">Descubre los secretos que todas quieren conocer | Somos afiliados de Amazon</p>
+        <p style="font-size: 10px; margin-top: 15px;">© 2026 Luxury Home Trends - Viral content for the modern American woman</p>
     </footer>
-    
+
     <script>
         let curiosidades = [];
         let articulos = [];
-        
-        // Cargar todo
-        async function cargarTodo() {
-            await Promise.all([cargarCuriosidades(), cargarArticulos()]);
-        }
-        
+
+        // Cargar curiosidades
         async function cargarCuriosidades() {
             try {
                 const res = await fetch('/api/curiosidades');
                 curiosidades = await res.json();
                 renderCuriosidades();
             } catch (error) {
-                console.error('Error curiosidades:', error);
+                console.error('Error cargando curiosidades:', error);
             }
         }
-        
+
+        // Cargar artículos
         async function cargarArticulos() {
             try {
                 const res = await fetch('/api/articulos');
                 articulos = await res.json();
                 renderArticulos();
             } catch (error) {
-                console.error('Error artículos:', error);
+                console.error('Error cargando artículos:', error);
             }
         }
-        
+
+        // Renderizar curiosidades
         function renderCuriosidades() {
-            if (curiosidades.length === 0) {
-                document.getElementById('curiosidadDestacada').innerHTML = `
-                    <div class="loader">✨ Pronto más secretos exclusivos...</div>
+            const grid = document.getElementById('curiosidadesGrid');
+            
+            if (!curiosidades || curiosidades.length === 0) {
+                grid.innerHTML = `
+                    <div class="curiosidad-card">
+                        <div class="curiosidad-icon">🔥</div>
+                        <h3>Americans Are Spending Less on Designer Bags</h3>
+                        <p>Sales of smart home devices have increased 156% since 2024. Women are investing in their homes, not their closets.</p>
+                        <button class="share-btn" onclick="compartirCuriosidad(this)">📤 Compartir este secreto</button>
+                    </div>
+                    <div class="curiosidad-card">
+                        <div class="curiosidad-icon">💎</div>
+                        <h3>The Kitchen Trend Saving NYC Families $2,000/Year</h3>
+                        <p>Smart composters reduce food waste by 73% and eliminate odors completely. Upper East Side moms are obsessed.</p>
+                        <button class="share-btn" onclick="compartirCuriosidad(this)">📤 Compartir este secreto</button>
+                    </div>
+                    <div class="curiosidad-card">
+                        <div class="curiosidad-icon">🏠</div>
+                        <h3>Why Beverly Hills Women Are Judging Their Neighbors</h3>
+                        <p>The new status symbol? What's NOT in your trash. Zero-waste homes are the ultimate flex in 2026.</p>
+                        <button class="share-btn" onclick="compartirCuriosidad(this)">📤 Compartir este secreto</button>
+                    </div>
                 `;
                 return;
             }
             
-            // Curiosidad destacada (la más reciente)
-            const destacada = curiosidades[0];
-            document.getElementById('curiosidadDestacada').innerHTML = `
-                <div class="curiosidad-badge">🌸 SECRETO EXCLUSIVO</div>
-                <h2>${destacada.titulo || 'El secreto que todas quieren saber'}</h2>
-                <div class="curiosidad-dato">✨ ${destacada.dato || 'Descubre el nuevo símbolo de estatus silencioso'}</div>
-                <div class="curiosidad-reflexion">💭 ${destacada.reflexion || 'Porque las mujeres que saben, viven mejor'}</div>
-                <div class="curiosidad-cierre">${destacada.cierre || 'Únete al club de las que saben'}</div>
-                <button class="btn-compartir" onclick="compartirCuriosidad(${destacada.id})">📤 Compartir este secreto</button>
-            `;
-            
-            // Las demás curiosidades
-            const otras = curiosidades.slice(1, 7);
-            const grid = document.getElementById('curiosidadesGrid');
-            
-            if (otras.length === 0) {
-                grid.innerHTML = '<p style="text-align:center; grid-column:1/-1;">✨ Nuevas curiosidades llegando pronto...</p>';
-                return;
-            }
-            
-            grid.innerHTML = otras.map(cur => `
+            grid.innerHTML = curiosidades.map(cur => `
                 <div class="curiosidad-card">
-                    <h3>✨ ${cur.titulo || 'Dato sorprendente'}</h3>
-                    <p>${cur.dato ? cur.dato.substring(0, 120) + '...' : 'Descubre este fascinante secreto'}</p>
-                    <div class="small-cierre">${cur.cierre?.substring(0, 80) || 'Las que saben, ya lo conocen'}</div>
+                    <div class="curiosidad-icon">🔥</div>
+                    <h3>${cur.titulo || 'Secreto Exclusivo'}</h3>
+                    <p>${cur.texto || cur.dato || 'Descubre el nuevo símbolo de estatus silencioso que todas quieren'}</p>
+                    <button class="share-btn" onclick="compartirCuriosidad(this, '${cur.texto || cur.dato}')">📤 Compartir este secreto</button>
                 </div>
             `).join('');
         }
-        
+
+        // Renderizar artículos
         function renderArticulos() {
             const grid = document.getElementById('articulosGrid');
             
-            if (articulos.length === 0) {
-                grid.innerHTML = '<p style="text-align:center; grid-column:1/-1;">📰 Publica tu primer artículo desde el panel</p>';
+            if (!articulos || articulos.length === 0) {
+                grid.innerHTML = `
+                    <div class="loader">🔥 Publicando nuevos artículos virales...</div>
+                `;
                 return;
             }
             
             grid.innerHTML = articulos.map(art => `
-                <div class="articulo-card" onclick="irArticulo(${art.id}, '${art.link}')">
+                <div class="articulo-card" onclick="verArticulo(${art.id}, '${art.link}')">
                     <div class="articulo-imagen">
-                        <img src="${art.imagen || 'https://picsum.photos/400/300?random=' + art.id}" 
+                        <div class="viral-tag">🔥 VIRAL</div>
+                        <img src="${art.imagen || 'https://picsum.photos/400/300'}" 
                              alt="${art.titulo}"
                              loading="lazy"
-                             onerror="this.src='https://picsum.photos/400/300?random=${art.id}'">
+                             onerror="this.src='https://picsum.photos/400/300'">
                     </div>
                     <div class="articulo-contenido">
-                        <span class="articulo-tag">✨ ARTÍCULO EXCLUSIVO</span>
-                        <h3>${art.titulo || 'Producto esencial'}</h3>
-                        <div class="articulo-intro">💡 ${art.intro || 'Descubre por qué todas quieren esto'}</div>
-                        <div class="articulo-beneficio">💎 ${art.beneficio?.substring(0, 100) || 'El nuevo símbolo de estatus silencioso'}</div>
-                        <button class="btn-ver" onclick="event.stopPropagation(); verArticulo(${art.id}, '${art.link}')">
-                            ✨ VER ARTÍCULO COMPLETO →
+                        <span class="articulo-categoria">${art.categoria || 'TRENDING'}</span>
+                        <h3>${art.titulo || 'The Secret Women Are Talking About'}</h3>
+                        ${art.curiosidad ? `<div class="articulo-curiosidad">✨ ${art.curiosidad.substring(0, 100)}...</div>` : ''}
+                        <div class="articulo-desc">
+                            ${(art.intro || art.meta || 'Descubre por qué todas están hablando de esto').substring(0, 120)}...
+                        </div>
+                        <button class="btn-leer" onclick="event.stopPropagation(); trackClick(${art.id}, '${art.link}')">
+                            🔥 LEER ARTÍCULO COMPLETO →
                         </button>
                     </div>
                 </div>
             `).join('');
         }
-        
-        async function compartirCuriosidad(id) {
-            try {
-                await fetch(`/api/compartir-curiosidad/${id}`, { method: 'POST' });
-                alert('✨ ¡Gracias por compartir este secreto! ✨');
-                
-                // Opcional: compartir en redes
-                if (navigator.share) {
-                    const curiosidad = curiosidades.find(c => c.id === id);
-                    navigator.share({
-                        title: 'Curiosidad Femenina',
-                        text: curiosidad?.dato || 'Descubre este secreto exclusivo',
+
+        // Compartir curiosidad
+        async function compartirCuriosidad(btn, texto) {
+            const textoCompartir = texto || '🔥 Descubre este secreto exclusivo: Las mujeres de NYC están cambiando sus cocinas para siempre';
+            
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Secreto Exclusivo',
+                        text: textoCompartir,
                         url: window.location.href
                     });
-                }
-            } catch (e) {
-                console.log('Compartido');
+                } catch(e) {}
+            } else {
+                navigator.clipboard.writeText(textoCompartir);
+                btn.textContent = '✓ Copiado!';
+                setTimeout(() => {
+                    btn.textContent = '📤 Compartir este secreto';
+                }, 2000);
             }
         }
-        
+
+        // Ver artículo
         async function verArticulo(id, link) {
+            await trackClick(id, link);
+        }
+
+        // Track click
+        async function trackClick(id, link) {
             try {
                 await fetch(`/api/click-articulo/${id}`, { method: 'POST' });
                 window.open(link, '_blank');
@@ -470,14 +515,29 @@
                 window.open(link, '_blank');
             }
         }
-        
-        function irArticulo(id, link) {
-            verArticulo(id, link);
+
+        // Newsletter
+        function suscribirNewsletter() {
+            const email = document.getElementById('newsletterEmail').value;
+            if (email) {
+                alert(`✅ ¡Gracias por suscribirte! Recibirás los secretos más exclusivos en ${email}`);
+                document.getElementById('newsletterEmail').value = '';
+            } else {
+                alert('📧 Por favor ingresa tu email');
+            }
         }
-        
-        // Cargar al inicio y cada 30 segundos
+
+        // Cargar todo
+        async function cargarTodo() {
+            await Promise.all([cargarCuriosidades(), cargarArticulos()]);
+        }
+
+        // Auto-refresh cada 30 segundos
         cargarTodo();
-        setInterval(cargarTodo, 30000);
+        setInterval(() => {
+            cargarCuriosidades();
+            cargarArticulos();
+        }, 30000);
     </script>
 </body>
 </html>
