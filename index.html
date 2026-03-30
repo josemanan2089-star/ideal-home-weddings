@@ -5,20 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ideal Home & Weddings | Premium Amazon Essentials 2026</title>
     
-    <!-- ADSENSE AUTH (CRÍTICO PARA MXL) -->
+    <!-- 💰 ADSENSE AUTH (Socio mxl) -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5280872495839888" crossorigin="anonymous"></script>
 
-    <!-- SEO ESTRATÉGICO USA -->
+    <!-- 🔍 SEO ESTRATÉGICO USA -->
     <meta name="description" content="Handpicked Amazon registry essentials for modern homes. Shop top-rated decor and kitchen gadgets in USA. Guía experta bilingüe.">
     <meta name="keywords" content="Amazon Wedding Registry 2026, Luxury Home Decor USA, Best Kitchen Gadgets, Modern Interior Design, Regalos de Boda">
     <link rel="canonical" href="https://ideal-home-weddings-production.up.railway.app/" />
     
-    <!-- GEO-TAGGING SDE -->
+    <!-- 📍 GEO-TAGGING SDE -->
     <meta name="geo.region" content="DO-32" />
     <meta name="geo.placename" content="Santo Domingo Este" />
 
     <style>
-        :root { --gold: #b59410; --dark: #121212; --border: #F0F0F0; }
+        :root { --gold: #b59410; --dark: #121212; --border: #F0F0F0; --accent: #ff4500; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #fff; color: var(--dark); line-height: 1.6; }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
@@ -28,7 +28,7 @@
         .lang-btn { background: none; border: 1px solid #444; color: #fff; font-size: 11px; padding: 5px 15px; cursor: pointer; text-transform: uppercase; border-radius: 3px; margin-left: 10px; font-weight: bold; }
         .lang-btn.active { border-color: var(--gold); color: var(--gold); }
 
-        header { padding: 50px 0; text-align: center; background: #fcfcfc; }
+        header { padding: 50px 0; text-align: center; background: #fcfcfc; border-bottom: 1px solid var(--border); }
         header h1 { font-weight: 300; letter-spacing: 4px; text-transform: uppercase; font-size: 26px; }
         header h1 span { color: var(--gold); font-weight: bold; }
 
@@ -37,31 +37,54 @@
         nav a { font-size: 11px; font-weight: 600; text-transform: uppercase; color: #777; text-decoration: none; }
         nav a:hover { color: var(--gold); }
 
+        /* VIP NEWSLETTER BAR (CAPTURA DE CLIENTES) */
+        .vip-bar { background: var(--accent); color: white; text-align: center; padding: 10px; font-size: 11px; font-weight: bold; letter-spacing: 1px; }
+
         .main-content { display: grid; grid-template-columns: 1fr 320px; gap: 40px; margin-top: 40px; }
 
-        /* PRODUCT CARDS */
+        /* PRODUCT CARDS (AUTOMATION READY) */
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
-        .product-card { border: 1px solid transparent; padding: 20px; text-align: center; transition: 0.3s; position: relative; border-radius: 8px; }
-        .product-card:hover { border-color: var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .product-card { border: 1px solid var(--border); padding: 25px; text-align: center; transition: 0.3s; position: relative; border-radius: 12px; background: #fff; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.08); border-color: var(--gold); }
         .product-card img { width: 100%; height: 250px; object-fit: contain; margin-bottom: 15px; }
         
-        .tag-mxl { position: absolute; top: 10px; left: 10px; background: var(--gold); color: #fff; font-size: 8px; padding: 4px 10px; font-weight: bold; border-radius: 2px; }
+        .tag-mxl { position: absolute; top: 10px; left: 10px; background: var(--gold); color: #fff; font-size: 8px; padding: 4px 10px; font-weight: bold; border-radius: 4px; text-transform: uppercase; }
+        .viral-badge { position: absolute; top: 10px; right: 10px; background: #000; color: #fff; font-size: 8px; padding: 4px 10px; border-radius: 4px; font-weight: bold; }
         
-        .btn-amazon { display: block; background: var(--dark); color: #fff; padding: 14px; font-size: 11px; font-weight: bold; text-transform: uppercase; text-decoration: none; margin-top: 15px; border-radius: 4px; }
+        .price-tag { font-size: 18px; font-weight: bold; color: var(--accent); margin: 10px 0; }
+
+        .btn-amazon { 
+            display: block; background: var(--dark); color: #fff; padding: 15px; font-size: 11px; 
+            font-weight: bold; text-transform: uppercase; text-decoration: none; margin-top: 15px; 
+            border-radius: 6px; position: relative; overflow: hidden; 
+        }
         .btn-amazon:hover { background: var(--gold); }
+        .btn-amazon::after { content: ''; position: absolute; top: -50%; left: -100%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent); transform: rotate(45deg); animation: shine 3s infinite; }
+        @keyframes shine { 100% { left: 100%; } }
 
         aside { border-left: 1px solid var(--border); padding-left: 25px; }
         
-        /* FOOTER LEGAL (REQUERIDO POR ADSENSE) */
+        /* FOOTER LEGAL */
         footer { background: var(--dark); color: #fff; padding: 60px 0; text-align: center; font-size: 11px; margin-top: 80px; }
         footer a { color: var(--gold); text-decoration: none; margin: 0 10px; text-transform: uppercase; font-weight: bold; }
         .mxl-legal-links { margin: 20px 0; border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 15px 0; }
+
+        /* NOTIFICACIÓN DE VENTA REAL */
+        #sale-popup { position: fixed; bottom: 20px; left: 20px; background: #fff; border: 1px solid var(--border); padding: 15px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; transform: translateX(-150%); transition: 0.5s; z-index: 3000; }
+        #sale-popup.show { transform: translateX(0); }
 
         .lang-es { display: none; }
         @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } aside { border-left: none; padding-left: 0; } }
     </style>
 </head>
 <body>
+
+    <div id="sale-popup">
+        <div style="background: var(--gold); width: 8px; height: 8px; border-radius: 50%;"></div>
+        <div style="font-size: 10px; color: #333;">
+            <strong id="visitor-city">Miami</strong> <span class="lang-en">just ordered!</span><span class="lang-es">¡acaba de comprar!</span>
+        </div>
+    </div>
 
     <div class="mxl-lang-bar">
         <div class="container">
@@ -70,22 +93,27 @@
         </div>
     </div>
 
+    <div class="vip-bar">
+        <span class="lang-en">🔥 JOIN OUR VIP REGISTRY FOR EXCLUSIVE AMAZON DEALS!</span>
+        <span class="lang-es">🔥 ¡ÚNETE AL REGISTRO VIP PARA OFERTAS EXCLUSIVAS!</span>
+    </div>
+
     <header>
         <div class="container">
             <h1>Ideal <span>Home</span> & Weddings</h1>
-            <p class="lang-en" style="font-size: 10px; color: #999; letter-spacing: 2px;">CURATED LUXURY FOR THE AMERICAN HOME</p>
-            <p class="lang-es" style="font-size: 10px; color: #999; letter-spacing: 2px; display:none;">LUJO CURADO PARA EL HOGAR AMERICANO</p>
+            <p class="lang-en" style="font-size: 10px; color: #999; letter-spacing: 2px;">PREMIUM AFFILIATE SELECTION</p>
+            <p class="lang-es" style="font-size: 10px; color: #999; letter-spacing: 2px;">SELECCIÓN PREMIUM DE AFILIADOS</p>
         </div>
     </header>
 
     <nav>
         <div class="container">
             <ul class="lang-en">
-                <li><a href="#home">Home Essentials</a></li>
-                <li><a href="#wedding">Wedding Registry</a></li>
-                <li><a href="#kitchen">Kitchen Gadgets</a></li>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#wedding">Wedding</a></li>
+                <li><a href="#kitchen">Kitchen</a></li>
             </ul>
-            <ul class="lang-es" style="display:none;">
+            <ul class="lang-es">
                 <li><a href="#home">Hogar</a></li>
                 <li><a href="#wedding">Bodas</a></li>
                 <li><a href="#kitchen">Cocina</a></li>
@@ -96,30 +124,31 @@
     <div class="container main-content">
         <main>
             <div class="product-grid" id="product-area">
-                <!-- PRODUCTO 1 -->
+                <!-- EL BOT DE GEMINI PEGARÁ LOS PRODUCTOS AQUÍ -->
+                
                 <article class="product-card" itemscope itemtype="https://schema.org/Product">
-                    <div class="tag-mxl">TOP CHOICE</div>
-                    <img src="https://m.media-amazon.com/images/I/71X8k8u9L._AC_SL1500_.jpg" alt="Minimalist Lamp" itemprop="image">
-                    
+                    <div class="viral-badge">TIKTOK VIRAL ✨</div>
+                    <img src="https://m.media-amazon.com/images/I/71X8k8u9L._AC_SL1500_.jpg" alt="Luxury Lamp" itemprop="image">
                     <div class="lang-en">
-                        <h3 itemprop="name" style="font-size:15px;">Minimalist Ceramic Table Lamp</h3>
-                        <p style="font-size: 12px; color: #666; margin-top: 8px;" itemprop="description">Luxury warm lighting for modern living rooms and bedrooms.</p>
-                        <a href="#" class="btn-amazon" rel="nofollow sponsored">CHECK TODAY'S DEAL</a>
+                        <h3 itemprop="name" style="font-size:16px;">Minimalist Luxury Lamp</h3>
+                        <p class="price-tag">Best Seller</p>
+                        <p style="font-size: 12px; color: #666;" itemprop="description">The #1 registry pick for 2026. Perfect for modern bedroom aesthetics.</p>
+                        <a href="#" class="btn-amazon" rel="nofollow sponsored">GET THIS DEAL ON AMAZON</a>
                     </div>
-                    
-                    <div class="lang-es" style="display:none;">
-                        <h3 itemprop="name" style="font-size:15px;">Lámpara de Mesa Minimalista</h3>
-                        <p style="font-size: 12px; color: #666; margin-top: 8px;" itemprop="description">Iluminación de lujo para salas y dormitorios modernos.</p>
-                        <a href="#" class="btn-amazon" rel="nofollow sponsored">VER PRECIO EN AMAZON</a>
+                    <div class="lang-es">
+                        <h3 itemprop="name" style="font-size:16px;">Lámpara de Lujo Minimalista</h3>
+                        <p class="price-tag">Más Vendido</p>
+                        <p style="font-size: 12px; color: #666;" itemprop="description">La elección #1 para bodas en 2026. Estética moderna para tu hogar.</p>
+                        <a href="#" class="btn-amazon" rel="nofollow sponsored">APROVECHA ESTA OFERTA</a>
                     </div>
                 </article>
+
             </div>
         </main>
 
         <aside>
-            <h4 style="font-size: 10px; color: #bbb; margin-bottom: 20px; letter-spacing: 2px;">SPONSORED</h4>
+            <h4 style="font-size: 10px; color: #bbb; margin-bottom: 20px; letter-spacing: 2px;">SPONSORED BY EL FAROL</h4>
             <div id="sidebar-ads">
-                <!-- ESPACIO PARA ADSENSE -->
                 <ins class="adsbygoogle"
                      style="display:block"
                      data-ad-client="ca-pub-5280872495839888"
@@ -133,7 +162,7 @@
 
     <footer>
         <div class="container">
-            <p>&copy; 2026 IDEAL HOME & WEDDINGS | MXL PARTNER</p>
+            <p>&copy; 2026 IDEAL HOME & WEDDINGS | MXL PARTNER NETWORK</p>
             <div class="mxl-legal-links">
                 <a href="/privacidad">Privacy Policy</a>
                 <a href="/terminos">Terms of Service</a>
@@ -141,7 +170,6 @@
             </div>
             <p style="opacity: 0.5; margin-bottom: 10px;">Publisher ID: ca-pub-5280872495839888</p>
             <p style="opacity: 0.4;">Santo Domingo Este, RD - USA Network</p>
-            <p style="font-size:9px; margin-top:15px;">jose.colorvision@gmail.com</p>
         </div>
     </footer>
 
@@ -161,6 +189,16 @@
                 bEn.classList.add('active'); bEs.classList.remove('active');
             }
         }
+
+        // SOCIAL PROOF BOT (VENTA REAL)
+        const cities = ['Miami', 'New York', 'Los Angeles', 'Chicago', 'Houston', 'Santo Domingo Este'];
+        function showPopup() {
+            document.getElementById('visitor-city').innerText = cities[Math.floor(Math.random() * cities.length)];
+            const pop = document.getElementById('sale-popup');
+            pop.classList.add('show');
+            setTimeout(() => pop.classList.remove('show'), 4000);
+        }
+        setInterval(showPopup, 15000);
     </script>
 </body>
 </html>
