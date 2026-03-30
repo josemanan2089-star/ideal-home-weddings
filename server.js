@@ -5,13 +5,26 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 app.use(express.json());
-app.use(express.static('.')); 
+
+// 🚀 ESTO CORRIGE LA PANTALLA BLANCA
+// Obliga al servidor a servir los archivos desde la carpeta principal
+app.use(express.static(path.join(__dirname, '.')));
 
 const DB_PATH = path.join(__dirname, 'productos.json');
 
 if (!fs.existsSync(DB_PATH)) {
     fs.writeFileSync(DB_PATH, JSON.stringify([]));
 }
+
+// Ruta para ver la web principal
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Ruta para ver el panel
+app.get('/mxl-panel-2026.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'mxl-panel-2026.html'));
+});
 
 app.post('/api/publicar', (req, res) => {
     try {
