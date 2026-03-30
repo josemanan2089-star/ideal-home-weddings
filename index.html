@@ -3,151 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ideal Home & Weddings | Premium Amazon Recommendations</title>
-    <meta name="description" content="Curated guide for modern home decor, wedding essentials, and smart lifestyle products. Elevate your home with expert tips.">
+    <title>Ideal Home & Weddings | Best Amazon Finds 2026</title>
+    
+    <!-- SEO MAESTRO MXL: Lo que las páginas duras usan -->
+    <meta name="description" content="Expert-curated guide for modern home decor and wedding essentials in Santo Domingo Este. Discover top-rated Amazon products.">
+    <meta name="keywords" content="Home Decor RD, Wedding Registry Santo Domingo Este, Amazon Finds 2026, Luxury Home SDE, Best Kitchen Gadgets RD">
+    <meta name="geo.region" content="DO-32" />
+    <meta name="geo.placename" content="Santo Domingo Este" />
+    <meta name="geo.position" content="18.4861;-69.8533" />
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%23b59410%22>H</text></svg>">
 
     <style>
         :root {
             --primary-bg: #FFFFFF;
-            --secondary-bg: #F8F9FA;
-            --text-dark: #111111;
-            --text-light: #555555;
+            --secondary-bg: #F9F9F9;
+            --text-dark: #1A1A1A;
+            --text-light: #666666;
             --gold: #b59410;
             --border: #EEEEEE;
+            --accent: #E5D592;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'optima', 'Georgia', serif;
-            background-color: var(--primary-bg);
-            color: var(--text-dark);
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        h1, h2, h3, h4 {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            font-weight: 300;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
+        body { font-family: 'optima', 'Georgia', serif; background-color: var(--primary-bg); color: var(--text-dark); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        h1, h2, h3, h4 { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 300; letter-spacing: 1px; text-transform: uppercase; }
         a { text-decoration: none; color: inherit; transition: 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
+        /* HEADER & NAV */
+        header { padding: 40px 0; border-bottom: 1px solid var(--border); text-align: center; }
+        header h1 { font-size: 28px; margin-bottom: 5px; font-weight: 400; }
+        header h1 span { color: var(--gold); }
+        header p { font-size: 11px; text-transform: uppercase; letter-spacing: 3px; color: var(--text-light); }
 
-        /* --- HEADER --- */
-        header {
-            background-color: var(--primary-bg);
-            padding: 30px 0;
-            border-bottom: 1px solid var(--border);
-            text-align: center;
-        }
-
-        header h1 { font-size: 24px; color: var(--text-dark); margin-bottom: 5px; }
-        header h1 span { color: var(--gold); font-weight: 400; }
-        header p { font-size: 12px; color: var(--text-light); text-transform: uppercase; letter-spacing: 2px; }
-
-        /* --- NAVEGACIÓN --- */
-        nav {
-            background-color: var(--secondary-bg);
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-            text-align: center;
-            position: sticky; top: 0; z-index: 1000;
-        }
-
-        nav ul { list-style: none; display: inline-flex; gap: 25px; }
-        nav a { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light); font-weight: 600; }
+        nav { background: var(--primary-bg); padding: 15px 0; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; text-align: center; }
+        nav ul { list-style: none; display: inline-flex; gap: 30px; }
+        nav a { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-light); }
         nav a:hover { color: var(--gold); }
 
-        /* --- HERO --- */
-        .hero { padding: 60px 0; text-align: center; border-bottom: 1px solid var(--border); }
-        .hero h2 { font-size: 32px; margin-bottom: 15px; }
-        .hero p { font-size: 16px; color: var(--text-light); max-width: 600px; margin: 0 auto; }
+        /* HERO - GANCHO DE AUTORIDAD */
+        .hero { padding: 80px 0; text-align: center; background: var(--secondary-bg); margin-bottom: 40px; }
+        .hero h2 { font-size: 36px; margin-bottom: 20px; color: var(--text-dark); }
+        .hero p { font-size: 18px; color: var(--text-light); max-width: 700px; margin: 0 auto; }
+        .badge-trusted { display: inline-block; padding: 5px 15px; border: 1px solid var(--gold); color: var(--gold); font-size: 10px; text-transform: uppercase; margin-bottom: 20px; border-radius: 50px; }
 
-        /* --- PRODUCTOS --- */
-        .products { padding: 40px 0; }
-        .section-title { text-align: center; font-size: 18px; color: var(--gold); margin-bottom: 30px; position: relative; }
-        .section-title::after { content: ''; display: block; width: 50px; height: 1px; background: var(--gold); margin: 10px auto 0; }
+        /* GRID DE PRODUCTOS MEJORADO (Estilo Tienda Dura) */
+        .products { padding: 60px 0; }
+        .section-title { text-align: center; font-size: 22px; color: var(--text-dark); margin-bottom: 40px; position: relative; }
+        .section-title span { color: var(--gold); }
 
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 30px;
-        }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 40px; }
 
-        .product-card {
-            background: var(--primary-bg);
-            border: 1px solid var(--border);
-            padding: 20px;
-            text-align: center;
-            transition: 0.3s;
-        }
+        .product-card { background: #fff; border: 1px solid var(--border); padding: 25px; position: relative; transition: 0.4s; display: flex; flex-direction: column; }
+        .product-card:hover { transform: translateY(-10px); border-color: var(--gold); box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
 
-        .product-card:hover { border-color: var(--gold); box-shadow: 0 5px 15px rgba(181,148,16,0.1); }
-        .product-card img { max-width: 100%; height: 200px; object-fit: contain; margin-bottom: 15px; }
-        .product-card h3 { font-size: 14px; margin-bottom: 8px; text-transform: none; font-weight: 600; }
-        .product-card p { font-size: 13px; color: var(--text-light); margin-bottom: 15px; height: 40px; overflow: hidden; }
+        /* Etiqueta de 'Best Seller' que vende mucho */
+        .tag { position: absolute; top: 10px; left: 10px; background: var(--gold); color: #fff; padding: 4px 10px; font-size: 10px; font-weight: bold; text-transform: uppercase; z-index: 1; }
 
-        .btn-amazon {
-            display: inline-block;
-            background-color: var(--text-dark);
-            color: #FFFFFF;
-            padding: 10px 20px;
-            font-size: 11px;
-            text-transform: uppercase;
-            font-weight: 700;
-            border-radius: 2px;
-        }
-        .btn-amazon:hover { background-color: var(--gold); }
+        .product-card img { width: 100%; height: 250px; object-fit: contain; margin-bottom: 20px; }
+        .stars { color: #f1c40f; font-size: 14px; margin-bottom: 10px; text-align: center; }
+        .product-card h3 { font-size: 16px; margin-bottom: 10px; font-weight: 600; text-transform: none; text-align: center; }
+        .product-card p { font-size: 14px; color: var(--text-light); margin-bottom: 20px; text-align: center; flex-grow: 1; }
 
-        /* --- TIPS SECTION --- */
-        .tips-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .tip-box { background: #F9F9F9; padding: 25px; border-radius: 4px; border-left: 3px solid var(--gold); }
-        .tip-box h4 { font-size: 14px; color: var(--gold); margin-bottom: 10px; }
-        .tip-box p { font-size: 14px; color: var(--text-light); }
+        .btn-amazon { display: block; text-align: center; background: var(--text-dark); color: #fff; padding: 12px; font-size: 12px; font-weight: bold; text-transform: uppercase; transition: 0.3s; }
+        .btn-amazon:hover { background: var(--gold); }
 
-        /* --- EXPLORE CAROUSEL --- */
-        .explore-carousel {
-            background: #111; color: #FFF; padding: 60px 20px; text-align: center; margin-top: 50px;
-        }
-        .carousel-track {
-            display: flex; overflow-x: auto; gap: 20px; padding: 20px 0; scrollbar-width: none;
-        }
-        .carousel-item {
-            min-width: 220px; background: #1a1a1a; padding: 20px; border: 1px solid #333; transition: 0.3s;
-        }
-        .carousel-item:hover { border-color: var(--gold); }
-        .carousel-item p { color: var(--gold); font-weight: bold; margin-bottom: 5px; font-size: 13px; }
-        .carousel-item small { color: #888; font-size: 11px; text-transform: uppercase; }
+        /* SECCIÓN DE TIPS (El secreto del SEO) */
+        .tips-section { background: var(--secondary-bg); padding: 80px 0; margin: 60px 0; }
+        .tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .tip-card { background: #fff; padding: 30px; border-left: 4px solid var(--gold); }
+        .tip-card h4 { color: var(--gold); margin-bottom: 15px; font-size: 16px; }
 
-        footer { background-color: var(--secondary-bg); padding: 40px 0; text-align: center; border-top: 1px solid var(--border); color: #888; font-size: 11px; }
+        /* FOOTER */
+        footer { padding: 60px 0; border-top: 1px solid var(--border); text-align: center; font-size: 12px; color: var(--text-light); }
 
-        @media (max-width: 768px) {
-            .hero h2 { font-size: 24px; }
-            nav ul { gap: 15px; }
-        }
+        @media (max-width: 768px) { .hero h2 { font-size: 28px; } .product-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
     <header>
         <div class="container">
+            <div class="badge-trusted">Expertly Curated for 2026</div>
             <h1>Ideal <span>Home</span> & Weddings</h1>
-            <p>Premium Amazon Recommendations</p>
+            <p>Premium Recommendations for Santo Domingo Este</p>
         </div>
     </header>
 
@@ -155,7 +95,7 @@
         <div class="container">
             <ul>
                 <li><a href="#home">Home Decor</a></li>
-                <li><a href="#wedding">Wedding Registry</a></li>
+                <li><a href="#wedding">Wedding Gifts</a></li>
                 <li><a href="#kitchen">Smart Kitchen</a></li>
             </ul>
         </div>
@@ -163,86 +103,62 @@
 
     <section class="hero">
         <div class="container">
-            <h2>Elevate Your Lifestyle</h2>
-            <p>Discover handpicked essentials to transform your space into a sanctuary of elegance and comfort.</p>
+            <h2>The Only Guide You Need for a <span>Sophisticated Home</span></h2>
+            <p>Stop guessing. We test and review the best Amazon essentials to bring luxury and comfort directly to your door in RD.</p>
         </div>
     </section>
 
-    <!-- SECCIÓN DE PRODUCTOS -->
     <main class="container products" id="home">
-        <h2 class="section-title">Home Essentials</h2>
+        <h2 class="section-title">Today's <span>Top Picks</span></h2>
         <div class="product-grid">
-            
-            <div class="product-card">
-                <img src="https://m.media-amazon.com/images/I/71X8k8u9L._AC_SL1500_.jpg" alt="Minimalist Lamp">
+
+            <!-- PRODUCTO 1 -->
+            <article class="product-card">
+                <div class="tag">Editor's Choice</div>
+                <img src="https://m.media-amazon.com/images/I/71X8k8u9L._AC_SL1500_.jpg" alt="Minimalist Table Lamp">
+                <div class="stars">★★★★★</div>
                 <h3>Minimalist Ceramic Table Lamp</h3>
-                <p>Elegant lighting for a sophisticated bedroom vibe.</p>
-                <a href="#" class="btn-amazon">Check Price on Amazon</a>
-            </div>
+                <p>Perfect for modern bedside tables. Soft warm light that transforms any room in SDE into a luxury suite.</p>
+                <a href="TU_LINK_AQUÍ" target="_blank" rel="noopener sponsored" class="btn-amazon">View Price on Amazon</a>
+            </article>
 
-            <div class="product-card">
+            <!-- PRODUCTO 2 -->
+            <article class="product-card">
+                <div class="tag">Best Seller</div>
                 <img src="https://m.media-amazon.com/images/I/61Nux8u8L._AC_SL1000_.jpg" alt="Velvet Pillows">
+                <div class="stars">★★★★★</div>
                 <h3>Luxury Velvet Pillow Covers</h3>
-                <p>Set of 2. Add a touch of gold to your living room.</p>
-                <a href="#" class="btn-amazon">Check Price on Amazon</a>
-            </div>
-
-            <!-- AQUÍ PEGARÁS LOS NUEVOS PRODUCTOS DESDE TU ADMIN -->
+                <p>The easiest way to add a premium touch to your living room. Set of 2, high-quality fabric.</p>
+                <a href="TU_LINK_AQUÍ" target="_blank" rel="noopener sponsored" class="btn-amazon">View Price on Amazon</a>
+            </article>
 
         </div>
     </main>
 
-    <!-- SECCIÓN DE CONSEJOS (TIPS) -->
-    <section class="container products" style="border-top: 1px solid #EEE;">
-        <h2 class="section-title">Home Styling Tips</h2>
-        <div class="tips-container">
-            <div class="tip-box">
-                <h4>✨ The Mirror Trick</h4>
-                <p>Place a large mirror opposite your window. It reflects natural light and makes any small room feel double its size instantly.</p>
-            </div>
-            <div class="tip-box">
-                <h4>🕯️ Scent Layering</h4>
-                <p>Combine diffusers with soy candles. A vanilla and jasmine scent creates a premium atmosphere for your guests.</p>
-            </div>
-            <div class="tip-box">
-                <h4>🌿 Green Life</h4>
-                <p>Add indoor plants like Snake Plants or Monstera. They purify the air and add a luxury "organic" look to your corners.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- CARRUSEL DE EXPLORACIÓN -->
-    <section class="explore-carousel">
+    <section class="tips-section">
         <div class="container">
-            <h2 style="color: #b59410; margin-bottom: 10px;">More to Explore</h2>
-            <p style="font-size: 14px; opacity: 0.8; margin-bottom: 20px;">Curated guides for your dream lifestyle.</p>
-            <div class="carousel-track">
-                <a href="#kitchen" class="carousel-item">
-                    <p>Kitchen Gadgets 🍳</p>
-                    <small>2026 Cooking Trends</small>
-                </a>
-                <a href="#wedding" class="carousel-item">
-                    <p>Wedding Gifts 💍</p>
-                    <small>Most Gifted Items</small>
-                </a>
-                <a href="#home" class="carousel-item">
-                    <p>Living Room 🛋️</p>
-                    <small>Luxury on a Budget</small>
-                </a>
-                <a href="#" class="carousel-item">
-                    <p>Smart Home 📱</p>
-                    <small>Automate Your Space</small>
-                </a>
+            <h2 class="section-title">Expert <span>Home Hacks</span></h2>
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <h4>✨ The Light Reflection Rule</h4>
+                    <p>In Santo Domingo Este apartments, use mirrors opposite to windows. It maximizes the natural light and makes the space feel 2x larger.</p>
+                </div>
+                <div class="tip-box tip-card">
+                    <h4>🕯️ Signature Scent</h4>
+                    <p>Mix vanilla and sandalwood diffusers. It’s the secret scent used in high-end hotels to trigger a feeling of luxury.</p>
+                </div>
+                <div class="tip-card">
+                    <h4>🍳 Efficiency First</h4>
+                    <p>Switch to Air Fryers to keep your kitchen cool. Less heat, less energy, better food for the Dominican family.</p>
+                </div>
             </div>
         </div>
     </section>
 
     <footer>
         <div class="container">
-            <p>&copy; 2026 Ideal Home & Weddings | Josemanan Santana | Elite Amazon Affiliate</p>
-            <p style="margin-top:10px; font-size:10px; text-transform:none; opacity: 0.6;">
-                As an Amazon Associate I earn from qualifying purchases.
-            </p>
+            <p>&copy; 2026 Ideal Home & Weddings | Josemanan Santana | Professional Affiliate Site</p>
+            <p style="margin-top:15px; opacity: 0.7;">As an Amazon Associate I earn from qualifying purchases. We prioritize quality for our community in RD.</p>
         </div>
     </footer>
 
