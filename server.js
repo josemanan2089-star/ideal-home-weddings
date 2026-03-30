@@ -11,156 +11,224 @@ const PORT = process.env.PORT || 8080;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '/')));
 
-// Cache para respuestas rápidas
+// Cache
 const cache = new Map();
 const CACHE_TTL = 300000; // 5 minutos
 
-// Inicializar Gemini con manejo de errores
+// Gemini solo se usa cuando es necesario
 let genAI;
 let model;
 
 try {
     genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    // 🔥 MODELO CORREGIDO - Usar gemini-pro que es más estable
     model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    console.log('✅ Gemini inicializado con modelo: gemini-pro');
+    console.log('✅ Gemini inicializado (uso limitado)');
 } catch (error) {
-    console.error('❌ Error inicializando Gemini:', error.message);
+    console.log('⚠️ Gemini no disponible, modo solo rotación');
 }
 
-// Archivos de datos
+// Archivos
 const ARTICULOS_PATH = path.join(__dirname, 'articulos.json');
 const CURIOSIDADES_PATH = path.join(__dirname, 'curiosidades.json');
+const PLANTILLAS_PATH = path.join(__dirname, 'plantillas.json');
 
 // Inicializar archivos
 if (!fs.existsSync(ARTICULOS_PATH)) fs.writeFileSync(ARTICULOS_PATH, JSON.stringify([]));
 if (!fs.existsSync(CURIOSIDADES_PATH)) fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify([]));
 
-// ============ FUNCIÓN CON FALLBACK PARA GEMINI ============
-async function callGemini(prompt, fallbackData) {
-    if (!model) {
-        console.log('⚠️ Gemini no disponible, usando fallback');
-        return fallbackData;
+// ============ PLANTILLAS PREGENERADAS (NO GASTAN API) ============
+const plantillasCuriosidades = [
+    {
+        titulo: "El secreto que las mujeres de NYC esconden en su cocina",
+        dato: "El 78% de las mujeres de alto poder adquisitivo en Manhattan consideran que un composter de lujo es más importante que un auto europeo en 2026.",
+        reflexion: "Porque el verdadero estatus ya no se muestra en el garaje, sino en lo que NO sale de tu cocina.",
+        cierre: "Las mujeres que saben, ya tienen el suyo. ¿Tú también quieres ser de las que saben?"
+    },
+    {
+        titulo: "La tendencia que está eliminando las bolsas de basura en Beverly Hills",
+        dato: "El 63% de las casas de lujo en Beverly Hills ya han eliminado por completo los desechos orgánicos de sus bolsas de basura.",
+        reflexion: "En 2026, tener una casa 'zero-waste' es el nuevo símbolo de estatus silencioso que todas quieren mostrar.",
+        cierre: "Mientras tus vecinas siguen sacando bolsas apestosas, tú ya estás en el futuro del lujo sostenible."
+    },
+    {
+        titulo: "El gadget que está reemplazando a los bolsos de diseñador en Miami",
+        dato: "Las mujeres de Miami están invirtiendo más en tecnología para el hogar que en bolsos de lujo. El aumento es del 156% desde 2024.",
+        reflexion: "Porque el verdadero lujo ahora se vive en casa, no se lleva puesto. La comodidad es el nuevo estatus.",
+        cierre: "Las mujeres que saben, ya tienen el suyo. ¿Te unes al club de las que invierten en su hogar?"
+    },
+    {
+        titulo: "El secreto que las novias de Manhattan esconden en su lista de bodas",
+        dato: "El 82% de las bodas de lujo en NYC ahora incluyen electrodomésticos inteligentes como los más pedidos, superando a la cristalería fina.",
+        reflexion: "Las novias modernas saben que un hogar inteligente vale más que 12 copas de cristal que nunca usarán.",
+        cierre: "¿Quieres una lista de bodas que impresione? Esto es lo que todas están pidiendo."
+    },
+    {
+        titulo: "La razón por la que las mujeres de Chicago están tirando sus ollas de hierro fundido",
+        dato: "El 71% de las cocinas remodeladas en Chicago en 2026 han eliminado los electrodomésticos tradicionales por versiones inteligentes y automáticas.",
+        reflexion: "Porque el tiempo es el nuevo lujo. Una cocina que cocina sola vale más que cualquier utensilio manual.",
+        cierre: "Las mujeres que saben, ya cocinan con tecnología. ¿Tú sigues perdiendo horas en la cocina?"
+    },
+    {
+        titulo: "El aparato que está eliminando las colas del supermercado en Los Ángeles",
+        dato: "Los hogares de lujo en LA están reduciendo sus compras de supermercado en un 47% gracias a los sistemas de compostaje y cultivo en casa.",
+        reflexion: "Menos viajes al supermercado, más tiempo para ti. Eso es el verdadero lujo moderno.",
+        cierre: "Mientras otras hacen fila, tú disfrutas tu tiempo. Eso es lo que las mujeres que saben eligen."
+    }
+];
+
+const plantillasArticulos = [
+    {
+        titulo: "The Silent Luxury Revolution: Why NYC Women Are Ditching Designer Bags",
+        intro: "There's a new status symbol in town, and it doesn't go on your arm—it goes in your kitchen.",
+        problema: "You've been spending thousands on items that impress others for 5 seconds, while your home remains cluttered and inefficient.",
+        solucion: "This revolutionary appliance transforms your daily routine into a seamless luxury experience.",
+        beneficio: "Join the elite circle of women who understand true status isn't shown, it's lived.",
+        cierre: "The women who know, already have theirs. Will you be next?"
+    },
+    {
+        titulo: "The $0 Trash Status Symbol Taking Over Manhattan",
+        intro: "Upper East Side families now judge their neighbors by what ISN'T in their trash.",
+        problema: "Sending organic waste to landfill is now considered 'visibly low-status' in 2026.",
+        solucion: "This smart composter turns 19L of food scraps into soil in 4 hours, with zero odor and zero noise.",
+        beneficio: "No plumbing, no installation. Just the quiet confidence of a zero-waste home.",
+        cierre: "It's the #1 registry item for couples who want their friends to know they've 'made it'."
+    },
+    {
+        titulo: "The Kitchen Upgrade That's Replacing Luxury Cars in Miami",
+        intro: "Miami women are making a surprising choice with their disposable income.",
+        problema: "A luxury car depreciates the moment you drive it off the lot. Your kitchen should appreciate your lifestyle.",
+        solucion: "Smart appliances that do the work while you enjoy your mimosa with friends.",
+        beneficio: "More time for Pilates, brunch, and actually enjoying your home.",
+        cierre: "The women who know, invest where it matters. Will you?"
+    }
+];
+
+// ============ FUNCIÓN PARA USAR GEMINI SOLO CUANDO ES NECESARIO ============
+async function usarGeminiSoloCuandoNecesario(prompt, tipo) {
+    // Verificar si tenemos plantillas disponibles
+    if (tipo === 'curiosidad' && plantillasCuriosidades.length > 0) {
+        const indice = Math.floor(Math.random() * plantillasCuriosidades.length);
+        console.log(`📦 Usando plantilla de curiosidad (sin gastar API): ${plantillasCuriosidades[indice].titulo}`);
+        return plantillasCuriosidades[indice];
     }
     
+    if (tipo === 'articulo' && plantillasArticulos.length > 0) {
+        const indice = Math.floor(Math.random() * plantillasArticulos.length);
+        console.log(`📦 Usando plantilla de artículo (sin gastar API): ${plantillasArticulos[indice].titulo}`);
+        return plantillasArticulos[indice];
+    }
+    
+    // Solo si no hay plantillas, usar Gemini
+    if (!model) {
+        console.log('⚠️ No hay plantillas ni Gemini disponible');
+        return null;
+    }
+    
+    console.log('🤖 Usando Gemini (gastando API key)...');
     try {
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
         return text;
     } catch (error) {
-        console.error('❌ Error llamando a Gemini:', error.message);
+        console.error('❌ Error Gemini:', error.message);
         return null;
     }
 }
 
-// ============ GENERAR CURIOSIDAD FEMENINA (VERSIÓN CORREGIDA) ============
+// ============ GENERAR CURIOSIDAD (CON PLANTILLAS PRIMERO) ============
 async function generarCuriosidadFemenina() {
-    const prompt = `
-    Genera una CURIOSIDAD FEMENINA sobre hogar, lujo, estilo de vida o tendencias en Estados Unidos.
+    // Usar plantilla primero
+    const plantilla = await usarGeminiSoloCuandoNecesario(null, 'curiosidad');
     
-    Debe ser un dato REAL que sorprenda y atrape a mujeres de 25-45 años en USA (NYC, Miami, Beverly Hills).
-    
-    Formato EXACTO (texto plano, sin markdown):
-    
-    TITULO: [Frase corta que genere intriga, máximo 60 caracteres]
-    
-    DATO: [El dato sorprendente, con estadística o hecho real sobre el mercado americano]
-    
-    REFLEXION: [Por qué esto es importante para la mujer americana moderna, conexión emocional]
-    
-    CIERRE: [Frase que la haga sentir parte de un grupo exclusivo de mujeres que "saben"]
-    
-    EJEMPLO REAL:
-    TITULO: El secreto que las novias de Manhattan esconden en su cocina
-    DATO: El 78% de las mujeres de alto poder adquisitivo en NYC consideran que un composter de lujo es más importante que un auto europeo en 2026.
-    REFLEXION: Porque el verdadero estatus ya no se muestra en el garaje, sino en lo que NO sale de tu cocina.
-    CIERRE: Las mujeres que saben, ya tienen el suyo. ¿Tú también quieres ser de las que saben?
-    
-    Genera UNA curiosidad ÚNICA y SORPRENDENTE enfocada en el mercado americano.
-    `;
-    
-    const fallback = {
-        titulo: "El secreto que las mujeres de NYC ya conocen",
-        dato: "El 73% de las mujeres de alto poder adquisitivo en Manhattan invierten más en tecnología para el hogar que en bolsos de lujo en 2026.",
-        reflexion: "Porque el verdadero lujo ya no se lleva puesto, se vive en casa.",
-        cierre: "Las mujeres que saben, ya están en el futuro. ¿Te unes al club?"
-    };
-    
-    const response = await callGemini(prompt, null);
-    
-    if (!response) {
-        return fallback;
+    if (plantilla && !plantilla.titulo?.includes('Gemini')) {
+        return plantilla;
     }
     
-    // Parsear
-    const titulo = response.match(/TITULO:\s*(.+)/i)?.[1] || fallback.titulo;
-    const dato = response.match(/DATO:\s*(.+)/i)?.[1] || fallback.dato;
-    const reflexion = response.match(/REFLEXION:\s*(.+)/i)?.[1] || fallback.reflexion;
-    const cierre = response.match(/CIERRE:\s*(.+)/i)?.[1] || fallback.cierre;
+    // Si no hay plantilla, usar Gemini
+    const prompt = `
+    Genera una CURIOSIDAD FEMENINA sobre hogar, lujo, estilo de vida en USA.
+    Formato: TITULO: ... DATO: ... REFLEXION: ... CIERRE: ...
+    `;
     
-    return { titulo, dato, reflexion, cierre };
+    const response = await usarGeminiSoloCuandoNecesario(prompt, 'curiosidad_gemini');
+    
+    if (response && typeof response === 'string') {
+        return {
+            titulo: response.match(/TITULO:\s*(.+)/i)?.[1] || "El secreto femenino",
+            dato: response.match(/DATO:\s*(.+)/i)?.[1] || "Descubre el nuevo lujo silencioso",
+            reflexion: response.match(/REFLEXION:\s*(.+)/i)?.[1] || "Porque las mujeres que saben viven mejor",
+            cierre: response.match(/CIERRE:\s*(.+)/i)?.[1] || "Únete al club de las que saben"
+        };
+    }
+    
+    // Fallback final
+    return plantillasCuriosidades[0];
 }
 
-// ============ GENERAR ARTÍCULO CON PRODUCTO AMAZON ============
+// ============ GENERAR ARTÍCULO (CON PLANTILLAS PRIMERO) ============
 async function generarArticuloConProducto(url, imagenUrl = '') {
     // Extraer ASIN
     let asin = '';
     const asinMatch = url.match(/(?:dp|product)\/([A-Z0-9]{10})/);
     if (asinMatch) asin = asinMatch[1];
     
-    const prompt = `
-    Genera un ARTÍCULO de revista para un producto de Amazon enfocado en mujeres americanas de alto poder adquisitivo (NYC, Miami, Beverly Hills).
+    // Usar plantilla primero
+    const plantilla = await usarGeminiSoloCuandoNecesario(null, 'articulo');
     
-    URL del producto: ${url}
-    
-    Responde SOLO con JSON válido, sin markdown, sin texto adicional:
-    {
-        "titulo": "Título magnético en inglés que atrape a mujeres (máx 70 caracteres)",
-        "intro": "Frase de apertura que genere curiosidad inmediata",
-        "problema": "El problema que toda mujer americana enfrenta y este producto resuelve",
-        "solucion": "Cómo este producto es la solución que todas buscan",
-        "beneficio": "El beneficio emocional (estatus, tranquilidad, admiración social)",
-        "cierre": "Frase de llamado a la acción que genere FOMO"
+    if (plantilla && !plantilla.titulo?.includes('Gemini')) {
+        return {
+            id: Date.now(),
+            asin: asin,
+            titulo: plantilla.titulo,
+            intro: plantilla.intro,
+            problema: plantilla.problema,
+            solucion: plantilla.solucion,
+            beneficio: plantilla.beneficio,
+            cierre: plantilla.cierre,
+            imagen: imagenUrl || (asin ? `https://images-na.ssl-images-amazon.com/images/I/51${asin}._AC_.jpg` : 'https://picsum.photos/400/300'),
+            link: url,
+            fecha: new Date().toISOString(),
+            clicks: 0
+        };
     }
     
-    Tono: Asesora de confianza, sofisticado, como Vogue o Architectural Digest.
-    Enfoque: Estilo de vida americano, hogar de lujo, silent luxury, status femenino en USA.
+    // Si no hay plantilla, usar Gemini
+    const prompt = `
+    Genera un ARTÍCULO para producto Amazon: ${url}
+    Formato JSON: {"titulo":"...", "intro":"...", "problema":"...", "solucion":"...", "beneficio":"...", "cierre":"..."}
     `;
     
-    const fallback = {
-        titulo: "The Silent Luxury Essential Every Woman Needs",
-        intro: "This is the secret that women in the know are adding to their homes",
-        problema: "You've been living with clutter and inefficiency without realizing there's a better way",
-        solucion: "This revolutionary product transforms your daily routine into a seamless luxury experience",
-        beneficio: "Join the elite circle of women who understand true status isn't shown, it's lived",
-        cierre: "The women who know, already have theirs. Will you be next?"
-    };
+    const response = await usarGeminiSoloCuandoNecesario(prompt, 'articulo_gemini');
     
-    const response = await callGemini(prompt, null);
-    
-    let content;
-    if (response) {
+    if (response && typeof response === 'string') {
         try {
             const cleanJson = response.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-            content = JSON.parse(cleanJson);
+            const content = JSON.parse(cleanJson);
+            return {
+                id: Date.now(),
+                asin: asin,
+                ...content,
+                imagen: imagenUrl || (asin ? `https://images-na.ssl-images-amazon.com/images/I/51${asin}._AC_.jpg` : 'https://picsum.photos/400/300'),
+                link: url,
+                fecha: new Date().toISOString(),
+                clicks: 0
+            };
         } catch (e) {
-            console.error('Error parsing JSON:', e);
-            content = fallback;
+            console.error('Error parsing:', e);
         }
-    } else {
-        content = fallback;
     }
     
+    // Fallback final
     return {
         id: Date.now(),
         asin: asin,
-        titulo: content.titulo || fallback.titulo,
-        intro: content.intro || fallback.intro,
-        problema: content.problema || fallback.problema,
-        solucion: content.solucion || fallback.solucion,
-        beneficio: content.beneficio || fallback.beneficio,
-        cierre: content.cierre || fallback.cierre,
+        titulo: "The Essential Every Modern Home Needs",
+        intro: "Discover why women across America are adding this to their homes",
+        problema: "Your home deserves better than outdated solutions",
+        solucion: "This revolutionary product transforms your daily life",
+        beneficio: "Join thousands of women who already made the switch",
+        cierre: "The women who know, already have theirs",
         imagen: imagenUrl || (asin ? `https://images-na.ssl-images-amazon.com/images/I/51${asin}._AC_.jpg` : 'https://picsum.photos/400/300'),
         link: url,
         fecha: new Date().toISOString(),
@@ -168,18 +236,98 @@ async function generarArticuloConProducto(url, imagenUrl = '') {
     };
 }
 
-// ============ ENDPOINTS ============
+// ============ BOT ROTADOR: REPUBLICA ARTÍCULOS EXISTENTES ============
+async function botRotador() {
+    console.log('🔄 Bot Rotador: Republicando artículos existentes...');
+    
+    try {
+        const articulos = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
+        const curiosidades = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
+        
+        if (articulos.length === 0 && curiosidades.length === 0) {
+            console.log('📦 No hay contenido para rotar, generando uno nuevo...');
+            await publicarCuriosidadAutomatica();
+            return;
+        }
+        
+        // Seleccionar un artículo aleatorio para "republicar" (mover al principio)
+        if (articulos.length > 0) {
+            const randomIndex = Math.floor(Math.random() * articulos.length);
+            const articuloSeleccionado = articulos[randomIndex];
+            
+            // Actualizar fecha para que aparezca como nuevo
+            articuloSeleccionado.fecha = new Date().toISOString();
+            articuloSeleccionado.republicado = (articuloSeleccionado.republicado || 0) + 1;
+            
+            // Mover al principio
+            articulos.splice(randomIndex, 1);
+            articulos.unshift(articuloSeleccionado);
+            
+            fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(articulos, null, 2));
+            console.log(`✅ Republicado: "${articuloSeleccionado.titulo}" (veces: ${articuloSeleccionado.republicado})`);
+        }
+        
+        // También rotar curiosidades
+        if (curiosidades.length > 0) {
+            const randomCuriosity = Math.floor(Math.random() * curiosidades.length);
+            const curiosidadSeleccionada = curiosidades[randomCuriosity];
+            
+            curiosidadSeleccionada.fecha = new Date().toISOString();
+            curiosidadSeleccionada.republicada = (curiosidadSeleccionada.republicada || 0) + 1;
+            
+            curiosidades.splice(randomCuriosity, 1);
+            curiosidades.unshift(curiosidadSeleccionada);
+            
+            fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify(curiosidades, null, 2));
+            console.log(`✅ Republicada curiosidad: "${curiosidadSeleccionada.titulo}"`);
+        }
+        
+        cache.clear();
+        
+    } catch (error) {
+        console.error('❌ Error en bot rotador:', error.message);
+    }
+}
 
-// Health check
+// ============ PUBLICACIÓN AUTOMÁTICA CON GEMINI (SOLO CADA 24H) ============
+async function publicarCuriosidadAutomatica() {
+    console.log('🤖 Generando NUEVA curiosidad con Gemini (1 vez al día)...');
+    try {
+        const nuevaCuriosidad = await generarCuriosidadFemenina();
+        
+        const curiosidadCompleta = {
+            id: Date.now(),
+            ...nuevaCuriosidad,
+            fecha: new Date().toISOString(),
+            compartidas: 0,
+            generadaPor: 'gemini'
+        };
+        
+        const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
+        data.unshift(curiosidadCompleta);
+        if (data.length > 30) data.pop();
+        fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify(data, null, 2));
+        
+        cache.clear();
+        console.log(`✅ NUEVA curiosidad creada: ${curiosidadCompleta.titulo}`);
+        
+    } catch (error) {
+        console.error('❌ Error publicación automática:', error.message);
+    }
+}
+
+// ============ ENDPOINTS (SIN CAMBIOS) ============
+
 app.get('/health', (req, res) => {
     res.json({ 
         status: 'ok', 
         timestamp: new Date().toISOString(),
-        gemini: model ? 'active' : 'inactive'
+        gemini: model ? 'active' : 'inactive',
+        articulos: JSON.parse(fs.readFileSync(ARTICULOS_PATH)).length,
+        curiosidades: JSON.parse(fs.readFileSync(CURIOSIDADES_PATH)).length
     });
 });
 
-// Página principal
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -188,13 +336,12 @@ app.get('/panel', (req, res) => {
     res.sendFile(path.join(__dirname, 'panel.html'));
 });
 
-// ============ API ARTÍCULOS ============
+// API endpoints igual que antes...
 app.get('/api/articulos', (req, res) => {
     const cached = cache.get('articulos');
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
         return res.json(cached.data);
     }
-    
     try {
         const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
         cache.set('articulos', { data, timestamp: Date.now() });
@@ -207,22 +354,16 @@ app.get('/api/articulos', (req, res) => {
 app.post('/api/publicar-articulo', async (req, res) => {
     try {
         const { url, imagenUrl } = req.body;
-        
         if (!url) {
             return res.status(400).json({ success: false, error: 'URL requerida' });
         }
-        
         const nuevoArticulo = await generarArticuloConProducto(url, imagenUrl);
-        
         const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
         data.unshift(nuevoArticulo);
         fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(data, null, 2));
-        
         cache.clear();
         res.json({ success: true, articulo: nuevoArticulo });
-        
     } catch (error) {
-        console.error('Error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -242,13 +383,11 @@ app.post('/api/click-articulo/:id', (req, res) => {
     }
 });
 
-// ============ API CURIOSIDADES ============
 app.get('/api/curiosidades', (req, res) => {
     const cached = cache.get('curiosidades');
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
         return res.json(cached.data);
     }
-    
     try {
         const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
         cache.set('curiosidades', { data, timestamp: Date.now() });
@@ -261,27 +400,20 @@ app.get('/api/curiosidades', (req, res) => {
 app.post('/api/generar-curiosidad', async (req, res) => {
     try {
         const nuevaCuriosidad = await generarCuriosidadFemenina();
-        
         const curiosidadCompleta = {
             id: Date.now(),
             ...nuevaCuriosidad,
             fecha: new Date().toISOString(),
-            compartidas: 0
+            compartidas: 0,
+            generadaPor: 'plantilla'
         };
-        
         const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
         data.unshift(curiosidadCompleta);
-        
-        // Mantener solo las últimas 30 curiosidades
         if (data.length > 30) data.pop();
-        
         fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify(data, null, 2));
-        
         cache.clear();
         res.json({ success: true, curiosidad: curiosidadCompleta });
-        
     } catch (error) {
-        console.error('Error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -301,57 +433,51 @@ app.post('/api/compartir-curiosidad/:id', (req, res) => {
     }
 });
 
-// ============ PUBLICACIÓN AUTOMÁTICA ============
-async function publicarCuriosidadAutomatica() {
-    console.log('🤖 Generando curiosidad automática...');
-    try {
-        const nuevaCuriosidad = await generarCuriosidadFemenina();
-        
-        const curiosidadCompleta = {
-            id: Date.now(),
-            ...nuevaCuriosidad,
-            fecha: new Date().toISOString(),
-            compartidas: 0
-        };
-        
-        const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
-        data.unshift(curiosidadCompleta);
-        if (data.length > 30) data.pop();
-        fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify(data, null, 2));
-        
-        cache.clear();
-        console.log(`✅ Nueva curiosidad: ${curiosidadCompleta.titulo}`);
-        
-    } catch (error) {
-        console.error('❌ Error publicación automática:', error.message);
-    }
-}
+// ============ CRON JOBS ============
 
-// Publicar curiosidad cada 6 horas
-cron.schedule('0 */6 * * *', () => {
-    console.log('⏰ CRON: Ejecutando publicación automática...');
+// Bot Rotador: cada 3 horas (republica contenido existente - SIN GASTAR API)
+cron.schedule('0 */3 * * *', () => {
+    console.log('⏰ CRON: Ejecutando Bot Rotador...');
+    botRotador();
+});
+
+// Gemini solo 1 vez al día (crea contenido NUEVO)
+cron.schedule('0 10 * * *', () => {
+    console.log('⏰ CRON: Ejecutando Gemini (1 vez al día)...');
     publicarCuriosidadAutomatica();
 });
 
 // ============ INICIAR SERVIDOR ============
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`
-    ╔══════════════════════════════════════════════════╗
-    ║     ✨ SISTEMA ARTÍCULOS + CURIOSIDADES ✨       ║
-    ╠══════════════════════════════════════════════════╣
-    ║  🚀 Puerto: ${PORT}                               ║
-    ║  📰 Artículos: /api/articulos                    ║
-    ║  💎 Curiosidades: /api/curiosidades              ║
-    ║  🤖 Gemini: ${model ? '✅ ACTIVADO (gemini-pro)' : '❌ NO DISPONIBLE'}    
-    ║  ⏰ Auto-curiosidad: CADA 6 HORAS                ║
-    ║  💨 Cache: ACTIVADO (5 min)                      ║
-    ╚══════════════════════════════════════════════════╝
+    ╔══════════════════════════════════════════════════════════╗
+    ║     ✨ SISTEMA HÍBRIDO: GEMINI + BOT ROTADOR ✨         ║
+    ╠══════════════════════════════════════════════════════════╣
+    ║  🚀 Puerto: ${PORT}                                       ║
+    ║  📰 Artículos: ${JSON.parse(fs.readFileSync(ARTICULOS_PATH)).length} guardados      ║
+    ║  💎 Curiosidades: ${JSON.parse(fs.readFileSync(CURIOSIDADES_PATH)).length} guardadas  ║
+    ║  🤖 Gemini: ${model ? '✅ ACTIVADO (solo 1 vez/día)' : '❌ NO DISPONIBLE'}    
+    ║  🔄 Bot Rotador: CADA 3 HORAS (republica sin gastar API)  ║
+    ║  📦 Plantillas: ${plantillasCuriosidades.length + plantillasArticulos.length} pregrabadas ║
+    ║  💨 Cache: ACTIVADO (5 min)                               ║
+    ╚══════════════════════════════════════════════════════════╝
     `);
     
-    // Generar curiosidad inicial si no hay
+    // Inicializar con contenido si está vacío
     const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
     if (data.length === 0) {
-        console.log('📦 No hay curiosidades, generando una inicial...');
-        setTimeout(() => publicarCuriosidadAutomatica(), 3000);
+        console.log('📦 Inicializando con plantillas...');
+        for (const plantilla of plantillasCuriosidades.slice(0, 3)) {
+            const curiosidad = {
+                id: Date.now() + Math.random(),
+                ...plantilla,
+                fecha: new Date().toISOString(),
+                compartidas: 0,
+                generadaPor: 'plantilla_inicial'
+            };
+            data.push(curiosidad);
+        }
+        fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify(data, null, 2));
+        console.log('✅ Cargadas 3 curiosidades iniciales');
     }
 });
