@@ -204,6 +204,23 @@
             font-size: 12px;
         }
         
+        .btn-carrusel {
+            background: #6b4e3a;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 10px;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        
+        .btn-carrusel:hover {
+            background: #c9a87b;
+        }
+        
         /* Vista previa */
         .preview {
             background: #faf7f3;
@@ -388,6 +405,30 @@
             color: #8b7355;
         }
         
+        /* Resultados del carrusel */
+        .carrusel-resultados {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f5f0eb;
+            border-radius: 16px;
+            display: none;
+        }
+        
+        .carrusel-imagenes {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .carrusel-imagenes img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #c9a87b;
+        }
+        
         @media (max-width: 900px) {
             .dashboard {
                 grid-template-columns: 1fr;
@@ -439,7 +480,18 @@
                     </div>
                     
                     <button class="btn-primary" onclick="publicarArticulo()">✨ PUBLICAR ARTÍCULO</button>
+                    
+                    <!-- NUEVO BOTÓN: PROBAR CAPTURA DE CARRUSEL -->
+                    <button class="btn-carrusel" onclick="probarCapturaCarrusel()">🎬 PROBAR CAPTURA DE CARRUSEL</button>
+                    
                     <div id="statusArticulo" class="status"></div>
+                    
+                    <!-- Resultados del carrusel -->
+                    <div id="carruselResultados" class="carrusel-resultados">
+                        <strong>🎬 Imágenes del carrusel:</strong>
+                        <div id="carruselImagenes" class="carrusel-imagenes"></div>
+                        <div id="carruselVideo" style="margin-top: 10px; font-size: 12px;"></div>
+                    </div>
                     
                     <!-- Vista Previa -->
                     <div class="preview" id="previewContainer" style="display: none;">
@@ -536,7 +588,6 @@
                 previewContainer.style.display = 'block';
                 previewImg.src = url;
                 
-                // Aplicar clases de tamaño y posición
                 previewImgContainer.className = 'preview-img-container';
                 previewImgContainer.classList.add(`preview-img-${selectedSize}`);
                 previewImgContainer.classList.add(`preview-img-${selectedPosition}`);
@@ -547,6 +598,76 @@
         
         // Escuchar cambios en URL de imagen
         document.getElementById('imagenUrl').addEventListener('input', actualizarPreview);
+        
+        // ============ NUEVA FUNCIÓN: PROBAR CAPTURA DE CARRUSEL ============
+        async function probarCapturaCarrusel() {
+            const url = document.getElementById('amazonUrl').value;
+            if (!url) {
+                alert('❌ Ingresa una URL de Amazon primero');
+                return;
+            }
+            
+            const statusDiv = document.getElementById('statusArticulo');
+            statusDiv.textContent = '🎬 Capturando carrusel de Amazon...';
+            statusDiv.className = 'status info';
+            statusDiv.style.display = 'block';
+            
+            try {
+                const res = await fetch('/api/capturar-carrusel', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ url: url })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    // Mostrar resultados
+                    const resultadosDiv = document.getElementById('carruselResultados');
+                    const imagenesDiv = document.getElementById('carruselImagenes');
+                    const videoDiv = document.getElementById('carruselVideo');
+                    
+                    // Mostrar imágenes capturadas
+                    if (data.imagenes && data.imagenes.length > 0) {
+                        imagenesDiv.innerHTML = data.imagenes.map(img => 
+                            `<img src="${img.url}" alt="Imagen carrusel" onclick="window.open('${img.url}')" style="cursor:pointer;">`
+                        ).join('');
+                    } else {
+                        imagenesDiv.innerHTML = '<p>No se encontraron imágenes</p>';
+                    }
+                    
+                    // Mostrar info del video
+                    if (data.video) {
+                        videoDiv.innerHTML = `
+                            🎥 <strong>Video disponible:</strong> 
+                            <a href="${data.video.embedUrl}" target="_blank">Ver en Amazon</a>
+                            <br>🖼️ Thumbnail: <img src="${data.video.thumbnail}" width="50" style="border-radius: 8px;">
+                        `;
+                    } else {
+                        videoDiv.innerHTML = '🎥 No se detectó video';
+                    }
+                    
+                    resultadosDiv.style.display = 'block';
+                    
+                    statusDiv.textContent = `✅ Capturadas ${data.imagenes.length} imágenes | ASIN: ${data.asin}`;
+                    statusDiv.className = 'status success';
+                    
+                    console.log('Carrusel capturado:', data);
+                } else {
+                    statusDiv.textContent = `❌ Error: ${data.error || 'No se pudo capturar'}`;
+                    statusDiv.className = 'status error';
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                statusDiv.textContent = '❌ Error de conexión con el servidor';
+                statusDiv.className = 'status error';
+            }
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
         
         // Publicar artículo
         async function publicarArticulo() {
@@ -575,6 +696,8 @@
                     mostrarStatus('statusArticulo', `✅ Artículo publicado: "${data.articulo.titulo}"`, 'success');
                     document.getElementById('amazonUrl').value = '';
                     document.getElementById('imagenUrl').value = '';
+                    // Limpiar resultados del carrusel
+                    document.getElementById('carruselResultados').style.display = 'none';
                     cargarArticulos();
                     cargarStats();
                 } else {
@@ -639,7 +762,6 @@
                 </div>
             `).join('');
             
-            // Agregar event listeners para drag and drop
             const items = document.querySelectorAll('.sortable-item');
             items.forEach(item => {
                 item.addEventListener('dragstart', handleDragStart);
@@ -677,7 +799,6 @@
             dragSourceIndex = null;
         }
         
-        // Mover arriba/abajo
         function moverArriba(index) {
             if (index > 0) {
                 [articulos[index], articulos[index - 1]] = [articulos[index - 1], articulos[index]];
@@ -692,19 +813,16 @@
             }
         }
         
-        // Guardar orden en el servidor
         async function guardarOrden() {
             mostrarStatus('statusArticulo', '💾 Guardando nuevo orden...', 'info');
             
             try {
-                // Actualizar fechas para reflejar nuevo orden
                 const ordenActualizado = articulos.map((art, idx) => ({
                     ...art,
                     orden: idx,
                     fecha: new Date(Date.now() - idx * 60000).toISOString()
                 }));
                 
-                // Enviar al servidor (necesitas endpoint PUT /api/ordenar-articulos)
                 const res = await fetch('/api/ordenar-articulos', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -723,19 +841,17 @@
             }
         }
         
-        // Editar artículo
         function editarArticulo(id) {
             const articulo = articulos.find(a => a.id === id);
             if (articulo) {
                 const nuevoTitulo = prompt('Editar título:', articulo.titulo);
                 if (nuevoTitulo) {
                     articulo.titulo = nuevoTitulo;
-                    guardarOrden(); // Guardar cambios
+                    guardarOrden();
                 }
             }
         }
         
-        // Cargar estadísticas
         async function cargarStats() {
             try {
                 const [resArt, resCur] = await Promise.all([
