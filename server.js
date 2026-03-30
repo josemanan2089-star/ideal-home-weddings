@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const cron = require('node-cron');
+const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
@@ -15,249 +16,478 @@ app.use(express.static(path.join(__dirname, '/')));
 const cache = new Map();
 const CACHE_TTL = 300000;
 
-// Gemini
+// Configuración de APIs
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const GOOGLE_CX = process.env.GOOGLE_CX;
+const NEWS_API_KEY = process.env.NEWS_API_KEY;
+const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY;
+
+// Gemini DURO
 let genAI;
 let model;
 try {
-    genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
     model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    console.log('✅ Gemini inicializado');
+    console.log('✅ Gemini DURO activado');
 } catch (error) {
     console.log('⚠️ Gemini no disponible');
 }
 
-// Configuración de almacenamiento persistente
+// Configuración persistente
 const DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH 
     ? path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, 'data')
     : path.join(__dirname, 'data');
 
 const ARTICULOS_PATH = path.join(DATA_DIR, 'articulos.json');
 const CURIOSIDADES_PATH = path.join(DATA_DIR, 'curiosidades.json');
-const CONFIG_PATH = path.join(DATA_DIR, 'bot-config.json');
 
-// Crear directorios
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(ARTICULOS_PATH)) fs.writeFileSync(ARTICULOS_PATH, JSON.stringify([]));
 if (!fs.existsSync(CURIOSIDADES_PATH)) fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify([]));
-if (!fs.existsSync(CONFIG_PATH)) {
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify({
-        enabled: true,
-        schedule: '0 */2 * * *', // Cada 2 horas
-        lastRun: null,
-        category: ['kitchen', 'smart-home', 'lifestyle', 'wedding', 'sustainability']
-    }));
+
+// ============ FUNCIONES AUXILIARES ============
+function extraerASIN(url) {
+    const patterns = [
+        /(?:dp|product|gp\/product)\/([A-Z0-9]{10})/i,
+        /asin=([A-Z0-9]{10})/i,
+        /\/dp\/([A-Z0-9]{10})/i
+    ];
+    for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match) return match[1];
+    }
+    return null;
 }
 
-// ============ CATÁLOGO DE PRODUCTOS AMAZON USA ============
-const amazonProducts = [
-    { asin: "B0C3H7K2X1", name: "Smart Composter", category: "kitchen", price: "$499" },
-    { asin: "B09Y2X8W4V", name: "Air Purifier", category: "smart-home", price: "$299" },
-    { asin: "B08K7J5H3G", name: "Smart Mirror", category: "lifestyle", price: "$399" },
-    { asin: "B07M9N2P4R", name: "Robot Vacuum", category: "smart-home", price: "$599" },
-    { asin: "B0B5Z9L3W7", name: "Smart Lock", category: "security", price: "$199" },
-    { asin: "B0A8K4M2N6", name: "Smart Lighting", category: "lifestyle", price: "$89" },
-    { asin: "B09X7K3P1M", name: "Indoor Composter", category: "kitchen", price: "$349" },
-    { asin: "B08R2H6W9T", name: "Smart Coffee Maker", category: "kitchen", price: "$199" },
-    { asin: "B07K5L3P2N", name: "Smart Thermostat", category: "smart-home", price: "$249" }
-];
-
-// ============ PROMPT OPTIMIZADO PARA SEO USA ============
-function generateSEOPrompt(product, category) {
-    return `
-Actúa como periodista senior de Business Insider / NY Post especializado en tendencias de consumo en Estados Unidos.
-
-Genera un artículo SEO optimizado para Google USA sobre este producto:
-
-PRODUCTO: ${product.name} (ASIN: ${product.asin})
-CATEGORÍA: ${category}
-PRECIO: ${product.price}
-
-REQUERIMIENTOS OBLIGATORIOS:
-
-1. TÍTULO (SEO Title): máximo 65 caracteres, debe generar click. Usar formato:
-   - "Americans Are Quietly Replacing [X] With This — And It's Saving Them $Y in 2026"
-   - "Why Every [City] Homeowner Is Switching to [Product]"
-   - "The $[Price] Gadget That's Selling Out Across America"
-
-2. META DESCRIPTION: máximo 160 caracteres, incluir keyword principal y beneficio.
-
-3. SLUG: formato /[keyword]-trend-usa-2026
-
-4. KEYWORDS PRINCIPALES (5-7):
-   - Incluir: "USA", "American homes", "2026 trends", "[category] gadgets"
-
-5. ESTRUCTURA DEL ARTÍCULO:
-
-[H1] Título principal
-
-[INTRO - Hook emocional]
-- Dato impactante sobre hábitos de consumo americano
-- Estadística o tendencia realista
-- Conectar con el problema que resuelve el producto
-
-[H2] The Problem That's Costing Americans Time and Money
-- Describir el problema actual
-- Datos sobre desperdicio/ineficiencia
-- Frustración que siente el consumidor
-
-[H2] Why [City/Region] Families Are Making the Switch
-- Testimonio aspiracional
-- Beneficios tangibles
-- Comparación antes/después
-
-[H2] What Makes [Product] Different
-- Características clave del producto
-- Por qué es superior a alternativas
-- Tecnología/innovación
-
-[H2] The Verdict: Is It Worth the Investment?
-- Análisis costo-beneficio
-- ROI emocional y financiero
-- Comparación con precios de mercado
-
-[CIERRE - Call to Action]
-- Urgencia (stock limitado, tendencia creciente)
-- Enlace a Amazon
-- Frase de cierre aspiracional
-
-6. TONO:
-- Periodístico, no promocional
-- Datos realistas (ej: "according to recent surveys", "homeowners report")
-- Persuasivo pero creíble
-
-7. IMAGEN SUGERIDA:
-Prompt para IA: "modern American ${category} scene, ${product.name} in luxury home, natural lighting, lifestyle photography, 4K"
-
-Responde SOLO con JSON válido en este formato:
-{
-  "titulo": "",
-  "meta": "",
-  "slug": "",
-  "keywords": [],
-  "contenido": "",
-  "imagen_prompt": ""
-}
-`;
-}
-
-// ============ FUNCIÓN PRINCIPAL: GENERAR ARTÍCULO SEO USA ============
-async function generateSEOArticle() {
-    // Seleccionar producto aleatorio
-    const product = amazonProducts[Math.floor(Math.random() * amazonProducts.length)];
+// ============ 🆕 BÚSQUEDA DE NOTICIAS REALES CON NEWS API ============
+async function buscarNoticiasReales(categoria) {
+    if (!NEWS_API_KEY) return null;
     
-    const prompt = generateSEOPrompt(product, product.category);
+    const queries = {
+        kitchen: 'smart kitchen USA',
+        'smart-home': 'smart home technology USA',
+        lifestyle: 'home lifestyle trends USA',
+        wedding: 'wedding registry essentials',
+        default: 'home trends USA'
+    };
+    
+    const query = queries[categoria] || queries.default;
     
     try {
-        if (!model) {
-            return generateFallbackArticle(product);
+        const response = await axios.get('https://newsapi.org/v2/everything', {
+            params: {
+                q: query,
+                apiKey: NEWS_API_KEY,
+                language: 'en',
+                sortBy: 'relevancy',
+                pageSize: 3
+            },
+            timeout: 8000
+        });
+        
+        if (response.data.articles && response.data.articles.length > 0) {
+            console.log(`📰 Encontradas ${response.data.articles.length} noticias reales sobre ${categoria}`);
+            return response.data.articles;
         }
-        
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
-        
-        // Limpiar y parsear JSON
-        const cleanJson = text.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-        const content = JSON.parse(cleanJson);
-        
-        // Construir artículo completo
-        return {
-            id: Date.now(),
-            asin: product.asin,
-            titulo: content.titulo,
-            meta: content.meta,
-            slug: content.slug,
-            keywords: content.keywords,
-            contenido: content.contenido,
-            imagen: `https://images-na.ssl-images-amazon.com/images/I/51${product.asin}._AC_SL1500_.jpg`,
-            imagenPrompt: content.imagen_prompt,
-            productName: product.name,
-            productPrice: product.price,
-            link: `https://amazon.com/dp/${product.asin}`,
-            fecha: new Date().toISOString(),
-            categoria: product.category,
-            clicks: 0,
-            publicadoPor: 'bot-usa-seo'
-        };
-        
     } catch (error) {
-        console.error('Error generando artículo:', error);
-        return generateFallbackArticle(product);
+        console.log('⚠️ Error News API:', error.message);
     }
+    return null;
 }
 
-// Fallback si Gemini falla
-function generateFallbackArticle(product) {
-    const titles = [
-        `Americans Are Quietly Replacing Their ${product.category} With This $${product.price} Gadget`,
-        `Why Every Modern Home in America Needs This $${product.price} ${product.name}`,
-        `The ${product.name} Trend Taking Over American Homes in 2026`
+// ============ 🆕 BÚSQUEDA DE IMÁGENES CON GOOGLE CUSTOM SEARCH ============
+async function buscarImagenGoogle(producto, categoria) {
+    if (!GOOGLE_API_KEY || !GOOGLE_CX) return null;
+    
+    try {
+        const response = await axios.get('https://www.googleapis.com/customsearch/v1', {
+            params: {
+                key: GOOGLE_API_KEY,
+                cx: GOOGLE_CX,
+                q: `${producto} ${categoria} luxury home`,
+                searchType: 'image',
+                num: 3,
+                imgSize: 'large',
+                safe: 'active'
+            },
+            timeout: 8000
+        });
+        
+        if (response.data.items && response.data.items.length > 0) {
+            console.log(`📸 Google Images: encontradas ${response.data.items.length} imágenes`);
+            return {
+                url: response.data.items[0].link,
+                fuente: 'google',
+                titulo: response.data.items[0].title
+            };
+        }
+    } catch (error) {
+        console.log('⚠️ Error Google Images:', error.message);
+    }
+    return null;
+}
+
+// ============ 🆕 BÚSQUEDA DE IMÁGENES CON UNSPLASH ============
+async function buscarImagenUnsplash(producto, categoria) {
+    if (!UNSPLASH_ACCESS_KEY) return null;
+    
+    try {
+        const response = await axios.get('https://api.unsplash.com/search/photos', {
+            params: {
+                query: `luxury ${categoria} ${producto} modern home`,
+                per_page: 3,
+                orientation: 'landscape'
+            },
+            headers: { 'Authorization': `Client-ID ${UNSPLASH_ACCESS_KEY}` },
+            timeout: 8000
+        });
+        
+        if (response.data.results && response.data.results.length > 0) {
+            console.log(`📸 Unsplash: imagen encontrada`);
+            return {
+                url: response.data.results[0].urls.regular,
+                fuente: 'unsplash',
+                credit: response.data.results[0].user.name
+            };
+        }
+    } catch (error) {
+        console.log('⚠️ Error Unsplash:', error.message);
+    }
+    return null;
+}
+
+// ============ BÚSQUEDA DE IMÁGENES REALES DE AMAZON ============
+async function buscarImagenAmazonReal(asin) {
+    const patronesImagenes = [
+        `https://m.media-amazon.com/images/I/61${asin}._AC_SL1500_.jpg`,
+        `https://m.media-amazon.com/images/I/71${asin}._AC_SL1500_.jpg`,
+        `https://m.media-amazon.com/images/I/81${asin}._AC_SL1500_.jpg`,
+        `https://m.media-amazon.com/images/I/51${asin}._AC_SL1500_.jpg`,
+        `https://m.media-amazon.com/images/I/61${asin}._AC_SX679_.jpg`,
+        `https://images-na.ssl-images-amazon.com/images/I/61${asin}._AC_SL1500_.jpg`
     ];
     
+    for (const url of patronesImagenes) {
+        try {
+            const response = await axios.head(url, { timeout: 3000 });
+            if (response.status === 200) {
+                console.log(`✅ Imagen Amazon encontrada: ${url.substring(0, 80)}...`);
+                return { url, fuente: 'amazon', tipo: 'producto_real' };
+            }
+        } catch(e) {}
+    }
+    
+    // Scraping como último recurso
+    try {
+        const { data } = await axios.get(`https://www.amazon.com/dp/${asin}`, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+            timeout: 5000
+        });
+        
+        const matchAlta = data.match(/"hiRes":"(https:[^"]+)"/);
+        if (matchAlta) {
+            return { url: matchAlta[1].replace(/\\/g, ''), fuente: 'amazon_scrape', tipo: 'producto_real' };
+        }
+        
+        const matchDinamico = data.match(/data-a-dynamic-image="({.+?})"/);
+        if (matchDinamico) {
+            const imagenes = JSON.parse(matchDinamico[1].replace(/&quot;/g, '"'));
+            const urls = Object.keys(imagenes);
+            if (urls.length > 0) return { url: urls[0], fuente: 'amazon_carrusel', tipo: 'producto_real' };
+        }
+    } catch(e) {}
+    
+    return null;
+}
+
+// ============ FUNCIÓN PRINCIPAL: OBTENER LA MEJOR IMAGEN ============
+async function obtenerMejorImagen(asin, categoria, producto) {
+    // 1. Prioridad: imagen real del producto en Amazon
+    const imagenAmazon = await buscarImagenAmazonReal(asin);
+    if (imagenAmazon) return imagenAmazon;
+    
+    // 2. Google Images
+    const imagenGoogle = await buscarImagenGoogle(producto, categoria);
+    if (imagenGoogle) return imagenGoogle;
+    
+    // 3. Unsplash
+    const imagenUnsplash = await buscarImagenUnsplash(producto, categoria);
+    if (imagenUnsplash) return imagenUnsplash;
+    
+    // 4. Placeholders por categoría
+    const placeholders = {
+        kitchen: 'https://images.pexels.com/photos/2635038/pexels-photo-2635038.jpeg',
+        'smart-home': 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg',
+        lifestyle: 'https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg',
+        wedding: 'https://images.pexels.com/photos/1024967/pexels-photo-1024967.jpeg',
+        default: 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg'
+    };
+    
     return {
-        id: Date.now(),
-        asin: product.asin,
-        titulo: titles[Math.floor(Math.random() * titles.length)],
-        meta: `Discover why American homeowners are switching to ${product.name}. Save money, reduce waste, and upgrade your ${product.category} with this innovative $${product.price} solution.`,
-        slug: `${product.name.toLowerCase().replace(/\s+/g, '-')}-trend-usa-2026`,
-        keywords: [product.category, "USA homes", "2026 trends", "smart home", "American lifestyle"],
-        contenido: `
-<h2>The Problem That's Costing Americans Time and Money</h2>
-<p>Recent surveys show that American households spend an average of $2,300 annually on inefficiencies in their ${product.category}. From wasted energy to time-consuming manual processes, homeowners are actively seeking smarter solutions.</p>
-
-<h2>Why NYC Families Are Making the Switch</h2>
-<p>"I didn't realize how much time I was wasting until I tried this," says Sarah from Manhattan. "Now I have more time for what matters." The ${product.name} is becoming the must-have item for discerning homeowners across the United States.</p>
-
-<h2>What Makes ${product.name} Different</h2>
-<p>Priced at ${product.price}, this innovative solution combines cutting-edge technology with intuitive design. Unlike traditional alternatives, it offers features that actually simplify your daily routine rather than complicate it.</p>
-
-<h2>The Verdict: Is It Worth the Investment?</h2>
-<p>Considering the average American spends ${Math.floor(Number(product.price.replace('$', '')) * 3)} over three years on outdated solutions, the ${product.price} investment pays for itself in just months. Add the convenience factor, and it's a no-brainer for modern households.</p>
-
-<p>Ready to upgrade your ${product.category}? <a href="https://amazon.com/dp/${product.asin}" target="_blank">Check the latest price on Amazon →</a></p>
-        `,
-        imagenPrompt: `modern American ${product.category} scene, ${product.name} in luxury home, natural lighting`,
-        productName: product.name,
-        productPrice: product.price,
-        link: `https://amazon.com/dp/${product.asin}`,
-        fecha: new Date().toISOString(),
-        categoria: product.category,
-        clicks: 0,
-        publicadoPor: 'bot-fallback'
+        url: placeholders[categoria] || placeholders.default,
+        fuente: 'placeholder',
+        tipo: 'fallback'
     };
 }
 
-// ============ PUBLICAR ARTÍCULO GENERADO ============
-async function publicarArticuloAutomatico() {
-    console.log('🤖 Bot SEO USA: Generando nuevo artículo...');
-    
-    try {
-        const nuevoArticulo = await generateSEOArticle();
-        
-        const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
-        data.unshift(nuevoArticulo);
-        
-        // Mantener solo últimos 100 artículos
-        if (data.length > 100) data.pop();
-        
-        fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(data, null, 2));
-        
-        // Actualizar configuración
-        const config = JSON.parse(fs.readFileSync(CONFIG_PATH));
-        config.lastRun = new Date().toISOString();
-        fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
-        
-        console.log(`✅ Artículo publicado: "${nuevoArticulo.titulo}"`);
-        console.log(`📊 Keywords: ${nuevoArticulo.keywords.join(', ')}`);
-        
-        cache.clear();
-        
-        return nuevoArticulo;
-        
-    } catch (error) {
-        console.error('❌ Error en publicación automática:', error);
-        return null;
+// ============ PROMPT GEMINI DURO CON NOTICIAS REALES ============
+function generarPromptDuro(producto, categoria, asin, noticias) {
+    let contextoNoticias = '';
+    if (noticias && noticias.length > 0) {
+        contextoNoticias = `\n\nNOTICIAS REALES SOBRE EL TEMA:\n${noticias.map(n => `- ${n.title}`).join('\n')}\n`;
     }
+    
+    return `
+Actúa como periodista de NEW YORK POST / BUSINESS INSIDER. Escribe un artículo VIRAL que haga que la gente NO PUEDA DEJAR DE LEER.
+
+PRODUCTO: ${producto}
+CATEGORÍA: ${categoria}
+ASIN: ${asin}
+${contextoNoticias}
+
+REGLAS DE ORO:
+1. TÍTULO: debe golpear con dato impactante o cambio de hábito (máx 70 caracteres)
+2. INTRO: enganchar en 3 segundos con un problema que duele
+3. CURIOSIDAD: un dato que haga decir "OMG" (usar las noticias reales si están disponibles)
+4. PRUEBA SOCIAL: testimonio realista con nombre y ciudad
+5. CIERRE: generar FOMO (miedo a quedarse fuera)
+
+ESTRUCTURA JSON:
+{
+    "titulo": "",
+    "intro": "",
+    "problema": "",
+    "solucion": "",
+    "prueba_social": "",
+    "cierre": "",
+    "curiosidad": "",
+    "palabras_clave": []
+}
+
+TONO: AGGRESSIVE, CONTROVERSIAL, COMO REVELANDO UN SECRETO QUE NADIE QUIERE QUE SEPAS.
+`;
+}
+
+// ============ GENERAR ARTÍCULO DURO COMPLETO ============
+async function generarArticuloDuro(url, categoria = "kitchen") {
+    const asin = extraerASIN(url);
+    const nombreProducto = `Smart ${categoria.charAt(0).toUpperCase() + categoria.slice(1)} Essential`;
+    
+    // Buscar noticias reales sobre la categoría
+    const noticiasReales = await buscarNoticiasReales(categoria);
+    
+    // Obtener la mejor imagen
+    const imagen = await obtenerMejorImagen(asin, categoria, nombreProducto);
+    console.log(`📸 Imagen seleccionada: ${imagen.fuente}`);
+    
+    // Contenido por defecto (fallback)
+    let contenido = {
+        titulo: `Americans Are Quietly Replacing Their ${categoria} — And It's Saving Them Thousands`,
+        intro: "Here's something that will make you furious about how much money you've been throwing away...",
+        problema: "The average American household loses over $2,300 annually on kitchen waste and inefficiency.",
+        solucion: `This $299 innovation is the secret that wealthy families have been using to eliminate waste entirely.`,
+        prueba_social: "NYC homeowners report saving up to 4 hours a week after making the switch.",
+        cierre: "While your neighbors are still throwing money away, you could be part of the 78% who already made the change.",
+        curiosidad: "The average American spends 38 DAYS per year dealing with kitchen waste.",
+        palabras_clave: [categoria, "smart home", "USA", "save money", "2026 trends"]
+    };
+    
+    // Usar Gemini si está disponible
+    if (model) {
+        try {
+            const prompt = generarPromptDuro(nombreProducto, categoria, asin, noticiasReales);
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const text = response.text();
+            const cleanJson = text.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+            const geminiContent = JSON.parse(cleanJson);
+            contenido = { ...contenido, ...geminiContent };
+            console.log('🔥 Gemini generó contenido DURO');
+        } catch (error) {
+            console.log('⚠️ Error Gemini, usando plantilla:', error.message);
+        }
+    }
+    
+    // Construir HTML completo del artículo
+    const htmlCompleto = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${contenido.titulo}</title>
+    <meta name="description" content="${contenido.curiosidad}">
+    <meta name="keywords" content="${contenido.palabras_clave.join(', ')}">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #fff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        .lead {
+            font-size: 1.2rem;
+            color: #666;
+            border-left: 4px solid #ff4500;
+            padding-left: 20px;
+            margin: 20px 0;
+        }
+        .viral-fact {
+            background: #fff5f0;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border-left: 4px solid #ff4500;
+        }
+        .viral-fact strong {
+            color: #ff4500;
+            font-size: 1.1rem;
+        }
+        img {
+            width: 100%;
+            border-radius: 12px;
+            margin: 30px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h2 {
+            font-size: 1.5rem;
+            margin: 30px 0 15px;
+        }
+        .btn-buy {
+            display: inline-block;
+            background: #ff4500;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 40px;
+            font-weight: bold;
+            margin: 30px 0;
+            text-align: center;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        .btn-buy:hover {
+            background: #e03e00;
+            transform: translateY(-2px);
+        }
+        .social-proof {
+            background: #f8f8f8;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 30px 0;
+            font-style: italic;
+            border-left: 3px solid #ff4500;
+        }
+        .image-credit {
+            font-size: 10px;
+            color: #999;
+            text-align: right;
+            margin-top: -20px;
+            margin-bottom: 20px;
+        }
+        footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #999;
+        }
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="article-container">
+        <h1>${contenido.titulo}</h1>
+        
+        <div class="viral-fact">
+            <strong>🔥 VIRAL FACT:</strong> ${contenido.curiosidad}
+        </div>
+        
+        <img src="${imagen.url}" alt="${contenido.titulo}" onerror="this.src='https://picsum.photos/800/600'">
+        <div class="image-credit">📸 ${imagen.fuente === 'amazon' ? 'Imagen real del producto' : 'Imagen de referencia'}</div>
+        
+        <div class="lead">
+            ${contenido.intro}
+        </div>
+        
+        <h2>The Problem That's Costing Americans a Fortune</h2>
+        <p>${contenido.problema}</p>
+        
+        <h2>The Simple Solution That's Changing Everything</h2>
+        <p>${contenido.solucion}</p>
+        
+        <div class="social-proof">
+            "${contenido.prueba_social}"
+        </div>
+        
+        <h2>Why Everyone Is Making the Switch</h2>
+        <p>${contenido.cierre}</p>
+        
+        <a href="${url}" class="btn-buy" target="_blank">🔴 CHECK PRICE ON AMAZON →</a>
+        
+        <footer>
+            <p>As an Amazon Associate we earn from qualifying purchases. Prices and availability subject to change.</p>
+            <p style="margin-top: 10px;">🔥 ${Math.floor(Math.random() * 100)} people are viewing this right now</p>
+            ${noticiasReales ? `<p style="margin-top: 10px; font-size: 10px;">📰 Trending now: ${noticiasReales[0]?.title.substring(0, 60)}...</p>` : ''}
+        </footer>
+    </div>
+</body>
+</html>
+    `;
+    
+    return {
+        id: Date.now(),
+        asin: asin,
+        titulo: contenido.titulo,
+        meta: contenido.curiosidad,
+        contenido: htmlCompleto,
+        imagen: imagen.url,
+        imagenFuente: imagen.fuente,
+        curiosidad: contenido.curiosidad,
+        palabras_clave: contenido.palabras_clave,
+        link: url,
+        fecha: new Date().toISOString(),
+        clicks: 0,
+        viral_score: Math.floor(Math.random() * 100),
+        noticias_referencia: noticiasReales ? noticiasReales.slice(0, 2).map(n => n.title) : []
+    };
+}
+
+// ============ GENERAR CURIOSIDAD VIRAL ============
+async function generarCuriosidadViral() {
+    const curiosidades = [
+        "Americans throw away $2,300 worth of food per household every year — enough to buy this device twice.",
+        "The average person spends 38 DAYS per year dealing with kitchen waste.",
+        "78% of NYC homeowners say their kitchen is now their favorite room after making one simple change.",
+        "Smart home device sales have increased 156% since 2024.",
+        "Why Upper East Side families are judging their neighbors by what ISN'T in their trash.",
+        "The $0 trash movement is taking over Beverly Hills — here's what they're using.",
+        "Miami homeowners are saving 4 hours a week with this one kitchen upgrade."
+    ];
+    
+    const random = curiosidades[Math.floor(Math.random() * curiosidades.length)];
+    
+    return {
+        id: Date.now(),
+        texto: random,
+        fecha: new Date().toISOString(),
+        viral: true
+    };
 }
 
 // ============ ENDPOINTS ============
@@ -267,6 +497,9 @@ app.get('/health', (req, res) => {
         status: 'ok', 
         timestamp: new Date().toISOString(),
         gemini: model ? 'active' : 'inactive',
+        newsApi: NEWS_API_KEY ? 'active' : 'inactive',
+        googleImages: GOOGLE_API_KEY && GOOGLE_CX ? 'active' : 'inactive',
+        unsplash: UNSPLASH_ACCESS_KEY ? 'active' : 'inactive',
         articulos: JSON.parse(fs.readFileSync(ARTICULOS_PATH)).length
     });
 });
@@ -277,6 +510,30 @@ app.get('/', (req, res) => {
 
 app.get('/panel', (req, res) => {
     res.sendFile(path.join(__dirname, 'panel.html'));
+});
+
+// Publicar artículo
+app.post('/api/publicar-articulo', async (req, res) => {
+    try {
+        const { url, categoria } = req.body;
+        if (!url) {
+            return res.status(400).json({ success: false, error: 'URL requerida' });
+        }
+        
+        console.log('🔥 Generando artículo DURO para:', url);
+        const nuevoArticulo = await generarArticuloDuro(url, categoria || 'kitchen');
+        
+        const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
+        data.unshift(nuevoArticulo);
+        fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(data, null, 2));
+        
+        cache.clear();
+        res.json({ success: true, articulo: nuevoArticulo });
+        
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
 
 // Obtener artículos
@@ -294,73 +551,6 @@ app.get('/api/articulos', (req, res) => {
     }
 });
 
-// Publicar artículo manual
-app.post('/api/publicar-articulo', async (req, res) => {
-    try {
-        const { url, imagenUrl, imageSize, imagePosition } = req.body;
-        
-        if (url) {
-            // Si viene URL, usar producto de Amazon específico
-            const asinMatch = url.match(/(?:dp|product)\/([A-Z0-9]{10})/);
-            if (asinMatch) {
-                const product = amazonProducts.find(p => p.asin === asinMatch[1]) || {
-                    asin: asinMatch[1],
-                    name: "Amazon Product",
-                    category: "home",
-                    price: "$0"
-                };
-                const nuevoArticulo = await generateSEOArticleForProduct(product);
-                const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
-                data.unshift(nuevoArticulo);
-                fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(data, null, 2));
-                cache.clear();
-                return res.json({ success: true, articulo: nuevoArticulo });
-            }
-        }
-        
-        // Si no hay URL específica, generar automático
-        const nuevoArticulo = await generateSEOArticle();
-        const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
-        data.unshift(nuevoArticulo);
-        fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(data, null, 2));
-        cache.clear();
-        res.json({ success: true, articulo: nuevoArticulo });
-        
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-async function generateSEOArticleForProduct(product) {
-    const prompt = generateSEOPrompt(product, product.category);
-    
-    try {
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
-        const cleanJson = text.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-        const content = JSON.parse(cleanJson);
-        
-        return {
-            id: Date.now(),
-            asin: product.asin,
-            titulo: content.titulo,
-            meta: content.meta,
-            slug: content.slug,
-            keywords: content.keywords,
-            contenido: content.contenido,
-            imagen: `https://images-na.ssl-images-amazon.com/images/I/51${product.asin}._AC_SL1500_.jpg`,
-            link: `https://amazon.com/dp/${product.asin}`,
-            fecha: new Date().toISOString(),
-            categoria: product.category,
-            clicks: 0,
-            publicadoPor: 'manual'
-        };
-    } catch (error) {
-        return generateFallbackArticle(product);
-    }
-}
-
 // Ordenar artículos
 app.put('/api/ordenar-articulos', (req, res) => {
     try {
@@ -368,29 +558,16 @@ app.put('/api/ordenar-articulos', (req, res) => {
         if (!nuevosArticulos || !Array.isArray(nuevosArticulos)) {
             return res.status(400).json({ success: false, error: 'Datos inválidos' });
         }
-        fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(nuevosArticulos, null, 2));
+        
+        const articulosConOrden = nuevosArticulos.map((art, idx) => ({
+            ...art,
+            orden: idx,
+            fecha: new Date(Date.now() - idx * 60000).toISOString()
+        }));
+        
+        fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(articulosConOrden, null, 2));
         cache.clear();
         res.json({ success: true });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-// Editar artículo
-app.put('/api/editar-articulo/:id', (req, res) => {
-    try {
-        const { id } = req.params;
-        const updates = req.body;
-        const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
-        const index = data.findIndex(a => a.id == id);
-        if (index !== -1) {
-            data[index] = { ...data[index], ...updates };
-            fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(data, null, 2));
-            cache.clear();
-            res.json({ success: true, articulo: data[index] });
-        } else {
-            res.status(404).json({ success: false, error: 'No encontrado' });
-        }
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
@@ -412,7 +589,20 @@ app.post('/api/click-articulo/:id', (req, res) => {
     }
 });
 
-// Obtener curiosidades
+// Generar curiosidad
+app.post('/api/generar-curiosidad', async (req, res) => {
+    try {
+        const nuevaCuriosidad = await generarCuriosidadViral();
+        const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
+        data.unshift(nuevaCuriosidad);
+        if (data.length > 30) data.pop();
+        fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify(data, null, 2));
+        res.json({ success: true, curiosidad: nuevaCuriosidad });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 app.get('/api/curiosidades', (req, res) => {
     try {
         const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
@@ -422,86 +612,98 @@ app.get('/api/curiosidades', (req, res) => {
     }
 });
 
-// Generar curiosidad
-app.post('/api/generar-curiosidad', async (req, res) => {
-    try {
-        const curiosidadesBase = [
-            { titulo: "Americans Are Spending Less on Designer Bags, More on This", dato: "Sales of smart home devices have increased 156% since 2024" },
-            { titulo: "The Kitchen Trend That's Saving NYC Families $2,000/Year", dato: "Smart composters reduce food waste by 73%" }
-        ];
-        const random = curiosidadesBase[Math.floor(Math.random() * curiosidadesBase.length)];
-        const curiosidadCompleta = {
-            id: Date.now(),
-            ...random,
-            fecha: new Date().toISOString(),
-            compartidas: 0
-        };
-        const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
-        data.unshift(curiosidadCompleta);
-        if (data.length > 30) data.pop();
-        fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify(data, null, 2));
-        res.json({ success: true, curiosidad: curiosidadCompleta });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-// Endpoint para capturar carrusel
+// Endpoint para capturar carrusel de imágenes
 app.post('/api/capturar-carrusel', async (req, res) => {
     try {
         const { url } = req.body;
-        const asinMatch = url?.match(/(?:dp|product)\/([A-Z0-9]{10})/);
-        if (!asinMatch) {
+        const asin = extraerASIN(url);
+        
+        if (!asin) {
             return res.status(400).json({ success: false, error: 'No se pudo extraer ASIN' });
         }
         
-        const imagenes = [];
+        const imagenPrincipal = await buscarImagenAmazonReal(asin);
+        
+        const imagenesCarrusel = [];
         const variantes = ['51', '61', '71', '81', '91'];
         for (const variant of variantes) {
-            imagenes.push({
-                url: `https://images-na.ssl-images-amazon.com/images/I/${variant}${asinMatch[1]}._AC_SL1500_.jpg`,
-                tipo: 'carrusel'
-            });
+            const urlImg = `https://m.media-amazon.com/images/I/${variant}${asin}._AC_SL1500_.jpg`;
+            try {
+                const response = await axios.head(urlImg, { timeout: 2000 });
+                if (response.status === 200) {
+                    imagenesCarrusel.push({ url: urlImg, tipo: 'carrusel' });
+                }
+            } catch(e) {}
         }
         
         res.json({
             success: true,
-            asin: asinMatch[1],
-            imagenes: imagenes,
-            video: { embedUrl: url, thumbnail: imagenes[0]?.url }
+            asin: asin,
+            imagenPrincipal: imagenPrincipal?.url || null,
+            imagenesCarrusel: imagenesCarrusel.slice(0, 5)
         });
+        
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// ============ CRON JOBS ============
-// Publicar cada 2 horas
-cron.schedule('0 */2 * * *', async () => {
-    console.log('⏰ CRON: Ejecutando Bot SEO USA...');
-    await publicarArticuloAutomatico();
+// ============ CRON - PUBLICAR CADA 2 HORAS ============
+const productosAutomaticos = [
+    { url: "https://amazon.com/dp/B0C3H7K2X1", categoria: "kitchen" },
+    { url: "https://amazon.com/dp/B09Y2X8W4V", categoria: "smart-home" },
+    { url: "https://amazon.com/dp/B08K7J5H3G", categoria: "lifestyle" },
+    { url: "https://amazon.com/dp/B0B5Z9L3W7", categoria: "smart-home" },
+    { url: "https://amazon.com/dp/B0A8K4M2N6", categoria: "kitchen" },
+    { url: "https://amazon.com/dp/B09X7K3P1M", categoria: "kitchen" },
+    { url: "https://amazon.com/dp/B08R2H6W9T", categoria: "kitchen" },
+    { url: "https://amazon.com/dp/B07K5L3P2N", categoria: "smart-home" }
+];
+
+async function publicarAutomatico() {
+    console.log('🤖 Bot DURO: Generando artículo viral automático...');
+    
+    const random = productosAutomaticos[Math.floor(Math.random() * productosAutomaticos.length)];
+    const nuevoArticulo = await generarArticuloDuro(random.url, random.categoria);
+    
+    const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
+    data.unshift(nuevoArticulo);
+    if (data.length > 50) data.pop();
+    fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(data, null, 2));
+    
+    console.log(`🔥 ARTÍCULO VIRAL: ${nuevoArticulo.titulo}`);
+    console.log(`📸 Imagen: ${nuevoArticulo.imagenFuente}`);
+    console.log(`📊 Viral Score: ${nuevoArticulo.viral_score}`);
+}
+
+// Programar publicación cada 2 horas
+cron.schedule('0 */2 * * *', () => {
+    publicarAutomatico();
 });
 
 // ============ INICIAR SERVIDOR ============
 app.listen(PORT, '0.0.0.0', () => {
     const articulosCount = JSON.parse(fs.readFileSync(ARTICULOS_PATH)).length;
     console.log(`
-    ╔═══════════════════════════════════════════════════════════════╗
-    ║     🔥 BOT SEO USA - SISTEMA DE INGRESOS AUTOMÁTICOS 🔥      ║
-    ╠═══════════════════════════════════════════════════════════════╣
-    ║  🚀 Puerto: ${PORT}                                            ║
-    ║  🤖 Gemini: ${model ? '✅ ACTIVADO' : '❌ NO DISPONIBLE'}                    ║
-    ║  📰 Artículos generados: ${articulosCount}                                 ║
-    ║  ⏰ Auto-publicación: CADA 2 HORAS (Bot activo)               ║
-    ║  🎯 SEO USA: Títulos clickbait + Keywords estratégicas        ║
-    ║  💰 Monetización: Amazon Affiliate integrado                  ║
-    ║  💾 Datos persistentes: ${DATA_DIR}                           ║
-    ╚═══════════════════════════════════════════════════════════════╝
+    ╔══════════════════════════════════════════════════════════════════════════╗
+    ║     🔥🔥🔥 ARTÍCULOS VIRALES USA - SISTEMA COMPLETO 🔥🔥🔥             ║
+    ╠══════════════════════════════════════════════════════════════════════════╣
+    ║  🚀 Puerto: ${PORT}                                                       ║
+    ║  🤖 Gemini: ${model ? '✅ ACTIVADO' : '⚠️ NO DISPONIBLE'}                                    ║
+    ║  📰 News API: ${NEWS_API_KEY ? '✅ ACTIVADO' : '❌ NO CONFIGURADO'}                                ║
+    ║  📸 Google Images: ${GOOGLE_API_KEY && GOOGLE_CX ? '✅ ACTIVADO' : '❌ NO CONFIGURADO'}                       ║
+    ║  🖼️ Unsplash: ${UNSPLASH_ACCESS_KEY ? '✅ ACTIVADO' : '❌ NO CONFIGURADO'}                                   ║
+    ║  📰 Artículos guardados: ${articulosCount}                                                 ║
+    ║  ⏰ Auto-publicación: CADA 2 HORAS                                              ║
+    ║  🎯 Títulos que golpean: ✅                                                        ║
+    ║  🔥 Curiosidades virales: ✅                                                       ║
+    ║  💰 Monetización: Amazon Affiliate integrado                                       ║
+    ╚══════════════════════════════════════════════════════════════════════════════╝
     `);
     
     // Publicar un artículo inicial si no hay
     if (articulosCount === 0) {
         console.log('📦 No hay artículos, generando primero...');
-        setTimeout(() => publicarArticuloAutomatico(), 3000);
+        setTimeout(() => publicarAutomatico(), 3000);
     }
 });
