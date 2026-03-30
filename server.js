@@ -15,8 +15,18 @@ app.use(express.static(path.join(__dirname, '/')));
 const cache = new Map();
 const CACHE_TTL = 300000; // 5 minutos
 
-// Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Inicializar Gemini con manejo de errores
+let genAI;
+let model;
+
+try {
+    genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    // 🔥 MODELO CORREGIDO - Usar gemini-pro que es más estable
+    model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    console.log('✅ Gemini inicializado con modelo: gemini-pro');
+} catch (error) {
+    console.error('❌ Error inicializando Gemini:', error.message);
+}
 
 // Archivos de datos
 const ARTICULOS_PATH = path.join(__dirname, 'articulos.json');
@@ -26,41 +36,68 @@ const CURIOSIDADES_PATH = path.join(__dirname, 'curiosidades.json');
 if (!fs.existsSync(ARTICULOS_PATH)) fs.writeFileSync(ARTICULOS_PATH, JSON.stringify([]));
 if (!fs.existsSync(CURIOSIDADES_PATH)) fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify([]));
 
-// ============ GENERAR CURIOSIDAD FEMENINA ============
+// ============ FUNCIÓN CON FALLBACK PARA GEMINI ============
+async function callGemini(prompt, fallbackData) {
+    if (!model) {
+        console.log('⚠️ Gemini no disponible, usando fallback');
+        return fallbackData;
+    }
+    
+    try {
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        return text;
+    } catch (error) {
+        console.error('❌ Error llamando a Gemini:', error.message);
+        return null;
+    }
+}
+
+// ============ GENERAR CURIOSIDAD FEMENINA (VERSIÓN CORREGIDA) ============
 async function generarCuriosidadFemenina() {
     const prompt = `
-    Genera una CURIOSIDAD FEMENINA sobre hogar, lujo, estilo de vida o tendencias.
+    Genera una CURIOSIDAD FEMENINA sobre hogar, lujo, estilo de vida o tendencias en Estados Unidos.
     
-    Debe ser un dato REAL que sorprenda y atrape a mujeres de 25-45 años en USA.
+    Debe ser un dato REAL que sorprenda y atrape a mujeres de 25-45 años en USA (NYC, Miami, Beverly Hills).
     
-    Formato EXACTO (texto plano):
+    Formato EXACTO (texto plano, sin markdown):
     
     TITULO: [Frase corta que genere intriga, máximo 60 caracteres]
     
-    DATO: [El dato sorprendente, con estadística o hecho real]
+    DATO: [El dato sorprendente, con estadística o hecho real sobre el mercado americano]
     
-    REFLEXION: [Por qué esto es importante para ella, conexión emocional]
+    REFLEXION: [Por qué esto es importante para la mujer americana moderna, conexión emocional]
     
-    CIERRE: [Frase que la haga sentir parte de un grupo exclusivo]
+    CIERRE: [Frase que la haga sentir parte de un grupo exclusivo de mujeres que "saben"]
     
-    EJEMPLOS:
-    TITULO: El secreto que las novias de Manhattan esconden
-    DATO: El 78% de las mujeres de alto poder adquisitivo en NYC consideran que un composter de lujo es más importante que un auto europeo.
-    REFLEXION: Porque en 2026, el verdadero estatus no se muestra en el garaje, sino en lo que NO sale de tu cocina.
+    EJEMPLO REAL:
+    TITULO: El secreto que las novias de Manhattan esconden en su cocina
+    DATO: El 78% de las mujeres de alto poder adquisitivo en NYC consideran que un composter de lujo es más importante que un auto europeo en 2026.
+    REFLEXION: Porque el verdadero estatus ya no se muestra en el garaje, sino en lo que NO sale de tu cocina.
     CIERRE: Las mujeres que saben, ya tienen el suyo. ¿Tú también quieres ser de las que saben?
     
-    Genera UNA curiosidad ÚNICA y SORPRENDENTE.
+    Genera UNA curiosidad ÚNICA y SORPRENDENTE enfocada en el mercado americano.
     `;
     
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const fallback = {
+        titulo: "El secreto que las mujeres de NYC ya conocen",
+        dato: "El 73% de las mujeres de alto poder adquisitivo en Manhattan invierten más en tecnología para el hogar que en bolsos de lujo en 2026.",
+        reflexion: "Porque el verdadero lujo ya no se lleva puesto, se vive en casa.",
+        cierre: "Las mujeres que saben, ya están en el futuro. ¿Te unes al club?"
+    };
+    
+    const response = await callGemini(prompt, null);
+    
+    if (!response) {
+        return fallback;
+    }
     
     // Parsear
-    const titulo = text.match(/TITULO:\s*(.+)/i)?.[1] || "✨ El Secreto Femenino";
-    const dato = text.match(/DATO:\s*(.+)/i)?.[1] || "Descubre el nuevo símbolo de estatus silencioso";
-    const reflexion = text.match(/REFLEXION:\s*(.+)/i)?.[1] || "Porque las mujeres que saben, viven mejor";
-    const cierre = text.match(/CIERRE:\s*(.+)/i)?.[1] || "Únete al club de las que saben";
+    const titulo = response.match(/TITULO:\s*(.+)/i)?.[1] || fallback.titulo;
+    const dato = response.match(/DATO:\s*(.+)/i)?.[1] || fallback.dato;
+    const reflexion = response.match(/REFLEXION:\s*(.+)/i)?.[1] || fallback.reflexion;
+    const cierre = response.match(/CIERRE:\s*(.+)/i)?.[1] || fallback.cierre;
     
     return { titulo, dato, reflexion, cierre };
 }
@@ -73,41 +110,58 @@ async function generarArticuloConProducto(url, imagenUrl = '') {
     if (asinMatch) asin = asinMatch[1];
     
     const prompt = `
-    Genera un ARTÍCULO de revista para un producto de Amazon enfocado en mujeres.
+    Genera un ARTÍCULO de revista para un producto de Amazon enfocado en mujeres americanas de alto poder adquisitivo (NYC, Miami, Beverly Hills).
     
     URL del producto: ${url}
     
-    Formato JSON:
+    Responde SOLO con JSON válido, sin markdown, sin texto adicional:
     {
-        "titulo": "Título magnético que atrape a mujeres (máx 70 caracteres)",
+        "titulo": "Título magnético en inglés que atrape a mujeres (máx 70 caracteres)",
         "intro": "Frase de apertura que genere curiosidad inmediata",
-        "problema": "El problema que toda mujer enfrenta y este producto resuelve",
+        "problema": "El problema que toda mujer americana enfrenta y este producto resuelve",
         "solucion": "Cómo este producto es la solución que todas buscan",
-        "beneficio": "El beneficio emocional que obtiene (estatus, tranquilidad, admiración)",
+        "beneficio": "El beneficio emocional (estatus, tranquilidad, admiración social)",
         "cierre": "Frase de llamado a la acción que genere FOMO"
     }
     
-    Tono: Asesor de confianza, sofisticado, como Vogue o Architectural Digest.
-    Enfoque: Estilo de vida, hogar de lujo, silent luxury, status femenino.
+    Tono: Asesora de confianza, sofisticado, como Vogue o Architectural Digest.
+    Enfoque: Estilo de vida americano, hogar de lujo, silent luxury, status femenino en USA.
     `;
     
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const fallback = {
+        titulo: "The Silent Luxury Essential Every Woman Needs",
+        intro: "This is the secret that women in the know are adding to their homes",
+        problema: "You've been living with clutter and inefficiency without realizing there's a better way",
+        solucion: "This revolutionary product transforms your daily routine into a seamless luxury experience",
+        beneficio: "Join the elite circle of women who understand true status isn't shown, it's lived",
+        cierre: "The women who know, already have theirs. Will you be next?"
+    };
     
-    const cleanJson = text.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-    const content = JSON.parse(cleanJson);
+    const response = await callGemini(prompt, null);
+    
+    let content;
+    if (response) {
+        try {
+            const cleanJson = response.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+            content = JSON.parse(cleanJson);
+        } catch (e) {
+            console.error('Error parsing JSON:', e);
+            content = fallback;
+        }
+    } else {
+        content = fallback;
+    }
     
     return {
         id: Date.now(),
         asin: asin,
-        titulo: content.titulo,
-        intro: content.intro,
-        problema: content.problema,
-        solucion: content.solucion,
-        beneficio: content.beneficio,
-        cierre: content.cierre,
-        imagen: imagenUrl || (asin ? `https://images-na.ssl-images-amazon.com/images/I/51${asin}._AC_.jpg` : ''),
+        titulo: content.titulo || fallback.titulo,
+        intro: content.intro || fallback.intro,
+        problema: content.problema || fallback.problema,
+        solucion: content.solucion || fallback.solucion,
+        beneficio: content.beneficio || fallback.beneficio,
+        cierre: content.cierre || fallback.cierre,
+        imagen: imagenUrl || (asin ? `https://images-na.ssl-images-amazon.com/images/I/51${asin}._AC_.jpg` : 'https://picsum.photos/400/300'),
         link: url,
         fecha: new Date().toISOString(),
         clicks: 0
@@ -118,7 +172,11 @@ async function generarArticuloConProducto(url, imagenUrl = '') {
 
 // Health check
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    res.json({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        gemini: model ? 'active' : 'inactive'
+    });
 });
 
 // Página principal
@@ -265,16 +323,17 @@ async function publicarCuriosidadAutomatica() {
         console.log(`✅ Nueva curiosidad: ${curiosidadCompleta.titulo}`);
         
     } catch (error) {
-        console.error('Error publicación automática:', error);
+        console.error('❌ Error publicación automática:', error.message);
     }
 }
 
 // Publicar curiosidad cada 6 horas
 cron.schedule('0 */6 * * *', () => {
+    console.log('⏰ CRON: Ejecutando publicación automática...');
     publicarCuriosidadAutomatica();
 });
 
-// Iniciar servidor
+// ============ INICIAR SERVIDOR ============
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`
     ╔══════════════════════════════════════════════════╗
@@ -283,7 +342,7 @@ app.listen(PORT, '0.0.0.0', () => {
     ║  🚀 Puerto: ${PORT}                               ║
     ║  📰 Artículos: /api/articulos                    ║
     ║  💎 Curiosidades: /api/curiosidades              ║
-    ║  🤖 Gemini: ACTIVADO                             ║
+    ║  🤖 Gemini: ${model ? '✅ ACTIVADO (gemini-pro)' : '❌ NO DISPONIBLE'}    
     ║  ⏰ Auto-curiosidad: CADA 6 HORAS                ║
     ║  💨 Cache: ACTIVADO (5 min)                      ║
     ╚══════════════════════════════════════════════════╝
@@ -292,6 +351,7 @@ app.listen(PORT, '0.0.0.0', () => {
     // Generar curiosidad inicial si no hay
     const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
     if (data.length === 0) {
+        console.log('📦 No hay curiosidades, generando una inicial...');
         setTimeout(() => publicarCuriosidadAutomatica(), 3000);
     }
 });
