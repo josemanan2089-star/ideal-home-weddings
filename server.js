@@ -17,15 +17,15 @@ app.use('/temp', express.static(path.join(__dirname, 'temp')));
 const cache = new Map();
 const CACHE_TTL = 300000;
 
-// Gemini
+// ============ EL BOT = GEMINI ============
 let genAI;
 let model;
 try {
     genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    console.log('✅ Gemini activado - Redactor Creativo de Alto Impacto');
+    console.log('✅ Bot Gemini activado');
 } catch (error) {
-    console.log('⚠️ Gemini no disponible');
+    console.log('⚠️ Bot Gemini no disponible');
 }
 
 // Configuración persistente
@@ -54,7 +54,7 @@ function extraerASIN(url) {
     return null;
 }
 
-// ============ 🎯 MÓDULO 1: CURIOSIDADES (100% AUTÓNOMO) ============
+// ============ BUSCAR IMAGEN PARA CURIOSIDAD ============
 async function buscarImagenParaCuriosidad(promptImagen) {
     // Unsplash
     if (process.env.UNSPLASH_ACCESS_KEY) {
@@ -90,7 +90,7 @@ async function buscarImagenParaCuriosidad(promptImagen) {
         } catch(e) {}
     }
     
-    // Placeholder temático
+    // Placeholder
     const placeholders = {
         kitchen: 'https://images.pexels.com/photos/2635038/pexels-photo-2635038.jpeg',
         luxury: 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg',
@@ -106,23 +106,20 @@ async function buscarImagenParaCuriosidad(promptImagen) {
     return { url: placeholders[key], fuente: 'placeholder' };
 }
 
-async function generarCuriosidadAutonoma() {
+// ============ MÓDULO 1: CURIOSIDADES (BOT GEMINI AUTÓNOMO) ============
+async function generarCuriosidadConGemini() {
     const prompt = `
-    Actúa como redactor creativo de alto impacto para MXL GOLD MINER.
+    Actúa como redactor de alto impacto para MXL GOLD MINER.
     
-    Genera una CURIOSIDAD para "El Farol al Día" dirigida a:
-    - Mujeres de alto poder adquisitivo en USA (Manhattan, Miami, Beverly Hills)
-    - Diáspora dominicana en NY/NJ
-    
-    La curiosidad debe ser BILINGÜE (ES/EN) sobre lujo, tecnología invisible, estatus.
+    Genera una CURIOSIDAD BILINGÜE (ES/EN) para mujeres de alto poder adquisitivo en USA (Manhattan, Miami, Beverly Hills) y diáspora dominicana.
     
     FORMATO JSON:
     {
         "titulo_es": "Título magnético español (max 60)",
         "titulo_en": "Magnetic title English (max 60)",
-        "texto_es": "Dato impactante español",
-        "texto_en": "Shocking fact English",
-        "imagen_prompt": "Prompt para imagen impactante"
+        "texto_es": "Dato impactante en español",
+        "texto_en": "Shocking fact in English",
+        "imagen_prompt": "Prompt para buscar imagen impactante"
     }
     `;
     
@@ -142,17 +139,17 @@ async function generarCuriosidadAutonoma() {
         const text = response.text();
         const cleanJson = text.replace(/```json\n?/g, '').replace(/```\n?/g, '');
         const contenido = JSON.parse(cleanJson);
-        console.log('✨ Curiosidad autónoma generada');
+        console.log('✨ Bot Gemini: Curiosidad generada');
         return contenido;
     } catch (error) {
-        console.log('⚠️ Error:', error.message);
+        console.log('⚠️ Error Gemini:', error.message);
         return fallback;
     }
 }
 
-async function publicarCuriosidadAutonoma() {
-    console.log('🤖 Bot: Generando curiosidad autónoma...');
-    const curiosidadGemini = await generarCuriosidadAutonoma();
+async function publicarCuriosidadAutomatica() {
+    console.log('🤖 Bot Gemini: Publicando curiosidad automática...');
+    const curiosidadGemini = await generarCuriosidadConGemini();
     const imagen = await buscarImagenParaCuriosidad(curiosidadGemini.imagen_prompt);
     
     const nuevaCuriosidad = {
@@ -176,14 +173,14 @@ async function publicarCuriosidadAutonoma() {
     return nuevaCuriosidad;
 }
 
-// ============ 🎯 MÓDULO 2: VENTAS (ASISTENTE - mxl controla) ============
-async function generarCopyVentas(url, categoria, precio) {
+// ============ MÓDULO 2: COPY PARA VENTAS (BOT GEMINI ASISTE A MXL) ============
+async function generarCopyVentasConGemini(url, categoria, precio) {
     const prompt = `
     Actúa como copywriter de alto impacto para MXL GOLD MINER.
     
     PRODUCTO: ${url}
     CATEGORÍA: ${categoria || 'lujo'}
-    PRECIO: ${precio || 'Alto Ticket USA ($500-$1,500)'}
+    PRECIO: ${precio || 'Alto Ticket USA'}
     
     Genera el "VENENO" de ventas en JSON:
     {
@@ -192,13 +189,14 @@ async function generarCopyVentas(url, categoria, precio) {
         "problema": "El problema que cuesta dinero/tiempo/estatus",
         "solucion": "Cómo este producto resuelve el problema",
         "beneficio_estatus": "El beneficio de estatus social",
-        "prueba_social": "Testimonio con nombre y ciudad",
+        "prueba_social": "Testimonio con nombre y ciudad (ej: Carolina desde NYC)",
         "cierre": "Frase que genere FOMO",
         "curiosidad": "Dato impactante",
         "palabras_clave": []
     }
     
     PALABRAS CLAVE: luxury, status, smart home, USA, NYC, Miami, elite
+    TONO: Aspiracional, sofisticado, como Vogue.
     `;
     
     const fallback = {
@@ -221,10 +219,10 @@ async function generarCopyVentas(url, categoria, precio) {
         const text = response.text();
         const cleanJson = text.replace(/```json\n?/g, '').replace(/```\n?/g, '');
         const copy = JSON.parse(cleanJson);
-        console.log('🔥 Copy de ventas generado para mxl');
+        console.log('🔥 Bot Gemini: Copy de ventas generado para mxl');
         return copy;
     } catch (error) {
-        console.log('⚠️ Error:', error.message);
+        console.log('⚠️ Error Gemini:', error.message);
         return fallback;
     }
 }
@@ -305,17 +303,17 @@ app.get('/panel', (req, res) => {
     res.sendFile(path.join(__dirname, 'panel.html'));
 });
 
-// 🎯 ENDPOINT PARA CURIOSIDADES (AUTÓNOMO)
+// Endpoint para curiosidades (Bot Gemini autónomo)
 app.post('/api/generar-curiosidad', async (req, res) => {
     try {
-        const nuevaCuriosidad = await publicarCuriosidadAutonoma();
+        const nuevaCuriosidad = await publicarCuriosidadAutomatica();
         res.json({ success: true, curiosidad: nuevaCuriosidad });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// 🎯 ENDPOINT PARA GENERAR COPY DE VENTAS (mxl lo usa para obtener texto)
+// Endpoint para generar copy de ventas (mxl lo pide al Bot Gemini)
 app.post('/api/generar-copy-ventas', async (req, res) => {
     try {
         const { url, categoria, precio } = req.body;
@@ -323,37 +321,29 @@ app.post('/api/generar-copy-ventas', async (req, res) => {
             return res.status(400).json({ success: false, error: 'URL requerida' });
         }
         
-        console.log('📝 mxl solicita copy para producto de alto ticket');
-        const copy = await generarCopyVentas(url, categoria, precio);
+        console.log('📝 mxl solicita copy al Bot Gemini');
+        const copy = await generarCopyVentasConGemini(url, categoria, precio);
         
         res.json({ 
             success: true, 
             copy: copy,
-            mensaje: "mxl: Revisa el copy. Si te gusta, pega la imagen URL y publica desde el panel."
+            mensaje: "mxl: Revisa el copy. Si te gusta, pega la imagen URL y publica."
         });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// 🎯 ENDPOINT PARA PUBLICAR VENTA (mxl controla imagen, tamaño, posición)
+// Endpoint para publicar venta (mxl controla imagen y publicación)
 app.post('/api/publicar-venta', async (req, res) => {
     try {
         const { url, imagenUrl, categoria, imageSize, imagePosition, copy } = req.body;
         
-        if (!url) {
-            return res.status(400).json({ success: false, error: 'URL requerida' });
-        }
-        if (!imagenUrl) {
-            return res.status(400).json({ success: false, error: 'Imagen requerida - mxl debe seleccionarla' });
-        }
-        if (!copy) {
-            return res.status(400).json({ success: false, error: 'Copy requerido - genera primero con /generar-copy-ventas' });
-        }
+        if (!url) return res.status(400).json({ success: false, error: 'URL requerida' });
+        if (!imagenUrl) return res.status(400).json({ success: false, error: 'Imagen requerida - mxl debe seleccionarla' });
+        if (!copy) return res.status(400).json({ success: false, error: 'Copy requerido - genera primero' });
         
-        console.log('💰 mxl publicando producto de alto ticket');
-        console.log(`🖼️ Imagen seleccionada: ${imagenUrl}`);
-        console.log(`📐 Tamaño: ${imageSize} | Posición: ${imagePosition}`);
+        console.log('💰 mxl publicando producto con su imagen');
         
         const nuevoArticulo = await generarArticuloVentaCompleto(url, imagenUrl, categoria, imageSize, imagePosition, copy);
         
@@ -365,7 +355,6 @@ app.post('/api/publicar-venta', async (req, res) => {
         res.json({ success: true, articulo: nuevoArticulo });
         
     } catch (error) {
-        console.error('Error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -444,10 +433,10 @@ app.post('/api/compartir-curiosidad/:id', (req, res) => {
     }
 });
 
-// ============ CRON - CURIOSIDADES CADA 3 HORAS (AUTÓNOMO) ============
+// CRON: Curiosidades cada 3 horas (Bot Gemini autónomo)
 cron.schedule('0 */3 * * *', async () => {
-    console.log('🤖 CRON: Generando curiosidad autónoma...');
-    await publicarCuriosidadAutonoma();
+    console.log('⏰ CRON: Bot Gemini publicando curiosidad...');
+    await publicarCuriosidadAutomatica();
 });
 
 // ============ INICIAR SERVIDOR ============
@@ -456,32 +445,29 @@ app.listen(PORT, '0.0.0.0', () => {
     const curiosidadesCount = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH)).length;
     
     console.log(`
-    ╔══════════════════════════════════════════════════════════════════════════╗
-    ║     🏮 MXL GOLD MINER - SISTEMA HÍBRIDO 🏮                               ║
-    ╠══════════════════════════════════════════════════════════════════════════╣
-    ║                                                                          ║
-    ║  💎 MÓDULO CURIOSIDADES (100% AUTÓNOMO - DeepSeek):                     ║
-    ║     ✅ Genera curiosidades bilingües ES/EN                               ║
-    ║     ✅ Busca imágenes automáticamente (Unsplash/Google)                  ║
-    ║     ✅ Publica cada 3 horas - Flujo continuo a Google News               ║
-    ║     📊 Curiosidades guardadas: ${curiosidadesCount}                              ║
-    ║                                                                          ║
-    ║  💰 MÓDULO VENTAS (100% CONTROL mxl):                                   ║
-    ║     ✅ mxl elige productos de alto ticket ($500-$1,500)                  ║
-    ║     ✅ mxl selecciona la imagen que representa el lujo                   ║
-    ║     ✅ mxl define tamaño y posición                                      ║
-    ║     🤖 DeepSeek SOLO redacta el copy (asistente)                        ║
-    ║     📊 Artículos publicados: ${articulosCount}                                   ║
-    ║                                                                          ║
-    ║  🎯 PÚBLICO: Manhattan, Miami, Beverly Hills + Diáspora dominicana      ║
-    ║  🚀 Puerto: ${PORT}                                                      ║
-    ║  🤖 Gemini: ${model ? '✅ ACTIVADO' : '⚠️ NO DISPONIBLE'}                                         ║
-    ╚══════════════════════════════════════════════════════════════════════════╝
+    ╔═══════════════════════════════════════════════════════════════╗
+    ║     🏮 MXL GOLD MINER - SISTEMA HÍBRIDO 🏮                   ║
+    ╠═══════════════════════════════════════════════════════════════╣
+    ║                                                               ║
+    ║  💎 CURIOSIDADES (Bot Gemini Autónomo):                      ║
+    ║     ✅ Genera curiosidad + imagen cada 3 horas               ║
+    ║     ✅ Publica solo - Flujo continuo                         ║
+    ║     📊 ${curiosidadesCount} curiosidades guardadas            ║
+    ║                                                               ║
+    ║  💰 VENTAS (mxl controla):                                   ║
+    ║     ✅ mxl elige producto de alto ticket                     ║
+    ║     ✅ mxl selecciona imagen real de Amazon                  ║
+    ║     ✅ mxl define tamaño y posición                          ║
+    ║     🤖 Bot Gemini SOLO redacta copy (cuando mxl lo pide)    ║
+    ║     📊 ${articulosCount} productos publicados                 ║
+    ║                                                               ║
+    ║  🚀 Puerto: ${PORT}                                           ║
+    ║  🤖 Bot Gemini: ${model ? '✅ ACTIVADO' : '⚠️ NO DISPONIBLE'}                      ║
+    ╚═══════════════════════════════════════════════════════════════╝
     `);
     
-    // Generar curiosidad inicial si no hay
     if (curiosidadesCount === 0) {
         console.log('📦 Generando primera curiosidad...');
-        setTimeout(() => publicarCuriosidadAutonoma(), 3000);
+        setTimeout(() => publicarCuriosidadAutomatica(), 3000);
     }
 });
