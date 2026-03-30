@@ -3,56 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MXL SEO Admin | Railway Engine 8080</title>
+    <title>MXL MULTIMEDIA & AD MANAGER</title>
     <style>
-        :root { --gold: #b59410; --dark: #121212; --card: #1e1e1e; --text: #e0e0e0; --railway: #af4cff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: var(--text); padding: 15px; }
-        .container { max-width: 600px; margin: 0 auto; background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid #333; }
-        .engine-status { display: flex; justify-content: space-between; background: #000; padding: 10px; border-radius: 6px; margin-bottom: 20px; border: 1px solid var(--railway); font-size: 11px; }
-        .status-item { color: var(--railway); font-weight: bold; }
-        h2 { color: var(--gold); text-align: center; text-transform: uppercase; font-size: 20px; }
-        label { display: block; margin-top: 15px; font-weight: bold; color: var(--gold); font-size: 12px; }
-        input, textarea { width: 100%; padding: 12px; margin-top: 5px; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 6px; }
-        .btn-gen { width: 100%; padding: 15px; background: var(--gold); border: none; color: black; font-weight: 900; margin-top: 25px; cursor: pointer; text-transform: uppercase; border-radius: 6px; }
-        #code-output { background: #000; padding: 15px; border: 1px dashed var(--gold); color: #00ff00; font-family: monospace; font-size: 11px; white-space: pre-wrap; margin-top: 20px; display: none; }
+        :root { --orange: #ff4500; --dark: #0f0f0f; --card: #1a1a1a; --text: #cccccc; --gold: #b59410; --blue: #007bff; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: var(--text); padding: 15px; margin: 0; }
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        .header { display: flex; align-items: center; border-bottom: 2px solid var(--orange); padding-bottom: 10px; margin-bottom: 30px; }
+        .header h1 { font-size: 18px; text-transform: uppercase; margin: 0; color: white; letter-spacing: 1px; }
+        .header .badge { background: var(--orange); color: white; font-size: 10px; padding: 2px 5px; border-radius: 3px; margin-left: 10px; }
+
+        .panel-box { background: var(--card); padding: 25px; border-radius: 8px; border: 1px solid #333; margin-bottom: 30px; }
+        .panel-box h2 { font-size: 14px; color: var(--orange); text-transform: uppercase; margin-top: 0; display: flex; align-items: center; gap: 10px; }
+
+        /* MULTIMEDIA UPLOAD */
+        .upload-zone { border: 2px dashed #444; padding: 30px; text-align: center; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-bottom: 15px; }
+        .upload-zone:hover { border-color: var(--blue); background: #111; }
+        .upload-zone i { font-size: 30px; color: var(--blue); }
+        #fileInput { display: none; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        label { display: block; font-size: 11px; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; color: #888; }
+        input, select, textarea { width: 100%; background: #222; border: 1px solid #444; color: white; padding: 12px; border-radius: 5px; margin-bottom: 15px; font-size: 13px; }
+        
+        .btn-create { background: var(--orange); color: white; border: none; width: 100%; padding: 15px; font-weight: bold; text-transform: uppercase; cursor: pointer; border-radius: 5px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-blue { background: var(--blue); }
+
+        /* MEDIA LIBRARY PREVIEW */
+        .media-library { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 20px; }
+        .media-item { height: 100px; background: #000; border: 1px solid #333; border-radius: 4px; overflow: hidden; position: relative; }
+        .media-item img { width: 100%; height: 100%; object-fit: cover; }
+        .media-item span { position: absolute; bottom: 0; background: rgba(0,0,0,0.8); color: white; font-size: 8px; width: 100%; text-align: center; padding: 2px 0; }
+
+        #code-output { background: #000; border: 1px dashed var(--gold); color: #00ff00; padding: 15px; font-family: monospace; font-size: 11px; margin-top: 20px; white-space: pre-wrap; display: none; }
     </style>
 </head>
 <body>
+
 <div class="container">
-    <div class="engine-status">
-        <div class="status-item">PORT: <span>8080</span></div>
-        <div class="status-item">DB: <span>POSTGRES</span></div>
+    <div class="header">
+        <h1>🏮 EL FAROL AL DÍA</h1>
+        <span class="badge">REDACCIÓN & MULTIMEDIA</span>
     </div>
-    <h2>MXL SEO Publisher 🚀</h2>
-    <label>Product Title</label>
-    <input type="text" id="title" placeholder="Ej: Minimalist Ceramic Lamp">
-    <label>Image URL</label>
-    <input type="text" id="img" placeholder="https://m.media-amazon.com/images/I/...">
-    <label>SEO Description (English)</label>
-    <textarea id="seo_desc" rows="3"></textarea>
-    <label>Affiliate Link</label>
-    <input type="text" id="link" placeholder="https://amzn.to/your-link">
-    <button class="btn-gen" onclick="generateSEO()">Generate SEO Block ✨</button>
-    <div id="code-output"></div>
+
+    <!-- SECCIÓN MULTIMEDIA -->
+    <div class="panel-box">
+        <h2>🎥 SUBIR MULTIMEDIA (IMÁGENES/VIDEOS)</h2>
+        <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+            <i style="font-style: normal; font-size: 32px;">☁️</i>
+            <p style="font-size: 12px; margin-top: 10px;">Haz clic o arrastra para subir tus fotos de Amazon o Videos</p>
+            <input type="file" id="fileInput" accept="image/*,video/*" onchange="handleUpload(event)">
+        </div>
+        
+        <label>Media Library (Tus archivos recientes)</label>
+        <div class="media-library" id="mediaLibrary">
+            <div class="media-item">
+                <img src="https://m.media-amazon.com/images/I/71X8k8u9L._AC_SL1500_.jpg" alt="Preview">
+                <span>lamp_01.jpg</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN BANNER -->
+    <div class="panel-box">
+        <h2>🏷️ NUEVO ESPACIO PUBLICITARIO</h2>
+        <div class="grid-2">
+            <div>
+                <label>Nombre del Espacio</label>
+                <input type="text" id="adName" placeholder="Ej: Banner Amazon Top">
+            </div>
+            <div>
+                <label>Ubicación</label>
+                <select id="location">
+                    <option value="sidebar">➡️ Lateral (Sidebar)</option>
+                    <option value="top">⬆️ Superior (Top Header)</option>
+                    <option value="bottom">⬇️ Inferior (Footer)</option>
+                </select>
+            </div>
+        </div>
+
+        <label>Link de Afiliado (URL Destino)</label>
+        <input type="text" id="affLink" placeholder="https://amazon.com/tu-link-de-afiliado">
+
+        <button class="btn-create" onclick="createAd()">➕ CREAR ESPACIO PUBLICITARIO</button>
+        
+        <div id="code-output"></div>
+    </div>
 </div>
+
 <script>
-    function generateSEO() {
-        const title = document.getElementById('title').value;
-        const img = document.getElementById('img').value;
-        const desc = document.getElementById('seo_desc').value;
-        const link = document.getElementById('link').value;
+    function handleUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Crear miniatura en la librería
+                const library = document.getElementById('mediaLibrary');
+                const div = document.createElement('div');
+                div.className = 'media-item';
+                div.innerHTML = `<img src="${e.target.result}"><span>${file.name}</span>`;
+                library.prepend(div);
+                
+                alert("Socio mxl, archivo '" + file.name + "' listo para usar.");
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function createAd() {
+        const name = document.getElementById('adName').value;
+        const location = document.getElementById('location').value;
+        const link = document.getElementById('affLink').value;
+
+        if(!name || !link) { alert("Socio mxl, llena los datos"); return; }
+
         const html = `
-        <article class="product-card">
-            <div class="tag">TOP CHOICE</div>
-            <img src="${img}" alt="${title}">
-            <div class="stars">★★★★★</div>
-            <h3>${title}</h3>
-            <p>${desc}</p>
-            <a href="${link}" target="_blank" class="btn-amazon">CHECK TODAY'S DEAL</a>
-        </article>`;
-        document.getElementById('code-output').innerText = html;
-        document.getElementById('code-output').style.display = 'block';
+        <!-- AD: ${name} (${location}) -->
+        <div class="ad-container-${location}" style="margin: 20px 0; text-align: center;">
+            <a href="${link}" target="_blank" rel="noopener sponsored">
+                <!-- Pega aquí la URL de la imagen que subiste arriba -->
+                <img src="URL_AQUÍ" alt="${name}" style="max-width: 100%; border-radius: 4px;">
+            </a>
+        </div>`;
+
+        const output = document.getElementById('code-output');
+        output.innerText = html;
+        output.style.display = 'block';
+        window.scrollTo(0, document.body.scrollHeight);
     }
 </script>
+
 </body>
 </html>
