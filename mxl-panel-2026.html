@@ -3,165 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel MXL | Control Total de Artículos + Curiosidades</title>
+    <title>Panel MXL | Publicar Artículo + Curiosidades</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #f7ede8 0%, #fff5f0 100%);
             min-height: 100vh;
-            padding: 30px 20px;
+            padding: 40px 20px;
         }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        .header h1 {
-            font-size: 2rem;
-            background: linear-gradient(135deg, #2c2418, #c9a87b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .header p {
-            color: #8b7355;
-            margin-top: 10px;
-        }
-        
-        /* Grid principal */
-        .dashboard {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-        
-        /* Tarjetas */
+        .container { max-width: 800px; margin: 0 auto; }
         .card {
             background: white;
             border-radius: 28px;
-            padding: 28px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            margin-bottom: 30px;
-            transition: all 0.3s;
-        }
-        
-        .card h2 {
-            font-size: 1.4rem;
-            margin-bottom: 8px;
-            color: #2c2418;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .card h2 .badge {
-            font-size: 0.7rem;
-            background: #c9a87b20;
-            color: #c9a87b;
-            padding: 4px 10px;
-            border-radius: 30px;
-        }
-        
-        .sub {
-            color: #8b7355;
-            font-size: 0.85rem;
+            padding: 35px;
             margin-bottom: 25px;
-            border-left: 3px solid #c9a87b;
-            padding-left: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
         }
-        
-        /* Formulario */
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #4a3727;
-            font-size: 0.85rem;
-        }
-        
-        input, textarea, select {
+        h2 { font-size: 1.5rem; margin-bottom: 10px; color: #2c2418; }
+        .sub { color: #8b7355; margin-bottom: 25px; font-size: 0.9rem; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a3727; }
+        input, select {
             width: 100%;
-            padding: 12px 16px;
+            padding: 14px;
             border: 2px solid #f0e2d8;
             border-radius: 16px;
             font-size: 14px;
-            transition: all 0.3s;
-            font-family: inherit;
         }
-        
-        input:focus, textarea:focus, select:focus {
-            border-color: #c9a87b;
-            outline: none;
-        }
-        
-        /* Controles de tamaño y posición */
-        .size-controls {
-            display: flex;
-            gap: 12px;
-            margin-top: 8px;
-        }
-        
-        .size-btn {
-            flex: 1;
-            padding: 10px;
-            background: #f5f0eb;
-            border: 2px solid #f0e2d8;
-            border-radius: 40px;
-            cursor: pointer;
-            text-align: center;
-            font-size: 13px;
-            transition: all 0.2s;
-        }
-        
-        .size-btn.active {
-            background: #c9a87b;
-            border-color: #c9a87b;
-            color: white;
-        }
-        
-        .position-controls {
-            display: flex;
-            gap: 12px;
-            margin-top: 8px;
-        }
-        
-        .pos-btn {
-            flex: 1;
-            padding: 10px;
-            background: #f5f0eb;
-            border: 2px solid #f0e2d8;
-            border-radius: 40px;
-            cursor: pointer;
-            text-align: center;
-            font-size: 13px;
-        }
-        
-        .pos-btn.active {
-            background: #c9a87b;
-            border-color: #c9a87b;
-            color: white;
-        }
-        
-        /* Botones */
-        .btn-primary {
-            background: #2c2418;
+        input:focus { border-color: #ff4500; outline: none; }
+        button {
+            background: #ff4500;
             color: white;
             border: none;
             padding: 14px 24px;
@@ -171,534 +43,120 @@
             cursor: pointer;
             width: 100%;
             transition: all 0.3s;
-            margin-top: 10px;
         }
-        
-        .btn-primary:hover {
-            background: #c9a87b;
-            transform: translateY(-2px);
-        }
-        
-        .btn-secondary {
-            background: #c9a87b;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-        
-        .btn-secondary:hover {
-            background: #2c2418;
-        }
-        
-        .btn-outline {
-            background: transparent;
-            border: 2px solid #c9a87b;
-            color: #c9a87b;
-            padding: 8px 16px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        
-        .btn-carrusel {
-            background: #6b4e3a;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 13px;
-            margin-top: 10px;
-            width: 100%;
-            transition: all 0.3s;
-        }
-        
-        .btn-carrusel:hover {
-            background: #c9a87b;
-        }
-        
-        /* Vista previa */
-        .preview {
-            background: #faf7f3;
-            border-radius: 20px;
-            padding: 20px;
-            margin-top: 20px;
-            border: 2px dashed #e0d0c0;
-        }
-        
-        .preview-title {
-            font-size: 12px;
-            color: #c9a87b;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        
-        .preview-card {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-        
-        .preview-img-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f5f0eb;
-            overflow: hidden;
-        }
-        
-        .preview-img-small { height: 150px; }
-        .preview-img-medium { height: 200px; }
-        .preview-img-large { height: 280px; }
-        
-        .preview-img-left { justify-content: flex-start; }
-        .preview-img-center { justify-content: center; }
-        .preview-img-right { justify-content: flex-end; }
-        
-        .preview-img-container img {
-            height: 100%;
-            width: auto;
-            max-width: 100%;
-            object-fit: contain;
-        }
-        
-        .preview-content {
-            padding: 20px;
-        }
-        
-        .preview-content h4 {
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-        }
-        
-        /* Lista de artículos ordenable */
-        .sortable-list {
-            margin-top: 20px;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        
-        .sortable-item {
-            background: #faf7f3;
-            border-radius: 16px;
-            padding: 15px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            cursor: grab;
-            transition: all 0.2s;
-            border: 1px solid #f0e2d8;
-        }
-        
-        .sortable-item:active {
-            cursor: grabbing;
-        }
-        
-        .sortable-item.dragging {
-            opacity: 0.5;
-        }
-        
-        .drag-handle {
-            cursor: grab;
-            font-size: 20px;
-            color: #c9a87b;
-        }
-        
-        .sortable-item img {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 12px;
-        }
-        
-        .sortable-item-info {
-            flex: 1;
-        }
-        
-        .sortable-item-info h4 {
-            font-size: 0.9rem;
-            margin-bottom: 4px;
-        }
-        
-        .sortable-item-info p {
-            font-size: 0.75rem;
-            color: #8b7355;
-        }
-        
-        .sortable-item-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .icon-btn {
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-        
-        .icon-btn:hover {
-            background: #f0e2d8;
-        }
-        
-        /* Status */
+        button:hover { background: #e03e00; transform: translateY(-2px); }
+        .btn-secondary { background: #c9a87b; margin-top: 10px; }
+        .btn-secondary:hover { background: #b89464; }
         .status {
             margin-top: 15px;
             padding: 12px;
             border-radius: 12px;
             display: none;
             text-align: center;
-            font-size: 13px;
         }
-        
-        .status.success {
-            background: #e8f5e9;
-            color: #2e7d32;
-            display: block;
-        }
-        
-        .status.error {
-            background: #ffebee;
-            color: #c62828;
-            display: block;
-        }
-        
-        .status.info {
-            background: #e3f2fd;
-            color: #1565c0;
-            display: block;
-        }
-        
-        /* Estadísticas */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .stat-card {
-            background: #faf7f3;
-            padding: 15px;
-            border-radius: 20px;
+        .success { background: #e8f5e9; color: #2e7d32; display: block; }
+        .error { background: #ffebee; color: #c62828; display: block; }
+        .info { background: #e3f2fd; color: #1565c0; display: block; }
+        .preview-img {
+            margin-top: 15px;
             text-align: center;
         }
-        
-        .stat-number {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #c9a87b;
+        .preview-img img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 12px;
+            border: 2px solid #f0e2d8;
         }
-        
-        .stat-label {
-            font-size: 0.75rem;
-            color: #8b7355;
-        }
-        
-        /* Resultados del carrusel */
-        .carrusel-resultados {
-            margin-top: 15px;
-            padding: 15px;
-            background: #f5f0eb;
-            border-radius: 16px;
-            display: none;
-        }
-        
-        .carrusel-imagenes {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-        
-        .carrusel-imagenes img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 2px solid #c9a87b;
-        }
-        
-        @media (max-width: 900px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-        }
+        hr { margin: 25px 0; border: none; border-top: 2px solid #f0e2d8; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🏮 MXL GOLD MINER | PANEL TOTAL</h1>
-            <p>Controla tamaño, posición, ordena artículos y genera contenido</p>
-        </div>
-        
-        <div class="dashboard">
-            <!-- COLUMNA IZQUIERDA: Publicación y Controles Visuales -->
-            <div>
-                <!-- Publicar Artículo -->
-                <div class="card">
-                    <h2>📰 Publicar Artículo <span class="badge">NUEVO</span></h2>
-                    <div class="sub">Gemini generará contenido automáticamente (sin gastar API)</div>
-                    
-                    <div class="form-group">
-                        <label>🔗 Link de Amazon</label>
-                        <input type="text" id="amazonUrl" placeholder="https://amazon.com/dp/XXXXXXXXXX">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>🖼️ URL de Imagen (opcional)</label>
-                        <input type="text" id="imagenUrl" placeholder="Dejar vacío para auto-detectar">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>📐 Tamaño de Imagen</label>
-                        <div class="size-controls" id="sizeControls">
-                            <div class="size-btn" data-size="small">🔹 Pequeña</div>
-                            <div class="size-btn active" data-size="medium">🔸 Mediana</div>
-                            <div class="size-btn" data-size="large">🔹 Grande</div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>📍 Posición de Imagen</label>
-                        <div class="position-controls" id="positionControls">
-                            <div class="pos-btn" data-pos="left">◀ Izquierda</div>
-                            <div class="pos-btn active" data-pos="center">● Centro</div>
-                            <div class="pos-btn" data-pos="right">Derecha ▶</div>
-                        </div>
-                    </div>
-                    
-                    <button class="btn-primary" onclick="publicarArticulo()">✨ PUBLICAR ARTÍCULO</button>
-                    
-                    <!-- NUEVO BOTÓN: PROBAR CAPTURA DE CARRUSEL -->
-                    <button class="btn-carrusel" onclick="probarCapturaCarrusel()">🎬 PROBAR CAPTURA DE CARRUSEL</button>
-                    
-                    <div id="statusArticulo" class="status"></div>
-                    
-                    <!-- Resultados del carrusel -->
-                    <div id="carruselResultados" class="carrusel-resultados">
-                        <strong>🎬 Imágenes del carrusel:</strong>
-                        <div id="carruselImagenes" class="carrusel-imagenes"></div>
-                        <div id="carruselVideo" style="margin-top: 10px; font-size: 12px;"></div>
-                    </div>
-                    
-                    <!-- Vista Previa -->
-                    <div class="preview" id="previewContainer" style="display: none;">
-                        <div class="preview-title">🎨 VISTA PREVIA</div>
-                        <div class="preview-card">
-                            <div class="preview-img-container" id="previewImgContainer">
-                                <img id="previewImg" src="" alt="Preview">
-                            </div>
-                            <div class="preview-content">
-                                <h4 id="previewTitle">Título del artículo</h4>
-                                <p id="previewDesc" style="font-size: 12px; color: #6b5a48;">Vista previa de cómo se verá el artículo</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Generar Curiosidad -->
-                <div class="card">
-                    <h2>💎 Generar Curiosidad</h2>
-                    <div class="sub">Crea datos sorprendentes que atrapan a tus lectoras</div>
-                    <button class="btn-primary" onclick="generarCuriosidad()" style="background: #c9a87b;">🌸 GENERAR NUEVA CURIOSIDAD</button>
-                    <div id="statusCuriosidad" class="status"></div>
+        <!-- Publicar Artículo (TÚ pones la imagen) -->
+        <div class="card">
+            <h2>📰 Publicar Artículo</h2>
+            <div class="sub">Gemini escribe el artículo. TÚ pones la imagen del producto</div>
+            
+            <div class="form-group">
+                <label>🔗 Link de Amazon</label>
+                <input type="text" id="amazonUrl" placeholder="https://amazon.com/dp/XXXXXXXXXX">
+            </div>
+            
+            <div class="form-group">
+                <label>🖼️ URL de la Imagen del Producto</label>
+                <input type="text" id="imagenUrl" placeholder="Pega aquí la URL de la imagen real del producto">
+                <div class="preview-img" id="previewImgContainer" style="display: none;">
+                    <img id="previewImg" src="" alt="Vista previa">
                 </div>
             </div>
             
-            <!-- COLUMNA DERECHA: Lista Ordenable y Estadísticas -->
-            <div>
-                <!-- Ordenar Artículos -->
-                <div class="card">
-                    <h2>🔄 Ordenar Artículos <span class="badge">ARRASTRA</span></h2>
-                    <div class="sub">Arrastra los artículos para cambiar su orden en la página</div>
-                    <div class="sortable-list" id="sortableList">
-                        <div style="text-align: center; padding: 40px; color: #c9a87b;">Cargando artículos...</div>
-                    </div>
-                    <button class="btn-secondary" onclick="guardarOrden()" style="margin-top: 15px; width: 100%;">💾 GUARDAR ORDEN</button>
-                </div>
-                
-                <!-- Estadísticas -->
-                <div class="card">
-                    <h2>📊 Estadísticas</h2>
-                    <div class="stats-grid" id="statsGrid">
-                        <div class="stat-card">
-                            <div class="stat-number" id="statArticulos">0</div>
-                            <div class="stat-label">Artículos</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="statClicks">0</div>
-                            <div class="stat-label">Clicks Totales</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="statCuriosidades">0</div>
-                            <div class="stat-label">Curiosidades</div>
-                        </div>
-                    </div>
-                </div>
+            <div class="form-group">
+                <label>📂 Categoría</label>
+                <select id="categoria">
+                    <option value="kitchen">Kitchen</option>
+                    <option value="smart-home">Smart Home</option>
+                    <option value="lifestyle">Lifestyle</option>
+                    <option value="wedding">Wedding Registry</option>
+                </select>
+            </div>
+            
+            <button onclick="publicarArticulo()">✨ PUBLICAR ARTÍCULO CON GEMINI</button>
+            <div id="statusArticulo" class="status"></div>
+        </div>
+        
+        <!-- Generar Curiosidad (Gemini escribe + busca imagen) -->
+        <div class="card">
+            <h2>💎 Generar Curiosidad Viral</h2>
+            <div class="sub">Gemini escribe la curiosidad y busca una imagen impactante</div>
+            <button class="btn-secondary" onclick="generarCuriosidad()">🌸 GENERAR NUEVA CURIOSIDAD</button>
+            <div id="statusCuriosidad" class="status"></div>
+        </div>
+        
+        <!-- Estadísticas -->
+        <div class="card">
+            <h2>📊 Estadísticas</h2>
+            <div id="stats">
+                <p>Cargando...</p>
             </div>
         </div>
     </div>
     
     <script>
-        let articulos = [];
-        let selectedSize = 'medium';
-        let selectedPosition = 'center';
-        let dragSourceIndex = null;
-        
-        // Controles de tamaño
-        document.querySelectorAll('#sizeControls .size-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('#sizeControls .size-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                selectedSize = btn.dataset.size;
-                actualizarPreview();
-            });
-        });
-        
-        // Controles de posición
-        document.querySelectorAll('#positionControls .pos-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('#positionControls .pos-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                selectedPosition = btn.dataset.pos;
-                actualizarPreview();
-            });
-        });
-        
-        // Actualizar vista previa
-        function actualizarPreview() {
-            const url = document.getElementById('imagenUrl').value;
-            const previewContainer = document.getElementById('previewContainer');
-            const previewImg = document.getElementById('previewImg');
-            const previewImgContainer = document.getElementById('previewImgContainer');
-            
-            if (url) {
-                previewContainer.style.display = 'block';
-                previewImg.src = url;
-                
-                previewImgContainer.className = 'preview-img-container';
-                previewImgContainer.classList.add(`preview-img-${selectedSize}`);
-                previewImgContainer.classList.add(`preview-img-${selectedPosition}`);
+        // Vista previa de imagen
+        document.getElementById('imagenUrl').addEventListener('input', function(e) {
+            const preview = document.getElementById('previewImgContainer');
+            const img = document.getElementById('previewImg');
+            if (e.target.value) {
+                preview.style.display = 'block';
+                img.src = e.target.value;
             } else {
-                previewContainer.style.display = 'none';
+                preview.style.display = 'none';
             }
-        }
+        });
         
-        // Escuchar cambios en URL de imagen
-        document.getElementById('imagenUrl').addEventListener('input', actualizarPreview);
-        
-        // ============ NUEVA FUNCIÓN: PROBAR CAPTURA DE CARRUSEL ============
-        async function probarCapturaCarrusel() {
-            const url = document.getElementById('amazonUrl').value;
-            if (!url) {
-                alert('❌ Ingresa una URL de Amazon primero');
-                return;
-            }
-            
-            const statusDiv = document.getElementById('statusArticulo');
-            statusDiv.textContent = '🎬 Capturando carrusel de Amazon...';
-            statusDiv.className = 'status info';
-            statusDiv.style.display = 'block';
-            
-            try {
-                const res = await fetch('/api/capturar-carrusel', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ url: url })
-                });
-                
-                const data = await res.json();
-                
-                if (data.success) {
-                    // Mostrar resultados
-                    const resultadosDiv = document.getElementById('carruselResultados');
-                    const imagenesDiv = document.getElementById('carruselImagenes');
-                    const videoDiv = document.getElementById('carruselVideo');
-                    
-                    // Mostrar imágenes capturadas
-                    if (data.imagenes && data.imagenes.length > 0) {
-                        imagenesDiv.innerHTML = data.imagenes.map(img => 
-                            `<img src="${img.url}" alt="Imagen carrusel" onclick="window.open('${img.url}')" style="cursor:pointer;">`
-                        ).join('');
-                    } else {
-                        imagenesDiv.innerHTML = '<p>No se encontraron imágenes</p>';
-                    }
-                    
-                    // Mostrar info del video
-                    if (data.video) {
-                        videoDiv.innerHTML = `
-                            🎥 <strong>Video disponible:</strong> 
-                            <a href="${data.video.embedUrl}" target="_blank">Ver en Amazon</a>
-                            <br>🖼️ Thumbnail: <img src="${data.video.thumbnail}" width="50" style="border-radius: 8px;">
-                        `;
-                    } else {
-                        videoDiv.innerHTML = '🎥 No se detectó video';
-                    }
-                    
-                    resultadosDiv.style.display = 'block';
-                    
-                    statusDiv.textContent = `✅ Capturadas ${data.imagenes.length} imágenes | ASIN: ${data.asin}`;
-                    statusDiv.className = 'status success';
-                    
-                    console.log('Carrusel capturado:', data);
-                } else {
-                    statusDiv.textContent = `❌ Error: ${data.error || 'No se pudo capturar'}`;
-                    statusDiv.className = 'status error';
-                }
-                
-            } catch (error) {
-                console.error('Error:', error);
-                statusDiv.textContent = '❌ Error de conexión con el servidor';
-                statusDiv.className = 'status error';
-            }
-            
-            setTimeout(() => {
-                statusDiv.style.display = 'none';
-            }, 5000);
-        }
-        
-        // Publicar artículo
         async function publicarArticulo() {
             const url = document.getElementById('amazonUrl').value;
+            const imagenUrl = document.getElementById('imagenUrl').value;
+            const categoria = document.getElementById('categoria').value;
+            
             if (!url) {
                 mostrarStatus('statusArticulo', '❌ Ingresa un link de Amazon', 'error');
                 return;
             }
             
-            mostrarStatus('statusArticulo', '🤖 Generando artículo...', 'info');
+            mostrarStatus('statusArticulo', '🤖 Gemini está escribiendo el artículo...', 'info');
             
             try {
                 const res = await fetch('/api/publicar-articulo', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        url: url,
-                        imagenUrl: document.getElementById('imagenUrl').value,
-                        imageSize: selectedSize,
-                        imagePosition: selectedPosition
-                    })
+                    body: JSON.stringify({ url, imagenUrl, categoria })
                 });
                 
                 const data = await res.json();
                 if (data.success) {
                     mostrarStatus('statusArticulo', `✅ Artículo publicado: "${data.articulo.titulo}"`, 'success');
                     document.getElementById('amazonUrl').value = '';
-                    document.getElementById('imagenUrl').value = '';
-                    // Limpiar resultados del carrusel
-                    document.getElementById('carruselResultados').style.display = 'none';
-                    cargarArticulos();
                     cargarStats();
                 } else {
                     mostrarStatus('statusArticulo', '❌ Error: ' + data.error, 'error');
@@ -708,147 +166,20 @@
             }
         }
         
-        // Generar curiosidad
         async function generarCuriosidad() {
-            mostrarStatus('statusCuriosidad', '🤖 Generando curiosidad fascinante...', 'info');
+            mostrarStatus('statusCuriosidad', '✨ Gemini está creando una curiosidad viral...', 'info');
             
             try {
                 const res = await fetch('/api/generar-curiosidad', { method: 'POST' });
                 const data = await res.json();
                 if (data.success) {
-                    mostrarStatus('statusCuriosidad', `✅ Nueva curiosidad: "${data.curiosidad.titulo}"`, 'success');
+                    mostrarStatus('statusCuriosidad', `✅ "${data.curiosidad.titulo}"`, 'success');
                     cargarStats();
                 } else {
                     mostrarStatus('statusCuriosidad', '❌ Error al generar', 'error');
                 }
             } catch (e) {
                 mostrarStatus('statusCuriosidad', '❌ Error de conexión', 'error');
-            }
-        }
-        
-        // Cargar artículos para ordenar
-        async function cargarArticulos() {
-            try {
-                const res = await fetch('/api/articulos');
-                articulos = await res.json();
-                renderSortableList();
-            } catch (error) {
-                console.error('Error cargando artículos:', error);
-            }
-        }
-        
-        // Renderizar lista ordenable
-        function renderSortableList() {
-            const container = document.getElementById('sortableList');
-            
-            if (articulos.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #c9a87b;">📰 No hay artículos aún. Publica tu primero.</div>';
-                return;
-            }
-            
-            container.innerHTML = articulos.map((art, index) => `
-                <div class="sortable-item" draggable="true" data-index="${index}">
-                    <div class="drag-handle">⋮⋮</div>
-                    <img src="${art.imagen || 'https://picsum.photos/60/60'}" onerror="this.src='https://picsum.photos/60/60'">
-                    <div class="sortable-item-info">
-                        <h4>${art.titulo || 'Sin título'}</h4>
-                        <p>📅 ${new Date(art.fecha).toLocaleDateString()} | 👆 ${art.clicks || 0} clicks</p>
-                    </div>
-                    <div class="sortable-item-actions">
-                        <button class="icon-btn" onclick="editarArticulo(${art.id})" title="Editar">✏️</button>
-                        <button class="icon-btn" onclick="moverArriba(${index})" title="Subir">↑</button>
-                        <button class="icon-btn" onclick="moverAbajo(${index})" title="Bajar">↓</button>
-                    </div>
-                </div>
-            `).join('');
-            
-            const items = document.querySelectorAll('.sortable-item');
-            items.forEach(item => {
-                item.addEventListener('dragstart', handleDragStart);
-                item.addEventListener('dragover', handleDragOver);
-                item.addEventListener('drop', handleDrop);
-                item.addEventListener('dragend', handleDragEnd);
-            });
-        }
-        
-        // Drag and drop handlers
-        function handleDragStart(e) {
-            dragSourceIndex = parseInt(e.target.closest('.sortable-item').dataset.index);
-            e.target.closest('.sortable-item').classList.add('dragging');
-        }
-        
-        function handleDragOver(e) {
-            e.preventDefault();
-        }
-        
-        function handleDrop(e) {
-            e.preventDefault();
-            const targetItem = e.target.closest('.sortable-item');
-            if (targetItem) {
-                const targetIndex = parseInt(targetItem.dataset.index);
-                if (dragSourceIndex !== null && dragSourceIndex !== targetIndex) {
-                    const [movedItem] = articulos.splice(dragSourceIndex, 1);
-                    articulos.splice(targetIndex, 0, movedItem);
-                    renderSortableList();
-                }
-            }
-        }
-        
-        function handleDragEnd(e) {
-            e.target.closest('.sortable-item')?.classList.remove('dragging');
-            dragSourceIndex = null;
-        }
-        
-        function moverArriba(index) {
-            if (index > 0) {
-                [articulos[index], articulos[index - 1]] = [articulos[index - 1], articulos[index]];
-                renderSortableList();
-            }
-        }
-        
-        function moverAbajo(index) {
-            if (index < articulos.length - 1) {
-                [articulos[index], articulos[index + 1]] = [articulos[index + 1], articulos[index]];
-                renderSortableList();
-            }
-        }
-        
-        async function guardarOrden() {
-            mostrarStatus('statusArticulo', '💾 Guardando nuevo orden...', 'info');
-            
-            try {
-                const ordenActualizado = articulos.map((art, idx) => ({
-                    ...art,
-                    orden: idx,
-                    fecha: new Date(Date.now() - idx * 60000).toISOString()
-                }));
-                
-                const res = await fetch('/api/ordenar-articulos', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ articulos: ordenActualizado })
-                });
-                
-                const data = await res.json();
-                if (data.success) {
-                    mostrarStatus('statusArticulo', '✅ Orden guardado correctamente', 'success');
-                    cargarArticulos();
-                } else {
-                    mostrarStatus('statusArticulo', '❌ Error al guardar orden', 'error');
-                }
-            } catch (e) {
-                mostrarStatus('statusArticulo', '❌ Error de conexión', 'error');
-            }
-        }
-        
-        function editarArticulo(id) {
-            const articulo = articulos.find(a => a.id === id);
-            if (articulo) {
-                const nuevoTitulo = prompt('Editar título:', articulo.titulo);
-                if (nuevoTitulo) {
-                    articulo.titulo = nuevoTitulo;
-                    guardarOrden();
-                }
             }
         }
         
@@ -859,14 +190,16 @@
                     fetch('/api/curiosidades')
                 ]);
                 
-                const articulosData = await resArt.json();
-                const curiosidadesData = await resCur.json();
+                const articulos = await resArt.json();
+                const curiosidades = await resCur.json();
+                const totalClicks = articulos.reduce((sum, a) => sum + (a.clicks || 0), 0);
                 
-                const totalClicks = articulosData.reduce((sum, a) => sum + (a.clicks || 0), 0);
-                
-                document.getElementById('statArticulos').innerText = articulosData.length;
-                document.getElementById('statClicks').innerText = totalClicks;
-                document.getElementById('statCuriosidades').innerText = curiosidadesData.length;
+                document.getElementById('stats').innerHTML = `
+                    <p>📰 Artículos: ${articulos.length}</p>
+                    <p>👆 Clicks totales: ${totalClicks}</p>
+                    <p>💎 Curiosidades: ${curiosidades.length}</p>
+                    <p>✨ Última curiosidad: ${curiosidades[0]?.titulo || 'Ninguna'}</p>
+                `;
             } catch (e) {
                 console.error('Error stats:', e);
             }
@@ -881,13 +214,8 @@
             }, 4000);
         }
         
-        // Inicializar
-        cargarArticulos();
         cargarStats();
-        setInterval(() => {
-            cargarStats();
-            cargarArticulos();
-        }, 30000);
+        setInterval(cargarStats, 30000);
     </script>
 </body>
 </html>
