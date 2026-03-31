@@ -9,6 +9,7 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 const app = express();
+// REGLA DE ORO: Railway define el puerto dinámicamente
 const PORT = process.env.PORT || 8080;
 
 app.use(compression());
@@ -34,7 +35,6 @@ async function initDatabase() {
         });
         await db.query('SELECT NOW()');
         
-        // Tablas sincronizadas con el Frontend
         await db.query(`
             CREATE TABLE IF NOT EXISTS articulos (
                 id BIGINT PRIMARY KEY,
@@ -73,47 +73,17 @@ async function initDatabase() {
 }
 
 // ============================================================
-// FUNCIONES CRUD
+// MOTORES GEMINI
 // ============================================================
-async function guardarArticulo(articulo) {
-    if (!useDatabase) return false;
-    try {
-        await db.query(`
-            INSERT INTO articulos (id, asin, titulo, meta, intro, curiosidad, contenido, imagen, categoria, link, clicks, fecha)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-            ON CONFLICT (id) DO UPDATE SET titulo = EXCLUDED.titulo, clicks = articulos.clicks + 1
-        `, [articulo.id, articulo.asin, articulo.titulo, articulo.meta, articulo.intro, articulo.curiosidad, articulo.contenido, articulo.imagen, articulo.categoria, articulo.link, 0, articulo.fecha]);
-        return true;
-    } catch (err) { console.error('❌ Error guardando:', err.message); return false; }
-}
-
-async function obtenerArticulos(limit = 100) {
-    if (!useDatabase) return [];
-    try {
-        const res = await db.query(`SELECT * FROM articulos ORDER BY fecha DESC LIMIT $1`, [limit]);
-        return res.rows;
-    } catch (err) { return []; }
-}
-
-// ============================================================
-// MOTORES GEMINI - TRIPLE NÚCLEO
-// ============================================================
-let contentModel = null, salesModel = null;
-let isContentAvailable = false, isSalesAvailable = false;
+let contentModel = null;
+let isContentAvailable = false;
 
 async function initGemini() {
     const cKey = process.env.GEMINI_API_KEY_CONTENT;
-    const sKey = process.env.GEMINI_API_KEY_SALES;
-    
     if (cKey) {
         const genAI = new GoogleGenerativeAI(cKey.trim());
         contentModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
         isContentAvailable = true;
-    }
-    if (sKey) {
-        const genAI = new GoogleGenerativeAI(sKey.trim());
-        salesModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-        isSalesAvailable = true;
     }
 }
 
@@ -122,7 +92,7 @@ async function initGemini() {
 // ============================================================
 async function publicarCuriosidadViral() {
     console.log('⏰ [CRON] Ejecutando publicación automática...');
-    if (!isContentAvailable) return;
+    if (!isContentAvailable || !useDatabase) return;
     try {
         const prompt = "Genera una curiosidad viral de lujo para mujeres en NYC. Responde solo JSON: {\"titulo_es\": \"...\", \"texto_es\": \"...\"}";
         const result = await contentModel.generateContent(prompt);
@@ -145,9 +115,20 @@ async function publicarCuriosidadViral() {
 // ============================================================
 // ENDPOINTS API
 // ============================================================
+
+// 🛡️ ENDPOINT DE VIDA (HEALTHCHECK) - Esto arregla el error de Railway
+app.get('/health', (req, res) => {
+    res.status(200).json({ 
+        status: 'ok', 
+        mxl_protocol: 'v3.2', 
+        database: useDatabase ? 'connected' : 'disconnected' 
+    });
+});
+
 app.get('/api/productos', async (req, res) => {
-    const data = await obtenerArticulos();
-    res.json(data);
+    if (!useDatabase) return res.json([]);
+    const resDb = await db.query(`SELECT * FROM articulos ORDER BY fecha DESC LIMIT 100`);
+    res.json(resDb.rows);
 });
 
 app.get('/api/curiosidades', async (req, res) => {
@@ -158,9 +139,8 @@ app.get('/api/curiosidades', async (req, res) => {
 
 app.post('/api/commander/inject', async (req, res) => {
     const { url, imagenUrl, categoria } = req.body;
-    if (!url || !imagenUrl) return res.status(400).json({ success: false });
+    if (!url || !imagenUrl || !useDatabase) return res.status(400).json({ success: false });
 
-    // Generar copy rápido
     const articulo = {
         id: Date.now(),
         asin: "AMZ" + Date.now(),
@@ -175,8 +155,13 @@ app.post('/api/commander/inject', async (req, res) => {
         fecha: new Date().toISOString()
     };
 
-    const ok = await guardarArticulo(articulo);
-    res.json({ success: ok, producto: articulo.titulo });
+    try {
+        await db.query(`
+            INSERT INTO articulos (id, asin, titulo, meta, intro, curiosidad, contenido, imagen, categoria, link, clicks, fecha)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        `, [articulo.id, articulo.asin, articulo.titulo, articulo.meta, articulo.intro, articulo.curiosidad, articulo.contenido, articulo.imagen, articulo.categoria, articulo.link, 0, articulo.fecha]);
+        res.json({ success: true, producto: articulo.titulo });
+    } catch(e) { res.status(500).json({ success: false }); }
 });
 
 // ============================================================
@@ -186,12 +171,10 @@ async function start() {
     await initDatabase();
     await initGemini();
     
-    // Tarea cada 40 minutos
     cron.schedule('*/40 * * * *', () => publicarCuriosidadViral());
-    
-    // Publicar una al arrancar
     setTimeout(() => publicarCuriosidadViral(), 5000);
 
+    // ESCUCHAR EN 0.0.0.0 y el PORT dinámico es vital para Railway
     app.listen(PORT, '0.0.0.0', () => {
         console.log(`🚀 COMMANDER MXL v3.2 ACTIVO - PUERTO ${PORT}`);
     });
