@@ -17,16 +17,13 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // ============================================================
-// 🧠 PROTOCOLO "THE TRIAD MXL" - TRIPLE NÚCLEO ACTIVADO
+// 🧠 PROTOCOLO "COMMANDER MXL" - mxl es el Único Disparador
 // ============================================================
-// GEMINI_API_KEY_CONTENT → Fábrica de tráfico viral (curiosidades)
-// GEMINI_API_KEY_SALES   → CEREBRO MAESTRO (Estrategia + Copywriting Élite)
-// GEMINI_API_KEY_TRAFFIC → GENERAL DE TRÁFICO (Hooks para redes sociales)
+// GEMINI_API_KEY_CONTENT → Fábrica de tráfico (siempre activa)
+// GEMINI_API_KEY_SALES   → MASTERMIND (Genera artículos bajo demanda)
+// GEMINI_API_KEY_TRAFFIC → GENERAL (Genera hooks automáticos post-producto)
 // ============================================================
 
-let contentAI = null;
-let salesAI = null;
-let trafficAI = null;
 let contentModel = null;
 let salesModel = null;
 let trafficModel = null;
@@ -78,17 +75,17 @@ async function initGeminiMotor(apiKey, motor) {
 }
 
 /**
- * Inicializa los tres motores con sus llaves específicas
+ * Inicializa los tres motores
  */
 async function initGeminiMotors() {
     console.log('\n╔══════════════════════════════════════════════════════════════════╗');
-    console.log('║   🧠 PROTOCOLO "THE TRIAD MXL" - TRIPLE NÚCLEO ACTIVADO         ║');
+    console.log('║   🧠 PROTOCOLO "COMMANDER MXL" - mxl = Único Disparador        ║');
     console.log('╚══════════════════════════════════════════════════════════════════╝\n');
     
-    // Motor CONTENT (Fábrica de tráfico)
+    // Motor CONTENT (Fábrica de tráfico - SIEMPRE ACTIVA)
     const contentKey = process.env.GEMINI_API_KEY_CONTENT;
-    console.log('📝 MOTOR CONTENT (Fábrica de Tráfico Viral)');
-    console.log(`   Llave: ${contentKey ? `${contentKey.substring(0, 15)}...` : 'NO CONFIGURADA'}`);
+    console.log('🏭 MOTOR CONTENT (Fábrica de Tráfico - Ritmo constante)');
+    console.log(`   🔑 Llave: ${contentKey ? `${contentKey.substring(0, 15)}...` : 'NO CONFIGURADA'}`);
     const contentResult = await initGeminiMotor(contentKey, 'CONTENT');
     contentModel = contentResult.model;
     contentModelName = contentResult.modelName;
@@ -96,24 +93,20 @@ async function initGeminiMotors() {
     
     console.log('');
     
-    // Motor SALES - CEREBRO MAESTRO
+    // Motor SALES - MASTERMIND (Genera artículos cuando mxl ordena)
     const salesKey = process.env.GEMINI_API_KEY_SALES;
-    console.log('💰 MOTOR SALES - CEREBRO MAESTRO MXL');
-    console.log('   🎯 Perfil A: Estratega de Madison Avenue (Marketing Intelligence)');
-    console.log('   📝 Perfil B: Copywriter Élite (Ogilvy + Halbert)');
+    console.log('🧠 MOTOR MASTERMIND (Ogilvy/Halbert - Bajo demanda)');
     console.log(`   🔑 Llave: ${salesKey ? `${salesKey.substring(0, 15)}...` : 'NO CONFIGURADA'}`);
-    const salesResult = await initGeminiMotor(salesKey, 'SALES');
+    const salesResult = await initGeminiMotor(salesKey, 'MASTERMIND');
     salesModel = salesResult.model;
     salesModelName = salesResult.modelName;
     isSalesAvailable = salesResult.available;
     
     console.log('');
     
-    // Motor TRAFFIC - GENERAL DE TRÁFICO (NUEVA TERCERA LLAVE)
+    // Motor TRAFFIC - GENERAL (Genera hooks automáticos post-producto)
     const trafficKey = process.env.GEMINI_API_KEY_TRAFFIC;
-    console.log('🚀 MOTOR TRAFFIC - GENERAL DE TRÁFICO MXL');
-    console.log('   📱 Misión: Bombardeo Externo (Pinterest, Twitter/X, SEO Meta)');
-    console.log('   🎣 Función: Generar hooks de alto impacto para redes sociales');
+    console.log('🚀 MOTOR TRAFFIC (Bombardeo Externo - Post-procesamiento)');
     console.log(`   🔑 Llave: ${trafficKey ? `${trafficKey.substring(0, 15)}...` : 'NO CONFIGURADA'}`);
     const trafficResult = await initGeminiMotor(trafficKey, 'TRAFFIC');
     trafficModel = trafficResult.model;
@@ -121,10 +114,10 @@ async function initGeminiMotors() {
     isTrafficAvailable = trafficResult.available;
     
     console.log('\n══════════════════════════════════════════════════════════════════');
-    console.log('📊 ESTADO DE MOTORES TRIPLE NÚCLEO:');
-    console.log(`   🏭 CONTENT (Fábrica): ${isContentAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} (${contentModelName})`);
-    console.log(`   🧠 SALES (Mastermind): ${isSalesAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} (${salesModelName})`);
-    console.log(`   🚀 TRAFFIC (General): ${isTrafficAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} (${trafficModelName})`);
+    console.log('📊 ESTADO DE MOTORES - PROTOCOLO COMMANDER MXL:');
+    console.log(`   🏭 CONTENT (Fábrica): ${isContentAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} - Ritmo: cada 3h`);
+    console.log(`   🧠 MASTERMIND (Artículos): ${isSalesAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} - Modo: Bajo demanda`);
+    console.log(`   🚀 TRAFFIC (Hooks): ${isTrafficAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} - Modo: Post-procesamiento`);
     console.log('══════════════════════════════════════════════════════════════════\n');
 }
 
@@ -138,7 +131,6 @@ const DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH
 const ARTICULOS_PATH = path.join(DATA_DIR, 'articulos.json');
 const CURIOSIDADES_PATH = path.join(DATA_DIR, 'curiosidades.json');
 const ESTADISTICAS_PATH = path.join(DATA_DIR, 'estadisticas.json');
-const ESTRATEGIA_PATH = path.join(DATA_DIR, 'estrategia.json');
 const SOCIAL_HOOKS_PATH = path.join(DATA_DIR, 'social_hooks.json');
 
 if (!fs.existsSync(DATA_DIR)) {
@@ -157,73 +149,22 @@ initFile(ARTICULOS_PATH, []);
 initFile(CURIOSIDADES_PATH, []);
 initFile(ESTADISTICAS_PATH, {
     totalClics: 0,
-    clicsPorAngulo: { A: 0, B: 0, C: 0, D: 0 },
+    clicsPorProducto: {},
     curiosidadesGeneradas: 0,
     productosPublicados: 0,
     hooksGenerados: 0,
     ultimaActualizacion: new Date().toISOString()
 });
-initFile(ESTRATEGIA_PATH, {
-    ultimoAnalisis: null,
-    tendenciasActuales: [],
-    recomendaciones: [],
-    nichoActual: 'LUXURY',
-    anguloActivo: 'A',
-    mensajeEstrategico: null
-});
 initFile(SOCIAL_HOOKS_PATH, []);
 
-// ============================================================
-// SISTEMA DE ÁNGULOS DE VENTA (Gestionado por MASTERMIND)
-// ============================================================
-let anguloVentaActual = 'A';
-const historialClics = { A: [], B: [], C: [], D: [] };
-
-function actualizarAnguloVenta() {
-    const ahora = Date.now();
-    const hace24h = ahora - 86400000;
-    
-    let mejorAngulo = 'A';
-    let maxClics = -1;
-    
-    for (const [angulo, timestamps] of Object.entries(historialClics)) {
-        const clics = timestamps.filter(ts => ts > hace24h).length;
-        if (clics > maxClics) {
-            maxClics = clics;
-            mejorAngulo = angulo;
-        }
-    }
-    
-    if (maxClics === 0) {
-        const angulos = ['A', 'B', 'C', 'D'];
-        const idx = angulos.indexOf(anguloVentaActual);
-        mejorAngulo = angulos[(idx + 1) % angulos.length];
-    }
-    
-    anguloVentaActual = mejorAngulo;
-    return anguloVentaActual;
-}
-
-const angulosDesc = {
-    'A': 'ESTATUS PURO - Lujo Silencioso',
-    'B': 'FOMO - Escasez y Urgencia',
-    'C': 'BIO-HACKING - Salud y Optimización',
-    'D': 'INVERSIÓN - Valor Patrimonial'
+// Ángulos de venta predefinidos
+const angulosVenta = {
+    'A': 'ESTATUS - Lujo Silencioso: "El secreto que solo las que saben conocen"',
+    'B': 'FOMO - Escasez: "Mientras lees esto, alguien más está comprando"',
+    'C': 'INVERSIÓN - Valor patrimonial: "Tu yo del futuro te lo agradecerá"'
 };
 
-const angulosPrompt = {
-    'A': 'Ángulo ESTATUS: exclusividad, lujo silencioso, "el secreto que no cuentan", pertenencia a un club selecto',
-    'B': 'Ángulo FOMO: escasez, urgencia, "solo quedan pocas unidades", "mientras lees esto, alguien más lo está comprando"',
-    'C': 'Ángulo BIO-HACKING: optimización humana, longevidad, energía, "la rutina de los CEO exitosos"',
-    'D': 'Ángulo INVERSIÓN: activo que no deprecia, herencia, "tu yo del futuro te lo agradecerá"'
-};
-
-const plataformasSociales = [
-    { nombre: 'Pinterest', formato: 'Pin con descripción', maxCaracteres: 500 },
-    { nombre: 'Twitter/X', formato: 'Thread o Tweet único', maxCaracteres: 280 },
-    { nombre: 'Instagram', formato: 'Caption con hashtags', maxCaracteres: 2200 },
-    { nombre: 'Facebook', formato: 'Post viral', maxCaracteres: 63206 }
-];
+let anguloActual = 'A';
 
 // Temas SEO para CONTENT
 const TEMAS_SEO = [
@@ -231,41 +172,26 @@ const TEMAS_SEO = [
     { tema: "home wellness spa bathroom luxury", kw_en: "luxury home spa bathroom ideas" },
     { tema: "luxury kitchen appliances women NYC", kw_en: "luxury kitchen appliances NYC women" },
     { tema: "minimalist luxury bedroom decor 2026", kw_en: "minimalist luxury bedroom 2026" },
-    { tema: "smart home automation Beverly Hills", kw_en: "smart home automation Beverly Hills" },
-    { tema: "luxury home office women entrepreneur", kw_en: "luxury home office women 2026" },
-    { tema: "luxury outdoor living Miami terrace", kw_en: "luxury outdoor living Miami" },
-    { tema: "smart mirror beauty luxury women", kw_en: "smart mirror luxury beauty women" }
+    { tema: "smart home automation Beverly Hills", kw_en: "smart home automation Beverly Hills" }
 ];
 
 // Imágenes de respaldo
 const imagenesRespaldo = [
     'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg',
     'https://images.pexels.com/photos/1571468/pexels-photo-1571468.jpeg',
-    'https://images.pexels.com/photos/279719/pexels-photo-279719.jpeg',
-    'https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg',
-    'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg',
-    'https://images.pexels.com/photos/2635038/pexels-photo-2635038.jpeg',
-    'https://images.pexels.com/photos/1648772/pexels-photo-1648772.jpeg',
-    'https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg',
-    'https://images.pexels.com/photos/1571459/pexels-photo-1571459.jpeg',
-    'https://images.pexels.com/photos/1571463/pexels-photo-1571463.jpeg'
+    'https://images.pexels.com/photos/279719/pexels-photo-279719.jpeg'
 ];
 
 async function obtenerImagen(query) {
     const idx = Math.floor(Math.random() * imagenesRespaldo.length);
-    return {
-        url: imagenesRespaldo[idx],
-        fuente: 'respaldo',
-        alt: query || 'luxury home'
-    };
+    return { url: imagenesRespaldo[idx], fuente: 'respaldo', alt: query || 'luxury home' };
 }
 
 function extraerASIN(url) {
     if (!url) return null;
     const patterns = [
         /(?:dp|product|gp\/product)\/([A-Z0-9]{10})/i,
-        /asin=([A-Z0-9]{10})/i,
-        /\/dp\/([A-Z0-9]{10})/i
+        /asin=([A-Z0-9]{10})/i
     ];
     for (const p of patterns) {
         const match = url.match(p);
@@ -275,342 +201,50 @@ function extraerASIN(url) {
 }
 
 // ============================================================
-// 🧠 MASTERMIND SALES - ANÁLISIS ESTRATÉGICO (Perfil A)
+// 🧠 MASTERMIND - Genera artículo completo (Ogilvy/Halbert)
 // ============================================================
-async function analizarEstrategiaVentas() {
-    if (!isSalesAvailable || !salesModel) {
-        console.log('⚠️ [MASTERMIND] CEREBRO MAESTRO no disponible para análisis');
-        return null;
-    }
-    
-    try {
-        const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
-        const articulos = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
-        const estrategiaActual = JSON.parse(fs.readFileSync(ESTRATEGIA_PATH));
-        
-        const clicsPorAngulo = stats.clicsPorAngulo || { A: 0, B: 0, C: 0, D: 0 };
-        const totalClics = stats.totalClics || 0;
-        const productosPublicados = stats.productosPublicados || 0;
-        
-        console.log(`\n🧠 [MASTERMIND] CEREBRO MAESTRO ANALIZANDO MERCADO 2026...`);
-        console.log(`   📊 Datos: ${totalClics} clics | ${productosPublicados} productos`);
-        console.log(`   🎯 Rendimiento ángulos: A:${clicsPorAngulo.A} B:${clicsPorAngulo.B} C:${clicsPorAngulo.C} D:${clicsPorAngulo.D}`);
-        
-        const prompt = `Eres el mejor estratega de mercadeo de Madison Avenue. 
-Tu misión es maximizar el ROI del socio MXL.
-
-ANÁLISIS DE DATOS (Railway):
-- Total clics: ${totalClics}
-- Productos publicados: ${productosPublicados}
-- Rendimiento por ángulo:
-  * ESTATUS: ${clicsPorAngulo.A} clics
-  * FOMO: ${clicsPorAngulo.B} clics
-  * BIO-HACKING: ${clicsPorAngulo.C} clics
-  * INVERSIÓN: ${clicsPorAngulo.D} clics
-
-MERCADO 2026 (NYC, Miami, Beverly Hills):
-- Micro-tendencias actuales: lujo silencioso, bienestar integral, inversión en experiencias
-- Consumidora objetivo: mujer 35-55, alto poder adquisitivo, busca diferenciación
-- Psicología de compra: validación social, exclusividad, optimización personal
-
-RESPONDE SOLO CON JSON (sin markdown):
-{
-    "anguloRecomendado": "A/B/C/D",
-    "nichoEmergente": "nombre del nicho con mayor potencial",
-    "reestructuracionNecesaria": true/false,
-    "mensajeEstrategico": "Resumen ejecutivo de la nueva dirección (1 párrafo)",
-    "tendenciasDetectadas": ["tendencia1", "tendencia2", "tendencia3"],
-    "psicologiaDeVenta": "Ángulo psicológico principal a explotar",
-    "proximoMovimiento": "Acción concreta a ejecutar"
-}`;
-        
-        const result = await salesModel.generateContent(prompt);
-        const text = result.response.text();
-        const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-        const analisis = JSON.parse(clean);
-        
-        // Actualizar estrategia si hay reestructuración
-        if (analisis.reestructuracionNecesaria && analisis.anguloRecomendado !== anguloVentaActual) {
-            console.log(`\n🔄 [MASTERMIND] REESTRUCTURACIÓN ESTRATÉGICA DETECTADA`);
-            console.log(`   🎯 Nuevo ángulo recomendado: ${analisis.anguloRecomendado} (${angulosDesc[analisis.anguloRecomendado]})`);
-            console.log(`   📝 ${analisis.mensajeEstrategico}`);
-            
-            // Guardar nueva estrategia
-            const nuevaEstrategia = {
-                ultimoAnalisis: new Date().toISOString(),
-                anguloRecomendado: analisis.anguloRecomendado,
-                nichoEmergente: analisis.nichoEmergente,
-                tendenciasActuales: analisis.tendenciasDetectadas,
-                recomendaciones: [analisis.mensajeEstrategico],
-                psicologiaDeVenta: analisis.psicologiaDeVenta,
-                proximoMovimiento: analisis.proximoMovimiento,
-                anguloActivo: analisis.anguloRecomendado
-            };
-            fs.writeFileSync(ESTRATEGIA_PATH, JSON.stringify(nuevaEstrategia, null, 2));
-            
-            // Actualizar ángulo actual
-            anguloVentaActual = analisis.anguloRecomendado;
-            
-            // 🔥 DESPUÉS DE REESTRUCTURAR, EL GENERAL DE TRÁFICO DEBE CREAR NUEVOS HOOKS
-            console.log(`\n🚀 [MASTERMIND → TRAFFIC] Ordenando al General crear hooks basados en nueva estrategia...`);
-            await generarHooksPorEstrategia(analisis);
-        }
-        
-        console.log(`✅ [MASTERMIND] Análisis estratégico completado`);
-        return analisis;
-    } catch (e) {
-        console.log(`⚠️ [MASTERMIND] Error en análisis: ${e.message}`);
-        return null;
-    }
-}
-
-// ============================================================
-// 🚀 GENERAL DE TRÁFICO - GENERACIÓN DE HOOKS (Tercera Llave)
-// ============================================================
-
-/**
- * Genera hooks para redes sociales basados en la estrategia actual del Mastermind
- * @param {Object} estrategia - Estrategia actual del Mastermind
- * @param {Object} curiosidad - Opcional: curiosidad específica para generar hooks
- */
-async function generarHooksParaRedes(estrategia, curiosidad = null) {
-    const fallbackHooks = {
-        pinterest: [
-            "✨ The $10M Secret NYC Women Are Whispering About • Save this before it's gone",
-            "🕊️ Luxury isn't loud. It's silent. And she knows exactly where to find it.",
-            "📌 Pinning this for later? So are 10,000 other women who know the secret."
-        ],
-        twitter: [
-            "The investment that outperformed her 401k? A piece so exclusive, only 47 women own it in Manhattan. Thread 🧵",
-            "She doesn't chase trends. She sets them. And this is what's next.",
-            "Miami women have a rule: If more than 5 people know about it, it's no longer luxury."
-        ],
-        instagram: [
-            "The quiet luxury piece that interior designers in Beverly Hills keep to themselves. 🕊️ #LuxuryHome #SilentLuxury",
-            "Your home whispers when it should speak. Let's fix that. ✨",
-            "Not everything needs to be seen to be understood. But this? She'll notice. 🎯"
-        ],
-        facebook: [
-            "Women in NYC are investing in something unexpected this year. Here's why.",
-            "The one thing she bought that her decorator asked about 3 times.",
-            "Is your home a conversation starter or a conversation ender?"
-        ]
-    };
-    
-    if (!isTrafficAvailable || !trafficModel) {
-        console.log('⚠️ [TRAFFIC] GENERAL no disponible, usando fallback');
-        return fallbackHooks;
-    }
-    
-    try {
-        // Obtener el ángulo actual y estrategia
-        const angulo = estrategia?.anguloActivo || anguloVentaActual;
-        const mensajeEstrategico = estrategia?.mensajeEstrategico || estrategia?.recomendaciones?.[0] || '';
-        const psicologiaVenta = estrategia?.psicologiaDeVenta || 'Estatus y exclusividad';
-        
-        console.log(`\n🚀 [TRAFFIC] GENERAL generando hooks de bombardeo externo...`);
-        console.log(`   🎯 Basado en estrategia MASTERMIND: ${angulosDesc[angulo]}`);
-        console.log(`   🧠 Psicología de venta: ${psicologiaVenta}`);
-        
-        const prompt = `Eres el General de Tráfico MXL, experto en marketing viral y bombardeo externo. Tu misión es generar hooks de alto impacto para redes sociales que hagan que la gente haga clic y entre al sitio.
-
-ESTRATEGIA DEL MASTERMIND:
-- Ángulo activo: ${angulosPrompt[angulo]}
-- Psicología de venta: ${psicologiaVenta}
-- Mensaje estratégico: ${mensajeEstrategico.substring(0, 300)}
-
-${curiosidad ? `CURIOSIDAD ESPECÍFICA A PROMOCIONAR:
-Título: ${curiosidad.titulo_es || curiosidad.titulo_en}
-Texto: ${curiosidad.texto_es || curiosidad.texto_en}` : ''}
-
-REGLAS PARA CADA PLATAFORMA:
-1. PINTEREST: Títulos de 60-100 caracteres que generen "save". Usar emojis estratégicos. Debe ser pinneable.
-2. TWITTER/X: Hilos o tweets de 280 caracteres máximo. Usar "🧵" para hilos. Generar FOMO.
-3. INSTAGRAM: Captions con storytelling visual. Hashtags relevantes. Emojis elegantes.
-4. FACEBOOK: Posts conversacionales que generen comentarios. Preguntas retóricas.
-
-RESPONDE SOLO CON JSON (sin markdown):
-{
-    "pinterest": ["hook1", "hook2", "hook3"],
-    "twitter": ["hook1", "hook2", "hook3"],
-    "instagram": ["hook1", "hook2", "hook3"],
-    "facebook": ["hook1", "hook2", "hook3"],
-    "metaDescription": "Meta description optimizada para Google News (155 caracteres)",
-    "seoTitle": "SEO title con keyword principal (60 caracteres)"
-}`;
-        
-        const result = await trafficModel.generateContent(prompt);
-        const text = result.response.text();
-        const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-        const hooks = JSON.parse(clean);
-        
-        console.log(`✅ [TRAFFIC] Hooks generados exitosamente`);
-        console.log(`   📌 Pinterest: ${hooks.pinterest?.length || 0} hooks`);
-        console.log(`   🐦 Twitter: ${hooks.twitter?.length || 0} hooks`);
-        
-        // Guardar hooks en historial
-        const registroHooks = {
-            id: Date.now(),
-            angulo: angulo,
-            psicologia: psicologiaVenta,
-            fecha: new Date().toISOString(),
-            hooks: hooks,
-            curiosidadRelacionada: curiosidad?.id || null
-        };
-        
-        const hooksHistorial = JSON.parse(fs.readFileSync(SOCIAL_HOOKS_PATH));
-        hooksHistorial.unshift(registroHooks);
-        if (hooksHistorial.length > 100) hooksHistorial.pop();
-        fs.writeFileSync(SOCIAL_HOOKS_PATH, JSON.stringify(hooksHistorial, null, 2));
-        
-        // Actualizar estadísticas
-        const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
-        stats.hooksGenerados = (stats.hooksGenerados || 0) + 
-            (hooks.pinterest?.length || 0) + 
-            (hooks.twitter?.length || 0) + 
-            (hooks.instagram?.length || 0) + 
-            (hooks.facebook?.length || 0);
-        fs.writeFileSync(ESTADISTICAS_PATH, JSON.stringify(stats, null, 2));
-        
-        return hooks;
-    } catch (e) {
-        console.log(`⚠️ [TRAFFIC] Error generando hooks: ${e.message}`);
-        return fallbackHooks;
-    }
-}
-
-/**
- * Genera hooks basados en la nueva estrategia del Mastermind
- * Esta función se activa cuando el Mastermind cambia de estrategia
- */
-async function generarHooksPorEstrategia(estrategia) {
-    console.log(`\n🎯 [INTERCONEXIÓN] MASTERMIND → TRAFFIC: Generando hooks por nueva estrategia`);
-    
-    try {
-        const hooks = await generarHooksParaRedes(estrategia);
-        
-        // También generar hooks para la última curiosidad publicada
-        const curiosidades = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
-        if (curiosidades.length > 0) {
-            const ultimaCuriosidad = curiosidades[0];
-            console.log(`   📌 Generando hooks específicos para última curiosidad: ${ultimaCuriosidad.titulo_en?.substring(0, 50)}...`);
-            const hooksCuriosidad = await generarHooksParaRedes(estrategia, ultimaCuriosidad);
-            
-            return {
-                hooksEstrategia: hooks,
-                hooksCuriosidad: hooksCuriosidad
-            };
-        }
-        
-        return { hooksEstrategia: hooks };
-    } catch (e) {
-        console.log(`⚠️ [INTERCONEXIÓN] Error: ${e.message}`);
-        return null;
-    }
-}
-
-/**
- * Genera hooks automáticos cuando se publica una nueva curiosidad
- * El General reacciona a la publicación de la Fábrica (CONTENT)
- */
-async function generarHooksParaNuevaCuriosidad(curiosidad) {
-    console.log(`\n🎯 [INTERCONEXIÓN] CONTENT → TRAFFIC: Nueva curiosidad publicada, generando hooks...`);
-    
-    try {
-        const estrategia = JSON.parse(fs.readFileSync(ESTRATEGIA_PATH));
-        const hooks = await generarHooksParaRedes(estrategia, curiosidad);
-        
-        console.log(`✅ [INTERCONEXIÓN] Hooks generados para la nueva curiosidad`);
-        return hooks;
-    } catch (e) {
-        console.log(`⚠️ [INTERCONEXIÓN] Error: ${e.message}`);
-        return null;
-    }
-}
-
-// ============================================================
-// 💰 MASTERMIND SALES - COPYWRITING ÉLITE (Perfil B)
-// ============================================================
-async function generarCopyProducto(url, imagenUrl, categoria) {
+async function generarArticuloCompleto(url, imagenUrl, categoria) {
     const fallback = {
         titulo: "The Investment Every NYC Woman Is Making in 2026",
-        meta_descripcion: "Discover why high-income women from Manhattan to Miami are investing in this exclusive piece. Limited availability.",
+        meta_descripcion: "Discover why high-income women are investing in this exclusive piece.",
         intro: "There's a reason interior designers in Beverly Hills keep this one detail to themselves.",
-        descripcion_visual: "The finish catches light differently. It's not just design—it's a statement of arrival.",
-        problema: "Your home whispers when it should speak. It feels like it's missing that final layer of intention.",
-        solucion: "This piece doesn't just fill space—it commands presence. Everything around it suddenly looks more considered.",
-        beneficio_estatus: "When guests walk in, they won't compliment the piece. They'll compliment your taste. There's a difference.",
-        prueba_social: "Isabella from Miami: 'My decorator asked where I found it. I told her it's our little secret.'",
-        cierre: "The women who know, know. Will you be one of them before the next shipment sells out?",
-        curiosidad: "Insiders say these pieces appreciate 30% within 18 months. Most don't sell them. They collect them.",
-        palabras_clave: ["luxury home investment 2026", "what NYC women are buying", "Beverly Hills interior design"]
+        descripcion_visual: "The finish catches light differently. It's a statement of arrival.",
+        problema: "Your home whispers when it should speak.",
+        solucion: "This piece commands presence. Everything around it looks more considered.",
+        beneficio_estatus: "They won't compliment the piece. They'll compliment your taste.",
+        prueba_social: "Isabella from Miami: 'My decorator asked where I found it.'",
+        cierre: "The women who know, know. Will you be one of them?",
+        curiosidad: "Insiders say these pieces appreciate 30% within 18 months.",
+        palabras_clave: ["luxury home investment 2026"]
     };
     
     if (!isSalesAvailable || !salesModel) {
-        console.log('⚠️ [MASTERMIND] CEREBRO MAESTRO no disponible, usando fallback');
+        console.log('⚠️ [MASTERMIND] No disponible, usando fallback');
         return fallback;
     }
     
     try {
-        // Cargar estrategia actual para contexto
-        let estrategiaContexto = '';
-        try {
-            const estrategia = JSON.parse(fs.readFileSync(ESTRATEGIA_PATH));
-            if (estrategia.ultimoAnalisis) {
-                estrategiaContexto = `
-CONTEXTO ESTRATÉGICO (MASTERMIND):
-- Nicho emergente: ${estrategia.nichoEmergente || 'Lujo'}
-- Psicología de venta: ${estrategia.psicologiaDeVenta || 'Estatus'}
-- Tendencias actuales: ${(estrategia.tendenciasActuales || []).join(', ')}
-- Próximo movimiento: ${estrategia.proximoMovimiento || 'Venta por escasez'}`;
-            }
-        } catch(e) {}
+        console.log(`\n🧠 [MASTERMIND] Generando artículo para: ${url.substring(0, 50)}...`);
         
-        console.log(`\n💰 [MASTERMIND] CEREBRO MAESTRO generando copy de élite...`);
-        console.log(`   📦 Producto: ${categoria} | URL: ${url.substring(0, 50)}...`);
-        console.log(`   🎯 Ángulo activo: ${angulosDesc[anguloVentaActual]}`);
-        
-        const prompt = `Eres el mejor estratega de mercadeo y el mejor experto en marketing directo de Estados Unidos. Tu objetivo es maximizar el ROI del socio mxl. Analiza el mercado 2026, detecta el deseo del consumidor y genera un cierre de venta infalible.
+        const prompt = `Eres DAVID OGILVY + GARY HALBERT. Genera un artículo de venta para un producto de lujo.
 
-ACTÚA COMO:
-1. DAVID OGILVY: Maestro de la publicidad elegante. Cada palabra debe transmitir estatus sin gritarlo.
-2. GARY HALBERT: Genio del marketing directo. El llamado a la acción debe ser irresistible.
+URL: ${url}
+Categoría: ${categoria}
+Ángulo: ${angulosVenta[anguloActual]}
 
-PSICOLOGÍA DE VENTA APLICADA:
-- Escasez: "Mientras lees esto, alguien más está comprando"
-- Prueba social: "Las mujeres que saben, saben"
-- Estatus: "No es para todos. Ese es el punto."
-- Urgencia: "Esta oportunidad no espera"
-
-DATOS DEL PRODUCTO:
-- URL: ${url}
-- Categoría: ${categoria}
-- Ángulo de venta actual: ${angulosPrompt[anguloVentaActual]}
-${estrategiaContexto}
-
-REQUISITOS DEL COPY:
-- Título: Que detenga el scroll en el celular
-- Meta descripción: 155 caracteres con palabra clave principal
-- Intro: Gancho psicológico en 1 frase
-- Descripción visual: Que huela y se sienta el lujo
-- Problema/Solución: Identificar el deseo inconsciente
-- Prueba social: Testimonio de mujer de alto poder adquisitivo (NYC, Miami o Beverly Hills)
-- Cierre: Que genere FOMO inmediato
-- Curiosidad: Dato exclusivo que solo "las que saben" conocen
-
-RESPONDE SOLO CON JSON (sin markdown):
+RESPONDE SOLO CON JSON:
 {
-    "titulo": "Título que detiene el scroll (máx 60 caracteres)",
-    "meta_descripcion": "Meta description con keyword principal (155 chars)",
-    "intro": "Gancho psicológico de 1 frase que crea curiosidad",
-    "descripcion_visual": "Descripción sensorial que hace sentir el producto (textura, luz, presencia)",
-    "problema": "El deseo inconsciente que este producto satisface (1 frase)",
-    "solucion": "Cómo este producto resuelve ese deseo (1 frase)",
-    "beneficio_estatus": "Beneficio de estatus/posicionamiento social (1 frase)",
-    "prueba_social": "Testimonio de mujer de alto poder adquisitivo con nombre y ubicación",
-    "cierre": "Llamada a acción con urgencia y exclusividad",
-    "curiosidad": "Dato exclusivo sobre tendencias de lujo que crea FOMO",
-    "palabras_clave": ["keyword1", "keyword2", "keyword3"]
+    "titulo": "Título que detiene el scroll (max 60 chars)",
+    "meta_descripcion": "Meta description 155 chars",
+    "intro": "Gancho psicológico 1 frase",
+    "descripcion_visual": "Descripción sensorial del producto",
+    "problema": "El deseo inconsciente que satisface (1 frase)",
+    "solucion": "Cómo lo resuelve (1 frase)",
+    "beneficio_estatus": "Beneficio de estatus (1 frase)",
+    "prueba_social": "Testimonio de mujer adinerada",
+    "cierre": "CTA con urgencia",
+    "curiosidad": "Dato exclusivo que crea FOMO",
+    "palabras_clave": ["keyword1", "keyword2"]
 }`;
         
         const result = await salesModel.generateContent(prompt);
@@ -618,8 +252,7 @@ RESPONDE SOLO CON JSON (sin markdown):
         const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
         const data = JSON.parse(clean);
         
-        console.log(`✅ [MASTERMIND] Copy generado exitosamente`);
-        console.log(`   📝 Título: ${data.titulo}`);
+        console.log(`✅ [MASTERMIND] Artículo generado: ${data.titulo}`);
         
         return {
             titulo: data.titulo || fallback.titulo,
@@ -635,16 +268,91 @@ RESPONDE SOLO CON JSON (sin markdown):
             palabras_clave: data.palabras_clave || fallback.palabras_clave
         };
     } catch (e) {
-        console.log(`⚠️ [MASTERMIND] Error generando copy: ${e.message}`);
+        console.log(`⚠️ [MASTERMIND] Error: ${e.message}`);
         return fallback;
     }
 }
 
 // ============================================================
-// 🏭 MOTOR CONTENT: Generar curiosidad viral
+// 🚀 TRAFFIC - Genera hooks para el producto (Automático post-publicación)
+// ============================================================
+async function generarHooksParaProducto(producto) {
+    const fallbackHooks = {
+        pinterest: [
+            "✨ The $10M Secret NYC Women Are Whispering About • Save this",
+            "🕊️ Luxury isn't loud. It's silent. And she knows where to find it."
+        ],
+        twitter: [
+            "The investment that outperformed her 401k? A piece so exclusive, only 47 women own it.",
+            "She doesn't chase trends. She sets them. And this is what's next."
+        ]
+    };
+    
+    if (!isTrafficAvailable || !trafficModel) {
+        console.log('⚠️ [TRAFFIC] No disponible, usando fallback');
+        return fallbackHooks;
+    }
+    
+    try {
+        console.log(`\n🚀 [TRAFFIC] Generando hooks para: ${producto.titulo.substring(0, 40)}...`);
+        
+        const prompt = `Eres el GENERAL DE TRÁFICO. Genera hooks virales para este producto.
+
+PRODUCTO: ${producto.titulo}
+CURIOSIDAD: ${producto.curiosidad || 'Producto de lujo exclusivo'}
+
+RESPONDE SOLO CON JSON:
+{
+    "pinterest": ["hook1", "hook2"],
+    "twitter": ["hook1", "hook2"],
+    "metaDescription": "Meta description optimizada 155 chars",
+    "seoTitle": "SEO title 60 chars"
+}`;
+        
+        const result = await trafficModel.generateContent(prompt);
+        const text = result.response.text();
+        const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        const hooks = JSON.parse(clean);
+        
+        console.log(`✅ [TRAFFIC] Hooks generados: Pinterest:${hooks.pinterest?.length || 0} Twitter:${hooks.twitter?.length || 0}`);
+        
+        return hooks;
+    } catch (e) {
+        console.log(`⚠️ [TRAFFIC] Error: ${e.message}`);
+        return fallbackHooks;
+    }
+}
+
+/**
+ * Guarda los hooks en el historial
+ */
+async function guardarHooks(producto, hooks) {
+    const registro = {
+        id: Date.now(),
+        productoId: producto.id,
+        productoTitulo: producto.titulo,
+        fecha: new Date().toISOString(),
+        hooks: hooks
+    };
+    
+    const historial = JSON.parse(fs.readFileSync(SOCIAL_HOOKS_PATH));
+    historial.unshift(registro);
+    if (historial.length > 50) historial.pop();
+    fs.writeFileSync(SOCIAL_HOOKS_PATH, JSON.stringify(historial, null, 2));
+    
+    const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
+    stats.hooksGenerados = (stats.hooksGenerados || 0) + 
+        (hooks.pinterest?.length || 0) + 
+        (hooks.twitter?.length || 0);
+    fs.writeFileSync(ESTADISTICAS_PATH, JSON.stringify(stats, null, 2));
+    
+    console.log(`💾 [TRAFFIC] Hooks guardados en historial`);
+}
+
+// ============================================================
+// 🏭 CONTENT - Genera curiosidad (Ritmo constante cada 3h)
 // ============================================================
 async function generarCuriosidadConGemini() {
-    const angulo = actualizarAnguloVenta();
     const temaIdx = Math.floor(Date.now() / 3600000) % TEMAS_SEO.length;
     const tema = TEMAS_SEO[temaIdx];
     const porcentaje = Math.floor(Math.random() * 35 + 60);
@@ -652,39 +360,37 @@ async function generarCuriosidadConGemini() {
     const fallback = {
         titulo_es: `El ${porcentaje}% de mujeres en NYC ya conoce este secreto de lujo`,
         titulo_en: `Best ${tema.tema.split(' ').slice(0, 3).join(' ')} 2026`,
-        texto_es: `Descubre por qué el ${porcentaje}% de mujeres de alto poder adquisitivo en Manhattan están invirtiendo en este elemento exclusivo. ¿Ya eres de las que saben?`,
+        texto_es: `Descubre por qué el ${porcentaje}% de mujeres de alto poder adquisitivo en Manhattan están invirtiendo en este elemento exclusivo.`,
         texto_en: `Discover why ${porcentaje}% of high-income women in Manhattan are investing in this exclusive element.`,
-        meta_descripcion_en: `Discover the best luxury home products 2026. What NYC women are buying.`,
-        descripcion_visual_es: "Cada detalle en esta imagen habla de elegancia y estatus. Ese acabado es el nuevo lujo silencioso.",
+        meta_descripcion_en: `Discover the best luxury home products 2026.`,
+        descripcion_visual_es: "Cada detalle en esta imagen habla de elegancia y estatus.",
         descripcion_visual_en: "Every detail in this image speaks of elegance and status.",
-        productoSugerido: tema.tema.split(' ')[0] + ' luxury product',
-        anguloUsado: angulo
+        productoSugerido: tema.tema.split(' ')[0] + ' luxury product'
     };
     
     if (!isContentAvailable || !contentModel) {
-        console.log('⚠️ [CONTENT] Motor no disponible, usando fallback');
+        console.log('⚠️ [CONTENT] No disponible, usando fallback');
         return fallback;
     }
     
     try {
-        console.log(`🏭 [CONTENT] Generando curiosidad | Motor: ${contentModelName} | Ángulo: ${angulosDesc[angulo]}`);
+        console.log(`\n🏭 [CONTENT] Generando curiosidad (ritmo constante 3h)...`);
         
-        const prompt = `Eres experto en marketing de lujo para mujeres de NYC, Miami, Beverly Hills.
-Genera una curiosidad viral con este ángulo: ${angulosPrompt[angulo]}
+        const prompt = `Eres experto en marketing de lujo. Genera una curiosidad viral.
 
 TEMA: ${tema.tema}
-KEYWORD EN: ${tema.kw_en}
+KEYWORD: ${tema.kw_en}
 
-RESPONDE SOLO CON JSON (sin markdown):
+RESPONDE SOLO CON JSON:
 {
     "titulo_es": "Título en español con número impactante",
     "titulo_en": "Title in English with keyword",
-    "texto_es": "Texto persuasivo en español 2-3 oraciones",
-    "texto_en": "Persuasive text in English 2-3 sentences",
+    "texto_es": "Texto persuasivo 2-3 oraciones",
+    "texto_en": "Persuasive text 2-3 sentences",
     "meta_descripcion_en": "Meta description 155 chars",
-    "descripcion_visual_es": "Descripción sensorial en español",
-    "descripcion_visual_en": "Sensory description in English",
-    "productoSugerido": "Tipo específico de producto Amazon"
+    "descripcion_visual_es": "Descripción sensorial",
+    "descripcion_visual_en": "Sensory description",
+    "productoSugerido": "Tipo de producto Amazon"
 }`;
         
         const result = await contentModel.generateContent(prompt);
@@ -692,7 +398,7 @@ RESPONDE SOLO CON JSON (sin markdown):
         const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
         const data = JSON.parse(clean);
         
-        console.log(`✅ [CONTENT] Curiosidad generada exitosamente`);
+        console.log(`✅ [CONTENT] Curiosidad generada: ${data.titulo_en}`);
         
         return {
             titulo_es: data.titulo_es || fallback.titulo_es,
@@ -702,8 +408,7 @@ RESPONDE SOLO CON JSON (sin markdown):
             meta_descripcion_en: data.meta_descripcion_en || fallback.meta_descripcion_en,
             descripcion_visual_es: data.descripcion_visual_es || fallback.descripcion_visual_es,
             descripcion_visual_en: data.descripcion_visual_en || fallback.descripcion_visual_en,
-            productoSugerido: data.productoSugerido || fallback.productoSugerido,
-            anguloUsado: angulo
+            productoSugerido: data.productoSugerido || fallback.productoSugerido
         };
     } catch (e) {
         console.log(`⚠️ [CONTENT] Error: ${e.message}`);
@@ -712,7 +417,7 @@ RESPONDE SOLO CON JSON (sin markdown):
 }
 
 async function publicarCuriosidadAutomatica() {
-    console.log('🏭 [CONTENT] Generando curiosidad programada...');
+    console.log('🏭 [CONTENT] Generando curiosidad programada (ritmo constante)...');
     
     try {
         const g = await generarCuriosidadConGemini();
@@ -728,11 +433,8 @@ async function publicarCuriosidadAutomatica() {
             descripcion_visual_es: g.descripcion_visual_es,
             descripcion_visual_en: g.descripcion_visual_en,
             imagen: img.url,
-            imagenFuente: img.fuente,
             productoSugerido: g.productoSugerido,
-            anguloUsado: g.anguloUsado,
-            fecha: new Date().toISOString(),
-            compartidas: 0
+            fecha: new Date().toISOString()
         };
         
         const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
@@ -746,10 +448,6 @@ async function publicarCuriosidadAutomatica() {
         fs.writeFileSync(ESTADISTICAS_PATH, JSON.stringify(stats, null, 2));
         
         console.log(`✅ [CONTENT] Publicada: "${nueva.titulo_en}"`);
-        
-        // 🔥 INTERCONEXIÓN: Cuando CONTENT publica, TRAFFIC genera hooks
-        await generarHooksParaNuevaCuriosidad(nueva);
-        
         return nueva;
     } catch (e) {
         console.log('❌ [CONTENT] Error:', e.message);
@@ -757,7 +455,7 @@ async function publicarCuriosidadAutomatica() {
     }
 }
 
-function generarHTMLArticulo(url, imagenUrl, categoria, imageSize, imagePosition, copy) {
+function generarHTMLArticulo(url, imagenUrl, categoria, copy) {
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -807,80 +505,58 @@ function generarHTMLArticulo(url, imagenUrl, categoria, imageSize, imagePosition
 }
 
 // ============================================================
-// ENDPOINTS API
+// ENDPOINTS API - mxl es el Único Disparador
 // ============================================================
+
+// Health check
 app.get('/health', (req, res) => {
     res.json({
         status: 'ok',
+        protocol: 'COMMANDER MXL',
         timestamp: new Date().toISOString(),
-        mastermind: isSalesAvailable ? 'active' : 'inactive',
         content: isContentAvailable ? 'active' : 'inactive',
+        mastermind: isSalesAvailable ? 'active' : 'inactive',
         traffic: isTrafficAvailable ? 'active' : 'inactive',
-        contentModel: contentModelName,
-        salesModel: salesModelName,
-        trafficModel: trafficModelName,
         uptime: process.uptime()
     });
 });
 
-app.get('/api/curiosidades', (req, res) => {
-    try {
-        const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
-        res.json(data);
-    } catch (e) {
-        res.json([]);
-    }
-});
-
-app.post('/api/generar-curiosidad', async (req, res) => {
-    try {
-        const c = await publicarCuriosidadAutomatica();
-        res.json({ success: true, curiosidad: c, motor: 'CONTENT' });
-    } catch (e) {
-        res.status(500).json({ success: false, error: e.message });
-    }
-});
-
-app.delete('/api/curiosidad/:id', (req, res) => {
-    try {
-        const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
-        const filtered = data.filter(c => c.id != req.params.id);
-        fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify(filtered, null, 2));
-        res.json({ success: true });
-    } catch (e) {
-        res.status(500).json({ success: false, error: e.message });
-    }
-});
-
-app.delete('/api/curiosidades/all', (req, res) => {
-    try {
-        fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify([]));
-        res.json({ success: true });
-    } catch (e) {
-        res.status(500).json({ success: false, error: e.message });
-    }
-});
-
-app.post('/api/generar-copy-producto', async (req, res) => {
+// 📌 ENDPOINT PRINCIPAL - mxl inyecta el link y el sistema procesa automáticamente
+app.post('/api/commander/inject', async (req, res) => {
+    const startTime = Date.now();
+    console.log('\n═══════════════════════════════════════════════════════════');
+    console.log('🎯 [COMMANDER MXL] ORDEN RECIBIDA - Procesando inyección...');
+    console.log('═══════════════════════════════════════════════════════════');
+    
     try {
         const { url, imagenUrl, categoria } = req.body;
-        if (!url) return res.status(400).json({ success: false, error: 'URL requerida' });
-        const copy = await generarCopyProducto(url, imagenUrl, categoria);
-        res.json({ success: true, copy, motor: 'MASTERMIND' });
-    } catch (e) {
-        res.status(500).json({ success: false, error: e.message });
-    }
-});
-
-app.post('/api/publicar-producto', async (req, res) => {
-    try {
-        const { url, imagenUrl, categoria, imageSize, imagePosition, copy } = req.body;
-        if (!url || !imagenUrl || !copy) {
-            return res.status(400).json({ success: false, error: 'Faltan datos' });
+        
+        // Validación - mxl debe inyectar URL e imagen
+        if (!url || !imagenUrl) {
+            console.log('❌ [COMMANDER] Falta URL o imagen - orden rechazada');
+            return res.status(400).json({ 
+                success: false, 
+                error: '⚠️ COMANDANTE: Debes inyectar URL y URL de imagen para procesar la orden' 
+            });
         }
         
-        const html = generarHTMLArticulo(url, imagenUrl, categoria, imageSize, imagePosition, copy);
-        const art = {
+        console.log(`📦 Producto recibido:`);
+        console.log(`   🔗 URL: ${url.substring(0, 80)}...`);
+        console.log(`   🖼️ Imagen: ${imagenUrl.substring(0, 60)}...`);
+        console.log(`   📁 Categoría: ${categoria || 'LUXURY'}`);
+        
+        // ============================================================
+        // PASO 1: MASTERMIND genera el artículo completo
+        // ============================================================
+        console.log('\n🧠 [PASO 1/3] MASTERMIND generando artículo (Ogilvy/Halbert)...');
+        const copy = await generarArticuloCompleto(url, imagenUrl, categoria || 'LUXURY');
+        
+        // ============================================================
+        // PASO 2: Guardar el producto
+        // ============================================================
+        console.log('\n💾 [PASO 2/3] Guardando producto en base de datos...');
+        const html = generarHTMLArticulo(url, imagenUrl, categoria || 'LUXURY', copy);
+        const producto = {
             id: Date.now(),
             asin: extraerASIN(url),
             titulo: copy.titulo,
@@ -895,22 +571,56 @@ app.post('/api/publicar-producto', async (req, res) => {
             clicks: 0
         };
         
-        const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
-        data.unshift(art);
-        fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(data, null, 2));
+        const articulos = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
+        articulos.unshift(producto);
+        fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(articulos, null, 2));
         
         const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
         stats.productosPublicados++;
         stats.ultimaActualizacion = new Date().toISOString();
         fs.writeFileSync(ESTADISTICAS_PATH, JSON.stringify(stats, null, 2));
         
-        res.json({ success: true, articulo: art, motor: 'MASTERMIND' });
+        console.log(`✅ Producto guardado: ID ${producto.id} - ${producto.titulo}`);
+        
+        // ============================================================
+        // PASO 3: TRAFFIC genera hooks automáticamente
+        // ============================================================
+        console.log('\n🚀 [PASO 3/3] TRAFFIC generando hooks virales para bombardeo externo...');
+        const hooks = await generarHooksParaProducto(producto);
+        await guardarHooks(producto, hooks);
+        
+        const elapsed = Date.now() - startTime;
+        console.log('\n═══════════════════════════════════════════════════════════');
+        console.log(`✅ [COMMANDER MXL] ORDEN COMPLETADA en ${elapsed}ms`);
+        console.log('═══════════════════════════════════════════════════════════\n');
+        
+        res.json({
+            success: true,
+            message: '✅ ORDEN EJECUTADA - Producto procesado por MASTERMIND y TRAFFIC',
+            tiempoProcesamiento: `${elapsed}ms`,
+            producto: {
+                id: producto.id,
+                titulo: producto.titulo,
+                url: producto.link
+            },
+            hooks: hooks,
+            motores: {
+                mastermind: isSalesAvailable ? 'activado' : 'fallback',
+                traffic: isTrafficAvailable ? 'activado' : 'fallback'
+            }
+        });
+        
     } catch (e) {
-        res.status(500).json({ success: false, error: e.message });
+        console.error('❌ [COMMANDER] Error en procesamiento:', e.message);
+        res.status(500).json({ 
+            success: false, 
+            error: `Error procesando orden: ${e.message}` 
+        });
     }
 });
 
-app.get('/api/articulos', (req, res) => {
+// Endpoint para ver productos (supervisión)
+app.get('/api/productos', (req, res) => {
     try {
         const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
         res.json(data);
@@ -919,16 +629,47 @@ app.get('/api/articulos', (req, res) => {
     }
 });
 
-app.put('/api/ordenar-articulos', (req, res) => {
+// Endpoint para curiosidades (CONTENT)
+app.get('/api/curiosidades', (req, res) => {
     try {
-        fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(req.body.articulos, null, 2));
-        res.json({ success: true });
+        const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
+        res.json(data);
     } catch (e) {
-        res.status(500).json({ success: false, error: e.message });
+        res.json([]);
     }
 });
 
-app.post('/api/click-articulo/:id', (req, res) => {
+// Endpoint para hooks generados
+app.get('/api/hooks', (req, res) => {
+    try {
+        const data = JSON.parse(fs.readFileSync(SOCIAL_HOOKS_PATH));
+        res.json(data);
+    } catch (e) {
+        res.json([]);
+    }
+});
+
+// Endpoint para estadísticas
+app.get('/api/estadisticas', (req, res) => {
+    try {
+        const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
+        const curiosidades = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
+        const productos = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
+        res.json({
+            ...stats,
+            curiosidadesActivas: curiosidades.length,
+            productosActivos: productos.length,
+            contentDisponible: isContentAvailable,
+            mastermindDisponible: isSalesAvailable,
+            trafficDisponible: isTrafficAvailable
+        });
+    } catch (e) {
+        res.json({ error: e.message });
+    }
+});
+
+// Endpoint para registrar clics
+app.post('/api/click/:id', (req, res) => {
     try {
         const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
         const i = data.findIndex(a => a.id == req.params.id);
@@ -938,22 +679,8 @@ app.post('/api/click-articulo/:id', (req, res) => {
             
             const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
             stats.totalClics++;
-            
-            // Registrar clic por ángulo
-            if (anguloVentaActual) {
-                stats.clicsPorAngulo[anguloVentaActual] = (stats.clicsPorAngulo[anguloVentaActual] || 0) + 1;
-            }
-            
-            stats.ultimaActualizacion = new Date().toISOString();
+            stats.clicsPorProducto[req.params.id] = (stats.clicsPorProducto[req.params.id] || 0) + 1;
             fs.writeFileSync(ESTADISTICAS_PATH, JSON.stringify(stats, null, 2));
-            
-            // Registrar en historial
-            if (historialClics[anguloVentaActual]) {
-                historialClics[anguloVentaActual].push(Date.now());
-                if (historialClics[anguloVentaActual].length > 100) {
-                    historialClics[anguloVentaActual].shift();
-                }
-            }
         }
         res.json({ success: true });
     } catch (e) {
@@ -961,130 +688,15 @@ app.post('/api/click-articulo/:id', (req, res) => {
     }
 });
 
-app.get('/api/estadisticas', (req, res) => {
-    try {
-        const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
-        const estrategia = JSON.parse(fs.readFileSync(ESTRATEGIA_PATH));
-        res.json({
-            ...stats,
-            anguloActual: anguloVentaActual,
-            descripcionAngulo: angulosDesc[anguloVentaActual],
-            contentDisponible: isContentAvailable,
-            salesDisponible: isSalesAvailable,
-            trafficDisponible: isTrafficAvailable,
-            contentModelo: contentModelName,
-            salesModelo: salesModelName,
-            trafficModelo: trafficModelName,
-            estrategia: estrategia
-        });
-    } catch (e) {
-        res.json({ error: e.message });
-    }
-});
-
-app.get('/api/motores-status', (req, res) => {
-    res.json({
-        content: {
-            disponible: isContentAvailable,
-            modelo: contentModelName,
-            apiKeyConfigurada: !!process.env.GEMINI_API_KEY_CONTENT,
-            mision: "Fábrica de curiosidades virales"
-        },
-        mastermind: {
-            disponible: isSalesAvailable,
-            modelo: salesModelName,
-            apiKeyConfigurada: !!process.env.GEMINI_API_KEY_SALES,
-            perfiles: ['Estratega Madison Avenue', 'Copywriter Élite (Ogilvy + Halbert)'],
-            mision: "Análisis estratégico + Copywriting de ventas"
-        },
-        traffic: {
-            disponible: isTrafficAvailable,
-            modelo: trafficModelName,
-            apiKeyConfigurada: !!process.env.GEMINI_API_KEY_TRAFFIC,
-            perfiles: ['General de Tráfico', 'Experto en Bombardeo Externo'],
-            mision: "Hooks virales para Pinterest, Twitter/X, Instagram, Facebook"
-        }
-    });
-});
-
-app.post('/api/analizar-estrategia', async (req, res) => {
-    try {
-        const analisis = await analizarEstrategiaVentas();
-        res.json({ success: true, analisis });
-    } catch (e) {
-        res.status(500).json({ success: false, error: e.message });
-    }
-});
-
-// ENDPOINTS PARA EL GENERAL DE TRÁFICO (TERCERA LLAVE)
-app.post('/api/generar-hooks', async (req, res) => {
-    try {
-        const { curiosidadId } = req.body;
-        let curiosidad = null;
-        
-        if (curiosidadId) {
-            const curiosidades = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
-            curiosidad = curiosidades.find(c => c.id == curiosidadId);
-        }
-        
-        const estrategia = JSON.parse(fs.readFileSync(ESTRATEGIA_PATH));
-        const hooks = await generarHooksParaRedes(estrategia, curiosidad);
-        res.json({ success: true, hooks, motor: 'TRAFFIC' });
-    } catch (e) {
-        res.status(500).json({ success: false, error: e.message });
-    }
-});
-
-app.get('/api/hooks', (req, res) => {
-    try {
-        const hooks = JSON.parse(fs.readFileSync(SOCIAL_HOOKS_PATH));
-        res.json(hooks);
-    } catch (e) {
-        res.json([]);
-    }
-});
-
-app.get('/api/hooks/latest', (req, res) => {
-    try {
-        const hooks = JSON.parse(fs.readFileSync(SOCIAL_HOOKS_PATH));
-        res.json(hooks[0] || null);
-    } catch (e) {
-        res.json(null);
-    }
-});
-
-// Rutas estáticas (al final)
+// Rutas estáticas
 app.use(express.static(path.join(__dirname, '/')));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/panel', (req, res) => res.sendFile(path.join(__dirname, 'panel.html')));
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.get('/panel', (req, res) => {
-    res.sendFile(path.join(__dirname, 'panel.html'));
-});
-
-// CRON cada 3 horas (usa MOTOR CONTENT)
+// CRON: CONTENT genera curiosidades cada 3 horas (SIEMPRE ACTIVO)
 cron.schedule('0 */3 * * *', async () => {
-    console.log('⏰ [CRON] Generando curiosidad programada (CONTENT)...');
+    console.log('\n⏰ [CRON] CONTENT - Ritmo constante cada 3 horas');
     await publicarCuriosidadAutomatica();
-});
-
-// CRON cada 6 horas para análisis estratégico (MASTERMIND)
-cron.schedule('0 */6 * * *', async () => {
-    console.log('🧠 [CRON] MASTERMIND analizando estrategia de mercado...');
-    await analizarEstrategiaVentas();
-});
-
-// CRON cada 2 horas para refrescar hooks (TRAFFIC)
-cron.schedule('0 */2 * * *', async () => {
-    console.log('🚀 [CRON] TRAFFIC generando hooks frescos...');
-    try {
-        const estrategia = JSON.parse(fs.readFileSync(ESTRATEGIA_PATH));
-        await generarHooksParaRedes(estrategia);
-    } catch (e) {
-        console.log(`⚠️ [CRON] Error: ${e.message}`);
-    }
 });
 
 // ============================================================
@@ -1094,55 +706,39 @@ const startServer = async () => {
     try {
         await initGeminiMotors();
         
+        // Generar primera curiosidad si no hay
         const curiosidades = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
         if (curiosidades.length === 0) {
             console.log('📝 Generando primera curiosidad en 3 segundos...');
             setTimeout(() => publicarCuriosidadAutomatica(), 3000);
-        } else {
-            // Si ya hay curiosidades, generar hooks para la última
-            setTimeout(async () => {
-                console.log('🚀 Generando hooks iniciales para última curiosidad...');
-                const estrategia = JSON.parse(fs.readFileSync(ESTRATEGIA_PATH));
-                await generarHooksParaRedes(estrategia, curiosidades[0]);
-            }, 2000);
         }
         
-        // Análisis inicial de estrategia
-        setTimeout(() => {
-            console.log('🧠 MASTERMIND: Iniciando análisis estratégico inicial...');
-            analizarEstrategiaVentas();
-        }, 5000);
-        
         app.listen(PORT, '0.0.0.0', () => {
-            const art = JSON.parse(fs.readFileSync(ARTICULOS_PATH)).length;
-            const cur = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH)).length;
             const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
-            const hooks = JSON.parse(fs.readFileSync(SOCIAL_HOOKS_PATH)).length;
+            const productos = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
+            const curiosidades = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
             
             console.log(`
 ╔══════════════════════════════════════════════════════════════════╗
-║     🧠 PROTOCOLO "THE TRIAD MXL" - TRIPLE NÚCLEO ACTIVADO       ║
+║     🧠 PROTOCOLO "COMMANDER MXL" - mxl = Único Disparador       ║
 ╠══════════════════════════════════════════════════════════════════╣
-║  🏭 CONTENT (Fábrica): ${isContentAvailable ? `✅ ACTIVO (${contentModelName})` : '⚠️ NO DISPONIBLE'}${' '.repeat(35 - (isContentAvailable ? contentModelName.length + 12 : 16))}║
-║  🧠 MASTERMIND (Estrategia): ${isSalesAvailable ? `✅ ACTIVO (${salesModelName})` : '⚠️ NO DISPONIBLE'}${' '.repeat(35 - (isSalesAvailable ? salesModelName.length + 12 : 16))}║
-║  🚀 TRAFFIC (Bombardeo): ${isTrafficAvailable ? `✅ ACTIVO (${trafficModelName})` : '⚠️ NO DISPONIBLE'}${' '.repeat(35 - (isTrafficAvailable ? trafficModelName.length + 12 : 16))}║
+║  🏭 CONTENT: ${isContentAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} - Ritmo: cada 3h           ║
+║  🧠 MASTERMIND: ${isSalesAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} - Modo: Bajo demanda       ║
+║  🚀 TRAFFIC: ${isTrafficAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} - Modo: Post-procesamiento  ║
 ║                                                                  ║
-║  🎯 Perfil A: Estratega Madison Avenue (Análisis de mercado)     ║
-║  📝 Perfil B: Copywriter Élite (Ogilvy + Halbert)                ║
-║  🎣 Perfil C: General de Tráfico (Hooks virales)                 ║
+║  📊 ESTADO ACTUAL:                                              ║
+║  💎 Curiosidades: ${curiosidades.length} activas | ${stats.curiosidadesGeneradas || 0} generadas     ║
+║  💰 Productos: ${productos.length} publicados | ${stats.totalClics || 0} clics totales           ║
+║  🎣 Hooks: ${stats.hooksGenerados || 0} generados                                                ║
 ║                                                                  ║
-║  🎯 Ángulo actual: ${angulosDesc[anguloVentaActual]}${' '.repeat(45 - angulosDesc[anguloVentaActual].length)}║
-║  💎 Curiosidades: ${cur} guardadas | ${stats.curiosidadesGeneradas} generadas${' '.repeat(20)}║
-║  🎣 Hooks generados: ${stats.hooksGenerados || 0} | ${hooks} sesiones${' '.repeat(30)}║
-║  💰 Productos: ${art} publicados | ${stats.totalClics} clics totales${' '.repeat(25)}║
-║  🚀 Puerto: ${PORT}${' '.repeat(48)}║
-║  📁 Datos: ${DATA_DIR}${' '.repeat(45 - DATA_DIR.length)}║
+║  🎯 COMANDANTE MXL:                                             ║
+║    1. Inyecta URL + Imagen en POST /api/commander/inject        ║
+║    2. MASTERMIND genera artículo automáticamente                ║
+║    3. TRAFFIC genera hooks virales para bombardeo               ║
+║    4. CONTENT mantiene tráfico orgánico cada 3h                 ║
+║                                                                  ║
+║  🚀 Puerto: ${PORT}                                              ║
 ╚══════════════════════════════════════════════════════════════════╝
-
-🔗 INTERCONEXIONES ACTIVADAS:
-   • MASTERMIND → TRAFFIC: Cuando cambia estrategia, genera nuevos hooks
-   • CONTENT → TRAFFIC: Cuando publica curiosidad, genera hooks específicos
-   • TRAFFIC → EXTERNO: Hooks listos para Pinterest, Twitter/X, Instagram, Facebook
             `);
         });
     } catch (error) {
