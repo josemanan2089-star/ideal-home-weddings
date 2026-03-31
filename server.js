@@ -17,14 +17,14 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // ============================================================
-// 🧠 SISTEMA DE LLAVES ESPECIALIZADAS MXL
+// 🧠 PROTOCOLO "THE MASTERMIND MXL" - SISTEMA DE LLAVES ESPECIALIZADAS
 // ============================================================
 // GEMINI_API_KEY_CONTENT → Fábrica de tráfico viral (curiosidades)
-// GEMINI_API_KEY_SALES   → Fuerza de ventas (copies y estrategia)
+// GEMINI_API_KEY_SALES   → CEREBRO MAESTRO (Estrategia + Copywriting Élite)
 // ============================================================
 
-let contentAI = null;      // Motor CONTENT
-let salesAI = null;        // Motor SALES
+let contentAI = null;
+let salesAI = null;
 let contentModel = null;
 let salesModel = null;
 let isContentAvailable = false;
@@ -37,8 +37,6 @@ const MODELOS_PRIORIDAD = ['gemini-2.0-flash-exp', 'gemini-2.0-flash', 'gemini-1
 
 /**
  * Inicializa un motor Gemini específico
- * @param {string} apiKey - La API Key de Gemini
- * @param {string} motor - 'CONTENT' o 'SALES'
  */
 async function initGeminiMotor(apiKey, motor) {
     if (!apiKey || apiKey === 'tu_api_key_aqui' || apiKey === '') {
@@ -78,11 +76,11 @@ async function initGeminiMotor(apiKey, motor) {
  * Inicializa ambos motores con sus llaves específicas
  */
 async function initGeminiMotors() {
-    console.log('\n╔═══════════════════════════════════════════════════════════╗');
-    console.log('║   🏭 MXL GOLD MINER - SISTEMA DE LLAVES ESPECIALIZADAS   ║');
-    console.log('╚═══════════════════════════════════════════════════════════╝\n');
+    console.log('\n╔══════════════════════════════════════════════════════════════════╗');
+    console.log('║   🧠 PROTOCOLO "THE MASTERMIND MXL" - CEREBRO MAESTRO ACTIVADO   ║');
+    console.log('╚══════════════════════════════════════════════════════════════════╝\n');
     
-    // Motor CONTENT (GEMINI_API_KEY_CONTENT)
+    // Motor CONTENT (Fábrica de tráfico)
     const contentKey = process.env.GEMINI_API_KEY_CONTENT;
     console.log('📝 MOTOR CONTENT (Fábrica de Tráfico Viral)');
     console.log(`   Llave: ${contentKey ? `${contentKey.substring(0, 15)}...` : 'NO CONFIGURADA'}`);
@@ -93,20 +91,22 @@ async function initGeminiMotors() {
     
     console.log('');
     
-    // Motor SALES (GEMINI_API_KEY_SALES)
+    // Motor SALES - CEREBRO MAESTRO
     const salesKey = process.env.GEMINI_API_KEY_SALES;
-    console.log('💰 MOTOR SALES (Fuerza de Ventas - Copies)');
-    console.log(`   Llave: ${salesKey ? `${salesKey.substring(0, 15)}...` : 'NO CONFIGURADA'}`);
+    console.log('💰 MOTOR SALES - CEREBRO MAESTRO MXL');
+    console.log('   🎯 Perfil A: Estratega de Madison Avenue (Marketing Intelligence)');
+    console.log('   📝 Perfil B: Copywriter Élite (Ogilvy + Halbert)');
+    console.log(`   🔑 Llave: ${salesKey ? `${salesKey.substring(0, 15)}...` : 'NO CONFIGURADA'}`);
     const salesResult = await initGeminiMotor(salesKey, 'SALES');
     salesModel = salesResult.model;
     salesModelName = salesResult.modelName;
     isSalesAvailable = salesResult.available;
     
-    console.log('\n═══════════════════════════════════════════════════════════');
+    console.log('\n══════════════════════════════════════════════════════════════════');
     console.log('📊 ESTADO DE MOTORES:');
     console.log(`   🏭 CONTENT: ${isContentAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} (${contentModelName})`);
-    console.log(`   💰 SALES:   ${isSalesAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} (${salesModelName})`);
-    console.log('═══════════════════════════════════════════════════════════\n');
+    console.log(`   🧠 SALES MASTERMIND: ${isSalesAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} (${salesModelName})`);
+    console.log('══════════════════════════════════════════════════════════════════\n');
 }
 
 // ============================================================
@@ -119,6 +119,7 @@ const DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH
 const ARTICULOS_PATH = path.join(DATA_DIR, 'articulos.json');
 const CURIOSIDADES_PATH = path.join(DATA_DIR, 'curiosidades.json');
 const ESTADISTICAS_PATH = path.join(DATA_DIR, 'estadisticas.json');
+const ESTRATEGIA_PATH = path.join(DATA_DIR, 'estrategia.json');
 
 if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -141,9 +142,15 @@ initFile(ESTADISTICAS_PATH, {
     productosPublicados: 0,
     ultimaActualizacion: new Date().toISOString()
 });
+initFile(ESTRATEGIA_PATH, {
+    ultimoAnalisis: null,
+    tendenciasActuales: [],
+    recomendaciones: [],
+    nichoActual: 'LUXURY'
+});
 
 // ============================================================
-// SISTEMA DE ÁNGULOS DE VENTA
+// SISTEMA DE ÁNGULOS DE VENTA (Gestionado por MASTERMIND)
 // ============================================================
 let anguloVentaActual = 'A';
 const historialClics = { A: [], B: [], C: [], D: [] };
@@ -174,17 +181,17 @@ function actualizarAnguloVenta() {
 }
 
 const angulosDesc = {
-    'A': 'ESTATUS PURO',
-    'B': 'FOMO',
-    'C': 'BIO-HACKING',
-    'D': 'INVERSIÓN'
+    'A': 'ESTATUS PURO - Lujo Silencioso',
+    'B': 'FOMO - Escasez y Urgencia',
+    'C': 'BIO-HACKING - Salud y Optimización',
+    'D': 'INVERSIÓN - Valor Patrimonial'
 };
 
 const angulosPrompt = {
-    'A': 'Ángulo ESTATUS: exclusividad, lujo silencioso, "el secreto que no cuentan"',
-    'B': 'Ángulo FOMO: escasez, urgencia, "solo quedan pocas unidades"',
-    'C': 'Ángulo BIO-HACKING: salud, optimización, "rutina de alto rendimiento"',
-    'D': 'Ángulo INVERSIÓN: valor patrimonial, "activo que no deprecia"'
+    'A': 'Ángulo ESTATUS: exclusividad, lujo silencioso, "el secreto que no cuentan", pertenencia a un club selecto',
+    'B': 'Ángulo FOMO: escasez, urgencia, "solo quedan pocas unidades", "mientras lees esto, alguien más lo está comprando"',
+    'C': 'Ángulo BIO-HACKING: optimización humana, longevidad, energía, "la rutina de los CEO exitosos"',
+    'D': 'Ángulo INVERSIÓN: activo que no deprecia, herencia, "tu yo del futuro te lo agradecerá"'
 };
 
 // Temas SEO para CONTENT
@@ -237,7 +244,204 @@ function extraerASIN(url) {
 }
 
 // ============================================================
-// 🏭 MOTOR CONTENT: Generar curiosidad viral (Usa GEMINI_API_KEY_CONTENT)
+// 🧠 MASTERMIND SALES - ANÁLISIS ESTRATÉGICO (Perfil A)
+// ============================================================
+async function analizarEstrategiaVentas() {
+    if (!isSalesAvailable || !salesModel) {
+        console.log('⚠️ [MASTERMIND] CEREBRO MAESTRO no disponible para análisis');
+        return null;
+    }
+    
+    try {
+        const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
+        const articulos = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
+        const estrategiaActual = JSON.parse(fs.readFileSync(ESTRATEGIA_PATH));
+        
+        const clicsPorAngulo = stats.clicsPorAngulo || { A: 0, B: 0, C: 0, D: 0 };
+        const totalClics = stats.totalClics || 0;
+        const productosPublicados = stats.productosPublicados || 0;
+        
+        console.log(`\n🧠 [MASTERMIND] CEREBRO MAESTRO ANALIZANDO MERCADO 2026...`);
+        console.log(`   📊 Datos: ${totalClics} clics | ${productosPublicados} productos`);
+        console.log(`   🎯 Rendimiento ángulos: A:${clicsPorAngulo.A} B:${clicsPorAngulo.B} C:${clicsPorAngulo.C} D:${clicsPorAngulo.D}`);
+        
+        const prompt = `Eres el mejor estratega de mercadeo de Madison Avenue. 
+Tu misión es maximizar el ROI del socio MXL.
+
+ANÁLISIS DE DATOS (Railway):
+- Total clics: ${totalClics}
+- Productos publicados: ${productosPublicados}
+- Rendimiento por ángulo:
+  * ESTATUS: ${clicsPorAngulo.A} clics
+  * FOMO: ${clicsPorAngulo.B} clics
+  * BIO-HACKING: ${clicsPorAngulo.C} clics
+  * INVERSIÓN: ${clicsPorAngulo.D} clics
+
+MERCADO 2026 (NYC, Miami, Beverly Hills):
+- Micro-tendencias actuales: lujo silencioso, bienestar integral, inversión en experiencias
+- Consumidora objetivo: mujer 35-55, alto poder adquisitivo, busca diferenciación
+- Psicología de compra: validación social, exclusividad, optimización personal
+
+RESPONDE SOLO CON JSON (sin markdown):
+{
+    "anguloRecomendado": "A/B/C/D",
+    "nichoEmergente": "nombre del nicho con mayor potencial",
+    "reestructuracionNecesaria": true/false,
+    "mensajeEstrategico": "Resumen ejecutivo de la nueva dirección (1 párrafo)",
+    "tendenciasDetectadas": ["tendencia1", "tendencia2", "tendencia3"],
+    "psicologiaDeVenta": "Ángulo psicológico principal a explotar",
+    "proximoMovimiento": "Acción concreta a ejecutar"
+}`;
+        
+        const result = await salesModel.generateContent(prompt);
+        const text = result.response.text();
+        const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        const analisis = JSON.parse(clean);
+        
+        // Actualizar estrategia si hay reestructuración
+        if (analisis.reestructuracionNecesaria && analisis.anguloRecomendado !== anguloVentaActual) {
+            console.log(`\n🔄 [MASTERMIND] REESTRUCTURACIÓN ESTRATÉGICA DETECTADA`);
+            console.log(`   🎯 Nuevo ángulo recomendado: ${analisis.anguloRecomendado} (${angulosDesc[analisis.anguloRecomendado]})`);
+            console.log(`   📝 ${analisis.mensajeEstrategico}`);
+            
+            // Guardar nueva estrategia
+            const nuevaEstrategia = {
+                ultimoAnalisis: new Date().toISOString(),
+                anguloRecomendado: analisis.anguloRecomendado,
+                nichoEmergente: analisis.nichoEmergente,
+                tendenciasActuales: analisis.tendenciasDetectadas,
+                recomendaciones: [analisis.mensajeEstrategico],
+                psicologiaDeVenta: analisis.psicologiaDeVenta,
+                proximoMovimiento: analisis.proximoMovimiento
+            };
+            fs.writeFileSync(ESTRATEGIA_PATH, JSON.stringify(nuevaEstrategia, null, 2));
+            
+            // Actualizar ángulo actual
+            anguloVentaActual = analisis.anguloRecomendado;
+        }
+        
+        console.log(`✅ [MASTERMIND] Análisis estratégico completado`);
+        return analisis;
+    } catch (e) {
+        console.log(`⚠️ [MASTERMIND] Error en análisis: ${e.message}`);
+        return null;
+    }
+}
+
+// ============================================================
+// 💰 MASTERMIND SALES - COPYWRITING ÉLITE (Perfil B)
+// ============================================================
+async function generarCopyProducto(url, imagenUrl, categoria) {
+    const fallback = {
+        titulo: "The Investment Every NYC Woman Is Making in 2026",
+        meta_descripcion: "Discover why high-income women from Manhattan to Miami are investing in this exclusive piece. Limited availability.",
+        intro: "There's a reason interior designers in Beverly Hills keep this one detail to themselves.",
+        descripcion_visual: "The finish catches light differently. It's not just design—it's a statement of arrival.",
+        problema: "Your home whispers when it should speak. It feels like it's missing that final layer of intention.",
+        solucion: "This piece doesn't just fill space—it commands presence. Everything around it suddenly looks more considered.",
+        beneficio_estatus: "When guests walk in, they won't compliment the piece. They'll compliment your taste. There's a difference.",
+        prueba_social: "Isabella from Miami: 'My decorator asked where I found it. I told her it's our little secret.'",
+        cierre: "The women who know, know. Will you be one of them before the next shipment sells out?",
+        curiosidad: "Insiders say these pieces appreciate 30% within 18 months. Most don't sell them. They collect them.",
+        palabras_clave: ["luxury home investment 2026", "what NYC women are buying", "Beverly Hills interior design"]
+    };
+    
+    if (!isSalesAvailable || !salesModel) {
+        console.log('⚠️ [MASTERMIND] CEREBRO MAESTRO no disponible, usando fallback');
+        return fallback;
+    }
+    
+    try {
+        // Cargar estrategia actual para contexto
+        let estrategiaContexto = '';
+        try {
+            const estrategia = JSON.parse(fs.readFileSync(ESTRATEGIA_PATH));
+            if (estrategia.ultimoAnalisis) {
+                estrategiaContexto = `
+CONTEXTO ESTRATÉGICO (MASTERMIND):
+- Nicho emergente: ${estrategia.nichoEmergente || 'Lujo'}
+- Psicología de venta: ${estrategia.psicologiaDeVenta || 'Estatus'}
+- Tendencias actuales: ${(estrategia.tendenciasActuales || []).join(', ')}
+- Próximo movimiento: ${estrategia.proximoMovimiento || 'Venta por escasez'}`;
+            }
+        } catch(e) {}
+        
+        console.log(`\n💰 [MASTERMIND] CEREBRO MAESTRO generando copy de élite...`);
+        console.log(`   📦 Producto: ${categoria} | URL: ${url.substring(0, 50)}...`);
+        console.log(`   🎯 Ángulo activo: ${angulosDesc[anguloVentaActual]}`);
+        
+        const prompt = `Eres el mejor estratega de mercadeo y el mejor experto en marketing directo de Estados Unidos. Tu objetivo es maximizar el ROI del socio mxl. Analiza el mercado 2026, detecta el deseo del consumidor y genera un cierre de venta infalible.
+
+ACTÚA COMO:
+1. DAVID OGILVY: Maestro de la publicidad elegante. Cada palabra debe transmitir estatus sin gritarlo.
+2. GARY HALBERT: Genio del marketing directo. El llamado a la acción debe ser irresistible.
+
+PSICOLOGÍA DE VENTA APLICADA:
+- Escasez: "Mientras lees esto, alguien más está comprando"
+- Prueba social: "Las mujeres que saben, saben"
+- Estatus: "No es para todos. Ese es el punto."
+- Urgencia: "Esta oportunidad no espera"
+
+DATOS DEL PRODUCTO:
+- URL: ${url}
+- Categoría: ${categoria}
+- Ángulo de venta actual: ${angulosPrompt[anguloVentaActual]}
+${estrategiaContexto}
+
+REQUISITOS DEL COPY:
+- Título: Que detenga el scroll en el celular
+- Meta descripción: 155 caracteres con palabra clave principal
+- Intro: Gancho psicológico en 1 frase
+- Descripción visual: Que huela y se sienta el lujo
+- Problema/Solución: Identificar el deseo inconsciente
+- Prueba social: Testimonio de mujer de alto poder adquisitivo (NYC, Miami o Beverly Hills)
+- Cierre: Que genere FOMO inmediato
+- Curiosidad: Dato exclusivo que solo "las que saben" conocen
+
+RESPONDE SOLO CON JSON (sin markdown):
+{
+    "titulo": "Título que detiene el scroll (máx 60 caracteres)",
+    "meta_descripcion": "Meta description con keyword principal (155 chars)",
+    "intro": "Gancho psicológico de 1 frase que crea curiosidad",
+    "descripcion_visual": "Descripción sensorial que hace sentir el producto (textura, luz, presencia)",
+    "problema": "El deseo inconsciente que este producto satisface (1 frase)",
+    "solucion": "Cómo este producto resuelve ese deseo (1 frase)",
+    "beneficio_estatus": "Beneficio de estatus/posicionamiento social (1 frase)",
+    "prueba_social": "Testimonio de mujer de alto poder adquisitivo con nombre y ubicación",
+    "cierre": "Llamada a acción con urgencia y exclusividad",
+    "curiosidad": "Dato exclusivo sobre tendencias de lujo que crea FOMO",
+    "palabras_clave": ["keyword1", "keyword2", "keyword3"]
+}`;
+        
+        const result = await salesModel.generateContent(prompt);
+        const text = result.response.text();
+        const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        const data = JSON.parse(clean);
+        
+        console.log(`✅ [MASTERMIND] Copy generado exitosamente`);
+        console.log(`   📝 Título: ${data.titulo}`);
+        
+        return {
+            titulo: data.titulo || fallback.titulo,
+            meta_descripcion: data.meta_descripcion || fallback.meta_descripcion,
+            intro: data.intro || fallback.intro,
+            descripcion_visual: data.descripso_visual || fallback.descripcion_visual,
+            problema: data.problema || fallback.problema,
+            solucion: data.solucion || fallback.solucion,
+            beneficio_estatus: data.beneficio_estatus || fallback.beneficio_estatus,
+            prueba_social: data.prueba_social || fallback.prueba_social,
+            cierre: data.cierre || fallback.cierre,
+            curiosidad: data.curiosidad || fallback.curiosidad,
+            palabras_clave: data.palabras_clave || fallback.palabras_clave
+        };
+    } catch (e) {
+        console.log(`⚠️ [MASTERMIND] Error generando copy: ${e.message}`);
+        return fallback;
+    }
+}
+
+// ============================================================
+// 🏭 MOTOR CONTENT: Generar curiosidad viral
 // ============================================================
 async function generarCuriosidadConGemini() {
     const angulo = actualizarAnguloVenta();
@@ -257,7 +461,6 @@ async function generarCuriosidadConGemini() {
         anguloUsado: angulo
     };
     
-    // Usar exclusivamente MOTOR CONTENT
     if (!isContentAvailable || !contentModel) {
         console.log('⚠️ [CONTENT] Motor no disponible, usando fallback');
         return fallback;
@@ -350,79 +553,6 @@ async function publicarCuriosidadAutomatica() {
     }
 }
 
-// ============================================================
-// 💰 MOTOR SALES: Generar copy de producto (Usa GEMINI_API_KEY_SALES)
-// ============================================================
-async function generarCopyProducto(url, imagenUrl, categoria) {
-    const fallback = {
-        titulo: "Best Luxury Home Investment 2026",
-        meta_descripcion: "Discover why NYC women are investing in this luxury home product.",
-        intro: "The one detail interior designers can't stop recommending.",
-        descripcion_visual: "Clean lines and elegant design that transforms any space.",
-        problema: "Your home feels like it's missing something.",
-        solucion: "This piece makes everything around it feel more considered.",
-        beneficio_estatus: "Let your space speak for you.",
-        prueba_social: "Gabriela from Miami: 'My designer was impressed.'",
-        cierre: "This design won't wait.",
-        curiosidad: "Interior designers report 150% increase in signature pieces.",
-        palabras_clave: ["luxury home 2026", "best investment", "NYC lifestyle"]
-    };
-    
-    // Usar exclusivamente MOTOR SALES
-    if (!isSalesAvailable || !salesModel) {
-        console.log('⚠️ [SALES] Motor no disponible, usando fallback');
-        return fallback;
-    }
-    
-    try {
-        console.log(`💰 [SALES] Generando copy | Motor: ${salesModelName} | Categoría: ${categoria}`);
-        
-        const prompt = `Eres un experto copywriter de lujo para Amazon Affiliate.
-Genera copy persuasivo de alto impacto para este producto: ${url}
-Categoría: ${categoria}
-Ángulo actual recomendado: ${angulosDesc[anguloVentaActual]} - ${angulosPrompt[anguloVentaActual]}
-
-RESPONDE SOLO CON JSON (sin markdown):
-{
-    "titulo": "Título persuasivo en inglés (máx 60 chars)",
-    "meta_descripcion": "Meta description en inglés (155 chars máximo)",
-    "intro": "Introducción gancho que captura atención (1 oración)",
-    "descripcion_visual": "Descripción visual detallada del producto",
-    "problema": "El problema que resuelve (1 oración)",
-    "solucion": "Cómo este producto es la solución (1 oración)",
-    "beneficio_estatus": "Beneficio de estatus/lujo (1 oración)",
-    "prueba_social": "Testimonio ficticio de cliente de alto poder adquisitivo",
-    "cierre": "Llamada a acción urgente",
-    "curiosidad": "Dato curioso sobre tendencias de lujo",
-    "palabras_clave": ["keyword1", "keyword2", "keyword3"]
-}`;
-        
-        const result = await salesModel.generateContent(prompt);
-        const text = result.response.text();
-        const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-        const data = JSON.parse(clean);
-        
-        console.log(`✅ [SALES] Copy generado exitosamente`);
-        
-        return {
-            titulo: data.titulo || fallback.titulo,
-            meta_descripcion: data.meta_descripcion || fallback.meta_descripcion,
-            intro: data.intro || fallback.intro,
-            descripcion_visual: data.descripcion_visual || fallback.descripcion_visual,
-            problema: data.problema || fallback.problema,
-            solucion: data.solucion || fallback.solucion,
-            beneficio_estatus: data.beneficio_estatus || fallback.beneficio_estatus,
-            prueba_social: data.prueba_social || fallback.prueba_social,
-            cierre: data.cierre || fallback.cierre,
-            curiosidad: data.curiosidad || fallback.curiosidad,
-            palabras_clave: data.palabras_clave || fallback.palabras_clave
-        };
-    } catch (e) {
-        console.log(`⚠️ [SALES] Error generando copy: ${e.message}`);
-        return fallback;
-    }
-}
-
 function generarHTMLArticulo(url, imagenUrl, categoria, imageSize, imagePosition, copy) {
     return `<!DOCTYPE html>
 <html lang="en">
@@ -479,8 +609,8 @@ app.get('/health', (req, res) => {
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
+        mastermind: isSalesAvailable ? 'active' : 'inactive',
         content: isContentAvailable ? 'active' : 'inactive',
-        sales: isSalesAvailable ? 'active' : 'inactive',
         contentModel: contentModelName,
         salesModel: salesModelName,
         uptime: process.uptime()
@@ -530,7 +660,7 @@ app.post('/api/generar-copy-producto', async (req, res) => {
         const { url, imagenUrl, categoria } = req.body;
         if (!url) return res.status(400).json({ success: false, error: 'URL requerida' });
         const copy = await generarCopyProducto(url, imagenUrl, categoria);
-        res.json({ success: true, copy, motor: 'SALES' });
+        res.json({ success: true, copy, motor: 'MASTERMIND' });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }
@@ -568,7 +698,7 @@ app.post('/api/publicar-producto', async (req, res) => {
         stats.ultimaActualizacion = new Date().toISOString();
         fs.writeFileSync(ESTADISTICAS_PATH, JSON.stringify(stats, null, 2));
         
-        res.json({ success: true, articulo: art, motor: 'SALES' });
+        res.json({ success: true, articulo: art, motor: 'MASTERMIND' });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }
@@ -602,13 +732,18 @@ app.post('/api/click-articulo/:id', (req, res) => {
             
             const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
             stats.totalClics++;
+            
+            // Registrar clic por ángulo
+            if (anguloVentaActual) {
+                stats.clicsPorAngulo[anguloVentaActual] = (stats.clicsPorAngulo[anguloVentaActual] || 0) + 1;
+            }
+            
             stats.ultimaActualizacion = new Date().toISOString();
             fs.writeFileSync(ESTADISTICAS_PATH, JSON.stringify(stats, null, 2));
             
-            // Registrar clic para el ángulo actual
+            // Registrar en historial
             if (historialClics[anguloVentaActual]) {
                 historialClics[anguloVentaActual].push(Date.now());
-                // Mantener solo últimos 100 registros
                 if (historialClics[anguloVentaActual].length > 100) {
                     historialClics[anguloVentaActual].shift();
                 }
@@ -623,6 +758,7 @@ app.post('/api/click-articulo/:id', (req, res) => {
 app.get('/api/estadisticas', (req, res) => {
     try {
         const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
+        const estrategia = JSON.parse(fs.readFileSync(ESTRATEGIA_PATH));
         res.json({
             ...stats,
             anguloActual: anguloVentaActual,
@@ -630,7 +766,8 @@ app.get('/api/estadisticas', (req, res) => {
             contentDisponible: isContentAvailable,
             salesDisponible: isSalesAvailable,
             contentModelo: contentModelName,
-            salesModelo: salesModelName
+            salesModelo: salesModelName,
+            estrategia: estrategia
         });
     } catch (e) {
         res.json({ error: e.message });
@@ -644,12 +781,22 @@ app.get('/api/motores-status', (req, res) => {
             modelo: contentModelName,
             apiKeyConfigurada: !!process.env.GEMINI_API_KEY_CONTENT
         },
-        sales: {
+        mastermind: {
             disponible: isSalesAvailable,
             modelo: salesModelName,
-            apiKeyConfigurada: !!process.env.GEMINI_API_KEY_SALES
+            apiKeyConfigurada: !!process.env.GEMINI_API_KEY_SALES,
+            perfiles: ['Estratega Madison Avenue', 'Copywriter Élite (Ogilvy + Halbert)']
         }
     });
+});
+
+app.post('/api/analizar-estrategia', async (req, res) => {
+    try {
+        const analisis = await analizarEstrategiaVentas();
+        res.json({ success: true, analisis });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
 });
 
 // Rutas estáticas (al final)
@@ -669,6 +816,12 @@ cron.schedule('0 */3 * * *', async () => {
     await publicarCuriosidadAutomatica();
 });
 
+// CRON cada 6 horas para análisis estratégico (MASTERMIND)
+cron.schedule('0 */6 * * *', async () => {
+    console.log('🧠 [CRON] MASTERMIND analizando estrategia de mercado...');
+    await analizarEstrategiaVentas();
+});
+
 // ============================================================
 // INICIO DEL SERVIDOR
 // ============================================================
@@ -682,23 +835,31 @@ const startServer = async () => {
             setTimeout(() => publicarCuriosidadAutomatica(), 3000);
         }
         
+        // Análisis inicial de estrategia
+        setTimeout(() => {
+            console.log('🧠 MASTERMIND: Iniciando análisis estratégico inicial...');
+            analizarEstrategiaVentas();
+        }, 5000);
+        
         app.listen(PORT, '0.0.0.0', () => {
             const art = JSON.parse(fs.readFileSync(ARTICULOS_PATH)).length;
             const cur = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH)).length;
             const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
             
             console.log(`
-╔══════════════════════════════════════════════════════════════╗
-║     🏮 MXL GOLD MINER — SISTEMA DE LLAVES ESPECIALIZADAS    ║
-╠══════════════════════════════════════════════════════════════╣
+╔══════════════════════════════════════════════════════════════════╗
+║     🧠 PROTOCOLO "THE MASTERMIND MXL" - CEREBRO MAESTRO ACTIVO  ║
+╠══════════════════════════════════════════════════════════════════╣
 ║  🏭 CONTENT: ${isContentAvailable ? `✅ ACTIVO (${contentModelName})` : '⚠️ NO DISPONIBLE'}${' '.repeat(35 - (isContentAvailable ? contentModelName.length + 12 : 16))}║
-║  💰 SALES:   ${isSalesAvailable ? `✅ ACTIVO (${salesModelName})` : '⚠️ NO DISPONIBLE'}${' '.repeat(35 - (isSalesAvailable ? salesModelName.length + 12 : 16))}║
+║  🧠 MASTERMIND: ${isSalesAvailable ? `✅ ACTIVO (${salesModelName})` : '⚠️ NO DISPONIBLE'}${' '.repeat(35 - (isSalesAvailable ? salesModelName.length + 12 : 16))}║
+║  🎯 Perfil A: Estratega Madison Avenue (Análisis de mercado)      ║
+║  📝 Perfil B: Copywriter Élite (Ogilvy + Halbert)                 ║
 ║  🎯 Ángulo actual: ${angulosDesc[anguloVentaActual]}${' '.repeat(45 - angulosDesc[anguloVentaActual].length)}║
 ║  💎 Curiosidades: ${cur} guardadas | ${stats.curiosidadesGeneradas} generadas${' '.repeat(20)}║
 ║  💰 Productos: ${art} publicados | ${stats.totalClics} clics totales${' '.repeat(25)}║
 ║  🚀 Puerto: ${PORT}${' '.repeat(48)}║
 ║  📁 Datos: ${DATA_DIR}${' '.repeat(45 - DATA_DIR.length)}║
-╚══════════════════════════════════════════════════════════════╝
+╚══════════════════════════════════════════════════════════════════╝
             `);
         });
     } catch (error) {
