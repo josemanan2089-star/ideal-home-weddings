@@ -11,14 +11,13 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Middlewares de alto rendimiento
 app.use(compression());
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // ============================================================
-// CONFIGURACIÓN POSTGRESQL - PROTOCOLO MXL
+// CONFIGURACIÓN POSTGRESQL - PROTOCOLO MXL v3.2
 // ============================================================
 let db = null;
 let useDatabase = false;
@@ -28,20 +27,14 @@ async function initDatabase() {
         console.log('📁 DATABASE_URL no configurada, usando JSON fallback');
         return false;
     }
-    
     try {
         db = new Pool({
             connectionString: process.env.DATABASE_URL,
-            ssl: { rejectUnauthorized: false },
-            max: 20,
-            idleTimeoutMillis: 30000,
-            connectionTimeoutMillis: 10000,
+            ssl: { rejectUnauthorized: false }
         });
-        
         await db.query('SELECT NOW()');
-        console.log('✅ PostgreSQL conectado exitosamente');
         
-        // Sincronización de tablas con el nombre 'articulos'
+        // Tablas sincronizadas con el Frontend
         await db.query(`
             CREATE TABLE IF NOT EXISTS articulos (
                 id BIGINT PRIMARY KEY,
@@ -57,196 +50,150 @@ async function initDatabase() {
                 fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 clicks INTEGER DEFAULT 0
             );
-            
             CREATE TABLE IF NOT EXISTS curiosidades (
                 id BIGINT PRIMARY KEY,
                 titulo_es TEXT,
-                titulo_en TEXT,
                 texto_es TEXT,
-                texto_en TEXT,
-                meta_descripcion_en TEXT,
-                descripcion_visual_es TEXT,
-                descripcion_visual_en TEXT,
                 imagen TEXT,
-                imagen_fuente TEXT,
-                productoSugerido TEXT,
-                angulo_usado VARCHAR(1),
                 fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
-            
-            CREATE TABLE IF NOT EXISTS social_hooks (
-                id BIGINT PRIMARY KEY,
-                producto_id BIGINT,
-                producto_titulo TEXT,
-                hooks JSONB,
-                fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-            
             CREATE TABLE IF NOT EXISTS estadisticas (
                 clave VARCHAR(50) PRIMARY KEY,
-                valor JSONB NOT NULL,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                valor JSONB NOT NULL
             );
         `);
         
-        // Inicializar Estadísticas Globales
-        const statsCheck = await db.query("SELECT * FROM estadisticas WHERE clave = 'global'");
-        if (statsCheck.rows.length === 0) {
-            await db.query("INSERT INTO estadisticas (clave, valor) VALUES ($1, $2)", 
-            ['global', JSON.stringify({
-                totalClics: 0, clicsPorAngulo: { A: 0, B: 0, C: 0, D: 0 },
-                curiosidadesGeneradas: 0, productosPublicados: 0, hooksGenerados: 0,
-                ultimaActualizacion: new Date().toISOString()
-            })]);
-        }
-        
-        console.log('✅ Tablas PostgreSQL listas (Mando MXL)');
+        console.log('✅ Tablas PostgreSQL listas (Mando MXL v3.2)');
         useDatabase = true;
         return true;
     } catch (err) {
         console.error('❌ Error PostgreSQL:', err.message);
-        useDatabase = false;
         return false;
     }
 }
 
 // ============================================================
-// FUNCIONES CRUD - SINCRONIZADAS
+// FUNCIONES CRUD
 // ============================================================
-async function guardarProducto(producto) {
-    if (useDatabase && db) {
-        try {
-            await db.query(`
-                INSERT INTO articulos (id, asin, titulo, meta, intro, curiosidad, contenido, imagen, categoria, link, clicks, fecha)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-                ON CONFLICT (id) DO UPDATE SET
-                titulo = EXCLUDED.titulo, meta = EXCLUDED.meta, intro = EXCLUDED.intro,
-                curiosidad = EXCLUDED.curiosidad, contenido = EXCLUDED.contenido,
-                clicks = articulos.clicks + 1
-            `, [producto.id, producto.asin, producto.titulo, producto.meta, producto.intro,
-                producto.curiosidad, producto.contenido, producto.imagen, producto.categoria,
-                producto.link, producto.clicks || 0, producto.fecha]);
-            return true;
-        } catch (err) { console.error('❌ DB Error guardando:', err.message); }
-    }
-    return false;
+async function guardarArticulo(articulo) {
+    if (!useDatabase) return false;
+    try {
+        await db.query(`
+            INSERT INTO articulos (id, asin, titulo, meta, intro, curiosidad, contenido, imagen, categoria, link, clicks, fecha)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            ON CONFLICT (id) DO UPDATE SET titulo = EXCLUDED.titulo, clicks = articulos.clicks + 1
+        `, [articulo.id, articulo.asin, articulo.titulo, articulo.meta, articulo.intro, articulo.curiosidad, articulo.contenido, articulo.imagen, articulo.categoria, articulo.link, 0, articulo.fecha]);
+        return true;
+    } catch (err) { console.error('❌ Error guardando:', err.message); return false; }
 }
 
-async function obtenerProductos(limit = 100) {
-    if (useDatabase && db) {
-        try {
-            const result = await db.query(`SELECT * FROM articulos ORDER BY fecha DESC LIMIT $1`, [limit]);
-            return result.rows;
-        } catch (err) { console.error('❌ DB Error obteniendo:', err.message); }
-    }
-    return [];
+async function obtenerArticulos(limit = 100) {
+    if (!useDatabase) return [];
+    try {
+        const res = await db.query(`SELECT * FROM articulos ORDER BY fecha DESC LIMIT $1`, [limit]);
+        return res.rows;
+    } catch (err) { return []; }
 }
 
 // ============================================================
-// MOTORES GEMINI - TRIPLE NÚCLEO MXL
+// MOTORES GEMINI - TRIPLE NÚCLEO
 // ============================================================
-let isContentAvailable = false, isSalesAvailable = false, isTrafficAvailable = false;
-let contentModel = null, salesModel = null, trafficModel = null;
+let contentModel = null, salesModel = null;
+let isContentAvailable = false, isSalesAvailable = false;
 
-async function initGeminiMotors() {
-    const keys = {
-        content: process.env.GEMINI_API_KEY_CONTENT,
-        sales: process.env.GEMINI_API_KEY_SALES,
-        traffic: process.env.GEMINI_API_KEY_TRAFFIC
-    };
-
-    if (keys.content) {
-        const genAI = new GoogleGenerativeAI(keys.content.trim());
+async function initGemini() {
+    const cKey = process.env.GEMINI_API_KEY_CONTENT;
+    const sKey = process.env.GEMINI_API_KEY_SALES;
+    
+    if (cKey) {
+        const genAI = new GoogleGenerativeAI(cKey.trim());
         contentModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
         isContentAvailable = true;
-        console.log('🏭 [CONTENT] Motor Activo');
     }
-    if (keys.sales) {
-        const genAI = new GoogleGenerativeAI(keys.sales.trim());
+    if (sKey) {
+        const genAI = new GoogleGenerativeAI(sKey.trim());
         salesModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
         isSalesAvailable = true;
-        console.log('🧠 [MASTERMIND] Motor Activo');
-    }
-    if (keys.traffic) {
-        const genAI = new GoogleGenerativeAI(keys.traffic.trim());
-        trafficModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-        isTrafficAvailable = true;
-        console.log('🚀 [TRAFFIC] Motor Activo');
     }
 }
 
 // ============================================================
-// GENERADORES DE CONTENIDO (MXL GOLD MINER)
+// PILOTO AUTOMÁTICO - CADA 40 MINUTOS
 // ============================================================
-async function generarArticuloCompleto(url, imagenUrl, categoria) {
-    if (!isSalesAvailable) return { titulo: "Producto Exclusivo 2026", curiosidad: "Secreto de lujo" };
-    
-    const prompt = `Eres DAVID OGILVY. Genera un artículo de LUJO para este link: ${url}. Responde solo JSON: {"titulo": "...", "meta": "...", "intro": "...", "curiosidad": "...", "contenido": "...", "keywords": []}`;
-    
+async function publicarCuriosidadViral() {
+    console.log('⏰ [CRON] Ejecutando publicación automática...');
+    if (!isContentAvailable) return;
     try {
-        const result = await salesModel.generateContent(prompt);
-        return JSON.parse(result.response.text().replace(/```json|```/g, '').trim());
-    } catch (e) { return { titulo: "Inversión de Lujo 2026", curiosidad: "Exclusivo para NYC" }; }
+        const prompt = "Genera una curiosidad viral de lujo para mujeres en NYC. Responde solo JSON: {\"titulo_es\": \"...\", \"texto_es\": \"...\"}";
+        const result = await contentModel.generateContent(prompt);
+        const data = JSON.parse(result.response.text().replace(/```json|```/g, '').trim());
+        
+        const nueva = {
+            id: Date.now(),
+            titulo_es: data.titulo_es,
+            texto_es: data.texto_es,
+            imagen: 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg',
+            fecha: new Date().toISOString()
+        };
+        
+        await db.query(`INSERT INTO curiosidades (id, titulo_es, texto_es, imagen, fecha) VALUES ($1, $2, $3, $4, $5)`, 
+        [nueva.id, nueva.titulo_es, nueva.texto_es, nueva.imagen, nueva.fecha]);
+        console.log('✅ [CRON] Publicada con éxito');
+    } catch (e) { console.error('❌ [CRON] Error:', e.message); }
 }
 
 // ============================================================
 // ENDPOINTS API
 // ============================================================
-app.get('/health', async (req, res) => {
-    const productos = await obtenerProductos(1);
-    res.json({ status: 'ok', database: useDatabase ? 'postgresql' : 'fallback', count: productos.length });
-});
-
 app.get('/api/productos', async (req, res) => {
-    const data = await obtenerProductos(100);
+    const data = await obtenerArticulos();
     res.json(data);
 });
 
+app.get('/api/curiosidades', async (req, res) => {
+    if (!useDatabase) return res.json([]);
+    const result = await db.query(`SELECT * FROM curiosidades ORDER BY fecha DESC LIMIT 50`);
+    res.json(result.rows);
+});
+
 app.post('/api/commander/inject', async (req, res) => {
-    console.log('🎯 [COMMANDER MXL] INYECTANDO PRODUCTO...');
     const { url, imagenUrl, categoria } = req.body;
-    
-    const copy = await generarArticuloCompleto(url, imagenUrl, categoria);
-    const producto = {
+    if (!url || !imagenUrl) return res.status(400).json({ success: false });
+
+    // Generar copy rápido
+    const articulo = {
         id: Date.now(),
         asin: "AMZ" + Date.now(),
-        titulo: copy.titulo,
-        meta: copy.meta || copy.titulo,
-        intro: copy.intro || "",
-        curiosidad: copy.curiosidad || "",
-        contenido: copy.contenido || "",
+        titulo: "Luxury Item " + Date.now(),
+        meta: "Exclusive luxury item",
+        intro: "Discover excellence",
+        curiosidad: "Limited edition",
+        contenido: "Content coming soon",
         imagen: imagenUrl,
         categoria: categoria || 'LUXURY',
         link: url,
         fecha: new Date().toISOString()
     };
-    
-    await guardarProducto(producto);
-    res.json({ success: true, producto: producto.titulo });
+
+    const ok = await guardarArticulo(articulo);
+    res.json({ success: ok, producto: articulo.titulo });
 });
 
-// Frontend Estático
-app.use(express.static(__dirname));
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-
 // ============================================================
-// INICIO DEL SERVIDOR
+// LANZAMIENTO
 // ============================================================
 async function start() {
     await initDatabase();
-    await initGeminiMotors();
+    await initGemini();
     
+    // Tarea cada 40 minutos
+    cron.schedule('*/40 * * * *', () => publicarCuriosidadViral());
+    
+    // Publicar una al arrancar
+    setTimeout(() => publicarCuriosidadViral(), 5000);
+
     app.listen(PORT, '0.0.0.0', () => {
-        console.log(`
-╔══════════════════════════════════════════════════════════════════╗
-║     🧠 PROTOCOLO "COMMANDER MXL v3.1" - SERVIDOR ACTIVO        ║
-╠══════════════════════════════════════════════════════════════════╣
-║ 🚀 Puerto: ${PORT}                                              ║
-║ 🗄️ Storage: ${useDatabase ? 'PostgreSQL ✅' : 'Fallback ⚠️'}    ║
-║ 🏭 CONTENT: ${isContentAvailable ? '✅' : '⚠️'}  MASTERMIND: ${isSalesAvailable ? '✅' : '⚠️'}  ║
-╚══════════════════════════════════════════════════════════════════╝
-        `);
+        console.log(`🚀 COMMANDER MXL v3.2 ACTIVO - PUERTO ${PORT}`);
     });
 }
-
 start();
