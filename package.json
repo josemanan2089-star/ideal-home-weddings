@@ -1,11 +1,10 @@
 {
-  "name": "mxl-gold-miner-triad",
-  "version": "3.0.1",
-  "description": "MXL GOLD MINER - Protocolo THE TRIAD MXL: Triple núcleo especializado",
+  "name": "mxl-commander-triad",
+  "version": "3.0.2",
+  "description": "COMMANDER MXL - Protocolo Triple Núcleo: mxl es el Único Disparador",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "postinstall": "echo '✅ THE TRIAD MXL - Triple núcleo listo'"
+    "start": "node server.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
@@ -16,19 +15,7 @@
     "node-cron": "^3.0.3"
   },
   "engines": {
-    "node": "18.x",
-    "npm": "9.x"
+    "node": "18.x"
   },
-  "keywords": [
-    "amazon",
-    "affiliate",
-    "marketing",
-    "luxury",
-    "mastermind",
-    "gemini",
-    "triad"
-  ],
-  "author": "MXL GOLD MINER",
-  "license": "ISC",
   "private": true
 }
