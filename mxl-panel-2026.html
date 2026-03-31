@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel MXL - MASTERMIND Control</title>
+    <title>Panel MXL - THE TRIAD MXL Control</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:system-ui,sans-serif;background:#0f0f1a;color:#fff;padding:20px;}
         .header{background:linear-gradient(135deg,#1a1a2e,#2d2d44);padding:20px;border-radius:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
         h1{font-size:1.5rem;}
-        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:20px;}
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:20px;}
         .stat-card{background:#1a1a2e;padding:20px;border-radius:12px;text-align:center;}
         .stat-number{font-size:2rem;font-weight:bold;color:#ff4500;}
         .stat-label{font-size:0.7rem;color:#c9a87b;margin-top:5px;}
@@ -24,17 +24,19 @@
         .btn-success:hover{background:#059669;}
         .btn-mastermind{background:#8b5cf6;}
         .btn-mastermind:hover{background:#7c3aed;}
+        .btn-traffic{background:#3b82f6;}
+        .btn-traffic:hover{background:#2563eb;}
         .section{background:#1a1a2e;border-radius:12px;padding:20px;margin-top:20px;}
         .section h3{margin-bottom:15px;color:#ff4500;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-        .curiosidad-item,.producto-item{border-bottom:1px solid #2d2d44;padding:15px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;}
-        .curiosidad-item:last-child,.producto-item:last-child{border-bottom:none;}
+        .curiosidad-item,.producto-item,.hook-item{border-bottom:1px solid #2d2d44;padding:15px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;}
+        .curiosidad-item:last-child,.producto-item:last-child,.hook-item:last-child{border-bottom:none;}
         .curiosidad-titulo{flex:1;font-size:0.9rem;}
         .producto-titulo{flex:1;font-size:0.9rem;}
         .small-btn{background:#2d2d44;padding:5px 12px;border-radius:6px;font-size:12px;margin-left:10px;cursor:pointer;border:none;color:#fff;}
         .small-btn:hover{background:#ff4500;}
         .empty{text-align:center;padding:40px;color:#666;}
         .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;z-index:1000;}
-        .modal-content{background:#1a1a2e;padding:30px;border-radius:16px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;}
+        .modal-content{background:#1a1a2e;padding:30px;border-radius:16px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;}
         .modal-content input,.modal-content textarea{width:100%;padding:10px;margin:10px 0;border-radius:8px;border:none;background:#2d2d44;color:#fff;}
         .modal-content textarea{min-height:100px;font-family:monospace;}
         .form-group{margin-bottom:15px;}
@@ -49,22 +51,33 @@
         .motor-badge{font-size:10px;padding:4px 8px;border-radius:12px;}
         .motor-content{background:#ff4500;color:#fff;}
         .motor-sales{background:#10b981;color:#fff;}
+        .motor-traffic{background:#3b82f6;color:#fff;}
         .motor-mastermind{background:#8b5cf6;color:#fff;}
         .estrategia-card{background:#0f0f1a;padding:15px;border-radius:12px;margin-top:10px;border-left:3px solid #8b5cf6;}
         .tendencia-tag{display:inline-block;background:#2d2d44;padding:4px 12px;border-radius:20px;font-size:11px;margin:4px;}
+        .platform-hooks{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;margin-top:15px;}
+        .platform-card{background:#0f0f1a;border-radius:12px;padding:15px;border-left:3px solid;}
+        .platform-card.pinterest{border-left-color:#e60023;}
+        .platform-card.twitter{border-left-color:#1DA1F2;}
+        .platform-card.instagram{border-left-color:#E4405F;}
+        .platform-card.facebook{border-left-color:#1877F2;}
+        .platform-title{font-weight:bold;margin-bottom:10px;font-size:14px;}
+        .hook-text{font-size:12px;padding:8px;background:#1a1a2e;border-radius:6px;margin-bottom:8px;color:#c9a87b;}
+        .interconexion-line{background:linear-gradient(90deg,#ff4500,#8b5cf6,#3b82f6);height:3px;border-radius:3px;margin:15px 0;}
         @keyframes slideIn{
             from{transform:translateX(100%);opacity:0;}
             to{transform:translateX(0);opacity:1;}
         }
-        @media(max-width:600px){.curiosidad-item,.producto-item{flex-direction:column;align-items:flex-start;gap:10px;}}
+        @media(max-width:600px){.curiosidad-item,.producto-item,.hook-item{flex-direction:column;align-items:flex-start;gap:10px;}}
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>🧠 MXL MASTERMIND - PANEL DE CONTROL</h1>
+        <h1>🧠 MXL THE TRIAD - TRIPLE NÚCLEO ACTIVADO</h1>
         <div>
             <button class="btn" onclick="generarCuriosidad(this)">✨ CONTENT: Curiosidad</button>
             <button class="btn btn-mastermind" onclick="analizarEstrategia()">🧠 MASTERMIND: Analizar Mercado</button>
+            <button class="btn btn-traffic" onclick="generarHooks()">🚀 TRAFFIC: Generar Hooks</button>
             <button class="btn" onclick="abrirModalProducto()">💰 SALES: Nuevo Producto</button>
             <button class="btn btn-danger" onclick="borrarTodasCuriosidades()">🗑️ Borrar Todo</button>
             <button class="btn btn-secondary" onclick="cargarStats()">🔄 Refrescar</button>
@@ -83,6 +96,11 @@
             <div class="stat-label" id="mastermindModel">-</div>
         </div>
         <div class="stat-card">
+            🚀 TRAFFIC<br>
+            <span id="trafficStatus" class="stat-number">-</span>
+            <div class="stat-label" id="trafficModel">-</div>
+        </div>
+        <div class="stat-card">
             🎯 Ángulo<br>
             <span id="anguloStatus" class="stat-number">-</span>
             <div class="stat-label" id="anguloDesc">-</div>
@@ -91,6 +109,11 @@
             💎 Curiosidades<br>
             <span id="curiosidadesCount" class="stat-number">0</span>
             <div class="stat-label">generadas</div>
+        </div>
+        <div class="stat-card">
+            🎣 Hooks<br>
+            <span id="hooksCount" class="stat-number">0</span>
+            <div class="stat-label">generados</div>
         </div>
         <div class="stat-card">
             🛍️ Productos<br>
@@ -104,6 +127,13 @@
         </div>
     </div>
 
+    <!-- INTERCONEXIÓN VISUAL -->
+    <div class="interconexion-line"></div>
+    <div style="text-align:center; font-size:12px; margin-bottom:10px;">
+        🔗 CADENA DE MANDO: MASTERMIND 🧠 → dicta estrategia → TRAFFIC 🚀 genera hooks | CONTENT 🏭 publica curiosidad → TRAFFIC 🚀 genera hooks específicos
+    </div>
+    <div class="interconexion-line"></div>
+
     <!-- Sección de Estrategia MASTERMIND -->
     <div class="section" id="estrategiaSection">
         <h3>🧠 ANÁLISIS ESTRATÉGICO - MASTERMIND MXL</h3>
@@ -112,13 +142,23 @@
         </div>
     </div>
 
+    <!-- Sección de HOOKS - GENERAL DE TRÁFICO (TERCERA LLAVE) -->
     <div class="section">
-        <h3>📰 CURIOSIDADES RECIENTES <span class="motor-badge motor-content" style="background:#ff4500;">MOTOR CONTENT</span></h3>
+        <h3>🚀 HOOKS VIRALES - GENERAL DE TRÁFICO <span class="motor-badge motor-traffic">MOTOR TRAFFIC</span></h3>
+        <div style="margin-bottom:15px; display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-traffic" onclick="generarHooks()" style="padding:8px 16px;">🎣 Generar nuevos hooks</button>
+            <span style="font-size:12px; color:#c9a87b; align-self:center;">Último hook generado automáticamente cada 2h o cuando MASTERMIND cambia estrategia</span>
+        </div>
+        <div id="hooksList"></div>
+    </div>
+
+    <div class="section">
+        <h3>📰 CURIOSIDADES RECIENTES <span class="motor-badge motor-content">MOTOR CONTENT</span></h3>
         <div id="curiosidadesList"></div>
     </div>
 
     <div class="section">
-        <h3>🛍️ PRODUCTOS PUBLICADOS <span class="motor-badge motor-mastermind" style="background:#8b5cf6;">MASTERMIND SALES</span></h3>
+        <h3>🛍️ PRODUCTOS PUBLICADOS <span class="motor-badge motor-mastermind">MASTERMIND SALES</span></h3>
         <div id="productosList"></div>
     </div>
 
@@ -183,24 +223,29 @@
         
         async function cargarStats() {
             try {
-                const [stats, curiosidades, articulos, motores] = await Promise.all([
-                    fetch('/api/estadisticas').then(r=>r.json()),
-                    fetch('/api/curiosidades').then(r=>r.json()),
-                    fetch('/api/articulos').then(r=>r.json()),
-                    fetch('/api/motores-status').then(r=>r.json()).catch(() => null)
+                const [stats, curiosidades, articulos, motores, hooks] = await Promise.all([
+                    fetch('/api/estadisticas').then(r=>r.json()).catch(() => ({})),
+                    fetch('/api/curiosidades').then(r=>r.json()).catch(() => []),
+                    fetch('/api/articulos').then(r=>r.json()).catch(() => []),
+                    fetch('/api/motores-status').then(r=>r.json()).catch(() => null),
+                    fetch('/api/hooks/latest').then(r=>r.json()).catch(() => null)
                 ]);
                 
-                // Mostrar estado de motores
+                // Mostrar estado de los 3 motores
                 if (motores) {
                     document.getElementById('contentStatus').textContent = motores.content?.disponible ? '✅' : '⚠️';
                     document.getElementById('contentModel').textContent = motores.content?.modelo || 'no disponible';
                     document.getElementById('mastermindStatus').textContent = motores.mastermind?.disponible ? '✅' : '⚠️';
                     document.getElementById('mastermindModel').textContent = motores.mastermind?.modelo || 'no disponible';
+                    document.getElementById('trafficStatus').textContent = motores.traffic?.disponible ? '✅' : '⚠️';
+                    document.getElementById('trafficModel').textContent = motores.traffic?.modelo || 'no disponible';
                 } else {
                     document.getElementById('contentStatus').textContent = stats.contentDisponible ? '✅' : '⚠️';
                     document.getElementById('contentModel').textContent = stats.contentModelo || '?';
                     document.getElementById('mastermindStatus').textContent = stats.salesDisponible ? '✅' : '⚠️';
                     document.getElementById('mastermindModel').textContent = stats.salesModelo || '?';
+                    document.getElementById('trafficStatus').textContent = stats.trafficDisponible ? '✅' : '⚠️';
+                    document.getElementById('trafficModel').textContent = stats.trafficModelo || '?';
                 }
                 
                 document.getElementById('anguloStatus').textContent = stats.anguloActual || '-';
@@ -208,14 +253,81 @@
                 document.getElementById('curiosidadesCount').textContent = curiosidades.length;
                 document.getElementById('productosCount').textContent = articulos.length;
                 document.getElementById('clicsCount').textContent = stats.totalClics || 0;
+                document.getElementById('hooksCount').textContent = stats.hooksGenerados || 0;
                 
                 renderCuriosidades(curiosidades);
                 renderProductos(articulos);
                 renderEstrategia(stats.estrategia);
+                renderHooks(hooks);
             } catch(e) {
                 console.error('Error cargando stats:', e);
                 mostrarToast('Error al cargar estadísticas', true);
             }
+        }
+        
+        function renderHooks(hooksData) {
+            const container = document.getElementById('hooksList');
+            
+            if (!hooksData || !hooksData.hooks) {
+                container.innerHTML = `
+                    <div class="empty">
+                        🎣 No hay hooks generados aún.<br>
+                        El GENERAL DE TRÁFICO generará hooks automáticamente cada 2 horas<br>
+                        o cuando MASTERMIND cambie la estrategia.
+                        <br><br>
+                        <button class="btn btn-traffic" onclick="generarHooks()" style="margin-top:10px;">🚀 Generar hooks ahora</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            const hooks = hooksData.hooks;
+            const fecha = hooksData.fecha ? new Date(hooksData.fecha).toLocaleString() : 'Fecha desconocida';
+            const angulo = hooksData.angulo || 'A';
+            
+            container.innerHTML = `
+                <div style="margin-bottom:15px; font-size:12px; color:#c9a87b;">
+                    📅 Generado: ${fecha} | 🎯 Ángulo: ${angulo} | 🧠 Psicología: ${hooksData.psicologia || 'Estrategia activa'}
+                </div>
+                <div class="platform-hooks">
+                    ${hooks.pinterest ? `
+                        <div class="platform-card pinterest">
+                            <div class="platform-title">📌 PINTEREST</div>
+                            ${hooks.pinterest.map(h => `<div class="hook-text">📌 ${escapeHtml(h)}</div>`).join('')}
+                        </div>
+                    ` : ''}
+                    ${hooks.twitter ? `
+                        <div class="platform-card twitter">
+                            <div class="platform-title">🐦 TWITTER / X</div>
+                            ${hooks.twitter.map(h => `<div class="hook-text">${escapeHtml(h)}</div>`).join('')}
+                        </div>
+                    ` : ''}
+                    ${hooks.instagram ? `
+                        <div class="platform-card instagram">
+                            <div class="platform-title">📸 INSTAGRAM</div>
+                            ${hooks.instagram.map(h => `<div class="hook-text">${escapeHtml(h)}</div>`).join('')}
+                        </div>
+                    ` : ''}
+                    ${hooks.facebook ? `
+                        <div class="platform-card facebook">
+                            <div class="platform-title">📘 FACEBOOK</div>
+                            ${hooks.facebook.map(h => `<div class="hook-text">${escapeHtml(h)}</div>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+                ${hooks.metaDescription ? `
+                    <div style="margin-top:15px; padding:12px; background:#0f0f1a; border-radius:8px;">
+                        <strong>🔍 Meta Description (Google News):</strong><br>
+                        <span style="font-size:12px; color:#c9a87b;">${escapeHtml(hooks.metaDescription)}</span>
+                    </div>
+                ` : ''}
+                ${hooks.seoTitle ? `
+                    <div style="margin-top:10px; padding:12px; background:#0f0f1a; border-radius:8px;">
+                        <strong>📈 SEO Title:</strong><br>
+                        <span style="font-size:12px; color:#c9a87b;">${escapeHtml(hooks.seoTitle)}</span>
+                    </div>
+                ` : ''}
+            `;
         }
         
         function renderEstrategia(estrategia) {
@@ -233,7 +345,7 @@
             container.innerHTML = `
                 <div class="estrategia-card">
                     <div style="display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:15px;">
-                        <span><strong>🎯 Ángulo recomendado:</strong> ${estrategia.anguloRecomendado || anguloVentaActual} - ${angulosDesc[estrategia.anguloRecomendado] || 'Estrategia activa'}</span>
+                        <span><strong>🎯 Ángulo recomendado:</strong> ${estrategia.anguloRecomendado || 'A'} - ${angulosDesc[estrategia.anguloRecomendado] || 'Estrategia activa'}</span>
                         <span><strong>📅 Último análisis:</strong> ${new Date(estrategia.ultimoAnalisis).toLocaleString()}</span>
                     </div>
                     <div style="margin-bottom:15px;">
@@ -243,16 +355,16 @@
                     <div style="margin-bottom:15px;">
                         <strong>📈 Tendencias 2026 detectadas:</strong><br>
                         <div style="margin-top:8px;">
-                            ${(estrategia.tendenciasActuales || []).map(t => `<span class="tendencia-tag">📌 ${t}</span>`).join('') || '<span class="tendencia-tag">Analizando mercado...</span>'}
+                            ${(estrategia.tendenciasActuales || []).map(t => `<span class="tendencia-tag">📌 ${escapeHtml(t)}</span>`).join('') || '<span class="tendencia-tag">Analizando mercado...</span>'}
                         </div>
                     </div>
                     <div style="margin-bottom:15px;">
                         <strong>💡 Recomendación estratégica:</strong><br>
-                        <span style="font-size:13px;">${estrategia.recomendaciones ? estrategia.recomendaciones[0] : 'Ejecutar análisis para obtener recomendaciones'}</span>
+                        <span style="font-size:13px;">${escapeHtml(estrategia.recomendaciones ? estrategia.recomendaciones[0] : 'Ejecutar análisis para obtener recomendaciones')}</span>
                     </div>
                     <div>
                         <strong>⚡ Próximo movimiento:</strong><br>
-                        <span style="font-size:13px;color:#8b5cf6;">${estrategia.proximoMovimiento || 'Analizar datos de clics para optimizar'}</span>
+                        <span style="font-size:13px;color:#3b82f6;">${escapeHtml(estrategia.proximoMovimiento || 'Analizar datos de clics para optimizar')}</span>
                     </div>
                 </div>
             `;
@@ -318,7 +430,7 @@
                 const res = await fetch('/api/generar-curiosidad', { method: 'POST' });
                 const data = await res.json();
                 if (data.success) {
-                    mostrarToast(`✅ Curiosidad generada por MOTOR CONTENT`);
+                    mostrarToast(`✅ Curiosidad generada por MOTOR CONTENT | TRAFFIC generará hooks automáticamente`);
                     cargarStats();
                 } else {
                     mostrarToast('❌ Error: ' + (data.error || 'Error desconocido'), true);
@@ -326,6 +438,30 @@
             } catch(e) {
                 console.error('Error:', e);
                 mostrarToast('❌ Error al generar curiosidad', true);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+        
+        async function generarHooks() {
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '🚀 TRAFFIC generando hooks...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/generar-hooks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+                const data = await res.json();
+                if (data.success) {
+                    mostrarToast(`🎣 GENERAL DE TRÁFICO: ${data.hooks?.pinterest?.length || 0} hooks generados para bombardeo externo`);
+                    cargarStats();
+                } else {
+                    mostrarToast('❌ Error: ' + (data.error || 'Error desconocido'), true);
+                }
+            } catch(e) {
+                console.error('Error:', e);
+                mostrarToast('❌ Error al generar hooks', true);
             } finally {
                 btn.textContent = originalText;
                 btn.disabled = false;
@@ -342,7 +478,7 @@
                 const res = await fetch('/api/analizar-estrategia', { method: 'POST' });
                 const data = await res.json();
                 if (data.success) {
-                    mostrarToast(`🧠 MASTERMIND: Análisis estratégico completado`);
+                    mostrarToast(`🧠 MASTERMIND: Análisis estratégico completado | TRAFFIC generará nuevos hooks basados en la estrategia`);
                     cargarStats();
                 } else {
                     mostrarToast('❌ Error en análisis: ' + (data.error || 'Error desconocido'), true);
@@ -485,6 +621,14 @@
                 mostrarToast('❌ Error publicando: ' + e.message, true);
             }
         }
+        
+        // Ángulos de venta para mostrar en UI
+        const angulosDesc = {
+            'A': 'ESTATUS - Lujo Silencioso',
+            'B': 'FOMO - Escasez y Urgencia',
+            'C': 'BIO-HACKING - Salud y Optimización',
+            'D': 'INVERSIÓN - Valor Patrimonial'
+        };
         
         // Click fuera del modal para cerrar
         window.onclick = function(event) {
