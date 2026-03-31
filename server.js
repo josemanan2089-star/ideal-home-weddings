@@ -18,13 +18,14 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // ============================================================
-// CONFIGURACIÓN POSTGRESQL
+// CONFIGURACIÓN POSTGRESQL CON RECUPERACIÓN
 // ============================================================
 let db = null;
 let useDatabase = false;
+let dbInitialized = false;
 
 async function initDatabase() {
-    if (!process.env.DATABASE_URL) {
+    if (!process.env.DATABASE_URL || process.env.DATABASE_URL.trim() === '') {
         console.log('📁 DATABASE_URL no configurada, usando JSON fallback');
         return false;
     }
@@ -38,10 +39,11 @@ async function initDatabase() {
             connectionTimeoutMillis: 10000,
         });
         
+        // Test conexión
         await db.query('SELECT NOW()');
-        console.log('✅ PostgreSQL conectado');
+        console.log('✅ PostgreSQL conectado exitosamente');
         
-        // Crear tablas
+        // Crear tablas si no existen
         await db.query(`
             CREATE TABLE IF NOT EXISTS productos (
                 id BIGINT PRIMARY KEY,
@@ -89,7 +91,7 @@ async function initDatabase() {
             );
         `);
         
-        // Insertar estadísticas si no existen
+        // Verificar y crear estadísticas
         const statsCheck = await db.query(`SELECT * FROM estadisticas WHERE clave = 'global'`);
         if (statsCheck.rows.length === 0) {
             await db.query(`
@@ -105,23 +107,26 @@ async function initDatabase() {
             console.log('📊 Estadísticas inicializadas');
         }
         
-        // Crear índices
+        // Crear índices para rendimiento
         await db.query(`CREATE INDEX IF NOT EXISTS idx_productos_fecha ON productos(fecha DESC)`);
         await db.query(`CREATE INDEX IF NOT EXISTS idx_curiosidades_fecha ON curiosidades(fecha DESC)`);
+        await db.query(`CREATE INDEX IF NOT EXISTS idx_hooks_producto ON social_hooks(producto_id)`);
         
         console.log('✅ Tablas PostgreSQL listas');
         useDatabase = true;
+        dbInitialized = true;
         return true;
         
     } catch (err) {
         console.error('❌ Error PostgreSQL:', err.message);
         useDatabase = false;
+        dbInitialized = false;
         return false;
     }
 }
 
 // ============================================================
-// ALMACENAMIENTO JSON (FALLBACK)
+// ALMACENAMIENTO JSON (FALLBACK PERSISTENTE)
 // ============================================================
 const DATA_DIR = path.join(__dirname, 'data');
 const ARTICULOS_PATH = path.join(DATA_DIR, 'articulos.json');
@@ -129,50 +134,72 @@ const CURIOSIDADES_PATH = path.join(DATA_DIR, 'curiosidades.json');
 const ESTADISTICAS_PATH = path.join(DATA_DIR, 'estadisticas.json');
 const SOCIAL_HOOKS_PATH = path.join(DATA_DIR, 'social_hooks.json');
 
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+// Crear directorio y archivos JSON
+if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    console.log('📁 Directorio data creado');
+}
 
 const initJsonFile = (filePath, defaultData) => {
     if (!fs.existsSync(filePath)) {
         fs.writeFileSync(filePath, JSON.stringify(defaultData, null, 2));
+        console.log(`📄 Archivo creado: ${path.basename(filePath)}`);
     }
 };
+
 initJsonFile(ARTICULOS_PATH, []);
 initJsonFile(CURIOSIDADES_PATH, []);
 initJsonFile(ESTADISTICAS_PATH, {
-    totalClics: 0, clicsPorAngulo: { A: 0, B: 0, C: 0, D: 0 },
-    curiosidadesGeneradas: 0, productosPublicados: 0, hooksGenerados: 0,
+    totalClics: 0,
+    clicsPorAngulo: { A: 0, B: 0, C: 0, D: 0 },
+    curiosidadesGeneradas: 0,
+    productosPublicados: 0,
+    hooksGenerados: 0,
     ultimaActualizacion: new Date().toISOString()
 });
 initJsonFile(SOCIAL_HOOKS_PATH, []);
 
 // ============================================================
-// FUNCIONES CRUD
+// FUNCIONES CRUD MEJORADAS
 // ============================================================
 async function guardarProducto(producto) {
+    console.log(`💾 Guardando producto: ${producto.titulo.substring(0, 50)}...`);
+    
     if (useDatabase && db) {
         try {
             await db.query(`
                 INSERT INTO productos (id, asin, titulo, meta, intro, curiosidad, contenido, imagen, categoria, link, clicks, fecha)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
                 ON CONFLICT (id) DO UPDATE SET
-                titulo = EXCLUDED.titulo, meta = EXCLUDED.meta, intro = EXCLUDED.intro,
-                curiosidad = EXCLUDED.curiosidad, contenido = EXCLUDED.contenido,
+                titulo = EXCLUDED.titulo,
+                meta = EXCLUDED.meta,
+                intro = EXCLUDED.intro,
+                curiosidad = EXCLUDED.curiosidad,
+                contenido = EXCLUDED.contenido,
                 clicks = productos.clicks + 1
-            `, [producto.id, producto.asin, producto.titulo, producto.meta, producto.intro,
-                producto.curiosidad, producto.contenido, producto.imagen, producto.categoria,
-                producto.link, producto.clicks || 0, producto.fecha]);
+            `, [
+                producto.id, producto.asin, producto.titulo, producto.meta, 
+                producto.intro, producto.curiosidad, producto.contenido, 
+                producto.imagen, producto.categoria, producto.link, 
+                producto.clicks || 0, producto.fecha
+            ]);
             
             await db.query(`
-                UPDATE estadisticas SET valor = jsonb_set(valor, '{productosPublicados}', 
-                ((valor->>'productosPublicados')::int + 1)::text::jsonb)
+                UPDATE estadisticas 
+                SET valor = jsonb_set(valor, '{productosPublicados}', 
+                ((COALESCE(valor->>'productosPublicados', '0')::int) + 1)::text::jsonb),
+                updated_at = CURRENT_TIMESTAMP 
                 WHERE clave = 'global'
             `);
+            
+            console.log('✅ Producto guardado en PostgreSQL');
             return true;
         } catch (err) {
-            console.error('❌ DB Error:', err.message);
+            console.error('❌ DB Error guardando producto:', err.message);
         }
     }
     
+    // Fallback a JSON
     try {
         const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
         data.unshift(producto);
@@ -183,8 +210,11 @@ async function guardarProducto(producto) {
         stats.productosPublicados++;
         stats.ultimaActualizacion = new Date().toISOString();
         fs.writeFileSync(ESTADISTICAS_PATH, JSON.stringify(stats, null, 2));
+        
+        console.log('✅ Producto guardado en JSON fallback');
         return true;
     } catch (err) {
+        console.error('❌ Error guardando en JSON:', err.message);
         return false;
     }
 }
@@ -196,15 +226,19 @@ async function obtenerProductos(limit = 100) {
                 `SELECT * FROM productos ORDER BY fecha DESC LIMIT $1`,
                 [limit]
             );
+            console.log(`📦 PostgreSQL: ${result.rows.length} productos obtenidos`);
             return result.rows;
         } catch (err) {
-            console.error('❌ DB Error:', err.message);
+            console.error('❌ DB Error obteniendo productos:', err.message);
         }
     }
     
     try {
-        return JSON.parse(fs.readFileSync(ARTICULOS_PATH));
-    } catch {
+        const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
+        console.log(`📁 JSON fallback: ${data.length} productos obtenidos`);
+        return data;
+    } catch (err) {
+        console.error('❌ Error leyendo JSON:', err.message);
         return [];
     }
 }
@@ -218,19 +252,33 @@ async function obtenerEstadisticas() {
             if (result.rows.length > 0) {
                 const stats = result.rows[0].valor;
                 const productos = await obtenerProductos(1);
-                return { ...stats, productosActivos: productos.length };
+                return { 
+                    ...stats, 
+                    productosActivos: productos.length,
+                    storage: 'postgresql'
+                };
             }
         } catch (err) {
-            console.error('❌ DB Error:', err.message);
+            console.error('❌ DB Error obteniendo estadísticas:', err.message);
         }
     }
     
     try {
         const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
         const productos = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
-        return { ...stats, productosActivos: productos.length };
-    } catch {
-        return { totalClics: 0, productosPublicados: 0, productosActivos: 0 };
+        return { 
+            ...stats, 
+            productosActivos: productos.length,
+            storage: 'json_fallback'
+        };
+    } catch (err) {
+        console.error('❌ Error obteniendo estadísticas:', err.message);
+        return { 
+            totalClics: 0, 
+            productosPublicados: 0, 
+            productosActivos: 0,
+            storage: 'error'
+        };
     }
 }
 
@@ -242,19 +290,24 @@ async function guardarCuriosidad(curiosidad) {
                 meta_descripcion_en, descripcion_visual_es, descripcion_visual_en, 
                 imagen, imagen_fuente, productoSugerido, angulo_usado, fecha)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-            `, [curiosidad.id, curiosidad.titulo_es, curiosidad.titulo_en, curiosidad.texto_es,
-                curiosidad.texto_en, curiosidad.meta_descripcion_en, curiosidad.descripcion_visual_es,
-                curiosidad.descripcion_visual_en, curiosidad.imagen, curiosidad.imagenFuente,
-                curiosidad.productoSugerido, curiosidad.anguloUsado, curiosidad.fecha]);
+            `, [
+                curiosidad.id, curiosidad.titulo_es, curiosidad.titulo_en, 
+                curiosidad.texto_es, curiosidad.texto_en, curiosidad.meta_descripcion_en,
+                curiosidad.descripcion_visual_es, curiosidad.descripcion_visual_en,
+                curiosidad.imagen, curiosidad.imagenFuente, curiosidad.productoSugerido,
+                curiosidad.anguloUsado, curiosidad.fecha
+            ]);
             
             await db.query(`
-                UPDATE estadisticas SET valor = jsonb_set(valor, '{curiosidadesGeneradas}', 
-                ((valor->>'curiosidadesGeneradas')::int + 1)::text::jsonb)
+                UPDATE estadisticas 
+                SET valor = jsonb_set(valor, '{curiosidadesGeneradas}', 
+                ((COALESCE(valor->>'curiosidadesGeneradas', '0')::int) + 1)::text::jsonb),
+                updated_at = CURRENT_TIMESTAMP 
                 WHERE clave = 'global'
             `);
             return true;
         } catch (err) {
-            console.error('❌ DB Error:', err.message);
+            console.error('❌ DB Error guardando curiosidad:', err.message);
         }
     }
     
@@ -266,9 +319,11 @@ async function guardarCuriosidad(curiosidad) {
         
         const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
         stats.curiosidadesGeneradas++;
+        stats.ultimaActualizacion = new Date().toISOString();
         fs.writeFileSync(ESTADISTICAS_PATH, JSON.stringify(stats, null, 2));
         return true;
     } catch (err) {
+        console.error('❌ Error guardando curiosidad en JSON:', err.message);
         return false;
     }
 }
@@ -293,13 +348,15 @@ async function guardarHooks(producto, hooks) {
                          (hooks.instagram?.length || 0) + (hooks.facebook?.length || 0);
             
             await db.query(`
-                UPDATE estadisticas SET valor = jsonb_set(valor, '{hooksGenerados}', 
-                ((valor->>'hooksGenerados')::int + $1)::text::jsonb)
+                UPDATE estadisticas 
+                SET valor = jsonb_set(valor, '{hooksGenerados}', 
+                ((COALESCE(valor->>'hooksGenerados', '0')::int) + $1)::text::jsonb),
+                updated_at = CURRENT_TIMESTAMP 
                 WHERE clave = 'global'
             `, [total]);
             return true;
         } catch (err) {
-            console.error('❌ DB Error:', err.message);
+            console.error('❌ DB Error guardando hooks:', err.message);
         }
     }
     
@@ -310,6 +367,7 @@ async function guardarHooks(producto, hooks) {
         fs.writeFileSync(SOCIAL_HOOKS_PATH, JSON.stringify(data, null, 2));
         return true;
     } catch (err) {
+        console.error('❌ Error guardando hooks en JSON:', err.message);
         return false;
     }
 }
@@ -319,13 +377,15 @@ async function registrarClick(productoId) {
         try {
             await db.query(`UPDATE productos SET clicks = clicks + 1 WHERE id = $1`, [productoId]);
             await db.query(`
-                UPDATE estadisticas SET valor = jsonb_set(valor, '{totalClics}', 
-                ((valor->>'totalClics')::int + 1)::text::jsonb)
+                UPDATE estadisticas 
+                SET valor = jsonb_set(valor, '{totalClics}', 
+                ((COALESCE(valor->>'totalClics', '0')::int) + 1)::text::jsonb),
+                updated_at = CURRENT_TIMESTAMP 
                 WHERE clave = 'global'
             `);
             return true;
         } catch (err) {
-            console.error('❌ DB Error:', err.message);
+            console.error('❌ DB Error registrando click:', err.message);
         }
     }
     
@@ -337,13 +397,14 @@ async function registrarClick(productoId) {
             fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(data, null, 2));
         }
         return true;
-    } catch {
+    } catch (err) {
+        console.error('❌ Error registrando click en JSON:', err.message);
         return false;
     }
 }
 
 // ============================================================
-// MOTORES GEMINI - VERSIÓN COMPLETA
+// MOTORES GEMINI - COMPLETOS
 // ============================================================
 let sistemaListo = false;
 let inicializando = true;
@@ -395,7 +456,6 @@ async function initGeminiMotors() {
     console.log('║   🧠 PROTOCOLO "COMMANDER MXL" - Inicializando Motores         ║');
     console.log('╚══════════════════════════════════════════════════════════════════╝\n');
     
-    // Validar variables de entorno
     const missingKeys = [];
     if (!process.env.GEMINI_API_KEY_CONTENT) missingKeys.push('CONTENT');
     if (!process.env.GEMINI_API_KEY_SALES) missingKeys.push('SALES');
@@ -439,7 +499,7 @@ async function initGeminiMotors() {
 }
 
 // ============================================================
-// ÁNGULOS DE VENTA
+// CONFIGURACIÓN DE CONTENIDO
 // ============================================================
 let anguloVentaActual = 'A';
 const angulosPrompt = {
@@ -467,8 +527,20 @@ const imagenesRespaldo = [
 
 function extraerASIN(url) {
     if (!url) return null;
-    const match = url.match(/(?:dp|product|gp\/product)\/([A-Z0-9]{10})/i);
-    return match ? match[1] : null;
+    const patterns = [
+        /(?:dp|product|gp\/product)\/([A-Z0-9]{10})/i,
+        /asin=([A-Z0-9]{10})/i
+    ];
+    for (const p of patterns) {
+        const match = url.match(p);
+        if (match && match[1]) return match[1];
+    }
+    return null;
+}
+
+async function obtenerImagen(query) {
+    const idx = Math.floor(Math.random() * imagenesRespaldo.length);
+    return { url: imagenesRespaldo[idx], fuente: 'respaldo', alt: query || 'luxury home' };
 }
 
 function getFallbackCopy() {
@@ -512,13 +584,8 @@ function getFallbackHooks() {
     };
 }
 
-async function obtenerImagen(query) {
-    const idx = Math.floor(Math.random() * imagenesRespaldo.length);
-    return { url: imagenesRespaldo[idx], fuente: 'respaldo', alt: query || 'luxury home' };
-}
-
 // ============================================================
-// GENERADORES DE CONTENIDO
+// GENERADORES DE CONTENIDO CON TIMEOUTS
 // ============================================================
 async function generarArticuloCompleto(url, imagenUrl, categoria) {
     const fallback = getFallbackCopy();
@@ -797,9 +864,11 @@ app.get('/health', async (req, res) => {
     res.json({
         status: 'ok',
         protocol: 'COMMANDER MXL v3.1',
+        timestamp: new Date().toISOString(),
         sistemaListo: sistemaListo,
         inicializando: inicializando,
         database: useDatabase ? 'postgresql' : 'json_fallback',
+        dbInitialized: dbInitialized,
         productosCount: productos.length,
         uptime: process.uptime(),
         content: isContentAvailable ? 'active' : (inicializando ? 'pending' : 'inactive'),
@@ -820,8 +889,13 @@ app.post('/api/commander/inject', async (req, res) => {
         const { url, imagenUrl, categoria } = req.body;
         
         if (!url || !imagenUrl) {
-            return res.status(400).json({ success: false, error: 'URL e imagen requeridas' });
+            return res.status(400).json({ 
+                success: false, 
+                error: '⚠️ COMANDANTE: Debes inyectar URL y URL de imagen' 
+            });
         }
+        
+        console.log(`📦 Producto: ${url.substring(0, 80)}...`);
         
         const copy = await generarArticuloCompleto(url, imagenUrl, categoria);
         
@@ -870,49 +944,69 @@ app.post('/api/commander/inject', async (req, res) => {
 });
 
 app.get('/api/productos', async (req, res) => {
-    const data = await obtenerProductos(parseInt(req.query.limit) || 100);
-    res.json(data);
+    try {
+        const limit = parseInt(req.query.limit) || 100;
+        const data = await obtenerProductos(limit);
+        res.json(data);
+    } catch (e) {
+        console.error('Error en /api/productos:', e.message);
+        res.json([]);
+    }
 });
 
 app.get('/api/curiosidades', async (req, res) => {
     try {
         const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
         res.json(data);
-    } catch { res.json([]); }
+    } catch (e) {
+        res.json([]);
+    }
 });
 
 app.get('/api/hooks', async (req, res) => {
     try {
         const data = JSON.parse(fs.readFileSync(SOCIAL_HOOKS_PATH));
         res.json(data);
-    } catch { res.json([]); }
+    } catch (e) {
+        res.json([]);
+    }
 });
 
 app.get('/api/estadisticas', async (req, res) => {
-    const stats = await obtenerEstadisticas();
-    res.json({
-        ...stats,
-        storage: useDatabase ? 'postgresql' : 'json_fallback',
-        contentDisponible: isContentAvailable,
-        mastermindDisponible: isSalesAvailable,
-        trafficDisponible: isTrafficAvailable,
-        contentModelo: contentModelName,
-        mastermindModelo: salesModelName,
-        trafficModelo: trafficModelName,
-        sistemaListo: sistemaListo
-    });
+    try {
+        const stats = await obtenerEstadisticas();
+        res.json({
+            ...stats,
+            contentDisponible: isContentAvailable,
+            mastermindDisponible: isSalesAvailable,
+            trafficDisponible: isTrafficAvailable,
+            contentModelo: contentModelName,
+            mastermindModelo: salesModelName,
+            trafficModelo: trafficModelName,
+            sistemaListo: sistemaListo,
+            inicializando: inicializando
+        });
+    } catch (e) {
+        console.error('Error en /api/estadisticas:', e.message);
+        res.json({ error: e.message });
+    }
 });
 
 app.post('/api/click/:id', async (req, res) => {
-    await registrarClick(parseInt(req.params.id));
-    res.json({ success: true });
+    try {
+        await registrarClick(parseInt(req.params.id));
+        res.json({ success: true });
+    } catch (e) {
+        res.json({ success: false });
+    }
 });
 
 app.post('/api/angulo/:angulo', (req, res) => {
     const angulo = req.params.angulo.toUpperCase();
     if (angulosPrompt[angulo]) {
         anguloVentaActual = angulo;
-        res.json({ success: true, angulo });
+        console.log(`🎯 Ángulo rotado a: ${angulo}`);
+        res.json({ success: true, angulo: anguloVentaActual });
     } else {
         res.status(400).json({ success: false, error: 'Ángulo inválido. Usa A, B, C o D' });
     }
@@ -922,8 +1016,67 @@ app.post('/api/angulo/:angulo', (req, res) => {
 const indexPath = path.join(__dirname, 'index.html');
 if (!fs.existsSync(indexPath)) {
     fs.writeFileSync(indexPath, `<!DOCTYPE html>
-<html><head><title>MXL Commander</title><style>body{font-family:system-ui;max-width:800px;margin:0 auto;padding:2rem;background:#fffaf7;}h1{color:#ff4500;}</style></head>
-<body><h1>🧠 MXL Commander API</h1><p>API activa. Usa /api/ endpoints.</p><p><a href="/api/estadisticas">Ver estadísticas</a></p></body></html>`);
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MXL Commander - API Activa</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:system-ui,-apple-system,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;}
+        .card{background:white;border-radius:20px;padding:40px;max-width:600px;margin:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+        h1{color:#ff4500;margin-bottom:10px;font-size:2.5rem;}
+        .status{background:#1a1a2e;color:white;padding:20px;border-radius:12px;margin:20px 0;}
+        .endpoint{background:#f0f0f0;padding:10px;margin:10px 0;border-radius:8px;font-family:monospace;font-size:0.9rem;}
+        .badge{display:inline-block;background:#ff4500;color:white;padding:4px 8px;border-radius:4px;font-size:0.7rem;margin-left:10px;}
+        a{color:#ff4500;text-decoration:none;}
+        .footer{text-align:center;margin-top:20px;color:#666;font-size:0.8rem;}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🧠 MXL Commander</h1>
+        <p>Protocolo Triple Núcleo v3.1</p>
+        <div class="status">
+            <strong>Estado:</strong> <span id="status">🔄 Inicializando...</span><br>
+            <strong>Almacenamiento:</strong> <span id="storage">-</span><br>
+            <strong>Productos:</strong> <span id="productosCount">-</span><br>
+            <strong>Motores:</strong> <span id="motores">-</span>
+        </div>
+        <h3>📡 Endpoints Disponibles</h3>
+        <div class="endpoint">POST /api/commander/inject <span class="badge">Inyectar Producto</span></div>
+        <div class="endpoint">GET /api/productos <span class="badge">Listar Productos</span></div>
+        <div class="endpoint">GET /api/estadisticas <span class="badge">Estadísticas</span></div>
+        <div class="endpoint">GET /health <span class="badge">Healthcheck</span></div>
+        <div class="footer">
+            COMMANDER MXL • Sistema Operativo
+        </div>
+    </div>
+    <script>
+        async function loadStatus() {
+            try {
+                const res = await fetch('/health');
+                const data = await res.json();
+                document.getElementById('status').innerHTML = data.sistemaListo ? '✅ Activo' : '🔄 Inicializando';
+                document.getElementById('storage').innerHTML = data.database === 'postgresql' ? '🐘 PostgreSQL' : '📁 JSON Fallback';
+                document.getElementById('productosCount').innerHTML = data.productosCount || 0;
+                
+                let motoresHtml = '';
+                motoresHtml += data.content === 'active' ? '🏭✅' : '🏭⚠️';
+                motoresHtml += ' ';
+                motoresHtml += data.mastermind === 'active' ? '🧠✅' : '🧠⚠️';
+                motoresHtml += ' ';
+                motoresHtml += data.traffic === 'active' ? '🚀✅' : '🚀⚠️';
+                document.getElementById('motores').innerHTML = motoresHtml;
+            } catch(e) {
+                document.getElementById('status').innerHTML = '⚠️ Error de conexión';
+            }
+        }
+        loadStatus();
+        setInterval(loadStatus, 10000);
+    </script>
+</body>
+</html>`);
 }
 
 app.use(express.static(__dirname));
@@ -934,6 +1087,8 @@ app.get('/panel', (req, res) => res.sendFile(indexPath));
 // INICIO DEL SERVIDOR
 // ============================================================
 async function start() {
+    console.log('\n🚀 Iniciando COMMANDER MXL v3.1...\n');
+    
     await initDatabase();
     await initGeminiMotors();
     
@@ -944,8 +1099,13 @@ async function start() {
     });
     
     // Generar primera curiosidad si no hay
-    const curiosidades = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
-    if (curiosidades.length === 0) {
+    try {
+        const curiosidades = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
+        if (curiosidades.length === 0) {
+            console.log('📝 Generando primera curiosidad en 5 segundos...');
+            setTimeout(() => publicarCuriosidadAutomatica(), 5000);
+        }
+    } catch (e) {
         console.log('📝 Generando primera curiosidad en 5 segundos...');
         setTimeout(() => publicarCuriosidadAutomatica(), 5000);
     }
@@ -963,9 +1123,29 @@ async function start() {
 ║  🏭 CONTENT: ${isContentAvailable ? '✅' : '⚠️'}  MASTERMIND: ${isSalesAvailable ? '✅' : '⚠️'}  TRAFFIC: ${isTrafficAvailable ? '✅' : '⚠️'}  ║
 ║  📊 API: /api/productos | /api/estadisticas | /health           ║
 ║  🎯 Panel: /panel                                                ║
+║  💡 Healthcheck disponible para Railway                         ║
 ╚══════════════════════════════════════════════════════════════════╝
         `);
     });
 }
+
+// Manejo de cierre graceful
+process.on('SIGTERM', async () => {
+    console.log('🛑 Recibida señal SIGTERM, cerrando conexiones...');
+    if (db) {
+        await db.end();
+        console.log('✅ Conexiones PostgreSQL cerradas');
+    }
+    process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+    console.log('🛑 Recibida señal SIGINT, cerrando conexiones...');
+    if (db) {
+        await db.end();
+        console.log('✅ Conexiones PostgreSQL cerradas');
+    }
+    process.exit(0);
+});
 
 start();
