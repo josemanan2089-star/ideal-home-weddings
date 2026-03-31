@@ -11,18 +11,14 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// ============================================================
-// MIDDLEWARES
-// ============================================================
+// Middlewares
 app.use(compression());
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '/')));
 
-// ============================================================
-// DIRECTORIOS PERSISTENTES PARA RAILWAY
-// ============================================================
+// Directorios persistentes para Railway
 const DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH
     ? path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, 'data')
     : path.join(__dirname, 'data');
@@ -31,7 +27,7 @@ const ARTICULOS_PATH = path.join(DATA_DIR, 'articulos.json');
 const CURIOSIDADES_PATH = path.join(DATA_DIR, 'curiosidades.json');
 const ESTADISTICAS_PATH = path.join(DATA_DIR, 'estadisticas.json');
 
-// Crear directorio si no existe
+// Crear directorio
 if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
     console.log(`📁 Directorio creado: ${DATA_DIR}`);
@@ -54,9 +50,7 @@ initFile(ESTADISTICAS_PATH, {
     ultimaActualizacion: new Date().toISOString()
 });
 
-// ============================================================
-// GEMINI INIT - MANEJO DE ERRORES ROBUSTO
-// ============================================================
+// Gemini Init
 let genAI = null;
 let model = null;
 let isGeminiAvailable = false;
@@ -78,7 +72,6 @@ const initGemini = async () => {
         for (const modelName of modelos) {
             try {
                 const testModel = genAI.getGenerativeModel({ model: modelName });
-                // Ping rápido con timeout
                 await Promise.race([
                     testModel.generateContent('ping'),
                     new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
@@ -89,21 +82,18 @@ const initGemini = async () => {
                 console.log(`✅ Gemini activado: ${modeloUsado}`);
                 return true;
             } catch (e) {
-                console.log(`⚠️ ${modelName} no disponible: ${e.message}`);
+                console.log(`⚠️ ${modelName} no disponible`);
             }
         }
         
-        console.log('❌ No se pudo activar ningún modelo Gemini');
+        console.log('❌ No se pudo activar Gemini');
         return false;
     } catch (e) {
-        console.log('❌ Error inicializando Gemini:', e.message);
+        console.log('❌ Error Gemini:', e.message);
         return false;
     }
 };
 
-// ============================================================
-// FUNCIONES AUXILIARES
-// ============================================================
 function extraerASIN(url) {
     if (!url) return null;
     const patterns = [
@@ -118,9 +108,7 @@ function extraerASIN(url) {
     return null;
 }
 
-// ============================================================
-// SISTEMA DE ADAPTACIÓN DE VENTAS
-// ============================================================
+// Sistema de adaptación de ventas
 let anguloVentaActual = 'A';
 const historialClics = { A: [], B: [], C: [], D: [] };
 
@@ -146,15 +134,14 @@ function actualizarAnguloVenta() {
     }
     
     anguloVentaActual = mejorAngulo;
-    console.log(`🔄 Ángulo: ${anguloVentaActual} (${maxClics} clics/24h)`);
     return anguloVentaActual;
 }
 
 const angulosDesc = {
-    'A': 'ESTATUS PURO - Exclusividad',
-    'B': 'FOMO - Escasez y urgencia',
-    'C': 'BIO-HACKING - Salud y eficiencia',
-    'D': 'INVERSIÓN - Valor patrimonial'
+    'A': 'ESTATUS PURO',
+    'B': 'FOMO',
+    'C': 'BIO-HACKING',
+    'D': 'INVERSIÓN'
 };
 
 const angulosPrompt = {
@@ -164,9 +151,7 @@ const angulosPrompt = {
     'D': 'Ángulo INVERSIÓN: valor patrimonial, "activo que no deprecia"'
 };
 
-// ============================================================
-// TEMAS SEO
-// ============================================================
+// Temas SEO
 const TEMAS_SEO = [
     { tema: "luxury smart home gadgets 2026", kw_en: "best luxury smart home gadgets 2026" },
     { tema: "home wellness spa bathroom luxury", kw_en: "luxury home spa bathroom ideas" },
@@ -175,14 +160,10 @@ const TEMAS_SEO = [
     { tema: "smart home automation Beverly Hills", kw_en: "smart home automation Beverly Hills" },
     { tema: "luxury home office women entrepreneur", kw_en: "luxury home office women 2026" },
     { tema: "luxury outdoor living Miami terrace", kw_en: "luxury outdoor living Miami" },
-    { tema: "smart mirror beauty luxury women", kw_en: "smart mirror luxury beauty women" },
-    { tema: "luxury home theater setup 2026", kw_en: "luxury home theater setup 2026" },
-    { tema: "designer furniture NYC luxury", kw_en: "designer luxury furniture NYC" }
+    { tema: "smart mirror beauty luxury women", kw_en: "smart mirror luxury beauty women" }
 ];
 
-// ============================================================
-// IMÁGENES DE RESPALDO (SIEMPRE FUNCIONAN)
-// ============================================================
+// Imágenes de respaldo
 const imagenesRespaldo = [
     'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg',
     'https://images.pexels.com/photos/1571468/pexels-photo-1571468.jpeg',
@@ -205,9 +186,7 @@ async function obtenerImagen(query) {
     };
 }
 
-// ============================================================
-// GENERAR CURIOSIDAD CON GEMINI
-// ============================================================
+// Generar curiosidad con Gemini
 async function generarCuriosidadConGemini() {
     const angulo = actualizarAnguloVenta();
     const temaIdx = Math.floor(Date.now() / 3600000) % TEMAS_SEO.length;
@@ -218,15 +197,15 @@ async function generarCuriosidadConGemini() {
         titulo_es: `El ${porcentaje}% de mujeres en NYC ya conoce este secreto de lujo`,
         titulo_en: `Best ${tema.tema.split(' ').slice(0, 3).join(' ')} 2026`,
         texto_es: `Descubre por qué el ${porcentaje}% de mujeres de alto poder adquisitivo en Manhattan están invirtiendo en este elemento exclusivo. ¿Ya eres de las que saben?`,
-        texto_en: `Discover why ${porcentaje}% of high-income women in Manhattan are investing in this exclusive element. Are you one of them?`,
+        texto_en: `Discover why ${porcentaje}% of high-income women in Manhattan are investing in this exclusive element.`,
         meta_descripcion_en: `Discover the best luxury home products 2026. What NYC women are buying.`,
+        descripcion_visual_es: "Cada detalle en esta imagen habla de elegancia y estatus. Ese acabado es el nuevo lujo silencioso.",
+        descripcion_visual_en: "Every detail in this image speaks of elegance and status.",
         productoSugerido: tema.tema.split(' ')[0] + ' luxury product',
         anguloUsado: angulo
     };
     
-    if (!isGeminiAvailable || !model) {
-        return fallback;
-    }
+    if (!isGeminiAvailable || !model) return fallback;
     
     try {
         const prompt = `Eres experto en marketing de lujo para mujeres de NYC, Miami, Beverly Hills.
@@ -242,6 +221,8 @@ RESPONDE SOLO CON JSON (sin markdown):
     "texto_es": "Texto persuasivo en español 2-3 oraciones",
     "texto_en": "Persuasive text in English 2-3 sentences",
     "meta_descripcion_en": "Meta description 155 chars",
+    "descripcion_visual_es": "Descripción sensorial en español",
+    "descripcion_visual_en": "Sensory description in English",
     "productoSugerido": "Tipo específico de producto Amazon"
 }`;
         
@@ -256,6 +237,8 @@ RESPONDE SOLO CON JSON (sin markdown):
             texto_es: data.texto_es || fallback.texto_es,
             texto_en: data.texto_en || fallback.texto_en,
             meta_descripcion_en: data.meta_descripcion_en || fallback.meta_descripcion_en,
+            descripcion_visual_es: data.descripcion_visual_es || fallback.descripcion_visual_es,
+            descripcion_visual_en: data.descripcion_visual_en || fallback.descripcion_visual_en,
             productoSugerido: data.productoSugerido || fallback.productoSugerido,
             anguloUsado: angulo
         };
@@ -265,9 +248,7 @@ RESPONDE SOLO CON JSON (sin markdown):
     }
 }
 
-// ============================================================
-// PUBLICAR CURIOSIDAD
-// ============================================================
+// Publicar curiosidad
 async function publicarCuriosidadAutomatica() {
     console.log('🤖 Generando curiosidad...');
     
@@ -282,6 +263,8 @@ async function publicarCuriosidadAutomatica() {
             texto_es: g.texto_es,
             texto_en: g.texto_en,
             meta_descripcion_en: g.meta_descripcion_en,
+            descripcion_visual_es: g.descripcion_visual_es,
+            descripcion_visual_en: g.descripcion_visual_en,
             imagen: img.url,
             imagenFuente: img.fuente,
             productoSugerido: g.productoSugerido,
@@ -303,14 +286,12 @@ async function publicarCuriosidadAutomatica() {
         console.log(`✅ Publicada: "${nueva.titulo_en}"`);
         return nueva;
     } catch (e) {
-        console.log('❌ Error publicando curiosidad:', e.message);
+        console.log('❌ Error:', e.message);
         return null;
     }
 }
 
-// ============================================================
-// GENERAR COPY PRODUCTO
-// ============================================================
+// Generar copy producto
 async function generarCopyProducto(url, imagenUrl, categoria) {
     const fallback = {
         titulo: "Best Luxury Home Investment 2026",
@@ -388,9 +369,7 @@ function generarHTMLArticulo(url, imagenUrl, categoria, imageSize, imagePosition
 </html>`;
 }
 
-// ============================================================
 // ENDPOINTS API
-// ============================================================
 app.get('/health', (req, res) => {
     res.json({
         status: 'ok',
@@ -471,6 +450,8 @@ app.post('/api/publicar-producto', async (req, res) => {
             asin: extraerASIN(url),
             titulo: copy.titulo,
             meta: copy.meta_descripcion,
+            intro: copy.intro,
+            curiosidad: copy.curiosidad,
             contenido: html,
             imagen: imagenUrl,
             categoria: categoria || 'LUXURY',
@@ -494,6 +475,15 @@ app.get('/api/articulos', (req, res) => {
         res.json(data);
     } catch (e) {
         res.json([]);
+    }
+});
+
+app.put('/api/ordenar-articulos', (req, res) => {
+    try {
+        fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(req.body.articulos, null, 2));
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
     }
 });
 
@@ -539,9 +529,7 @@ app.get('/api/gemini-status', (req, res) => {
     });
 });
 
-// ============================================================
-// CRON Y ARRANQUE
-// ============================================================
+// CRON cada 3 horas
 cron.schedule('0 */3 * * *', async () => {
     console.log('⏰ CRON: Generando curiosidad...');
     await publicarCuriosidadAutomatica();
@@ -561,7 +549,7 @@ const startServer = async () => {
 ║           🏮 MXL GOLD MINER — SISTEMA LISTO 🏮              ║
 ╠══════════════════════════════════════════════════════════════╣
 ║  🤖 GEMINI: ${isGeminiAvailable ? `✅ ACTIVADO (${modeloUsado})` : '⚠️ NO DISPONIBLE'}${' '.repeat(30 - (isGeminiAvailable ? modeloUsado.length + 12 : 16))}║
-║  🎯 Ángulo actual: ${angulosDesc[anguloVentaActual]}${' '.repeat(40 - angulosDesc[anguloVentaActual].length)}║
+║  🎯 Ángulo actual: ${angulosDesc[anguloVentaActual]}${' '.repeat(45 - angulosDesc[anguloVentaActual].length)}║
 ║  💎 Curiosidades: ${cur} guardadas | ${stats.curiosidadesGeneradas} generadas${' '.repeat(20)}║
 ║  💰 Productos: ${art} publicados | ${stats.totalClics} clics totales${' '.repeat(25)}║
 ║  🚀 Puerto: ${PORT}${' '.repeat(48)}║
