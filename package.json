@@ -1,39 +1,14 @@
 {
-  "name": "bot-seo-usa",
-  "version": "1.0.0",
-  "description": "Bot automatizado SEO USA con Gemini y múltiples fuentes de imágenes",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "npm run build"
   },
-  "dependencies": {
-    "express": "^4.18.2",
-    "@google/generative-ai": "^0.21.0",
-    "node-cron": "^3.0.3",
-    "axios": "^1.6.0",
-    "dotenv": "^16.3.1",
-    "cors": "^2.8.5",
-    "helmet": "^7.1.0",
-    "compression": "^1.7.4"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
-  },
-  "keywords": [
-    "seo",
-    "gemini",
-    "ai",
-    "usa",
-    "luxury",
-    "affiliate",
-    "amazon",
-    "unsplash",
-    "pexels"
-  ],
-  "author": "MXL GOLD MINER",
-  "license": "MIT",
-  "engines": {
-    "node": ">=18.0.0"
+  "deploy": {
+    "numReplicas": 1,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 3,
+    "startCommand": "npm start",
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 100
   }
 }
