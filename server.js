@@ -16,10 +16,102 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Servir archivos estáticos después de montar las rutas API
-// para evitar conflictos
+// ============================================================
+// 🧠 SISTEMA DE LLAVES ESPECIALIZADAS MXL
+// ============================================================
+// GEMINI_API_KEY_CONTENT → Fábrica de tráfico viral (curiosidades)
+// GEMINI_API_KEY_SALES   → Fuerza de ventas (copies y estrategia)
+// ============================================================
 
-// Directorios persistentes para Railway
+let contentAI = null;      // Motor CONTENT
+let salesAI = null;        // Motor SALES
+let contentModel = null;
+let salesModel = null;
+let isContentAvailable = false;
+let isSalesAvailable = false;
+let contentModelName = 'none';
+let salesModelName = 'none';
+
+// Modelos a probar en orden de prioridad
+const MODELOS_PRIORIDAD = ['gemini-2.0-flash-exp', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+
+/**
+ * Inicializa un motor Gemini específico
+ * @param {string} apiKey - La API Key de Gemini
+ * @param {string} motor - 'CONTENT' o 'SALES'
+ */
+async function initGeminiMotor(apiKey, motor) {
+    if (!apiKey || apiKey === 'tu_api_key_aqui' || apiKey === '') {
+        console.log(`⚠️ [${motor}] API_KEY no configurada`);
+        return { model: null, modelName: 'none', available: false };
+    }
+    
+    try {
+        const genAI = new GoogleGenerativeAI(apiKey);
+        
+        for (const modelName of MODELOS_PRIORIDAD) {
+            try {
+                const testModel = genAI.getGenerativeModel({ model: modelName });
+                const result = await Promise.race([
+                    testModel.generateContent('ping'),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+                ]);
+                
+                if (result && result.response) {
+                    console.log(`✅ [${motor}] ACTIVADO: ${modelName}`);
+                    return { model: testModel, modelName: modelName, available: true };
+                }
+            } catch (e) {
+                console.log(`⚠️ [${motor}] ${modelName} no disponible: ${e.message}`);
+            }
+        }
+        
+        console.log(`❌ [${motor}] No se pudo activar Gemini`);
+        return { model: null, modelName: 'none', available: false };
+    } catch (e) {
+        console.log(`❌ [${motor}] Error inicializando: ${e.message}`);
+        return { model: null, modelName: 'none', available: false };
+    }
+}
+
+/**
+ * Inicializa ambos motores con sus llaves específicas
+ */
+async function initGeminiMotors() {
+    console.log('\n╔═══════════════════════════════════════════════════════════╗');
+    console.log('║   🏭 MXL GOLD MINER - SISTEMA DE LLAVES ESPECIALIZADAS   ║');
+    console.log('╚═══════════════════════════════════════════════════════════╝\n');
+    
+    // Motor CONTENT (GEMINI_API_KEY_CONTENT)
+    const contentKey = process.env.GEMINI_API_KEY_CONTENT;
+    console.log('📝 MOTOR CONTENT (Fábrica de Tráfico Viral)');
+    console.log(`   Llave: ${contentKey ? `${contentKey.substring(0, 15)}...` : 'NO CONFIGURADA'}`);
+    const contentResult = await initGeminiMotor(contentKey, 'CONTENT');
+    contentModel = contentResult.model;
+    contentModelName = contentResult.modelName;
+    isContentAvailable = contentResult.available;
+    
+    console.log('');
+    
+    // Motor SALES (GEMINI_API_KEY_SALES)
+    const salesKey = process.env.GEMINI_API_KEY_SALES;
+    console.log('💰 MOTOR SALES (Fuerza de Ventas - Copies)');
+    console.log(`   Llave: ${salesKey ? `${salesKey.substring(0, 15)}...` : 'NO CONFIGURADA'}`);
+    const salesResult = await initGeminiMotor(salesKey, 'SALES');
+    salesModel = salesResult.model;
+    salesModelName = salesResult.modelName;
+    isSalesAvailable = salesResult.available;
+    
+    console.log('\n═══════════════════════════════════════════════════════════');
+    console.log('📊 ESTADO DE MOTORES:');
+    console.log(`   🏭 CONTENT: ${isContentAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} (${contentModelName})`);
+    console.log(`   💰 SALES:   ${isSalesAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} (${salesModelName})`);
+    console.log('═══════════════════════════════════════════════════════════\n');
+}
+
+// ============================================================
+// DIRECTORIOS PERSISTENTES
+// ============================================================
 const DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH
     ? path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, 'data')
     : path.join(__dirname, 'data');
@@ -28,7 +120,6 @@ const ARTICULOS_PATH = path.join(DATA_DIR, 'articulos.json');
 const CURIOSIDADES_PATH = path.join(DATA_DIR, 'curiosidades.json');
 const ESTADISTICAS_PATH = path.join(DATA_DIR, 'estadisticas.json');
 
-// Crear directorio y archivos iniciales
 if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
     console.log(`📁 Directorio creado: ${DATA_DIR}`);
@@ -47,74 +138,13 @@ initFile(ESTADISTICAS_PATH, {
     totalClics: 0,
     clicsPorAngulo: { A: 0, B: 0, C: 0, D: 0 },
     curiosidadesGeneradas: 0,
+    productosPublicados: 0,
     ultimaActualizacion: new Date().toISOString()
 });
 
-// Gemini Configuration
-let genAI = null;
-let model = null;
-let isGeminiAvailable = false;
-let modeloUsado = 'none';
-
-const initGemini = async () => {
-    const apiKey = process.env.GEMINI_API_KEY;
-    
-    if (!apiKey || apiKey === 'tu_api_key_aqui' || apiKey === '') {
-        console.log('⚠️ GEMINI_API_KEY no configurada');
-        return false;
-    }
-    
-    try {
-        genAI = new GoogleGenerativeAI(apiKey);
-        
-        // Probar modelos en orden
-        const modelos = ['gemini-2.0-flash-exp', 'gemini-2.0-flash', 'gemini-1.5-flash'];
-        
-        for (const modelName of modelos) {
-            try {
-                const testModel = genAI.getGenerativeModel({ model: modelName });
-                // Prueba simple con timeout
-                const result = await Promise.race([
-                    testModel.generateContent('ping'),
-                    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
-                ]);
-                
-                if (result && result.response) {
-                    model = testModel;
-                    modeloUsado = modelName;
-                    isGeminiAvailable = true;
-                    console.log(`✅ Gemini activado: ${modeloUsado}`);
-                    return true;
-                }
-            } catch (e) {
-                console.log(`⚠️ ${modelName} no disponible: ${e.message}`);
-            }
-        }
-        
-        console.log('❌ No se pudo activar Gemini');
-        return false;
-    } catch (e) {
-        console.log('❌ Error inicializando Gemini:', e.message);
-        return false;
-    }
-};
-
-// Helper functions
-function extraerASIN(url) {
-    if (!url) return null;
-    const patterns = [
-        /(?:dp|product|gp\/product)\/([A-Z0-9]{10})/i,
-        /asin=([A-Z0-9]{10})/i,
-        /\/dp\/([A-Z0-9]{10})/i
-    ];
-    for (const p of patterns) {
-        const match = url.match(p);
-        if (match && match[1]) return match[1];
-    }
-    return null;
-}
-
-// Sistema de adaptación de ventas
+// ============================================================
+// SISTEMA DE ÁNGULOS DE VENTA
+// ============================================================
 let anguloVentaActual = 'A';
 const historialClics = { A: [], B: [], C: [], D: [] };
 
@@ -157,7 +187,7 @@ const angulosPrompt = {
     'D': 'Ángulo INVERSIÓN: valor patrimonial, "activo que no deprecia"'
 };
 
-// Temas SEO
+// Temas SEO para CONTENT
 const TEMAS_SEO = [
     { tema: "luxury smart home gadgets 2026", kw_en: "best luxury smart home gadgets 2026" },
     { tema: "home wellness spa bathroom luxury", kw_en: "luxury home spa bathroom ideas" },
@@ -192,7 +222,23 @@ async function obtenerImagen(query) {
     };
 }
 
-// Generar curiosidad con Gemini
+function extraerASIN(url) {
+    if (!url) return null;
+    const patterns = [
+        /(?:dp|product|gp\/product)\/([A-Z0-9]{10})/i,
+        /asin=([A-Z0-9]{10})/i,
+        /\/dp\/([A-Z0-9]{10})/i
+    ];
+    for (const p of patterns) {
+        const match = url.match(p);
+        if (match && match[1]) return match[1];
+    }
+    return null;
+}
+
+// ============================================================
+// 🏭 MOTOR CONTENT: Generar curiosidad viral (Usa GEMINI_API_KEY_CONTENT)
+// ============================================================
 async function generarCuriosidadConGemini() {
     const angulo = actualizarAnguloVenta();
     const temaIdx = Math.floor(Date.now() / 3600000) % TEMAS_SEO.length;
@@ -211,9 +257,15 @@ async function generarCuriosidadConGemini() {
         anguloUsado: angulo
     };
     
-    if (!isGeminiAvailable || !model) return fallback;
+    // Usar exclusivamente MOTOR CONTENT
+    if (!isContentAvailable || !contentModel) {
+        console.log('⚠️ [CONTENT] Motor no disponible, usando fallback');
+        return fallback;
+    }
     
     try {
+        console.log(`🏭 [CONTENT] Generando curiosidad | Motor: ${contentModelName} | Ángulo: ${angulosDesc[angulo]}`);
+        
         const prompt = `Eres experto en marketing de lujo para mujeres de NYC, Miami, Beverly Hills.
 Genera una curiosidad viral con este ángulo: ${angulosPrompt[angulo]}
 
@@ -232,10 +284,12 @@ RESPONDE SOLO CON JSON (sin markdown):
     "productoSugerido": "Tipo específico de producto Amazon"
 }`;
         
-        const result = await model.generateContent(prompt);
+        const result = await contentModel.generateContent(prompt);
         const text = result.response.text();
         const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
         const data = JSON.parse(clean);
+        
+        console.log(`✅ [CONTENT] Curiosidad generada exitosamente`);
         
         return {
             titulo_es: data.titulo_es || fallback.titulo_es,
@@ -249,14 +303,13 @@ RESPONDE SOLO CON JSON (sin markdown):
             anguloUsado: angulo
         };
     } catch (e) {
-        console.log('⚠️ Error generando curiosidad con Gemini:', e.message);
+        console.log(`⚠️ [CONTENT] Error: ${e.message}`);
         return fallback;
     }
 }
 
-// Publicar curiosidad
 async function publicarCuriosidadAutomatica() {
-    console.log('🤖 Generando curiosidad...');
+    console.log('🏭 [CONTENT] Generando curiosidad programada...');
     
     try {
         const g = await generarCuriosidadConGemini();
@@ -289,15 +342,17 @@ async function publicarCuriosidadAutomatica() {
         stats.ultimaActualizacion = new Date().toISOString();
         fs.writeFileSync(ESTADISTICAS_PATH, JSON.stringify(stats, null, 2));
         
-        console.log(`✅ Publicada: "${nueva.titulo_en}"`);
+        console.log(`✅ [CONTENT] Publicada: "${nueva.titulo_en}"`);
         return nueva;
     } catch (e) {
-        console.log('❌ Error publicando curiosidad:', e.message);
+        console.log('❌ [CONTENT] Error:', e.message);
         return null;
     }
 }
 
-// Generar copy producto
+// ============================================================
+// 💰 MOTOR SALES: Generar copy de producto (Usa GEMINI_API_KEY_SALES)
+// ============================================================
 async function generarCopyProducto(url, imagenUrl, categoria) {
     const fallback = {
         titulo: "Best Luxury Home Investment 2026",
@@ -313,16 +368,57 @@ async function generarCopyProducto(url, imagenUrl, categoria) {
         palabras_clave: ["luxury home 2026", "best investment", "NYC lifestyle"]
     };
     
-    if (!isGeminiAvailable || !model) return fallback;
+    // Usar exclusivamente MOTOR SALES
+    if (!isSalesAvailable || !salesModel) {
+        console.log('⚠️ [SALES] Motor no disponible, usando fallback');
+        return fallback;
+    }
     
     try {
-        const prompt = `Genera copy de lujo para Amazon Affiliate. URL: ${url}. Responde con JSON: titulo, meta_descripcion, intro, descripcion_visual, problema, solucion, beneficio_estatus, prueba_social, cierre, curiosidad, palabras_clave.`;
-        const result = await model.generateContent(prompt);
+        console.log(`💰 [SALES] Generando copy | Motor: ${salesModelName} | Categoría: ${categoria}`);
+        
+        const prompt = `Eres un experto copywriter de lujo para Amazon Affiliate.
+Genera copy persuasivo de alto impacto para este producto: ${url}
+Categoría: ${categoria}
+Ángulo actual recomendado: ${angulosDesc[anguloVentaActual]} - ${angulosPrompt[anguloVentaActual]}
+
+RESPONDE SOLO CON JSON (sin markdown):
+{
+    "titulo": "Título persuasivo en inglés (máx 60 chars)",
+    "meta_descripcion": "Meta description en inglés (155 chars máximo)",
+    "intro": "Introducción gancho que captura atención (1 oración)",
+    "descripcion_visual": "Descripción visual detallada del producto",
+    "problema": "El problema que resuelve (1 oración)",
+    "solucion": "Cómo este producto es la solución (1 oración)",
+    "beneficio_estatus": "Beneficio de estatus/lujo (1 oración)",
+    "prueba_social": "Testimonio ficticio de cliente de alto poder adquisitivo",
+    "cierre": "Llamada a acción urgente",
+    "curiosidad": "Dato curioso sobre tendencias de lujo",
+    "palabras_clave": ["keyword1", "keyword2", "keyword3"]
+}`;
+        
+        const result = await salesModel.generateContent(prompt);
         const text = result.response.text();
         const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-        return JSON.parse(clean);
+        const data = JSON.parse(clean);
+        
+        console.log(`✅ [SALES] Copy generado exitosamente`);
+        
+        return {
+            titulo: data.titulo || fallback.titulo,
+            meta_descripcion: data.meta_descripcion || fallback.meta_descripcion,
+            intro: data.intro || fallback.intro,
+            descripcion_visual: data.descripcion_visual || fallback.descripcion_visual,
+            problema: data.problema || fallback.problema,
+            solucion: data.solucion || fallback.solucion,
+            beneficio_estatus: data.beneficio_estatus || fallback.beneficio_estatus,
+            prueba_social: data.prueba_social || fallback.prueba_social,
+            cierre: data.cierre || fallback.cierre,
+            curiosidad: data.curiosidad || fallback.curiosidad,
+            palabras_clave: data.palabras_clave || fallback.palabras_clave
+        };
     } catch (e) {
-        console.log('⚠️ Error generando copy:', e.message);
+        console.log(`⚠️ [SALES] Error generando copy: ${e.message}`);
         return fallback;
     }
 }
@@ -376,13 +472,17 @@ function generarHTMLArticulo(url, imagenUrl, categoria, imageSize, imagePosition
 </html>`;
 }
 
+// ============================================================
 // ENDPOINTS API
+// ============================================================
 app.get('/health', (req, res) => {
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
-        gemini: isGeminiAvailable ? 'active' : 'inactive',
-        modelo: modeloUsado,
+        content: isContentAvailable ? 'active' : 'inactive',
+        sales: isSalesAvailable ? 'active' : 'inactive',
+        contentModel: contentModelName,
+        salesModel: salesModelName,
         uptime: process.uptime()
     });
 });
@@ -399,7 +499,7 @@ app.get('/api/curiosidades', (req, res) => {
 app.post('/api/generar-curiosidad', async (req, res) => {
     try {
         const c = await publicarCuriosidadAutomatica();
-        res.json({ success: true, curiosidad: c });
+        res.json({ success: true, curiosidad: c, motor: 'CONTENT' });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }
@@ -430,7 +530,7 @@ app.post('/api/generar-copy-producto', async (req, res) => {
         const { url, imagenUrl, categoria } = req.body;
         if (!url) return res.status(400).json({ success: false, error: 'URL requerida' });
         const copy = await generarCopyProducto(url, imagenUrl, categoria);
-        res.json({ success: true, copy });
+        res.json({ success: true, copy, motor: 'SALES' });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }
@@ -462,7 +562,13 @@ app.post('/api/publicar-producto', async (req, res) => {
         const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
         data.unshift(art);
         fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(data, null, 2));
-        res.json({ success: true, articulo: art });
+        
+        const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
+        stats.productosPublicados++;
+        stats.ultimaActualizacion = new Date().toISOString();
+        fs.writeFileSync(ESTADISTICAS_PATH, JSON.stringify(stats, null, 2));
+        
+        res.json({ success: true, articulo: art, motor: 'SALES' });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }
@@ -498,6 +604,15 @@ app.post('/api/click-articulo/:id', (req, res) => {
             stats.totalClics++;
             stats.ultimaActualizacion = new Date().toISOString();
             fs.writeFileSync(ESTADISTICAS_PATH, JSON.stringify(stats, null, 2));
+            
+            // Registrar clic para el ángulo actual
+            if (historialClics[anguloVentaActual]) {
+                historialClics[anguloVentaActual].push(Date.now());
+                // Mantener solo últimos 100 registros
+                if (historialClics[anguloVentaActual].length > 100) {
+                    historialClics[anguloVentaActual].shift();
+                }
+            }
         }
         res.json({ success: true });
     } catch (e) {
@@ -512,23 +627,32 @@ app.get('/api/estadisticas', (req, res) => {
             ...stats,
             anguloActual: anguloVentaActual,
             descripcionAngulo: angulosDesc[anguloVentaActual],
-            geminiDisponible: isGeminiAvailable,
-            modeloGemini: modeloUsado
+            contentDisponible: isContentAvailable,
+            salesDisponible: isSalesAvailable,
+            contentModelo: contentModelName,
+            salesModelo: salesModelName
         });
     } catch (e) {
         res.json({ error: e.message });
     }
 });
 
-app.get('/api/gemini-status', (req, res) => {
+app.get('/api/motores-status', (req, res) => {
     res.json({
-        hasKey: !!process.env.GEMINI_API_KEY,
-        isWorking: isGeminiAvailable,
-        modeloUsado: modeloUsado
+        content: {
+            disponible: isContentAvailable,
+            modelo: contentModelName,
+            apiKeyConfigurada: !!process.env.GEMINI_API_KEY_CONTENT
+        },
+        sales: {
+            disponible: isSalesAvailable,
+            modelo: salesModelName,
+            apiKeyConfigurada: !!process.env.GEMINI_API_KEY_SALES
+        }
     });
 });
 
-// Servir archivos estáticos AL FINAL para no interferir con las rutas API
+// Rutas estáticas (al final)
 app.use(express.static(path.join(__dirname, '/')));
 
 app.get('/', (req, res) => {
@@ -539,21 +663,22 @@ app.get('/panel', (req, res) => {
     res.sendFile(path.join(__dirname, 'panel.html'));
 });
 
-// CRON cada 3 horas
+// CRON cada 3 horas (usa MOTOR CONTENT)
 cron.schedule('0 */3 * * *', async () => {
-    console.log('⏰ CRON: Generando curiosidad programada...');
+    console.log('⏰ [CRON] Generando curiosidad programada (CONTENT)...');
     await publicarCuriosidadAutomatica();
 });
 
-// Iniciar servidor con manejo de errores
+// ============================================================
+// INICIO DEL SERVIDOR
+// ============================================================
 const startServer = async () => {
     try {
-        await initGemini();
+        await initGeminiMotors();
         
-        // Generar primera curiosidad si no hay ninguna
         const curiosidades = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
         if (curiosidades.length === 0) {
-            console.log('📝 Generando primera curiosidad...');
+            console.log('📝 Generando primera curiosidad en 3 segundos...');
             setTimeout(() => publicarCuriosidadAutomatica(), 3000);
         }
         
@@ -564,9 +689,10 @@ const startServer = async () => {
             
             console.log(`
 ╔══════════════════════════════════════════════════════════════╗
-║           🏮 MXL GOLD MINER — SISTEMA LISTO 🏮              ║
+║     🏮 MXL GOLD MINER — SISTEMA DE LLAVES ESPECIALIZADAS    ║
 ╠══════════════════════════════════════════════════════════════╣
-║  🤖 GEMINI: ${isGeminiAvailable ? `✅ ACTIVADO (${modeloUsado})` : '⚠️ NO DISPONIBLE'}${' '.repeat(30 - (isGeminiAvailable ? modeloUsado.length + 12 : 16))}║
+║  🏭 CONTENT: ${isContentAvailable ? `✅ ACTIVO (${contentModelName})` : '⚠️ NO DISPONIBLE'}${' '.repeat(35 - (isContentAvailable ? contentModelName.length + 12 : 16))}║
+║  💰 SALES:   ${isSalesAvailable ? `✅ ACTIVO (${salesModelName})` : '⚠️ NO DISPONIBLE'}${' '.repeat(35 - (isSalesAvailable ? salesModelName.length + 12 : 16))}║
 ║  🎯 Ángulo actual: ${angulosDesc[anguloVentaActual]}${' '.repeat(45 - angulosDesc[anguloVentaActual].length)}║
 ║  💎 Curiosidades: ${cur} guardadas | ${stats.curiosidadesGeneradas} generadas${' '.repeat(20)}║
 ║  💰 Productos: ${art} publicados | ${stats.totalClics} clics totales${' '.repeat(25)}║
