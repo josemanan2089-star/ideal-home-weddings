@@ -26,7 +26,6 @@
             min-height: 100vh;
         }
 
-        /* ── HEADER ── */
         .header {
             background: linear-gradient(135deg, #0d0a05, #1a1208);
             border-bottom: 1px solid var(--border);
@@ -34,6 +33,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
         }
         .header-logo {
             font-family: 'Playfair Display', serif;
@@ -44,25 +45,33 @@
         .header-logo span { color: var(--orange); }
         .header-status {
             display: flex;
-            gap: 12px;
+            gap: 20px;
             align-items: center;
             font-size: 12px;
-            color: var(--muted);
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #0d0a05;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
         }
         .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: blink 2s infinite; }
+        .dot.warning { background: #ffaa00; animation: none; }
+        .dot.error { background: #ef4444; animation: none; }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-        /* ── MAIN LAYOUT ── */
         .main {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 30px;
             padding: 40px;
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
 
-        /* ── PANELS ── */
         .panel {
             background: var(--card);
             border: 1px solid var(--border);
@@ -81,7 +90,6 @@
         .panel-subtitle { font-size: 11px; color: var(--muted); margin-top: 2px; }
         .panel-body { padding: 28px; }
 
-        /* ── FORM ELEMENTS ── */
         label {
             display: block;
             font-size: 11px;
@@ -109,10 +117,7 @@
         input:focus, select:focus, textarea:focus {
             border-color: var(--gold);
         }
-        input::placeholder { color: var(--muted); }
-        textarea { resize: vertical; min-height: 80px; }
 
-        /* ── PREVIEW DE IMAGEN ── */
         .img-preview-wrap {
             margin-top: 12px;
             border: 1px dashed var(--border);
@@ -133,7 +138,6 @@
         }
         .img-placeholder { color: var(--muted); font-size: 13px; }
 
-        /* ── SIZE / POSITION PILLS ── */
         .pill-group {
             display: flex;
             gap: 8px;
@@ -157,7 +161,6 @@
             font-weight: 600;
         }
 
-        /* ── BUTTONS ── */
         .btn {
             display: block;
             width: 100%;
@@ -188,8 +191,16 @@
             border: 1px solid var(--border);
         }
         .btn-curiosidad:hover { border-color: var(--gold); }
+        .btn-danger {
+            background: transparent;
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+        .btn-danger:hover {
+            background: #ef4444;
+            color: #fff;
+        }
 
-        /* ── COPY PREVIEW ── */
         .copy-preview {
             display: none;
             margin-top: 24px;
@@ -207,39 +218,51 @@
         .copy-field-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
         .copy-field-value { color: var(--text); line-height: 1.5; }
 
-        /* ── PRODUCTOS LIST ── */
-        .productos-list { display: flex; flex-direction: column; gap: 14px; }
-        .prod-item {
+        .productos-list, .curiosidades-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .prod-item, .curio-item {
             background: #0d0a05;
             border: 1px solid var(--border);
             border-radius: 14px;
             padding: 16px;
-            display: flex;
-            gap: 14px;
-            align-items: center;
             transition: border-color .2s;
         }
-        .prod-item:hover { border-color: var(--gold); }
-        .prod-thumb {
+        .prod-item:hover, .curio-item:hover { border-color: var(--gold); }
+        .prod-item { display: flex; gap: 14px; align-items: center; }
+        .curio-item { display: flex; gap: 14px; align-items: flex-start; }
+        .prod-thumb, .curio-thumb {
             width: 64px; height: 64px;
             border-radius: 10px;
-            object-fit: contain;
+            object-fit: cover;
             background: #1a1208;
             flex-shrink: 0;
-            padding: 6px;
         }
-        .prod-info { flex: 1; min-width: 0; }
-        .prod-title { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
-        .prod-meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
+        .prod-info, .curio-info { flex: 1; min-width: 0; }
+        .prod-title, .curio-title { font-size: 13px; font-weight: 500; color: var(--gold); margin-bottom: 6px; }
+        .prod-meta, .curio-meta { font-size: 11px; color: var(--muted); }
         .prod-clicks { font-size: 11px; color: var(--gold); margin-top: 4px; }
-        .prod-del {
-            background: none; border: none; color: var(--muted);
-            cursor: pointer; font-size: 16px; padding: 4px 8px;
-            transition: color .2s;
+        .curio-text { font-size: 12px; color: var(--text); margin: 8px 0; line-height: 1.5; }
+        .delete-btn {
+            background: transparent;
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all .2s;
+            flex-shrink: 0;
         }
-        .prod-del:hover { color: #ef4444; }
+        .delete-btn:hover {
+            background: #ef4444;
+            color: #fff;
+        }
 
-        /* ── TOAST ── */
         .toast {
             position: fixed; bottom: 30px; right: 30px;
             padding: 14px 22px;
@@ -257,7 +280,6 @@
         .toast.error   { background: #ef4444; color: #fff; }
         .toast.info    { background: var(--gold); color: var(--dark); }
 
-        /* ── LOADER ── */
         .spinner {
             display: none;
             width: 18px; height: 18px;
@@ -271,18 +293,8 @@
         .loading .spinner { display: inline-block; }
         .loading .btn-text { display: none; }
 
-        /* ── DIVIDER ── */
-        .divider {
-            grid-column: 1 / -1;
-            border: none;
-            border-top: 1px solid var(--border);
-            margin: 10px 0;
-        }
-
-        /* ── FULL WIDTH PANEL ── */
         .full-width { grid-column: 1 / -1; }
 
-        /* ── STATS BAR ── */
         .stats-bar {
             display: flex;
             gap: 20px;
@@ -297,6 +309,13 @@
         .stat-num { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--gold); }
         .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .button-group .btn { margin-top: 0; }
+
         @media(max-width: 900px) {
             .main { grid-template-columns: 1fr; padding: 20px; }
             .full-width { grid-column: 1; }
@@ -305,35 +324,36 @@
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
     <div class="header-logo">MXL <span>GOLD MINER</span> — Panel</div>
     <div class="header-status">
-        <div class="dot"></div>
-        <span id="statusText">Sistema activo</span>
+        <div class="status-item">
+            <div class="dot" id="geminiDot"></div>
+            <span id="geminiStatus">Verificando...</span>
+        </div>
+        <div class="status-item">
+            <div class="dot" id="unsplashDot"></div>
+            <span id="unsplashStatus">Unsplash</span>
+        </div>
     </div>
 </div>
 
 <div class="main">
 
-    <!-- ══════════════════════════════════════ -->
-    <!-- PANEL IZQUIERDO: mxl agrega producto  -->
-    <!-- ══════════════════════════════════════ -->
+    <!-- PANEL IZQUIERDO: Agregar Producto -->
     <div class="panel">
         <div class="panel-header">
             <span class="panel-icon">💰</span>
             <div>
                 <div class="panel-title">Agregar Producto</div>
-                <div class="panel-subtitle">mxl pone el link + foto → Gemini escribe</div>
+                <div class="panel-subtitle">Link + foto → Gemini escribe el copy SEO</div>
             </div>
         </div>
         <div class="panel-body">
-
-            <!-- PASO 1 -->
-            <label>🔗 Link de Amazon (tú lo pones)</label>
+            <label>🔗 Link de Amazon</label>
             <input type="url" id="amazonUrl" placeholder="https://www.amazon.com/dp/XXXXXXXXXX">
 
-            <label>🖼️ URL de la imagen del producto (tú la pones)</label>
+            <label>🖼️ URL de la imagen del producto</label>
             <input type="url" id="imagenUrl" placeholder="https://m.media-amazon.com/images/..." oninput="previewImagen()">
             <div class="img-preview-wrap" id="imgPreview">
                 <span class="img-placeholder">👆 Pega la URL de la imagen para previsualizar</span>
@@ -350,10 +370,10 @@
                 <option value="BEAUTY">BEAUTY</option>
             </select>
 
-            <label>💲 Precio (opcional, para el copy)</label>
+            <label>💲 Precio (opcional)</label>
             <input type="text" id="precio" placeholder="$1,299 — $2,500 — etc.">
 
-            <label>📐 Tamaño de imagen en el artículo</label>
+            <label>📐 Tamaño de imagen</label>
             <div class="pill-group">
                 <div class="pill" onclick="setPill('size','small',this)">Pequeña</div>
                 <div class="pill active" onclick="setPill('size','medium',this)">Mediana</div>
@@ -367,13 +387,11 @@
                 <div class="pill" onclick="setPill('pos','right',this)">Derecha</div>
             </div>
 
-            <!-- BOTÓN: Gemini genera copy -->
             <button class="btn btn-generate" id="btnGenerar" onclick="generarCopy()">
                 <span class="btn-text">✨ Generar Copy con Gemini</span>
                 <span class="spinner"></span>
             </button>
 
-            <!-- PREVIEW DEL COPY GENERADO -->
             <div class="copy-preview" id="copyPreview">
                 <div class="copy-field">
                     <div class="copy-field-label">Título</div>
@@ -393,18 +411,14 @@
                 </div>
             </div>
 
-            <!-- BOTÓN: Publicar -->
             <button class="btn btn-publish" id="btnPublicar" onclick="publicarProducto()" disabled>
                 <span class="btn-text">🔥 Publicar en la Web</span>
                 <span class="spinner"></span>
             </button>
-
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════ -->
-    <!-- PANEL DERECHO: productos publicados       -->
-    <!-- ══════════════════════════════════════════ -->
+    <!-- PANEL DERECHO: Productos Publicados -->
     <div class="panel">
         <div class="panel-header">
             <span class="panel-icon">📊</span>
@@ -429,46 +443,48 @@
                 </div>
             </div>
 
-            <!-- BOTÓN BORRAR TODOS -->
-            <button onclick="borrarTodosLosProductos()" style="
-                width:100%; padding:12px; border-radius:40px; border:1px solid #ef4444;
-                background:transparent; color:#ef4444; font-size:13px; font-weight:600;
-                cursor:pointer; margin-bottom:18px; font-family:'DM Sans',sans-serif;
-                transition:all .2s;
-            " onmouseover="this.style.background='#ef4444';this.style.color='#fff'"
-               onmouseout="this.style.background='transparent';this.style.color='#ef4444'">
-                🗑️ Borrar TODOS los artículos viejos
+            <button onclick="borrarTodosLosProductos()" class="btn btn-danger" style="margin-bottom: 18px;">
+                🗑️ Borrar TODOS los artículos
             </button>
 
             <div class="productos-list" id="productosList">
-                <div style="text-align:center;color:var(--muted);padding:40px;font-size:13px;">
-                    Cargando productos...
-                </div>
+                <div style="text-align:center;color:var(--muted);padding:40px;">Cargando productos...</div>
             </div>
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════ -->
-    <!-- PANEL FULL: Curiosidades Bot Gemini       -->
-    <!-- ══════════════════════════════════════════ -->
+    <!-- PANEL FULL: Curiosidades -->
     <div class="panel full-width">
         <div class="panel-header">
             <span class="panel-icon">💎</span>
             <div>
-                <div class="panel-title">Curiosidades — Bot Gemini Autónomo</div>
-                <div class="panel-subtitle">Gemini genera solas cada 3 horas. Tú también puedes forzar una ahora.</div>
+                <div class="panel-title">Curiosidades SEO — Gemini Autónomo</div>
+                <div class="panel-subtitle">Se generan automáticamente cada 3 horas | Imágenes variadas de Unsplash</div>
             </div>
         </div>
         <div class="panel-body">
-            <button class="btn btn-curiosidad" id="btnCuriosidad" onclick="generarCuriosidad()" style="margin-top:0">
-                <span class="btn-text">🤖 Generar Curiosidad Ahora</span>
-                <span class="spinner"></span>
-            </button>
-            <div id="ultimaCuriosidad" style="margin-top:20px;display:none;">
-                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Última curiosidad generada</div>
+            <div class="button-group">
+                <button class="btn btn-curiosidad" id="btnCuriosidad" onclick="generarCuriosidad()" style="flex:1">
+                    <span class="btn-text">🤖 Generar Curiosidad Ahora</span>
+                    <span class="spinner"></span>
+                </button>
+                <button class="btn btn-danger" onclick="borrarTodasCuriosidades()" style="flex:0.5">
+                    🗑️ Borrar Todas
+                </button>
+            </div>
+
+            <div id="ultimaCuriosidad" style="margin-bottom: 30px; display: none;">
+                <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">✨ Última curiosidad generada</div>
                 <div style="background:#0d0a05;border:1px solid var(--border);border-radius:12px;padding:18px;">
                     <div style="font-weight:600;margin-bottom:8px;color:var(--gold);" id="curTitulo"></div>
-                    <div style="font-size:13px;color:var(--text);line-height:1.6;" id="curTexto"></div>
+                    <div style="font-size:13px;line-height:1.6;" id="curTexto"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <div style="font-size:11px;color:var(--muted);margin-bottom:15px;">📜 HISTORIAL DE CURIOSIDADES</div>
+                <div class="curiosidades-list" id="curiosidadesList">
+                    <div style="text-align:center;color:var(--muted);padding:40px;">Cargando curiosidades...</div>
                 </div>
             </div>
         </div>
@@ -476,16 +492,13 @@
 
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-    // ── STATE ──
     let selectedSize = 'medium';
     let selectedPos  = 'center';
     let currentCopy  = null;
 
-    // ── PILL SELECTOR ──
     function setPill(type, value, el) {
         const group = el.parentElement.querySelectorAll('.pill');
         group.forEach(p => p.classList.remove('active'));
@@ -494,18 +507,16 @@
         if (type === 'pos')  selectedPos  = value;
     }
 
-    // ── IMAGE PREVIEW ──
     function previewImagen() {
         const url = document.getElementById('imagenUrl').value.trim();
         const wrap = document.getElementById('imgPreview');
         if (url) {
-            wrap.innerHTML = `<img src="${url}" onerror="this.parentElement.innerHTML='<span class=\\'img-placeholder\\'>❌ No se pudo cargar la imagen</span>'">`;
+            wrap.innerHTML = `<img src="${url}" onerror="this.parentElement.innerHTML='<span class=\\'img-placeholder\\'>❌ Error al cargar imagen</span>'">`;
         } else {
             wrap.innerHTML = '<span class="img-placeholder">👆 Pega la URL de la imagen para previsualizar</span>';
         }
     }
 
-    // ── TOAST ──
     function showToast(msg, type = 'info') {
         const t = document.getElementById('toast');
         t.textContent = msg;
@@ -513,26 +524,62 @@
         setTimeout(() => { t.className = 'toast'; }, 3500);
     }
 
-    // ── SET LOADING STATE ──
     function setLoading(btnId, loading) {
         const btn = document.getElementById(btnId);
-        if (loading) btn.classList.add('loading');
-        else         btn.classList.remove('loading');
-        btn.disabled = loading;
+        if (btn) {
+            if (loading) btn.classList.add('loading');
+            else btn.classList.remove('loading');
+            btn.disabled = loading;
+        }
     }
 
-    // ── GENERAR COPY (Gemini escribe) ──
+    // Verificar estado de Gemini y Unsplash
+    async function checkStatus() {
+        try {
+            const res = await fetch('/api/gemini-status');
+            const status = await res.json();
+            
+            const geminiDot = document.getElementById('geminiDot');
+            const geminiStatus = document.getElementById('geminiStatus');
+            
+            if (status.isWorking) {
+                geminiDot.className = 'dot';
+                geminiStatus.innerHTML = '✅ Gemini activo';
+            } else if (status.hasKey) {
+                geminiDot.className = 'dot warning';
+                geminiStatus.innerHTML = '⚠️ Gemini error';
+            } else {
+                geminiDot.className = 'dot error';
+                geminiStatus.innerHTML = '❌ Sin API key';
+            }
+            
+            const unsplashKey = '${process.env.UNSPLASH_ACCESS_KEY}' || '';
+            const unsplashDot = document.getElementById('unsplashDot');
+            const unsplashStatus = document.getElementById('unsplashStatus');
+            
+            if (unsplashKey && unsplashKey !== '') {
+                unsplashDot.className = 'dot';
+                unsplashStatus.innerHTML = '✅ Unsplash configurado';
+            } else {
+                unsplashDot.className = 'dot warning';
+                unsplashStatus.innerHTML = '⚠️ Unsplash no configurado';
+            }
+        } catch(e) {
+            console.error('Error checking status:', e);
+        }
+    }
+
     async function generarCopy() {
-        const url      = document.getElementById('amazonUrl').value.trim();
+        const url = document.getElementById('amazonUrl').value.trim();
         const imagenUrl = document.getElementById('imagenUrl').value.trim();
         const categoria = document.getElementById('categoria').value;
-        const precio    = document.getElementById('precio').value.trim();
+        const precio = document.getElementById('precio').value.trim();
 
-        if (!url) { showToast('⚠️ Pega el link de Amazon primero', 'error'); return; }
-        if (!imagenUrl) { showToast('⚠️ Pega la URL de la imagen primero', 'error'); return; }
+        if (!url) { showToast('⚠️ Pega el link de Amazon', 'error'); return; }
+        if (!imagenUrl) { showToast('⚠️ Pega la URL de la imagen', 'error'); return; }
 
         setLoading('btnGenerar', true);
-        showToast('🤖 Gemini está escribiendo el copy...', 'info');
+        showToast('🤖 Gemini escribiendo copy SEO...', 'info');
 
         try {
             const res = await fetch('/api/generar-copy-producto', {
@@ -541,14 +588,16 @@
                 body: JSON.stringify({ url, imagenUrl, categoria, precio })
             });
             const data = await res.json();
-
             if (!data.success) throw new Error(data.error);
 
             currentCopy = data.copy;
-            mostrarCopyPreview(data.copy);
+            document.getElementById('pTitulo').textContent = data.copy.titulo || '';
+            document.getElementById('pIntro').textContent = data.copy.intro || '';
+            document.getElementById('pVisual').textContent = data.copy.descripcion_visual || '';
+            document.getElementById('pTestimonio').textContent = data.copy.prueba_social || '';
+            document.getElementById('copyPreview').classList.add('show');
             document.getElementById('btnPublicar').disabled = false;
-            showToast('✅ Copy generado — revísalo y publica', 'success');
-
+            showToast('✅ Copy generado, revisa y publica', 'success');
         } catch(e) {
             showToast('❌ Error: ' + e.message, 'error');
         } finally {
@@ -556,19 +605,10 @@
         }
     }
 
-    function mostrarCopyPreview(copy) {
-        document.getElementById('pTitulo').textContent = copy.titulo || '';
-        document.getElementById('pIntro').textContent = copy.intro || '';
-        document.getElementById('pVisual').textContent = copy.descripcion_visual || '';
-        document.getElementById('pTestimonio').textContent = copy.prueba_social || '';
-        document.getElementById('copyPreview').classList.add('show');
-    }
-
-    // ── PUBLICAR PRODUCTO ──
     async function publicarProducto() {
         if (!currentCopy) { showToast('⚠️ Genera el copy primero', 'error'); return; }
 
-        const url       = document.getElementById('amazonUrl').value.trim();
+        const url = document.getElementById('amazonUrl').value.trim();
         const imagenUrl = document.getElementById('imagenUrl').value.trim();
         const categoria = document.getElementById('categoria').value;
 
@@ -580,9 +620,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    url,
-                    imagenUrl,
-                    categoria,
+                    url, imagenUrl, categoria,
                     imageSize: selectedSize,
                     imagePosition: selectedPos,
                     copy: currentCopy
@@ -591,10 +629,16 @@
             const data = await res.json();
             if (!data.success) throw new Error(data.error);
 
-            showToast('🔥 ¡Producto publicado en la web!', 'success');
-            resetForm();
+            showToast('🔥 ¡Producto publicado!', 'success');
+            document.getElementById('amazonUrl').value = '';
+            document.getElementById('imagenUrl').value = '';
+            document.getElementById('precio').value = '';
+            document.getElementById('imgPreview').innerHTML = '<span class="img-placeholder">👆 Pega la URL de la imagen para previsualizar</span>';
+            document.getElementById('copyPreview').classList.remove('show');
+            document.getElementById('btnPublicar').disabled = true;
+            currentCopy = null;
             cargarProductos();
-
+            cargarStats();
         } catch(e) {
             showToast('❌ Error: ' + e.message, 'error');
         } finally {
@@ -602,20 +646,9 @@
         }
     }
 
-    function resetForm() {
-        document.getElementById('amazonUrl').value = '';
-        document.getElementById('imagenUrl').value = '';
-        document.getElementById('precio').value = '';
-        document.getElementById('imgPreview').innerHTML = '<span class="img-placeholder">👆 Pega la URL de la imagen para previsualizar</span>';
-        document.getElementById('copyPreview').classList.remove('show');
-        document.getElementById('btnPublicar').disabled = true;
-        currentCopy = null;
-    }
-
-    // ── GENERAR CURIOSIDAD MANUAL ──
     async function generarCuriosidad() {
         setLoading('btnCuriosidad', true);
-        showToast('🤖 Gemini generando curiosidad visual...', 'info');
+        showToast('🤖 Gemini generando curiosidad...', 'info');
 
         try {
             const res = await fetch('/api/generar-curiosidad', { method: 'POST' });
@@ -624,12 +657,11 @@
 
             const c = data.curiosidad;
             document.getElementById('curTitulo').textContent = c.titulo_es;
-            document.getElementById('curTexto').textContent  = c.texto_es;
+            document.getElementById('curTexto').textContent = c.texto_es;
             document.getElementById('ultimaCuriosidad').style.display = 'block';
-
             showToast('✨ Curiosidad publicada', 'success');
+            cargarCuriosidades();
             cargarStats();
-
         } catch(e) {
             showToast('❌ Error: ' + e.message, 'error');
         } finally {
@@ -637,7 +669,66 @@
         }
     }
 
-    // ── CARGAR PRODUCTOS ──
+    async function cargarCuriosidades() {
+        try {
+            const res = await fetch('/api/curiosidades');
+            const curiosidades = await res.json();
+            const container = document.getElementById('curiosidadesList');
+
+            if (!curiosidades.length) {
+                container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;">No hay curiosidades generadas aún</div>';
+                return;
+            }
+
+            container.innerHTML = curiosidades.map(c => `
+                <div class="curio-item">
+                    <img class="curio-thumb" src="${c.imagen || 'https://picsum.photos/64'}" onerror="this.src='https://picsum.photos/64'" alt="">
+                    <div class="curio-info">
+                        <div class="curio-title">${c.titulo_es || c.titulo_en || 'Sin título'}</div>
+                        <div class="curio-text">${(c.texto_es || c.texto_en || '').substring(0, 120)}...</div>
+                        <div class="curio-meta">📅 ${new Date(c.fecha).toLocaleDateString('es-DO')} | 🔥 ${c.compartidas || 0} compartidas | 📷 ${c.imagenFuente || 'unsplash'}</div>
+                    </div>
+                    <button class="delete-btn" onclick="eliminarCuriosidad(${c.id})">🗑️ Borrar</button>
+                </div>
+            `).join('');
+        } catch(e) {
+            console.error('Error cargando curiosidades:', e);
+        }
+    }
+
+    async function eliminarCuriosidad(id) {
+        if (!confirm('¿Eliminar esta curiosidad?')) return;
+        try {
+            const res = await fetch(`/api/curiosidad/${id}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                showToast('✅ Curiosidad eliminada', 'success');
+                cargarCuriosidades();
+                cargarStats();
+            } else {
+                throw new Error(data.error);
+            }
+        } catch(e) {
+            showToast('❌ Error: ' + e.message, 'error');
+        }
+    }
+
+    async function borrarTodasCuriosidades() {
+        if (!confirm('⚠️ ¿Borrar TODAS las curiosidades? Esta acción no se puede deshacer.')) return;
+        try {
+            const res = await fetch('/api/curiosidades/all', { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+                showToast('🗑️ Todas las curiosidades eliminadas', 'success');
+                cargarCuriosidades();
+                cargarStats();
+                document.getElementById('ultimaCuriosidad').style.display = 'none';
+            }
+        } catch(e) {
+            showToast('❌ Error: ' + e.message, 'error');
+        }
+    }
+
     async function cargarProductos() {
         try {
             const res = await fetch('/api/articulos');
@@ -645,7 +736,7 @@
             const list = document.getElementById('productosList');
 
             if (!productos.length) {
-                list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;font-size:13px;">Aún no hay productos publicados</div>';
+                list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;">No hay productos publicados</div>';
                 return;
             }
 
@@ -657,33 +748,14 @@
                         <div class="prod-meta">${p.categoria || 'LUXURY'} · ${new Date(p.fecha).toLocaleDateString('es-DO')}</div>
                         <div class="prod-clicks">🔥 ${p.clicks || 0} clicks</div>
                     </div>
-                    <button class="prod-del" onclick="eliminarProducto(${p.id})" title="Eliminar">✕</button>
+                    <button class="delete-btn" onclick="eliminarProducto(${p.id})">✕</button>
                 </div>
             `).join('');
-
         } catch(e) {
             console.error(e);
         }
     }
 
-    // ── BORRAR TODOS LOS PRODUCTOS ──
-    async function borrarTodosLosProductos() {
-        if (!confirm('⚠️ ¿Borrar TODOS los artículos? Esto eliminará los viejos del bot anterior.')) return;
-        try {
-            await fetch('/api/ordenar-articulos', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ articulos: [] })
-            });
-            showToast('🗑️ Todos los artículos borrados — ahora agrega los tuyos', 'success');
-            cargarProductos();
-            cargarStats();
-        } catch(e) {
-            showToast('❌ Error borrando', 'error');
-        }
-    }
-
-    // ── ELIMINAR PRODUCTO ──
     async function eliminarProducto(id) {
         if (!confirm('¿Eliminar este producto?')) return;
         try {
@@ -703,7 +775,22 @@
         }
     }
 
-    // ── STATS ──
+    async function borrarTodosLosProductos() {
+        if (!confirm('⚠️ ¿Borrar TODOS los artículos?')) return;
+        try {
+            await fetch('/api/ordenar-articulos', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ articulos: [] })
+            });
+            showToast('🗑️ Todos los artículos borrados', 'success');
+            cargarProductos();
+            cargarStats();
+        } catch(e) {
+            showToast('❌ Error borrando', 'error');
+        }
+    }
+
     async function cargarStats() {
         try {
             const [rArt, rCur] = await Promise.all([
@@ -719,10 +806,17 @@
         } catch(e) {}
     }
 
-    // ── INIT ──
+    // Inicialización
+    checkStatus();
     cargarProductos();
+    cargarCuriosidades();
     cargarStats();
-    setInterval(() => { cargarProductos(); cargarStats(); }, 30000);
+    setInterval(() => {
+        cargarProductos();
+        cargarCuriosidades();
+        cargarStats();
+    }, 30000);
+    setInterval(checkStatus, 60000);
 </script>
 
 </body>
