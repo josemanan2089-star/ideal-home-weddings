@@ -3,821 +3,311 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MXL GOLD MINER — Panel de Control</title>
+    <title>Panel MXL - Control de Ventas</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap');
-
-        :root {
-            --gold: #c9a87b;
-            --dark: #1a1208;
-            --card: #1f1810;
-            --border: #3a2e1a;
-            --orange: #ff4500;
-            --text: #e8d8c0;
-            --muted: #8a7a60;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--dark);
-            color: var(--text);
-            min-height: 100vh;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #0d0a05, #1a1208);
-            border-bottom: 1px solid var(--border);
-            padding: 20px 40px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        .header-logo {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.4rem;
-            color: var(--gold);
-            letter-spacing: 1px;
-        }
-        .header-logo span { color: var(--orange); }
-        .header-status {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            font-size: 12px;
-        }
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #0d0a05;
-            padding: 6px 12px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-        }
-        .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: blink 2s infinite; }
-        .dot.warning { background: #ffaa00; animation: none; }
-        .dot.error { background: #ef4444; animation: none; }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-        .main {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            padding: 40px;
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
-        .panel {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            overflow: hidden;
-        }
-        .panel-header {
-            padding: 22px 28px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .panel-icon { font-size: 1.4rem; }
-        .panel-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--gold); }
-        .panel-subtitle { font-size: 11px; color: var(--muted); margin-top: 2px; }
-        .panel-body { padding: 28px; }
-
-        label {
-            display: block;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-            margin-top: 20px;
-        }
-        label:first-child { margin-top: 0; }
-
-        input, select, textarea {
-            width: 100%;
-            background: #0d0a05;
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 12px 16px;
-            border-radius: 10px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
-            outline: none;
-            transition: border-color .2s;
-        }
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--gold);
-        }
-
-        .img-preview-wrap {
-            margin-top: 12px;
-            border: 1px dashed var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            min-height: 140px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #0d0a05;
-        }
-        .img-preview-wrap img {
-            max-height: 180px;
-            max-width: 100%;
-            border-radius: 8px;
-            object-fit: contain;
-        }
-        .img-placeholder { color: var(--muted); font-size: 13px; }
-
-        .pill-group {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 4px;
-        }
-        .pill {
-            background: #0d0a05;
-            border: 1px solid var(--border);
-            color: var(--muted);
-            padding: 7px 14px;
-            border-radius: 30px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all .2s;
-        }
-        .pill.active, .pill:hover {
-            background: var(--gold);
-            color: var(--dark);
-            border-color: var(--gold);
-            font-weight: 600;
-        }
-
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 14px;
-            border-radius: 40px;
-            border: none;
-            font-size: 14px;
-            font-weight: 600;
-            font-family: 'DM Sans', sans-serif;
-            cursor: pointer;
-            transition: all .25s;
-            margin-top: 22px;
-        }
-        .btn-generate {
-            background: linear-gradient(135deg, var(--gold), #b8903e);
-            color: var(--dark);
-        }
-        .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,168,123,.3); }
-        .btn-publish {
-            background: linear-gradient(135deg, var(--orange), #e03e00);
-            color: #fff;
-        }
-        .btn-publish:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,69,0,.3); }
-        .btn-publish:disabled { opacity: .4; cursor: not-allowed; transform: none; }
-        .btn-curiosidad {
-            background: linear-gradient(135deg, #16213e, #1a1a2e);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-        .btn-curiosidad:hover { border-color: var(--gold); }
-        .btn-danger {
-            background: transparent;
-            border: 1px solid #ef4444;
-            color: #ef4444;
-        }
-        .btn-danger:hover {
-            background: #ef4444;
-            color: #fff;
-        }
-
-        .copy-preview {
-            display: none;
-            margin-top: 24px;
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            overflow: hidden;
-        }
-        .copy-preview.show { display: block; }
-        .copy-field {
-            padding: 14px 18px;
-            border-bottom: 1px solid var(--border);
-            font-size: 13px;
-        }
-        .copy-field:last-child { border-bottom: none; }
-        .copy-field-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
-        .copy-field-value { color: var(--text); line-height: 1.5; }
-
-        .productos-list, .curiosidades-list {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        .prod-item, .curio-item {
-            background: #0d0a05;
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 16px;
-            transition: border-color .2s;
-        }
-        .prod-item:hover, .curio-item:hover { border-color: var(--gold); }
-        .prod-item { display: flex; gap: 14px; align-items: center; }
-        .curio-item { display: flex; gap: 14px; align-items: flex-start; }
-        .prod-thumb, .curio-thumb {
-            width: 64px; height: 64px;
-            border-radius: 10px;
-            object-fit: cover;
-            background: #1a1208;
-            flex-shrink: 0;
-        }
-        .prod-info, .curio-info { flex: 1; min-width: 0; }
-        .prod-title, .curio-title { font-size: 13px; font-weight: 500; color: var(--gold); margin-bottom: 6px; }
-        .prod-meta, .curio-meta { font-size: 11px; color: var(--muted); }
-        .prod-clicks { font-size: 11px; color: var(--gold); margin-top: 4px; }
-        .curio-text { font-size: 12px; color: var(--text); margin: 8px 0; line-height: 1.5; }
-        .delete-btn {
-            background: transparent;
-            border: 1px solid #ef4444;
-            color: #ef4444;
-            padding: 6px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 11px;
-            transition: all .2s;
-            flex-shrink: 0;
-        }
-        .delete-btn:hover {
-            background: #ef4444;
-            color: #fff;
-        }
-
-        .toast {
-            position: fixed; bottom: 30px; right: 30px;
-            padding: 14px 22px;
-            border-radius: 40px;
-            font-size: 13px;
-            font-weight: 500;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all .3s;
-            z-index: 9999;
-            pointer-events: none;
-        }
-        .toast.show { opacity: 1; transform: translateY(0); }
-        .toast.success { background: #22c55e; color: #fff; }
-        .toast.error   { background: #ef4444; color: #fff; }
-        .toast.info    { background: var(--gold); color: var(--dark); }
-
-        .spinner {
-            display: none;
-            width: 18px; height: 18px;
-            border: 2px solid rgba(255,255,255,.2);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin .6s linear infinite;
-            margin: 0 auto;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .loading .spinner { display: inline-block; }
-        .loading .btn-text { display: none; }
-
-        .full-width { grid-column: 1 / -1; }
-
-        .stats-bar {
-            display: flex;
-            gap: 20px;
-            background: #0d0a05;
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 18px 24px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-        }
-        .stat { text-align: center; flex: 1; }
-        .stat-num { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--gold); }
-        .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
-
-        .button-group {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .button-group .btn { margin-top: 0; }
-
-        @media(max-width: 900px) {
-            .main { grid-template-columns: 1fr; padding: 20px; }
-            .full-width { grid-column: 1; }
-        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:system-ui,sans-serif;background:#0f0f1a;color:#fff;padding:20px;}
+        .header{background:linear-gradient(135deg,#1a1a2e,#2d2d44);padding:20px;border-radius:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;}
+        h1{font-size:1.5rem;}
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:20px;}
+        .stat-card{background:#1a1a2e;padding:20px;border-radius:12px;text-align:center;}
+        .stat-number{font-size:2rem;font-weight:bold;color:#ff4500;}
+        .btn{background:#ff4500;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;margin:5px;}
+        .btn:hover{background:#ff6b35;}
+        .btn-danger{background:#dc2626;}
+        .btn-danger:hover{background:#ef4444;}
+        .section{background:#1a1a2e;border-radius:12px;padding:20px;margin-top:20px;}
+        .section h3{margin-bottom:15px;color:#ff4500;}
+        .curiosidad-item,.producto-item{border-bottom:1px solid #2d2d44;padding:15px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;}
+        .curiosidad-item:last-child,.producto-item:last-child{border-bottom:none;}
+        .curiosidad-titulo{flex:1;font-size:0.9rem;}
+        .producto-titulo{flex:1;font-size:0.9rem;}
+        .small-btn{background:#2d2d44;padding:5px 12px;border-radius:6px;font-size:12px;margin-left:10px;}
+        .small-btn:hover{background:#ff4500;}
+        .empty{text-align:center;padding:40px;color:#666;}
+        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;z-index:1000;}
+        .modal-content{background:#1a1a2e;padding:30px;border-radius:16px;max-width:500px;width:90%;}
+        .modal-content input,.modal-content textarea{width:100%;padding:10px;margin:10px 0;border-radius:8px;border:none;background:#2d2d44;color:#fff;}
+        .modal-content textarea{min-height:100px;}
+        .form-group{margin-bottom:15px;}
+        label{display:block;margin-bottom:5px;font-size:12px;color:#c9a87b;}
+        select{width:100%;padding:10px;border-radius:8px;background:#2d2d44;color:#fff;border:none;}
+        @media(max-width:600px){.curiosidad-item,.producto-item{flex-direction:column;align-items:flex-start;gap:10px;}}
     </style>
 </head>
 <body>
-
-<div class="header">
-    <div class="header-logo">MXL <span>GOLD MINER</span> — Panel</div>
-    <div class="header-status">
-        <div class="status-item">
-            <div class="dot" id="geminiDot"></div>
-            <span id="geminiStatus">Verificando...</span>
-        </div>
-        <div class="status-item">
-            <div class="dot" id="unsplashDot"></div>
-            <span id="unsplashStatus">Unsplash</span>
-        </div>
-    </div>
-</div>
-
-<div class="main">
-
-    <!-- PANEL IZQUIERDO: Agregar Producto -->
-    <div class="panel">
-        <div class="panel-header">
-            <span class="panel-icon">💰</span>
-            <div>
-                <div class="panel-title">Agregar Producto</div>
-                <div class="panel-subtitle">Link + foto → Gemini escribe el copy SEO</div>
-            </div>
-        </div>
-        <div class="panel-body">
-            <label>🔗 Link de Amazon</label>
-            <input type="url" id="amazonUrl" placeholder="https://www.amazon.com/dp/XXXXXXXXXX">
-
-            <label>🖼️ URL de la imagen del producto</label>
-            <input type="url" id="imagenUrl" placeholder="https://m.media-amazon.com/images/..." oninput="previewImagen()">
-            <div class="img-preview-wrap" id="imgPreview">
-                <span class="img-placeholder">👆 Pega la URL de la imagen para previsualizar</span>
-            </div>
-
-            <label>📦 Categoría</label>
-            <select id="categoria">
-                <option value="LUXURY HOME">LUXURY HOME</option>
-                <option value="SMART HOME">SMART HOME</option>
-                <option value="KITCHEN">KITCHEN</option>
-                <option value="WELLNESS">WELLNESS</option>
-                <option value="TECH">TECH</option>
-                <option value="DÉCOR">DÉCOR</option>
-                <option value="BEAUTY">BEAUTY</option>
-            </select>
-
-            <label>💲 Precio (opcional)</label>
-            <input type="text" id="precio" placeholder="$1,299 — $2,500 — etc.">
-
-            <label>📐 Tamaño de imagen</label>
-            <div class="pill-group">
-                <div class="pill" onclick="setPill('size','small',this)">Pequeña</div>
-                <div class="pill active" onclick="setPill('size','medium',this)">Mediana</div>
-                <div class="pill" onclick="setPill('size','large',this)">Grande</div>
-            </div>
-
-            <label>📍 Posición de imagen</label>
-            <div class="pill-group">
-                <div class="pill" onclick="setPill('pos','left',this)">Izquierda</div>
-                <div class="pill active" onclick="setPill('pos','center',this)">Centro</div>
-                <div class="pill" onclick="setPill('pos','right',this)">Derecha</div>
-            </div>
-
-            <button class="btn btn-generate" id="btnGenerar" onclick="generarCopy()">
-                <span class="btn-text">✨ Generar Copy con Gemini</span>
-                <span class="spinner"></span>
-            </button>
-
-            <div class="copy-preview" id="copyPreview">
-                <div class="copy-field">
-                    <div class="copy-field-label">Título</div>
-                    <div class="copy-field-value" id="pTitulo"></div>
-                </div>
-                <div class="copy-field">
-                    <div class="copy-field-label">Intro</div>
-                    <div class="copy-field-value" id="pIntro"></div>
-                </div>
-                <div class="copy-field">
-                    <div class="copy-field-label">Descripción Visual</div>
-                    <div class="copy-field-value" id="pVisual"></div>
-                </div>
-                <div class="copy-field">
-                    <div class="copy-field-label">Testimonio</div>
-                    <div class="copy-field-value" id="pTestimonio"></div>
-                </div>
-            </div>
-
-            <button class="btn btn-publish" id="btnPublicar" onclick="publicarProducto()" disabled>
-                <span class="btn-text">🔥 Publicar en la Web</span>
-                <span class="spinner"></span>
-            </button>
+    <div class="header">
+        <h1>🏮 MXL GOLD MINER - PANEL DE CONTROL</h1>
+        <div>
+            <button class="btn" onclick="generarCuriosidad()">✨ Generar Curiosidad</button>
+            <button class="btn" onclick="abrirModalProducto()">📦 Nuevo Producto</button>
+            <button class="btn btn-danger" onclick="borrarTodasCuriosidades()">🗑️ Borrar Todo</button>
         </div>
     </div>
 
-    <!-- PANEL DERECHO: Productos Publicados -->
-    <div class="panel">
-        <div class="panel-header">
-            <span class="panel-icon">📊</span>
-            <div>
-                <div class="panel-title">Productos Publicados</div>
-                <div class="panel-subtitle">Todos tus productos en la web</div>
-            </div>
-        </div>
-        <div class="panel-body">
-            <div class="stats-bar">
-                <div class="stat">
-                    <div class="stat-num" id="statProductos">0</div>
-                    <div class="stat-label">Productos</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-num" id="statClicks">0</div>
-                    <div class="stat-label">Clicks Totales</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-num" id="statCuriosidades">0</div>
-                    <div class="stat-label">Curiosidades</div>
-                </div>
-            </div>
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">🤖 Gemini<br><span id="geminiStatus" class="stat-number">-</span></div>
+        <div class="stat-card">🎯 Ángulo<br><span id="anguloStatus" class="stat-number">-</span></div>
+        <div class="stat-card">💎 Curiosidades<br><span id="curiosidadesCount" class="stat-number">0</span></div>
+        <div class="stat-card">💰 Productos<br><span id="productosCount" class="stat-number">0</span></div>
+        <div class="stat-card">🖱️ Clics<br><span id="clicsCount" class="stat-number">0</span></div>
+    </div>
 
-            <button onclick="borrarTodosLosProductos()" class="btn btn-danger" style="margin-bottom: 18px;">
-                🗑️ Borrar TODOS los artículos
-            </button>
+    <div class="section">
+        <h3>📰 CURIOSIDADES RECIENTES</h3>
+        <div id="curiosidadesList"></div>
+    </div>
 
-            <div class="productos-list" id="productosList">
-                <div style="text-align:center;color:var(--muted);padding:40px;">Cargando productos...</div>
+    <div class="section">
+        <h3>🛍️ PRODUCTOS PUBLICADOS</h3>
+        <div id="productosList"></div>
+    </div>
+
+    <!-- Modal para nuevo producto -->
+    <div id="modalProducto" class="modal">
+        <div class="modal-content">
+            <h3>📦 Nuevo Producto Exclusivo</h3>
+            <div class="form-group">
+                <label>URL de Amazon *</label>
+                <input type="text" id="productoUrl" placeholder="https://www.amazon.com/dp/XXXXXXXXXX">
             </div>
+            <div class="form-group">
+                <label>URL de Imagen *</label>
+                <input type="text" id="productoImagen" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <label>Categoría</label>
+                <select id="productoCategoria">
+                    <option value="LUXURY">LUXURY</option>
+                    <option value="SMART HOME">SMART HOME</option>
+                    <option value="WELLNESS">WELLNESS</option>
+                    <option value="DECOR">DECOR</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Tamaño de imagen</label>
+                <select id="productoImageSize">
+                    <option value="small">Pequeña</option>
+                    <option value="medium" selected>Mediana</option>
+                    <option value="large">Grande</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Posición de imagen</label>
+                <select id="productoImagePosition">
+                    <option value="left">Izquierda</option>
+                    <option value="center" selected>Centro</option>
+                    <option value="right">Derecha</option>
+                </select>
+            </div>
+            <button class="btn" onclick="generarCopy()" id="btnGenerarCopy">🤖 Generar Copy con Gemini</button>
+            <div id="copyPreview" style="margin-top:15px;display:none;">
+                <hr style="margin:10px 0;border-color:#2d2d44;">
+                <h4>Vista previa del copy:</h4>
+                <div id="copyContent" style="background:#0f0f1a;padding:10px;border-radius:8px;font-size:12px;max-height:200px;overflow:auto;"></div>
+                <button class="btn" onclick="publicarProducto()" style="margin-top:10px;">📢 PUBLICAR PRODUCTO</button>
+            </div>
+            <button class="btn small-btn" onclick="cerrarModal()" style="background:#2d2d44;margin-top:10px;">Cerrar</button>
         </div>
     </div>
 
-    <!-- PANEL FULL: Curiosidades -->
-    <div class="panel full-width">
-        <div class="panel-header">
-            <span class="panel-icon">💎</span>
-            <div>
-                <div class="panel-title">Curiosidades SEO — Gemini Autónomo</div>
-                <div class="panel-subtitle">Se generan automáticamente cada 3 horas | Imágenes variadas de Unsplash</div>
-            </div>
-        </div>
-        <div class="panel-body">
-            <div class="button-group">
-                <button class="btn btn-curiosidad" id="btnCuriosidad" onclick="generarCuriosidad()" style="flex:1">
-                    <span class="btn-text">🤖 Generar Curiosidad Ahora</span>
-                    <span class="spinner"></span>
-                </button>
-                <button class="btn btn-danger" onclick="borrarTodasCuriosidades()" style="flex:0.5">
-                    🗑️ Borrar Todas
-                </button>
-            </div>
-
-            <div id="ultimaCuriosidad" style="margin-bottom: 30px; display: none;">
-                <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">✨ Última curiosidad generada</div>
-                <div style="background:#0d0a05;border:1px solid var(--border);border-radius:12px;padding:18px;">
-                    <div style="font-weight:600;margin-bottom:8px;color:var(--gold);" id="curTitulo"></div>
-                    <div style="font-size:13px;line-height:1.6;" id="curTexto"></div>
-                </div>
-            </div>
-
-            <div style="margin-top: 20px;">
-                <div style="font-size:11px;color:var(--muted);margin-bottom:15px;">📜 HISTORIAL DE CURIOSIDADES</div>
-                <div class="curiosidades-list" id="curiosidadesList">
-                    <div style="text-align:center;color:var(--muted);padding:40px;">Cargando curiosidades...</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-    let selectedSize = 'medium';
-    let selectedPos  = 'center';
-    let currentCopy  = null;
-
-    function setPill(type, value, el) {
-        const group = el.parentElement.querySelectorAll('.pill');
-        group.forEach(p => p.classList.remove('active'));
-        el.classList.add('active');
-        if (type === 'size') selectedSize = value;
-        if (type === 'pos')  selectedPos  = value;
-    }
-
-    function previewImagen() {
-        const url = document.getElementById('imagenUrl').value.trim();
-        const wrap = document.getElementById('imgPreview');
-        if (url) {
-            wrap.innerHTML = `<img src="${url}" onerror="this.parentElement.innerHTML='<span class=\\'img-placeholder\\'>❌ Error al cargar imagen</span>'">`;
-        } else {
-            wrap.innerHTML = '<span class="img-placeholder">👆 Pega la URL de la imagen para previsualizar</span>';
-        }
-    }
-
-    function showToast(msg, type = 'info') {
-        const t = document.getElementById('toast');
-        t.textContent = msg;
-        t.className = `toast show ${type}`;
-        setTimeout(() => { t.className = 'toast'; }, 3500);
-    }
-
-    function setLoading(btnId, loading) {
-        const btn = document.getElementById(btnId);
-        if (btn) {
-            if (loading) btn.classList.add('loading');
-            else btn.classList.remove('loading');
-            btn.disabled = loading;
-        }
-    }
-
-    // Verificar estado de Gemini y Unsplash
-    async function checkStatus() {
-        try {
-            const res = await fetch('/api/gemini-status');
-            const status = await res.json();
-            
-            const geminiDot = document.getElementById('geminiDot');
-            const geminiStatus = document.getElementById('geminiStatus');
-            
-            if (status.isWorking) {
-                geminiDot.className = 'dot';
-                geminiStatus.innerHTML = '✅ Gemini activo';
-            } else if (status.hasKey) {
-                geminiDot.className = 'dot warning';
-                geminiStatus.innerHTML = '⚠️ Gemini error';
-            } else {
-                geminiDot.className = 'dot error';
-                geminiStatus.innerHTML = '❌ Sin API key';
+    <script>
+        let copyGenerado = null;
+        
+        async function cargarStats() {
+            try {
+                const [stats, curiosidades, articulos, gemini] = await Promise.all([
+                    fetch('/api/estadisticas').then(r=>r.json()),
+                    fetch('/api/curiosidades').then(r=>r.json()),
+                    fetch('/api/articulos').then(r=>r.json()),
+                    fetch('/api/gemini-status').then(r=>r.json())
+                ]);
+                
+                document.getElementById('geminiStatus').textContent = stats.geminiDisponible ? '✅' : '⚠️';
+                document.getElementById('anguloStatus').textContent = stats.descripcionAngulo || '-';
+                document.getElementById('curiosidadesCount').textContent = curiosidades.length;
+                document.getElementById('productosCount').textContent = articulos.length;
+                document.getElementById('clicsCount').textContent = stats.totalClics || 0;
+                
+                renderCuriosidades(curiosidades);
+                renderProductos(articulos);
+            } catch(e) {
+                console.error(e);
             }
-            
-            const unsplashKey = '${process.env.UNSPLASH_ACCESS_KEY}' || '';
-            const unsplashDot = document.getElementById('unsplashDot');
-            const unsplashStatus = document.getElementById('unsplashStatus');
-            
-            if (unsplashKey && unsplashKey !== '') {
-                unsplashDot.className = 'dot';
-                unsplashStatus.innerHTML = '✅ Unsplash configurado';
-            } else {
-                unsplashDot.className = 'dot warning';
-                unsplashStatus.innerHTML = '⚠️ Unsplash no configurado';
-            }
-        } catch(e) {
-            console.error('Error checking status:', e);
         }
-    }
-
-    async function generarCopy() {
-        const url = document.getElementById('amazonUrl').value.trim();
-        const imagenUrl = document.getElementById('imagenUrl').value.trim();
-        const categoria = document.getElementById('categoria').value;
-        const precio = document.getElementById('precio').value.trim();
-
-        if (!url) { showToast('⚠️ Pega el link de Amazon', 'error'); return; }
-        if (!imagenUrl) { showToast('⚠️ Pega la URL de la imagen', 'error'); return; }
-
-        setLoading('btnGenerar', true);
-        showToast('🤖 Gemini escribiendo copy SEO...', 'info');
-
-        try {
-            const res = await fetch('/api/generar-copy-producto', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url, imagenUrl, categoria, precio })
-            });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error);
-
-            currentCopy = data.copy;
-            document.getElementById('pTitulo').textContent = data.copy.titulo || '';
-            document.getElementById('pIntro').textContent = data.copy.intro || '';
-            document.getElementById('pVisual').textContent = data.copy.descripcion_visual || '';
-            document.getElementById('pTestimonio').textContent = data.copy.prueba_social || '';
-            document.getElementById('copyPreview').classList.add('show');
-            document.getElementById('btnPublicar').disabled = false;
-            showToast('✅ Copy generado, revisa y publica', 'success');
-        } catch(e) {
-            showToast('❌ Error: ' + e.message, 'error');
-        } finally {
-            setLoading('btnGenerar', false);
-        }
-    }
-
-    async function publicarProducto() {
-        if (!currentCopy) { showToast('⚠️ Genera el copy primero', 'error'); return; }
-
-        const url = document.getElementById('amazonUrl').value.trim();
-        const imagenUrl = document.getElementById('imagenUrl').value.trim();
-        const categoria = document.getElementById('categoria').value;
-
-        setLoading('btnPublicar', true);
-        showToast('💰 Publicando producto...', 'info');
-
-        try {
-            const res = await fetch('/api/publicar-producto', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    url, imagenUrl, categoria,
-                    imageSize: selectedSize,
-                    imagePosition: selectedPos,
-                    copy: currentCopy
-                })
-            });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error);
-
-            showToast('🔥 ¡Producto publicado!', 'success');
-            document.getElementById('amazonUrl').value = '';
-            document.getElementById('imagenUrl').value = '';
-            document.getElementById('precio').value = '';
-            document.getElementById('imgPreview').innerHTML = '<span class="img-placeholder">👆 Pega la URL de la imagen para previsualizar</span>';
-            document.getElementById('copyPreview').classList.remove('show');
-            document.getElementById('btnPublicar').disabled = true;
-            currentCopy = null;
-            cargarProductos();
-            cargarStats();
-        } catch(e) {
-            showToast('❌ Error: ' + e.message, 'error');
-        } finally {
-            setLoading('btnPublicar', false);
-        }
-    }
-
-    async function generarCuriosidad() {
-        setLoading('btnCuriosidad', true);
-        showToast('🤖 Gemini generando curiosidad...', 'info');
-
-        try {
-            const res = await fetch('/api/generar-curiosidad', { method: 'POST' });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error);
-
-            const c = data.curiosidad;
-            document.getElementById('curTitulo').textContent = c.titulo_es;
-            document.getElementById('curTexto').textContent = c.texto_es;
-            document.getElementById('ultimaCuriosidad').style.display = 'block';
-            showToast('✨ Curiosidad publicada', 'success');
-            cargarCuriosidades();
-            cargarStats();
-        } catch(e) {
-            showToast('❌ Error: ' + e.message, 'error');
-        } finally {
-            setLoading('btnCuriosidad', false);
-        }
-    }
-
-    async function cargarCuriosidades() {
-        try {
-            const res = await fetch('/api/curiosidades');
-            const curiosidades = await res.json();
+        
+        function renderCuriosidades(curiosidades) {
             const container = document.getElementById('curiosidadesList');
-
-            if (!curiosidades.length) {
-                container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;">No hay curiosidades generadas aún</div>';
+            if (!curiosidades || curiosidades.length === 0) {
+                container.innerHTML = '<div class="empty">✨ No hay curiosidades aún. Genera la primera.</div>';
                 return;
             }
-
-            container.innerHTML = curiosidades.map(c => `
-                <div class="curio-item">
-                    <img class="curio-thumb" src="${c.imagen || 'https://picsum.photos/64'}" onerror="this.src='https://picsum.photos/64'" alt="">
-                    <div class="curio-info">
-                        <div class="curio-title">${c.titulo_es || c.titulo_en || 'Sin título'}</div>
-                        <div class="curio-text">${(c.texto_es || c.texto_en || '').substring(0, 120)}...</div>
-                        <div class="curio-meta">📅 ${new Date(c.fecha).toLocaleDateString('es-DO')} | 🔥 ${c.compartidas || 0} compartidas | 📷 ${c.imagenFuente || 'unsplash'}</div>
+            
+            container.innerHTML = curiosidades.slice(0, 10).map(cur => `
+                <div class="curiosidad-item">
+                    <div class="curiosidad-titulo">
+                        <strong>${cur.titulo_es || cur.titulo_en || 'Sin título'}</strong><br>
+                        <small style="color:#c9a87b">${new Date(cur.fecha).toLocaleString()}</small>
                     </div>
-                    <button class="delete-btn" onclick="eliminarCuriosidad(${c.id})">🗑️ Borrar</button>
+                    <div>
+                        <button class="small-btn" onclick="borrarCuriosidad(${cur.id})">🗑️</button>
+                    </div>
                 </div>
             `).join('');
-        } catch(e) {
-            console.error('Error cargando curiosidades:', e);
         }
-    }
-
-    async function eliminarCuriosidad(id) {
-        if (!confirm('¿Eliminar esta curiosidad?')) return;
-        try {
-            const res = await fetch(`/api/curiosidad/${id}`, { method: 'DELETE' });
-            const data = await res.json();
-            if (data.success) {
-                showToast('✅ Curiosidad eliminada', 'success');
-                cargarCuriosidades();
-                cargarStats();
-            } else {
-                throw new Error(data.error);
-            }
-        } catch(e) {
-            showToast('❌ Error: ' + e.message, 'error');
-        }
-    }
-
-    async function borrarTodasCuriosidades() {
-        if (!confirm('⚠️ ¿Borrar TODAS las curiosidades? Esta acción no se puede deshacer.')) return;
-        try {
-            const res = await fetch('/api/curiosidades/all', { method: 'DELETE' });
-            const data = await res.json();
-            if (data.success) {
-                showToast('🗑️ Todas las curiosidades eliminadas', 'success');
-                cargarCuriosidades();
-                cargarStats();
-                document.getElementById('ultimaCuriosidad').style.display = 'none';
-            }
-        } catch(e) {
-            showToast('❌ Error: ' + e.message, 'error');
-        }
-    }
-
-    async function cargarProductos() {
-        try {
-            const res = await fetch('/api/articulos');
-            const productos = await res.json();
-            const list = document.getElementById('productosList');
-
-            if (!productos.length) {
-                list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;">No hay productos publicados</div>';
+        
+        function renderProductos(productos) {
+            const container = document.getElementById('productosList');
+            if (!productos || productos.length === 0) {
+                container.innerHTML = '<div class="empty">💰 No hay productos aún. Publica tu primer producto.</div>';
                 return;
             }
-
-            list.innerHTML = productos.map(p => `
-                <div class="prod-item">
-                    <img class="prod-thumb" src="${p.imagen || 'https://picsum.photos/64'}" onerror="this.src='https://picsum.photos/64'" alt="">
-                    <div class="prod-info">
-                        <div class="prod-title">${p.titulo || 'Sin título'}</div>
-                        <div class="prod-meta">${p.categoria || 'LUXURY'} · ${new Date(p.fecha).toLocaleDateString('es-DO')}</div>
-                        <div class="prod-clicks">🔥 ${p.clicks || 0} clicks</div>
+            
+            container.innerHTML = productos.map(prod => `
+                <div class="producto-item">
+                    <div class="producto-titulo">
+                        <strong>${prod.titulo || 'Sin título'}</strong><br>
+                        <small style="color:#c9a87b">${prod.categoria} | ${prod.clicks || 0} clics</small>
                     </div>
-                    <button class="delete-btn" onclick="eliminarProducto(${p.id})">✕</button>
+                    <div>
+                        <button class="small-btn" onclick="window.open('${prod.link}', '_blank')">🔗</button>
+                    </div>
                 </div>
             `).join('');
-        } catch(e) {
-            console.error(e);
         }
-    }
-
-    async function eliminarProducto(id) {
-        if (!confirm('¿Eliminar este producto?')) return;
-        try {
-            const res = await fetch('/api/articulos');
-            let data = await res.json();
-            data = data.filter(p => p.id != id);
-            await fetch('/api/ordenar-articulos', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ articulos: data })
-            });
-            showToast('🗑️ Producto eliminado', 'info');
-            cargarProductos();
-            cargarStats();
-        } catch(e) {
-            showToast('❌ Error eliminando', 'error');
+        
+        async function generarCuriosidad() {
+            const btn = event.target;
+            btn.textContent = '⏳ Generando...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/generar-curiosidad', { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    alert('✅ Curiosidad generada exitosamente');
+                    cargarStats();
+                } else {
+                    alert('❌ Error: ' + data.error);
+                }
+            } catch(e) {
+                alert('❌ Error al generar');
+            } finally {
+                btn.textContent = '✨ Generar Curiosidad';
+                btn.disabled = false;
+            }
         }
-    }
-
-    async function borrarTodosLosProductos() {
-        if (!confirm('⚠️ ¿Borrar TODOS los artículos?')) return;
-        try {
-            await fetch('/api/ordenar-articulos', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ articulos: [] })
-            });
-            showToast('🗑️ Todos los artículos borrados', 'success');
-            cargarProductos();
-            cargarStats();
-        } catch(e) {
-            showToast('❌ Error borrando', 'error');
+        
+        async function borrarCuriosidad(id) {
+            if (!confirm('¿Eliminar esta curiosidad?')) return;
+            try {
+                await fetch(`/api/curiosidad/${id}`, { method: 'DELETE' });
+                cargarStats();
+            } catch(e) {
+                alert('Error');
+            }
         }
-    }
-
-    async function cargarStats() {
-        try {
-            const [rArt, rCur] = await Promise.all([
-                fetch('/api/articulos'),
-                fetch('/api/curiosidades')
-            ]);
-            const art = await rArt.json();
-            const cur = await rCur.json();
-
-            document.getElementById('statProductos').textContent = art.length;
-            document.getElementById('statCuriosidades').textContent = cur.length;
-            document.getElementById('statClicks').textContent = art.reduce((a, p) => a + (p.clicks || 0), 0);
-        } catch(e) {}
-    }
-
-    // Inicialización
-    checkStatus();
-    cargarProductos();
-    cargarCuriosidades();
-    cargarStats();
-    setInterval(() => {
-        cargarProductos();
-        cargarCuriosidades();
+        
+        async function borrarTodasCuriosidades() {
+            if (!confirm('⚠️ ¿ELIMINAR TODAS LAS CURIOSIDADES? Esta acción no se puede deshacer.')) return;
+            try {
+                await fetch('/api/curiosidades/all', { method: 'DELETE' });
+                cargarStats();
+                alert('✅ Todas las curiosidades eliminadas');
+            } catch(e) {
+                alert('Error');
+            }
+        }
+        
+        function abrirModalProducto() {
+            document.getElementById('modalProducto').style.display = 'flex';
+            copyGenerado = null;
+            document.getElementById('copyPreview').style.display = 'none';
+            document.getElementById('productoUrl').value = '';
+            document.getElementById('productoImagen').value = '';
+        }
+        
+        function cerrarModal() {
+            document.getElementById('modalProducto').style.display = 'none';
+        }
+        
+        async function generarCopy() {
+            const url = document.getElementById('productoUrl').value;
+            const imagen = document.getElementById('productoImagen').value;
+            const categoria = document.getElementById('productoCategoria').value;
+            
+            if (!url || !imagen) {
+                alert('❌ URL de Amazon y URL de imagen son obligatorias');
+                return;
+            }
+            
+            const btn = document.getElementById('btnGenerarCopy');
+            btn.textContent = '🤖 Generando copy...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/generar-copy-producto', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, imagenUrl: imagen, categoria })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    copyGenerado = data.copy;
+                    document.getElementById('copyContent').innerHTML = `
+                        <strong>Título:</strong> ${copyGenerado.titulo}<br>
+                        <strong>Intro:</strong> ${copyGenerado.intro}<br>
+                        <strong>Curiosidad:</strong> ${copyGenerado.curiosidad}<br>
+                        <strong>Meta:</strong> ${copyGenerado.meta_descripcion}
+                    `;
+                    document.getElementById('copyPreview').style.display = 'block';
+                } else {
+                    alert('❌ Error generando copy');
+                }
+            } catch(e) {
+                alert('❌ Error: ' + e.message);
+            } finally {
+                btn.textContent = '🤖 Generar Copy con Gemini';
+                btn.disabled = false;
+            }
+        }
+        
+        async function publicarProducto() {
+            if (!copyGenerado) {
+                alert('Primero genera el copy');
+                return;
+            }
+            
+            const url = document.getElementById('productoUrl').value;
+            const imagen = document.getElementById('productoImagen').value;
+            const categoria = document.getElementById('productoCategoria').value;
+            const imageSize = document.getElementById('productoImageSize').value;
+            const imagePosition = document.getElementById('productoImagePosition').value;
+            
+            try {
+                const res = await fetch('/api/publicar-producto', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        url, imagenUrl: imagen, categoria,
+                        imageSize, imagePosition, copy: copyGenerado
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('✅ Producto publicado exitosamente');
+                    cerrarModal();
+                    cargarStats();
+                } else {
+                    alert('❌ Error: ' + data.error);
+                }
+            } catch(e) {
+                alert('❌ Error publicando');
+            }
+        }
+        
         cargarStats();
-    }, 30000);
-    setInterval(checkStatus, 60000);
-</script>
-
+        setInterval(cargarStats, 30000);
+    </script>
 </body>
 </html>
