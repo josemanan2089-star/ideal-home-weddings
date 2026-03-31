@@ -18,11 +18,10 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // ============================================================
-// CONFIGURACIÓN POSTGRESQL - CON RECUPERACIÓN AUTOMÁTICA
+// CONFIGURACIÓN POSTGRESQL
 // ============================================================
 let db = null;
 let useDatabase = false;
-let dbInitialized = false;
 
 async function initDatabase() {
     if (!process.env.DATABASE_URL) {
@@ -39,11 +38,10 @@ async function initDatabase() {
             connectionTimeoutMillis: 10000,
         });
         
-        // Test conexión
         await db.query('SELECT NOW()');
         console.log('✅ PostgreSQL conectado');
         
-        // Crear tablas si no existen
+        // Crear tablas
         await db.query(`
             CREATE TABLE IF NOT EXISTS productos (
                 id BIGINT PRIMARY KEY,
@@ -113,7 +111,6 @@ async function initDatabase() {
         
         console.log('✅ Tablas PostgreSQL listas');
         useDatabase = true;
-        dbInitialized = true;
         return true;
         
     } catch (err) {
@@ -124,7 +121,7 @@ async function initDatabase() {
 }
 
 // ============================================================
-// FUNCIONES DE ALMACENAMIENTO CON FALLBACK AUTOMÁTICO
+// ALMACENAMIENTO JSON (FALLBACK)
 // ============================================================
 const DATA_DIR = path.join(__dirname, 'data');
 const ARTICULOS_PATH = path.join(DATA_DIR, 'articulos.json');
@@ -132,7 +129,6 @@ const CURIOSIDADES_PATH = path.join(DATA_DIR, 'curiosidades.json');
 const ESTADISTICAS_PATH = path.join(DATA_DIR, 'estadisticas.json');
 const SOCIAL_HOOKS_PATH = path.join(DATA_DIR, 'social_hooks.json');
 
-// Crear directorio JSON si no existe
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
 const initJsonFile = (filePath, defaultData) => {
@@ -149,7 +145,9 @@ initJsonFile(ESTADISTICAS_PATH, {
 });
 initJsonFile(SOCIAL_HOOKS_PATH, []);
 
-// Guardar producto
+// ============================================================
+// FUNCIONES CRUD
+// ============================================================
 async function guardarProducto(producto) {
     if (useDatabase && db) {
         try {
@@ -169,14 +167,12 @@ async function guardarProducto(producto) {
                 ((valor->>'productosPublicados')::int + 1)::text::jsonb)
                 WHERE clave = 'global'
             `);
-            console.log('✅ Guardado en PostgreSQL');
             return true;
         } catch (err) {
             console.error('❌ DB Error:', err.message);
         }
     }
     
-    // Fallback JSON
     try {
         const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
         data.unshift(producto);
@@ -187,15 +183,12 @@ async function guardarProducto(producto) {
         stats.productosPublicados++;
         stats.ultimaActualizacion = new Date().toISOString();
         fs.writeFileSync(ESTADISTICAS_PATH, JSON.stringify(stats, null, 2));
-        console.log('✅ Guardado en JSON fallback');
         return true;
     } catch (err) {
-        console.error('❌ JSON Error:', err.message);
         return false;
     }
 }
 
-// Obtener productos (CRÍTICO para frontend)
 async function obtenerProductos(limit = 100) {
     if (useDatabase && db) {
         try {
@@ -203,7 +196,6 @@ async function obtenerProductos(limit = 100) {
                 `SELECT * FROM productos ORDER BY fecha DESC LIMIT $1`,
                 [limit]
             );
-            console.log(`📦 PostgreSQL: ${result.rows.length} productos`);
             return result.rows;
         } catch (err) {
             console.error('❌ DB Error:', err.message);
@@ -211,9 +203,7 @@ async function obtenerProductos(limit = 100) {
     }
     
     try {
-        const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
-        console.log(`📁 JSON fallback: ${data.length} productos`);
-        return data;
+        return JSON.parse(fs.readFileSync(ARTICULOS_PATH));
     } catch {
         return [];
     }
@@ -244,7 +234,6 @@ async function obtenerEstadisticas() {
     }
 }
 
-// Guardar curiosidad
 async function guardarCuriosidad(curiosidad) {
     if (useDatabase && db) {
         try {
@@ -354,7 +343,7 @@ async function registrarClick(productoId) {
 }
 
 // ============================================================
-// ESTADO DE MOTORES GEMINI
+// MOTORES GEMINI - VERSIÓN COMPLETA
 // ============================================================
 let sistemaListo = false;
 let inicializando = true;
@@ -365,30 +354,88 @@ let contentModelName = 'pending', salesModelName = 'pending', trafficModelName =
 const MODELOS_PRIORIDAD = ['gemini-2.0-flash-exp', 'gemini-2.0-flash', 'gemini-1.5-flash'];
 
 async function initGeminiMotor(apiKey, motor) {
-    if (!apiKey || apiKey === 'tu_api_key_aqui') {
-        console.log(`⚠️ [${motor}] Sin API_KEY`);
+    if (!apiKey || apiKey === 'tu_api_key_aqui' || apiKey === '' || apiKey === 'undefined') {
+        console.log(`⚠️ [${motor}] API_KEY no configurada`);
         return { model: null, modelName: 'none', available: false };
     }
     
     try {
         const genAI = new GoogleGenerativeAI(apiKey.trim());
+        
         for (const modelName of MODELOS_PRIORIDAD) {
             try {
                 const testModel = genAI.getGenerativeModel({ model: modelName });
-                await Promise.race([
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('timeout')), 8000)
+                );
+                const result = await Promise.race([
                     testModel.generateContent('ping'),
-                    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
+                    timeoutPromise
                 ]);
-                console.log(`✅ [${motor}] ACTIVADO: ${modelName}`);
-                return { model: testModel, modelName, available: true };
+                
+                if (result && result.response) {
+                    console.log(`✅ [${motor}] ACTIVADO: ${modelName}`);
+                    return { model: testModel, modelName: modelName, available: true };
+                }
             } catch (e) {
-                console.log(`⚠️ [${motor}] ${modelName} no disponible`);
+                console.log(`⚠️ [${motor}] ${modelName} no disponible: ${e.message}`);
             }
         }
+        
+        console.log(`❌ [${motor}] No se pudo activar Gemini`);
         return { model: null, modelName: 'none', available: false };
     } catch (e) {
+        console.log(`❌ [${motor}] Error inicializando: ${e.message}`);
         return { model: null, modelName: 'none', available: false };
     }
+}
+
+async function initGeminiMotors() {
+    console.log('\n╔══════════════════════════════════════════════════════════════════╗');
+    console.log('║   🧠 PROTOCOLO "COMMANDER MXL" - Inicializando Motores         ║');
+    console.log('╚══════════════════════════════════════════════════════════════════╝\n');
+    
+    // Validar variables de entorno
+    const missingKeys = [];
+    if (!process.env.GEMINI_API_KEY_CONTENT) missingKeys.push('CONTENT');
+    if (!process.env.GEMINI_API_KEY_SALES) missingKeys.push('SALES');
+    if (!process.env.GEMINI_API_KEY_TRAFFIC) missingKeys.push('TRAFFIC');
+    
+    if (missingKeys.length > 0) {
+        console.log(`⚠️ ADVERTENCIA: Faltan API keys para: ${missingKeys.join(', ')}`);
+        console.log('   El sistema funcionará en modo FALLBACK para esos motores\n');
+    }
+    
+    // CONTENT
+    const contentKey = process.env.GEMINI_API_KEY_CONTENT;
+    console.log(`🏭 CONTENT: ${contentKey ? `${contentKey.substring(0, 15)}...` : 'NO CONFIGURADA'}`);
+    const contentResult = await initGeminiMotor(contentKey, 'CONTENT');
+    contentModel = contentResult.model;
+    contentModelName = contentResult.modelName;
+    isContentAvailable = contentResult.available;
+    
+    // MASTERMIND (SALES)
+    const salesKey = process.env.GEMINI_API_KEY_SALES;
+    console.log(`🧠 MASTERMIND: ${salesKey ? `${salesKey.substring(0, 15)}...` : 'NO CONFIGURADA'}`);
+    const salesResult = await initGeminiMotor(salesKey, 'MASTERMIND');
+    salesModel = salesResult.model;
+    salesModelName = salesResult.modelName;
+    isSalesAvailable = salesResult.available;
+    
+    // TRAFFIC
+    const trafficKey = process.env.GEMINI_API_KEY_TRAFFIC;
+    console.log(`🚀 TRAFFIC: ${trafficKey ? `${trafficKey.substring(0, 15)}...` : 'NO CONFIGURADA'}`);
+    const trafficResult = await initGeminiMotor(trafficKey, 'TRAFFIC');
+    trafficModel = trafficResult.model;
+    trafficModelName = trafficResult.modelName;
+    isTrafficAvailable = trafficResult.available;
+    
+    console.log('\n══════════════════════════════════════════════════════════════════');
+    console.log('📊 ESTADO FINAL DE MOTORES:');
+    console.log(`   🏭 CONTENT: ${isContentAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} (${contentModelName})`);
+    console.log(`   🧠 MASTERMIND: ${isSalesAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} (${salesModelName})`);
+    console.log(`   🚀 TRAFFIC: ${isTrafficAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} (${trafficModelName})`);
+    console.log('══════════════════════════════════════════════════════════════════\n');
 }
 
 // ============================================================
@@ -396,150 +443,349 @@ async function initGeminiMotor(apiKey, motor) {
 // ============================================================
 let anguloVentaActual = 'A';
 const angulosPrompt = {
-    'A': 'Ángulo ESTATUS: exclusividad, lujo silencioso',
-    'B': 'Ángulo FOMO: escasez y urgencia',
-    'C': 'Ángulo BIO-HACKING: optimización humana',
-    'D': 'Ángulo INVERSIÓN: valor patrimonial'
+    'A': 'Ángulo ESTATUS: exclusividad, lujo silencioso, "el secreto que no cuentan"',
+    'B': 'Ángulo FOMO: escasez, urgencia, "solo quedan pocas unidades"',
+    'C': 'Ángulo BIO-HACKING: optimización humana, longevidad, energía',
+    'D': 'Ángulo INVERSIÓN: activo que no deprecia, herencia'
 };
 
 const TEMAS_SEO = [
     { tema: "luxury smart home gadgets 2026", kw_en: "best luxury smart home gadgets 2026" },
-    { tema: "home wellness spa bathroom luxury", kw_en: "luxury home spa bathroom ideas" }
+    { tema: "home wellness spa bathroom luxury", kw_en: "luxury home spa bathroom ideas" },
+    { tema: "luxury kitchen appliances women NYC", kw_en: "luxury kitchen appliances NYC women" },
+    { tema: "minimalist luxury bedroom decor 2026", kw_en: "minimalist luxury bedroom 2026" },
+    { tema: "smart home automation Beverly Hills", kw_en: "smart home automation Beverly Hills" }
 ];
 
 const imagenesRespaldo = [
     'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg',
-    'https://images.pexels.com/photos/1571468/pexels-photo-1571468.jpeg'
+    'https://images.pexels.com/photos/1571468/pexels-photo-1571468.jpeg',
+    'https://images.pexels.com/photos/279719/pexels-photo-279719.jpeg',
+    'https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg',
+    'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg'
 ];
 
 function extraerASIN(url) {
     if (!url) return null;
-    const match = url.match(/(?:dp|product)\/([A-Z0-9]{10})/i);
+    const match = url.match(/(?:dp|product|gp\/product)\/([A-Z0-9]{10})/i);
     return match ? match[1] : null;
 }
 
 function getFallbackCopy() {
     return {
         titulo: "The Investment Every NYC Woman Is Making in 2026",
-        meta_descripcion: "Discover why high-income women are investing in this exclusive piece.",
-        intro: "There's a reason interior designers keep this secret.",
-        descripcion_visual: "The finish catches light differently.",
+        meta_descripcion: "Discover why high-income women from Manhattan to Miami are investing in this exclusive piece.",
+        intro: "There's a reason interior designers in Beverly Hills keep this one detail to themselves.",
+        descripcion_visual: "The finish catches light differently. It's not just design—it's a statement of arrival.",
         problema: "Your home whispers when it should speak.",
-        solucion: "This piece commands presence.",
-        beneficio_estatus: "They'll compliment your taste.",
-        prueba_social: "Isabella from Miami: 'My decorator asked where I found it.'",
-        cierre: "Will you be one of them before it sells out?",
-        curiosidad: "These pieces appreciate 30% within 18 months.",
-        palabras_clave: ["luxury home investment"]
+        solucion: "This piece doesn't just fill space—it commands presence.",
+        beneficio_estatus: "When guests walk in, they won't compliment the piece. They'll compliment your taste.",
+        prueba_social: "Isabella from Miami: 'My decorator asked where I found it. I told her it's our little secret.'",
+        cierre: "The women who know, know. Will you be one of them before the next shipment sells out?",
+        curiosidad: "Insiders say these pieces appreciate 30% within 18 months.",
+        palabras_clave: ["luxury home investment 2026", "what NYC women are buying"]
     };
 }
 
 function getFallbackHooks() {
     return {
-        pinterest: ["✨ The $10M Secret NYC Women Are Whispering About"],
-        twitter: ["The investment that outperformed her 401k"],
-        instagram: ["The quiet luxury piece designers keep secret"],
-        facebook: ["Women in NYC are investing in something unexpected"]
+        pinterest: [
+            "✨ The $10M Secret NYC Women Are Whispering About • Save this before it's gone",
+            "🕊️ Luxury isn't loud. It's silent. And she knows exactly where to find it.",
+            "📌 Pinning this for later? So are 10,000 other women who know the secret."
+        ],
+        twitter: [
+            "The investment that outperformed her 401k? A piece so exclusive, only 47 women own it in Manhattan.",
+            "She doesn't chase trends. She sets them. And this is what's next.",
+            "Miami women have a rule: If more than 5 people know about it, it's no longer luxury."
+        ],
+        instagram: [
+            "The quiet luxury piece that interior designers in Beverly Hills keep to themselves. 🕊️ #LuxuryHome",
+            "Your home whispers when it should speak. Let's fix that. ✨",
+            "Not everything needs to be seen to be understood. But this? She'll notice. 🎯"
+        ],
+        facebook: [
+            "Women in NYC are investing in something unexpected this year. Here's why.",
+            "The one thing she bought that her decorator asked about 3 times.",
+            "Is your home a conversation starter or a conversation ender?"
+        ]
     };
 }
 
+async function obtenerImagen(query) {
+    const idx = Math.floor(Math.random() * imagenesRespaldo.length);
+    return { url: imagenesRespaldo[idx], fuente: 'respaldo', alt: query || 'luxury home' };
+}
+
+// ============================================================
+// GENERADORES DE CONTENIDO
+// ============================================================
 async function generarArticuloCompleto(url, imagenUrl, categoria) {
-    if (!isSalesAvailable || !salesModel) return getFallbackCopy();
+    const fallback = getFallbackCopy();
+    
+    if (!isSalesAvailable || !salesModel) {
+        console.log('⚠️ [MASTERMIND] No disponible, usando fallback');
+        return fallback;
+    }
     
     try {
-        const prompt = `Genera un artículo de venta para producto de lujo. URL: ${url}
-        Ángulo: ${angulosPrompt[anguloVentaActual]}
-        Responde SOLO con JSON: {"titulo":"...","meta_descripcion":"...","intro":"...","descripcion_visual":"...","problema":"...","solucion":"...","beneficio_estatus":"...","prueba_social":"...","cierre":"...","curiosidad":"...","palabras_clave":[...]}`;
+        console.log(`\n🧠 [MASTERMIND] Generando artículo...`);
+        
+        const prompt = `Eres DAVID OGILVY + GARY HALBERT. Genera un artículo de venta para un producto de lujo.
+
+URL: ${url}
+Categoría: ${categoria || 'LUXURY'}
+Ángulo: ${angulosPrompt[anguloVentaActual]}
+
+RESPONDE SOLO CON JSON (sin markdown):
+{
+    "titulo": "Título que detiene el scroll (max 60 chars)",
+    "meta_descripcion": "Meta description 155 chars",
+    "intro": "Gancho psicológico 1 frase",
+    "descripcion_visual": "Descripción sensorial del producto",
+    "problema": "El deseo inconsciente que satisface (1 frase)",
+    "solucion": "Cómo lo resuelve (1 frase)",
+    "beneficio_estatus": "Beneficio de estatus (1 frase)",
+    "prueba_social": "Testimonio de mujer adinerada con nombre y ubicación",
+    "cierre": "CTA con urgencia y exclusividad",
+    "curiosidad": "Dato exclusivo que crea FOMO",
+    "palabras_clave": ["keyword1", "keyword2", "keyword3"]
+}`;
+        
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('timeout after 25s')), 25000)
+        );
         
         const result = await Promise.race([
             salesModel.generateContent(prompt),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 25000))
+            timeoutPromise
         ]);
         
         const text = result.response.text();
         const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
         const data = JSON.parse(clean);
-        return { ...getFallbackCopy(), ...data };
+        
+        console.log(`✅ [MASTERMIND] Artículo generado: ${data.titulo}`);
+        
+        return {
+            titulo: data.titulo || fallback.titulo,
+            meta_descripcion: data.meta_descripcion || fallback.meta_descripcion,
+            intro: data.intro || fallback.intro,
+            descripcion_visual: data.descripcion_visual || fallback.descripcion_visual,
+            problema: data.problema || fallback.problema,
+            solucion: data.solucion || fallback.solucion,
+            beneficio_estatus: data.beneficio_estatus || fallback.beneficio_estatus,
+            prueba_social: data.prueba_social || fallback.prueba_social,
+            cierre: data.cierre || fallback.cierre,
+            curiosidad: data.curiosidad || fallback.curiosidad,
+            palabras_clave: data.palabras_clave || fallback.palabras_clave
+        };
     } catch (e) {
-        return getFallbackCopy();
+        console.log(`⚠️ [MASTERMIND] Error: ${e.message}`);
+        return fallback;
     }
 }
 
 async function generarHooksParaProducto(producto) {
-    if (!isTrafficAvailable || !trafficModel) return getFallbackHooks();
+    const fallback = getFallbackHooks();
+    
+    if (!isTrafficAvailable || !trafficModel) {
+        console.log('⚠️ [TRAFFIC] No disponible, usando fallback');
+        return fallback;
+    }
     
     try {
-        const prompt = `Genera hooks virales. Producto: ${producto.titulo}
-        Responde SOLO con JSON: {"pinterest":[...],"twitter":[...],"instagram":[...],"facebook":[...]}`;
+        console.log(`\n🚀 [TRAFFIC] Generando hooks...`);
+        
+        const prompt = `Eres el GENERAL DE TRÁFICO. Genera hooks virales para bombardeo externo.
+
+PRODUCTO: ${producto.titulo}
+CURIOSIDAD: ${producto.curiosidad || 'Producto de lujo exclusivo'}
+ÁNGULO: ${angulosPrompt[anguloVentaActual]}
+
+RESPONDE SOLO CON JSON (sin markdown):
+{
+    "pinterest": ["hook1", "hook2", "hook3"],
+    "twitter": ["hook1", "hook2", "hook3"],
+    "instagram": ["hook1", "hook2", "hook3"],
+    "facebook": ["hook1", "hook2", "hook3"],
+    "metaDescription": "Meta description optimizada 155 chars",
+    "seoTitle": "SEO title 60 chars"
+}`;
+        
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('timeout after 25s')), 25000)
+        );
         
         const result = await Promise.race([
             trafficModel.generateContent(prompt),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 25000))
+            timeoutPromise
         ]);
         
         const text = result.response.text();
         const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-        return JSON.parse(clean);
+        const hooks = JSON.parse(clean);
+        
+        console.log(`✅ [TRAFFIC] Hooks generados`);
+        return hooks;
     } catch (e) {
-        return getFallbackHooks();
+        console.log(`⚠️ [TRAFFIC] Error: ${e.message}`);
+        return fallback;
     }
 }
 
 async function generarCuriosidadConGemini() {
+    const temaIdx = Math.floor(Date.now() / 3600000) % TEMAS_SEO.length;
+    const tema = TEMAS_SEO[temaIdx];
+    const porcentaje = Math.floor(Math.random() * 35 + 60);
+    
+    const fallback = {
+        titulo_es: `El ${porcentaje}% de mujeres en NYC ya conoce este secreto de lujo`,
+        titulo_en: `Best ${tema.tema.split(' ').slice(0, 3).join(' ')} 2026`,
+        texto_es: `Descubre por qué el ${porcentaje}% de mujeres de alto poder adquisitivo en Manhattan están invirtiendo en este elemento exclusivo.`,
+        texto_en: `Discover why ${porcentaje}% of high-income women in Manhattan are investing in this exclusive element.`,
+        meta_descripcion_en: `Discover the best luxury home products 2026. What NYC women are buying.`,
+        descripcion_visual_es: "Cada detalle en esta imagen habla de elegancia y estatus.",
+        descripcion_visual_en: "Every detail in this image speaks of elegance and status.",
+        productoSugerido: tema.tema.split(' ')[0] + ' luxury product'
+    };
+    
     if (!isContentAvailable || !contentModel) {
-        return {
-            titulo_es: "El 75% de mujeres en NYC ya conoce este secreto",
-            titulo_en: "Best luxury home products 2026",
-            texto_es: "Descubre por qué las mujeres de Manhattan invierten en esto",
-            texto_en: "Discover why Manhattan women are investing",
-            productoSugerido: "luxury home decor"
-        };
+        console.log('⚠️ [CONTENT] No disponible, usando fallback');
+        return fallback;
     }
     
     try {
-        const tema = TEMAS_SEO[Math.floor(Date.now() / 3600000) % TEMAS_SEO.length];
-        const prompt = `Genera curiosidad viral. Tema: ${tema.tema}
-        Responde SOLO con JSON: {"titulo_es":"...","titulo_en":"...","texto_es":"...","texto_en":"...","productoSugerido":"..."}`;
+        console.log(`🏭 [CONTENT] Generando curiosidad...`);
+        
+        const prompt = `Eres experto en marketing de lujo para mujeres de NYC, Miami, Beverly Hills.
+Genera una curiosidad viral.
+
+TEMA: ${tema.tema}
+KEYWORD EN: ${tema.kw_en}
+
+RESPONDE SOLO CON JSON (sin markdown):
+{
+    "titulo_es": "Título en español con número impactante",
+    "titulo_en": "Title in English with keyword",
+    "texto_es": "Texto persuasivo 2-3 oraciones",
+    "texto_en": "Persuasive text 2-3 sentences",
+    "meta_descripcion_en": "Meta description 155 chars",
+    "descripcion_visual_es": "Descripción sensorial",
+    "descripcion_visual_en": "Sensory description",
+    "productoSugerido": "Tipo específico de producto Amazon"
+}`;
+        
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('timeout after 20s')), 20000)
+        );
         
         const result = await Promise.race([
             contentModel.generateContent(prompt),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 20000))
+            timeoutPromise
         ]);
         
         const text = result.response.text();
         const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-        return JSON.parse(clean);
-    } catch (e) {
+        const data = JSON.parse(clean);
+        
+        console.log(`✅ [CONTENT] Curiosidad generada: ${data.titulo_en}`);
+        
         return {
-            titulo_es: "Secretos del lujo silencioso",
-            titulo_en: "Silent luxury secrets",
-            texto_es: "Lo que las mujeres adineradas no cuentan",
-            texto_en: "What wealthy women don't tell",
-            productoSugerido: "luxury decor"
+            titulo_es: data.titulo_es || fallback.titulo_es,
+            titulo_en: data.titulo_en || fallback.titulo_en,
+            texto_es: data.texto_es || fallback.texto_es,
+            texto_en: data.texto_en || fallback.texto_en,
+            meta_descripcion_en: data.meta_descripcion_en || fallback.meta_descripcion_en,
+            descripcion_visual_es: data.descripcion_visual_es || fallback.descripcion_visual_es,
+            descripcion_visual_en: data.descripcion_visual_en || fallback.descripcion_visual_en,
+            productoSugerido: data.productoSugerido || fallback.productoSugerido
         };
+    } catch (e) {
+        console.log(`⚠️ [CONTENT] Error: ${e.message}`);
+        return fallback;
+    }
+}
+
+async function publicarCuriosidadAutomatica() {
+    console.log('🏭 [CONTENT] Generando curiosidad programada...');
+    
+    try {
+        const g = await generarCuriosidadConGemini();
+        const img = await obtenerImagen(g.productoSugerido);
+        
+        const nueva = {
+            id: Date.now(),
+            titulo_es: g.titulo_es,
+            titulo_en: g.titulo_en,
+            texto_es: g.texto_es,
+            texto_en: g.texto_en,
+            meta_descripcion_en: g.meta_descripcion_en,
+            descripcion_visual_es: g.descripcion_visual_es,
+            descripcion_visual_en: g.descripcion_visual_en,
+            imagen: img.url,
+            imagenFuente: img.fuente,
+            productoSugerido: g.productoSugerido,
+            anguloUsado: anguloVentaActual,
+            fecha: new Date().toISOString()
+        };
+        
+        await guardarCuriosidad(nueva);
+        console.log(`✅ [CONTENT] Publicada: "${nueva.titulo_en}"`);
+        return nueva;
+    } catch (e) {
+        console.log('❌ [CONTENT] Error:', e.message);
+        return null;
     }
 }
 
 function generarHTMLArticulo(url, imagenUrl, categoria, copy) {
     return `<!DOCTYPE html>
-<html><head><title>${copy.titulo}</title>
-<meta name="description" content="${copy.meta_descripcion}">
-<meta property="og:image" content="${imagenUrl}">
-<style>
-body{font-family:system-ui;background:#fffaf7;}
-.hero{background:linear-gradient(135deg,#1a1a2e,#2d2d44);padding:60px 20px;text-align:center;}
-.hero h1{color:#fff;}
-.btn-buy{display:block;background:#ff4500;color:#fff;padding:16px;text-align:center;border-radius:50px;margin:30px 0;}
-</style></head>
-<body><div class="hero"><h1>${copy.titulo}</h1></div>
-<div style="max-width:800px;margin:0 auto;padding:40px 20px;">
-<p>${copy.intro}</p>
-<img src="${imagenUrl}" style="max-width:100%;margin:20px 0;">
-<p>${copy.descripcion_visual}</p>
-<a href="${url}" class="btn-buy">🔴 VER PRECIO EN AMAZON →</a>
-<p>${copy.cierre}</p>
-<footer>© 2026 MXL GOLD MINER</footer>
-</div></body></html>`;
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${copy.titulo}</title>
+    <meta name="description" content="${copy.meta_descripcion}">
+    <meta name="keywords" content="${(copy.palabras_clave || []).join(', ')}">
+    <meta property="og:image" content="${imagenUrl}">
+    <link rel="canonical" href="${url}">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:system-ui,sans-serif;background:#fffaf7;color:#1a1a1a;line-height:1.6;}
+        .hero{background:linear-gradient(135deg,#1a1a2e,#2d2d44);padding:60px 20px;text-align:center;}
+        .hero h1{font-size:2rem;color:#fff;max-width:800px;margin:0 auto;}
+        .article-body{max-width:800px;margin:0 auto;padding:40px 20px;}
+        .btn-buy{display:block;background:#ff4500;color:#fff;padding:16px 30px;text-decoration:none;border-radius:50px;text-align:center;margin:30px 0;font-weight:bold;}
+        .btn-buy:hover{background:#ff6b35;}
+        .social-proof{background:#fff;border-left:4px solid #ff4500;padding:20px;margin:30px 0;}
+        img{max-width:100%;border-radius:12px;margin:20px 0;}
+        footer{text-align:center;padding:30px;font-size:12px;border-top:1px solid #eee;}
+        @media(max-width:600px){.hero h1{font-size:1.4rem}}
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>${copy.titulo}</h1>
+    </div>
+    <div class="article-body">
+        <p><strong>✨ ${copy.curiosidad}</strong></p>
+        <p>${copy.intro}</p>
+        <img src="${imagenUrl}" alt="${copy.titulo}">
+        <p>${copy.descripcion_visual}</p>
+        <p><strong>${copy.problema}</strong></p>
+        <p>${copy.solucion}</p>
+        <a href="${url}" class="btn-buy" target="_blank" rel="nofollow">🔴 VER PRECIO EN AMAZON →</a>
+        <p><em>${copy.beneficio_estatus}</em></p>
+        <div class="social-proof">
+            "${copy.prueba_social}"
+        </div>
+        <p><strong>${copy.cierre}</strong></p>
+        <a href="${url}" class="btn-buy" target="_blank" rel="nofollow">🔥 COMPRAR EN AMAZON →</a>
+        <footer>As an Amazon Associate we earn from qualifying purchases. © 2026 MXL GOLD MINER</footer>
+    </div>
+</body>
+</html>`;
 }
 
 // ============================================================
@@ -551,23 +797,34 @@ app.get('/health', async (req, res) => {
     res.json({
         status: 'ok',
         protocol: 'COMMANDER MXL v3.1',
-        sistemaListo,
+        sistemaListo: sistemaListo,
+        inicializando: inicializando,
         database: useDatabase ? 'postgresql' : 'json_fallback',
         productosCount: productos.length,
-        content: isContentAvailable ? 'active' : 'inactive',
-        mastermind: isSalesAvailable ? 'active' : 'inactive',
-        traffic: isTrafficAvailable ? 'active' : 'inactive'
+        uptime: process.uptime(),
+        content: isContentAvailable ? 'active' : (inicializando ? 'pending' : 'inactive'),
+        mastermind: isSalesAvailable ? 'active' : (inicializando ? 'pending' : 'inactive'),
+        traffic: isTrafficAvailable ? 'active' : (inicializando ? 'pending' : 'inactive'),
+        contentModel: contentModelName,
+        mastermindModel: salesModelName,
+        trafficModel: trafficModelName
     });
 });
 
 app.post('/api/commander/inject', async (req, res) => {
+    const startTime = Date.now();
+    console.log('\n═══════════════════════════════════════════════════════════');
+    console.log('🎯 [COMMANDER MXL] ORDEN RECIBIDA');
+    
     try {
         const { url, imagenUrl, categoria } = req.body;
+        
         if (!url || !imagenUrl) {
             return res.status(400).json({ success: false, error: 'URL e imagen requeridas' });
         }
         
         const copy = await generarArticuloCompleto(url, imagenUrl, categoria);
+        
         const producto = {
             id: Date.now(),
             asin: extraerASIN(url),
@@ -587,13 +844,27 @@ app.post('/api/commander/inject', async (req, res) => {
         const hooks = await generarHooksParaProducto(producto);
         await guardarHooks(producto, hooks);
         
+        const elapsed = Date.now() - startTime;
+        console.log(`✅ ORDEN COMPLETADA en ${elapsed}ms`);
+        console.log(`   📝 Producto: ${producto.titulo}`);
+        console.log(`   💾 Almacenamiento: ${useDatabase ? 'PostgreSQL' : 'JSON'}`);
+        console.log('═══════════════════════════════════════════════════════════\n');
+        
         res.json({
             success: true,
-            producto: { id: producto.id, titulo: producto.titulo },
-            hooks,
-            storage: useDatabase ? 'postgresql' : 'json_fallback'
+            message: '✅ ORDEN EJECUTADA',
+            tiempoProcesamiento: `${elapsed}ms`,
+            producto: { id: producto.id, titulo: producto.titulo, url: producto.link },
+            hooks: hooks,
+            storage: useDatabase ? 'postgresql' : 'json_fallback',
+            motores: {
+                mastermind: isSalesAvailable ? 'activado' : 'fallback',
+                traffic: isTrafficAvailable ? 'activado' : 'fallback'
+            }
         });
+        
     } catch (e) {
+        console.error('❌ Error:', e.message);
         res.status(500).json({ success: false, error: e.message });
     }
 });
@@ -624,7 +895,11 @@ app.get('/api/estadisticas', async (req, res) => {
         storage: useDatabase ? 'postgresql' : 'json_fallback',
         contentDisponible: isContentAvailable,
         mastermindDisponible: isSalesAvailable,
-        trafficDisponible: isTrafficAvailable
+        trafficDisponible: isTrafficAvailable,
+        contentModelo: contentModelName,
+        mastermindModelo: salesModelName,
+        trafficModelo: trafficModelName,
+        sistemaListo: sistemaListo
     });
 });
 
@@ -639,48 +914,57 @@ app.post('/api/angulo/:angulo', (req, res) => {
         anguloVentaActual = angulo;
         res.json({ success: true, angulo });
     } else {
-        res.status(400).json({ success: false });
+        res.status(400).json({ success: false, error: 'Ángulo inválido. Usa A, B, C o D' });
     }
 });
 
 // Frontend
 const indexPath = path.join(__dirname, 'index.html');
 if (!fs.existsSync(indexPath)) {
-    fs.writeFileSync(indexPath, `<!DOCTYPE html><html><head><title>MXL Commander</title></head><body><h1>MXL Commander API</h1><p>API activa. Usa /api/ endpoints.</p></body></html>`);
+    fs.writeFileSync(indexPath, `<!DOCTYPE html>
+<html><head><title>MXL Commander</title><style>body{font-family:system-ui;max-width:800px;margin:0 auto;padding:2rem;background:#fffaf7;}h1{color:#ff4500;}</style></head>
+<body><h1>🧠 MXL Commander API</h1><p>API activa. Usa /api/ endpoints.</p><p><a href="/api/estadisticas">Ver estadísticas</a></p></body></html>`);
 }
+
 app.use(express.static(__dirname));
 app.get('/', (req, res) => res.sendFile(indexPath));
 app.get('/panel', (req, res) => res.sendFile(indexPath));
 
 // ============================================================
-// INICIO
+// INICIO DEL SERVIDOR
 // ============================================================
 async function start() {
     await initDatabase();
     await initGeminiMotors();
     
+    // Programar CRON para curiosidades cada 3 horas
     cron.schedule('0 */3 * * *', async () => {
-        const g = await generarCuriosidadConGemini();
-        const img = await (async () => ({ url: imagenesRespaldo[0], fuente: 'respaldo' }))();
-        await guardarCuriosidad({
-            id: Date.now(),
-            titulo_es: g.titulo_es,
-            titulo_en: g.titulo_en,
-            texto_es: g.texto_es,
-            texto_en: g.texto_en,
-            imagen: img.url,
-            productoSugerido: g.productoSugerido,
-            fecha: new Date().toISOString()
-        });
+        console.log('⏰ [CRON] Generando curiosidad automática...');
+        await publicarCuriosidadAutomatica();
     });
+    
+    // Generar primera curiosidad si no hay
+    const curiosidades = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
+    if (curiosidades.length === 0) {
+        console.log('📝 Generando primera curiosidad en 5 segundos...');
+        setTimeout(() => publicarCuriosidadAutomatica(), 5000);
+    }
     
     sistemaListo = true;
     inicializando = false;
     
     app.listen(PORT, '0.0.0.0', () => {
-        console.log(`\n🚀 MXL Commander v3.1 en puerto ${PORT}`);
-        console.log(`🗄️  Storage: ${useDatabase ? 'PostgreSQL ✅' : 'JSON Fallback ⚠️'}`);
-        console.log(`🏭 CONTENT: ${isContentAvailable ? '✅' : '⚠️'} | MASTERMIND: ${isSalesAvailable ? '✅' : '⚠️'} | TRAFFIC: ${isTrafficAvailable ? '✅' : '⚠️'}\n`);
+        console.log(`
+╔══════════════════════════════════════════════════════════════════╗
+║     🧠 PROTOCOLO "COMMANDER MXL v3.1" - SERVIDOR ACTIVO        ║
+╠══════════════════════════════════════════════════════════════════╣
+║  🚀 Puerto: ${PORT}                                               ║
+║  🗄️  Storage: ${useDatabase ? 'PostgreSQL ✅' : 'JSON Fallback ⚠️'}  ║
+║  🏭 CONTENT: ${isContentAvailable ? '✅' : '⚠️'}  MASTERMIND: ${isSalesAvailable ? '✅' : '⚠️'}  TRAFFIC: ${isTrafficAvailable ? '✅' : '⚠️'}  ║
+║  📊 API: /api/productos | /api/estadisticas | /health           ║
+║  🎯 Panel: /panel                                                ║
+╚══════════════════════════════════════════════════════════════════╝
+        `);
     });
 }
 
