@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel MXL - Control de Ventas</title>
+    <title>Panel MXL - MASTERMIND Control</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:system-ui,sans-serif;background:#0f0f1a;color:#fff;padding:20px;}
@@ -22,8 +22,10 @@
         .btn-secondary:hover{background:#3d3d5c;}
         .btn-success{background:#10b981;}
         .btn-success:hover{background:#059669;}
+        .btn-mastermind{background:#8b5cf6;}
+        .btn-mastermind:hover{background:#7c3aed;}
         .section{background:#1a1a2e;border-radius:12px;padding:20px;margin-top:20px;}
-        .section h3{margin-bottom:15px;color:#ff4500;}
+        .section h3{margin-bottom:15px;color:#ff4500;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
         .curiosidad-item,.producto-item{border-bottom:1px solid #2d2d44;padding:15px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;}
         .curiosidad-item:last-child,.producto-item:last-child{border-bottom:none;}
         .curiosidad-titulo{flex:1;font-size:0.9rem;}
@@ -47,6 +49,9 @@
         .motor-badge{font-size:10px;padding:4px 8px;border-radius:12px;}
         .motor-content{background:#ff4500;color:#fff;}
         .motor-sales{background:#10b981;color:#fff;}
+        .motor-mastermind{background:#8b5cf6;color:#fff;}
+        .estrategia-card{background:#0f0f1a;padding:15px;border-radius:12px;margin-top:10px;border-left:3px solid #8b5cf6;}
+        .tendencia-tag{display:inline-block;background:#2d2d44;padding:4px 12px;border-radius:20px;font-size:11px;margin:4px;}
         @keyframes slideIn{
             from{transform:translateX(100%);opacity:0;}
             to{transform:translateX(0);opacity:1;}
@@ -56,10 +61,11 @@
 </head>
 <body>
     <div class="header">
-        <h1>🏮 MXL GOLD MINER - PANEL DE CONTROL</h1>
+        <h1>🧠 MXL MASTERMIND - PANEL DE CONTROL</h1>
         <div>
-            <button class="btn" onclick="generarCuriosidad(this)">✨ Generar Curiosidad</button>
-            <button class="btn" onclick="abrirModalProducto()">📦 Nuevo Producto</button>
+            <button class="btn" onclick="generarCuriosidad(this)">✨ CONTENT: Curiosidad</button>
+            <button class="btn btn-mastermind" onclick="analizarEstrategia()">🧠 MASTERMIND: Analizar Mercado</button>
+            <button class="btn" onclick="abrirModalProducto()">💰 SALES: Nuevo Producto</button>
             <button class="btn btn-danger" onclick="borrarTodasCuriosidades()">🗑️ Borrar Todo</button>
             <button class="btn btn-secondary" onclick="cargarStats()">🔄 Refrescar</button>
         </div>
@@ -67,14 +73,14 @@
 
     <div class="stats-grid" id="statsGrid">
         <div class="stat-card">
-            🤖 CONTENT<br>
+            🏭 CONTENT<br>
             <span id="contentStatus" class="stat-number">-</span>
             <div class="stat-label" id="contentModel">-</div>
         </div>
         <div class="stat-card">
-            💰 SALES<br>
-            <span id="salesStatus" class="stat-number">-</span>
-            <div class="stat-label" id="salesModel">-</div>
+            🧠 MASTERMIND<br>
+            <span id="mastermindStatus" class="stat-number">-</span>
+            <div class="stat-label" id="mastermindModel">-</div>
         </div>
         <div class="stat-card">
             🎯 Ángulo<br>
@@ -98,20 +104,28 @@
         </div>
     </div>
 
+    <!-- Sección de Estrategia MASTERMIND -->
+    <div class="section" id="estrategiaSection">
+        <h3>🧠 ANÁLISIS ESTRATÉGICO - MASTERMIND MXL</h3>
+        <div id="estrategiaContent">
+            <div class="empty">⚡ Analizando mercado 2026...</div>
+        </div>
+    </div>
+
     <div class="section">
-        <h3>📰 CURIOSIDADES RECIENTES <span style="font-size:10px;background:#ff4500;padding:2px 8px;border-radius:12px;">MOTOR CONTENT</span></h3>
+        <h3>📰 CURIOSIDADES RECIENTES <span class="motor-badge motor-content" style="background:#ff4500;">MOTOR CONTENT</span></h3>
         <div id="curiosidadesList"></div>
     </div>
 
     <div class="section">
-        <h3>🛍️ PRODUCTOS PUBLICADOS <span style="font-size:10px;background:#10b981;padding:2px 8px;border-radius:12px;">MOTOR SALES</span></h3>
+        <h3>🛍️ PRODUCTOS PUBLICADOS <span class="motor-badge motor-mastermind" style="background:#8b5cf6;">MASTERMIND SALES</span></h3>
         <div id="productosList"></div>
     </div>
 
     <!-- Modal para nuevo producto -->
     <div id="modalProducto" class="modal">
         <div class="modal-content">
-            <h3>📦 Nuevo Producto Exclusivo</h3>
+            <h3>💰 Nuevo Producto Exclusivo - MASTERMIND SALES</h3>
             <div class="form-group">
                 <label>URL de Amazon *</label>
                 <input type="text" id="productoUrl" placeholder="https://www.amazon.com/dp/XXXXXXXXXX">
@@ -145,12 +159,12 @@
                     <option value="right">Derecha</option>
                 </select>
             </div>
-            <button class="btn" onclick="generarCopy()" id="btnGenerarCopy">💰 Generar Copy con SALES</button>
+            <button class="btn btn-mastermind" onclick="generarCopy()" id="btnGenerarCopy">🧠 MASTERMIND: Generar Copy Élite</button>
             <div id="copyPreview" style="margin-top:15px;display:none;">
                 <hr>
-                <h4>Vista previa del copy (generado por SALES):</h4>
+                <h4>Vista previa del copy (MASTERMIND - Ogilvy + Halbert):</h4>
                 <div id="copyContent" class="copy-preview"></div>
-                <button class="btn" onclick="publicarProducto()" style="margin-top:10px;width:100%;">📢 PUBLICAR PRODUCTO</button>
+                <button class="btn btn-success" onclick="publicarProducto()" style="margin-top:10px;width:100%;">📢 PUBLICAR PRODUCTO</button>
             </div>
             <button class="btn btn-secondary" onclick="cerrarModal()" style="margin-top:10px;width:100%;">Cerrar</button>
         </div>
@@ -180,14 +194,13 @@
                 if (motores) {
                     document.getElementById('contentStatus').textContent = motores.content?.disponible ? '✅' : '⚠️';
                     document.getElementById('contentModel').textContent = motores.content?.modelo || 'no disponible';
-                    document.getElementById('salesStatus').textContent = motores.sales?.disponible ? '✅' : '⚠️';
-                    document.getElementById('salesModel').textContent = motores.sales?.modelo || 'no disponible';
+                    document.getElementById('mastermindStatus').textContent = motores.mastermind?.disponible ? '✅' : '⚠️';
+                    document.getElementById('mastermindModel').textContent = motores.mastermind?.modelo || 'no disponible';
                 } else {
-                    // Fallback si el endpoint no existe
                     document.getElementById('contentStatus').textContent = stats.contentDisponible ? '✅' : '⚠️';
                     document.getElementById('contentModel').textContent = stats.contentModelo || '?';
-                    document.getElementById('salesStatus').textContent = stats.salesDisponible ? '✅' : '⚠️';
-                    document.getElementById('salesModel').textContent = stats.salesModelo || '?';
+                    document.getElementById('mastermindStatus').textContent = stats.salesDisponible ? '✅' : '⚠️';
+                    document.getElementById('mastermindModel').textContent = stats.salesModelo || '?';
                 }
                 
                 document.getElementById('anguloStatus').textContent = stats.anguloActual || '-';
@@ -198,10 +211,51 @@
                 
                 renderCuriosidades(curiosidades);
                 renderProductos(articulos);
+                renderEstrategia(stats.estrategia);
             } catch(e) {
                 console.error('Error cargando stats:', e);
                 mostrarToast('Error al cargar estadísticas', true);
             }
+        }
+        
+        function renderEstrategia(estrategia) {
+            const container = document.getElementById('estrategiaContent');
+            if (!estrategia || !estrategia.ultimoAnalisis) {
+                container.innerHTML = `
+                    <div class="estrategia-card">
+                        <p style="color:#c9a87b;">⚡ MASTERMIND en espera...</p>
+                        <p style="font-size:12px;margin-top:10px;">Haz clic en "Analizar Mercado" para activar el cerebro maestro</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="estrategia-card">
+                    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:15px;">
+                        <span><strong>🎯 Ángulo recomendado:</strong> ${estrategia.anguloRecomendado || anguloVentaActual} - ${angulosDesc[estrategia.anguloRecomendado] || 'Estrategia activa'}</span>
+                        <span><strong>📅 Último análisis:</strong> ${new Date(estrategia.ultimoAnalisis).toLocaleString()}</span>
+                    </div>
+                    <div style="margin-bottom:15px;">
+                        <strong>🧠 Psicología de venta:</strong><br>
+                        <span style="font-size:13px;color:#c9a87b;">${estrategia.psicologiaDeVenta || 'Optimizando estrategia...'}</span>
+                    </div>
+                    <div style="margin-bottom:15px;">
+                        <strong>📈 Tendencias 2026 detectadas:</strong><br>
+                        <div style="margin-top:8px;">
+                            ${(estrategia.tendenciasActuales || []).map(t => `<span class="tendencia-tag">📌 ${t}</span>`).join('') || '<span class="tendencia-tag">Analizando mercado...</span>'}
+                        </div>
+                    </div>
+                    <div style="margin-bottom:15px;">
+                        <strong>💡 Recomendación estratégica:</strong><br>
+                        <span style="font-size:13px;">${estrategia.recomendaciones ? estrategia.recomendaciones[0] : 'Ejecutar análisis para obtener recomendaciones'}</span>
+                    </div>
+                    <div>
+                        <strong>⚡ Próximo movimiento:</strong><br>
+                        <span style="font-size:13px;color:#8b5cf6;">${estrategia.proximoMovimiento || 'Analizar datos de clics para optimizar'}</span>
+                    </div>
+                </div>
+            `;
         }
         
         function renderCuriosidades(curiosidades) {
@@ -227,7 +281,7 @@
         function renderProductos(productos) {
             const container = document.getElementById('productosList');
             if (!productos || productos.length === 0) {
-                container.innerHTML = '<div class="empty">💰 No hay productos aún. Publica tu primer producto con SALES.</div>';
+                container.innerHTML = '<div class="empty">💰 No hay productos aún. Publica tu primer producto con MASTERMIND SALES.</div>';
                 return;
             }
             
@@ -235,7 +289,7 @@
                 <div class="producto-item">
                     <div class="producto-titulo">
                         <strong>${escapeHtml(prod.titulo || 'Sin título')}</strong><br>
-                        <small style="color:#c9a87b">📁 ${prod.categoria} | 🖱️ ${prod.clicks || 0} clics | 📅 ${new Date(prod.fecha).toLocaleDateString()} | 💰 Motor: SALES</small>
+                        <small style="color:#c9a87b">📁 ${prod.categoria} | 🖱️ ${prod.clicks || 0} clics | 📅 ${new Date(prod.fecha).toLocaleDateString()} | 🧠 Motor: MASTERMIND</small>
                     </div>
                     <div>
                         <button class="small-btn" onclick="window.open('${prod.link}', '_blank')">🔗</button>
@@ -264,7 +318,7 @@
                 const res = await fetch('/api/generar-curiosidad', { method: 'POST' });
                 const data = await res.json();
                 if (data.success) {
-                    mostrarToast(`✅ Curiosidad generada por MOTOR CONTENT (${data.motor || 'CONTENT'})`);
+                    mostrarToast(`✅ Curiosidad generada por MOTOR CONTENT`);
                     cargarStats();
                 } else {
                     mostrarToast('❌ Error: ' + (data.error || 'Error desconocido'), true);
@@ -272,6 +326,30 @@
             } catch(e) {
                 console.error('Error:', e);
                 mostrarToast('❌ Error al generar curiosidad', true);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+        
+        async function analizarEstrategia() {
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '🧠 MASTERMIND analizando...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/analizar-estrategia', { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    mostrarToast(`🧠 MASTERMIND: Análisis estratégico completado`);
+                    cargarStats();
+                } else {
+                    mostrarToast('❌ Error en análisis: ' + (data.error || 'Error desconocido'), true);
+                }
+            } catch(e) {
+                console.error('Error:', e);
+                mostrarToast('❌ Error al analizar estrategia', true);
             } finally {
                 btn.textContent = originalText;
                 btn.disabled = false;
@@ -335,7 +413,7 @@
             
             const btn = document.getElementById('btnGenerarCopy');
             const originalText = btn.textContent;
-            btn.textContent = '💰 SALES generando copy...';
+            btn.textContent = '🧠 MASTERMIND generando copy élite...';
             btn.disabled = true;
             
             try {
@@ -348,15 +426,15 @@
                 if (data.success && data.copy) {
                     copyGenerado = data.copy;
                     document.getElementById('copyContent').innerHTML = `
-                        <strong>📝 Título:</strong> ${escapeHtml(copyGenerado.titulo || 'N/A')}<br>
-                        <strong>📖 Intro:</strong> ${escapeHtml(copyGenerado.intro || 'N/A')}<br>
-                        <strong>✨ Curiosidad:</strong> ${escapeHtml(copyGenerado.curiosidad || 'N/A')}<br>
+                        <strong>📝 Título (Ogilvy):</strong> ${escapeHtml(copyGenerado.titulo || 'N/A')}<br>
+                        <strong>📖 Intro (Halbert):</strong> ${escapeHtml(copyGenerado.intro || 'N/A')}<br>
+                        <strong>✨ Curiosidad (FOMO):</strong> ${escapeHtml(copyGenerado.curiosidad || 'N/A')}<br>
                         <strong>🔍 Meta:</strong> ${escapeHtml(copyGenerado.meta_descripcion || 'N/A')}<br>
                         <strong>🏷️ Keywords:</strong> ${(copyGenerado.palabras_clave || []).join(', ') || 'N/A'}<br>
-                        <strong>💰 Motor:</strong> ${data.motor || 'SALES'}
+                        <strong>🧠 Motor:</strong> ${data.motor || 'MASTERMIND SALES'}
                     `;
                     document.getElementById('copyPreview').style.display = 'block';
-                    mostrarToast(`✅ Copy generado por MOTOR ${data.motor || 'SALES'}`);
+                    mostrarToast(`✅ Copy generado por MASTERMIND (Ogilvy + Halbert)`);
                 } else {
                     mostrarToast('❌ Error generando copy: ' + (data.error || 'Error desconocido'), true);
                 }
@@ -371,7 +449,7 @@
         
         async function publicarProducto() {
             if (!copyGenerado) {
-                mostrarToast('Primero genera el copy con SALES', true);
+                mostrarToast('Primero genera el copy con MASTERMIND', true);
                 return;
             }
             
@@ -396,7 +474,7 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    mostrarToast(`✅ Producto publicado con MOTOR ${data.motor || 'SALES'}`);
+                    mostrarToast(`✅ Producto publicado con MASTERMIND SALES`);
                     cerrarModal();
                     cargarStats();
                 } else {
