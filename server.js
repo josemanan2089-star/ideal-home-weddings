@@ -17,20 +17,25 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // ============================================================
-// 🧠 PROTOCOLO "THE MASTERMIND MXL" - SISTEMA DE LLAVES ESPECIALIZADAS
+// 🧠 PROTOCOLO "THE TRIAD MXL" - TRIPLE NÚCLEO ACTIVADO
 // ============================================================
 // GEMINI_API_KEY_CONTENT → Fábrica de tráfico viral (curiosidades)
 // GEMINI_API_KEY_SALES   → CEREBRO MAESTRO (Estrategia + Copywriting Élite)
+// GEMINI_API_KEY_TRAFFIC → GENERAL DE TRÁFICO (Hooks para redes sociales)
 // ============================================================
 
 let contentAI = null;
 let salesAI = null;
+let trafficAI = null;
 let contentModel = null;
 let salesModel = null;
+let trafficModel = null;
 let isContentAvailable = false;
 let isSalesAvailable = false;
+let isTrafficAvailable = false;
 let contentModelName = 'none';
 let salesModelName = 'none';
+let trafficModelName = 'none';
 
 // Modelos a probar en orden de prioridad
 const MODELOS_PRIORIDAD = ['gemini-2.0-flash-exp', 'gemini-2.0-flash', 'gemini-1.5-flash'];
@@ -73,11 +78,11 @@ async function initGeminiMotor(apiKey, motor) {
 }
 
 /**
- * Inicializa ambos motores con sus llaves específicas
+ * Inicializa los tres motores con sus llaves específicas
  */
 async function initGeminiMotors() {
     console.log('\n╔══════════════════════════════════════════════════════════════════╗');
-    console.log('║   🧠 PROTOCOLO "THE MASTERMIND MXL" - CEREBRO MAESTRO ACTIVADO   ║');
+    console.log('║   🧠 PROTOCOLO "THE TRIAD MXL" - TRIPLE NÚCLEO ACTIVADO         ║');
     console.log('╚══════════════════════════════════════════════════════════════════╝\n');
     
     // Motor CONTENT (Fábrica de tráfico)
@@ -102,10 +107,24 @@ async function initGeminiMotors() {
     salesModelName = salesResult.modelName;
     isSalesAvailable = salesResult.available;
     
+    console.log('');
+    
+    // Motor TRAFFIC - GENERAL DE TRÁFICO (NUEVA TERCERA LLAVE)
+    const trafficKey = process.env.GEMINI_API_KEY_TRAFFIC;
+    console.log('🚀 MOTOR TRAFFIC - GENERAL DE TRÁFICO MXL');
+    console.log('   📱 Misión: Bombardeo Externo (Pinterest, Twitter/X, SEO Meta)');
+    console.log('   🎣 Función: Generar hooks de alto impacto para redes sociales');
+    console.log(`   🔑 Llave: ${trafficKey ? `${trafficKey.substring(0, 15)}...` : 'NO CONFIGURADA'}`);
+    const trafficResult = await initGeminiMotor(trafficKey, 'TRAFFIC');
+    trafficModel = trafficResult.model;
+    trafficModelName = trafficResult.modelName;
+    isTrafficAvailable = trafficResult.available;
+    
     console.log('\n══════════════════════════════════════════════════════════════════');
-    console.log('📊 ESTADO DE MOTORES:');
-    console.log(`   🏭 CONTENT: ${isContentAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} (${contentModelName})`);
-    console.log(`   🧠 SALES MASTERMIND: ${isSalesAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} (${salesModelName})`);
+    console.log('📊 ESTADO DE MOTORES TRIPLE NÚCLEO:');
+    console.log(`   🏭 CONTENT (Fábrica): ${isContentAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} (${contentModelName})`);
+    console.log(`   🧠 SALES (Mastermind): ${isSalesAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} (${salesModelName})`);
+    console.log(`   🚀 TRAFFIC (General): ${isTrafficAvailable ? '✅ ACTIVO' : '⚠️ NO DISPONIBLE'} (${trafficModelName})`);
     console.log('══════════════════════════════════════════════════════════════════\n');
 }
 
@@ -120,6 +139,7 @@ const ARTICULOS_PATH = path.join(DATA_DIR, 'articulos.json');
 const CURIOSIDADES_PATH = path.join(DATA_DIR, 'curiosidades.json');
 const ESTADISTICAS_PATH = path.join(DATA_DIR, 'estadisticas.json');
 const ESTRATEGIA_PATH = path.join(DATA_DIR, 'estrategia.json');
+const SOCIAL_HOOKS_PATH = path.join(DATA_DIR, 'social_hooks.json');
 
 if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -140,14 +160,18 @@ initFile(ESTADISTICAS_PATH, {
     clicsPorAngulo: { A: 0, B: 0, C: 0, D: 0 },
     curiosidadesGeneradas: 0,
     productosPublicados: 0,
+    hooksGenerados: 0,
     ultimaActualizacion: new Date().toISOString()
 });
 initFile(ESTRATEGIA_PATH, {
     ultimoAnalisis: null,
     tendenciasActuales: [],
     recomendaciones: [],
-    nichoActual: 'LUXURY'
+    nichoActual: 'LUXURY',
+    anguloActivo: 'A',
+    mensajeEstrategico: null
 });
+initFile(SOCIAL_HOOKS_PATH, []);
 
 // ============================================================
 // SISTEMA DE ÁNGULOS DE VENTA (Gestionado por MASTERMIND)
@@ -193,6 +217,13 @@ const angulosPrompt = {
     'C': 'Ángulo BIO-HACKING: optimización humana, longevidad, energía, "la rutina de los CEO exitosos"',
     'D': 'Ángulo INVERSIÓN: activo que no deprecia, herencia, "tu yo del futuro te lo agradecerá"'
 };
+
+const plataformasSociales = [
+    { nombre: 'Pinterest', formato: 'Pin con descripción', maxCaracteres: 500 },
+    { nombre: 'Twitter/X', formato: 'Thread o Tweet único', maxCaracteres: 280 },
+    { nombre: 'Instagram', formato: 'Caption con hashtags', maxCaracteres: 2200 },
+    { nombre: 'Facebook', formato: 'Post viral', maxCaracteres: 63206 }
+];
 
 // Temas SEO para CONTENT
 const TEMAS_SEO = [
@@ -312,18 +343,187 @@ RESPONDE SOLO CON JSON (sin markdown):
                 tendenciasActuales: analisis.tendenciasDetectadas,
                 recomendaciones: [analisis.mensajeEstrategico],
                 psicologiaDeVenta: analisis.psicologiaDeVenta,
-                proximoMovimiento: analisis.proximoMovimiento
+                proximoMovimiento: analisis.proximoMovimiento,
+                anguloActivo: analisis.anguloRecomendado
             };
             fs.writeFileSync(ESTRATEGIA_PATH, JSON.stringify(nuevaEstrategia, null, 2));
             
             // Actualizar ángulo actual
             anguloVentaActual = analisis.anguloRecomendado;
+            
+            // 🔥 DESPUÉS DE REESTRUCTURAR, EL GENERAL DE TRÁFICO DEBE CREAR NUEVOS HOOKS
+            console.log(`\n🚀 [MASTERMIND → TRAFFIC] Ordenando al General crear hooks basados en nueva estrategia...`);
+            await generarHooksPorEstrategia(analisis);
         }
         
         console.log(`✅ [MASTERMIND] Análisis estratégico completado`);
         return analisis;
     } catch (e) {
         console.log(`⚠️ [MASTERMIND] Error en análisis: ${e.message}`);
+        return null;
+    }
+}
+
+// ============================================================
+// 🚀 GENERAL DE TRÁFICO - GENERACIÓN DE HOOKS (Tercera Llave)
+// ============================================================
+
+/**
+ * Genera hooks para redes sociales basados en la estrategia actual del Mastermind
+ * @param {Object} estrategia - Estrategia actual del Mastermind
+ * @param {Object} curiosidad - Opcional: curiosidad específica para generar hooks
+ */
+async function generarHooksParaRedes(estrategia, curiosidad = null) {
+    const fallbackHooks = {
+        pinterest: [
+            "✨ The $10M Secret NYC Women Are Whispering About • Save this before it's gone",
+            "🕊️ Luxury isn't loud. It's silent. And she knows exactly where to find it.",
+            "📌 Pinning this for later? So are 10,000 other women who know the secret."
+        ],
+        twitter: [
+            "The investment that outperformed her 401k? A piece so exclusive, only 47 women own it in Manhattan. Thread 🧵",
+            "She doesn't chase trends. She sets them. And this is what's next.",
+            "Miami women have a rule: If more than 5 people know about it, it's no longer luxury."
+        ],
+        instagram: [
+            "The quiet luxury piece that interior designers in Beverly Hills keep to themselves. 🕊️ #LuxuryHome #SilentLuxury",
+            "Your home whispers when it should speak. Let's fix that. ✨",
+            "Not everything needs to be seen to be understood. But this? She'll notice. 🎯"
+        ],
+        facebook: [
+            "Women in NYC are investing in something unexpected this year. Here's why.",
+            "The one thing she bought that her decorator asked about 3 times.",
+            "Is your home a conversation starter or a conversation ender?"
+        ]
+    };
+    
+    if (!isTrafficAvailable || !trafficModel) {
+        console.log('⚠️ [TRAFFIC] GENERAL no disponible, usando fallback');
+        return fallbackHooks;
+    }
+    
+    try {
+        // Obtener el ángulo actual y estrategia
+        const angulo = estrategia?.anguloActivo || anguloVentaActual;
+        const mensajeEstrategico = estrategia?.mensajeEstrategico || estrategia?.recomendaciones?.[0] || '';
+        const psicologiaVenta = estrategia?.psicologiaDeVenta || 'Estatus y exclusividad';
+        
+        console.log(`\n🚀 [TRAFFIC] GENERAL generando hooks de bombardeo externo...`);
+        console.log(`   🎯 Basado en estrategia MASTERMIND: ${angulosDesc[angulo]}`);
+        console.log(`   🧠 Psicología de venta: ${psicologiaVenta}`);
+        
+        const prompt = `Eres el General de Tráfico MXL, experto en marketing viral y bombardeo externo. Tu misión es generar hooks de alto impacto para redes sociales que hagan que la gente haga clic y entre al sitio.
+
+ESTRATEGIA DEL MASTERMIND:
+- Ángulo activo: ${angulosPrompt[angulo]}
+- Psicología de venta: ${psicologiaVenta}
+- Mensaje estratégico: ${mensajeEstrategico.substring(0, 300)}
+
+${curiosidad ? `CURIOSIDAD ESPECÍFICA A PROMOCIONAR:
+Título: ${curiosidad.titulo_es || curiosidad.titulo_en}
+Texto: ${curiosidad.texto_es || curiosidad.texto_en}` : ''}
+
+REGLAS PARA CADA PLATAFORMA:
+1. PINTEREST: Títulos de 60-100 caracteres que generen "save". Usar emojis estratégicos. Debe ser pinneable.
+2. TWITTER/X: Hilos o tweets de 280 caracteres máximo. Usar "🧵" para hilos. Generar FOMO.
+3. INSTAGRAM: Captions con storytelling visual. Hashtags relevantes. Emojis elegantes.
+4. FACEBOOK: Posts conversacionales que generen comentarios. Preguntas retóricas.
+
+RESPONDE SOLO CON JSON (sin markdown):
+{
+    "pinterest": ["hook1", "hook2", "hook3"],
+    "twitter": ["hook1", "hook2", "hook3"],
+    "instagram": ["hook1", "hook2", "hook3"],
+    "facebook": ["hook1", "hook2", "hook3"],
+    "metaDescription": "Meta description optimizada para Google News (155 caracteres)",
+    "seoTitle": "SEO title con keyword principal (60 caracteres)"
+}`;
+        
+        const result = await trafficModel.generateContent(prompt);
+        const text = result.response.text();
+        const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        const hooks = JSON.parse(clean);
+        
+        console.log(`✅ [TRAFFIC] Hooks generados exitosamente`);
+        console.log(`   📌 Pinterest: ${hooks.pinterest?.length || 0} hooks`);
+        console.log(`   🐦 Twitter: ${hooks.twitter?.length || 0} hooks`);
+        
+        // Guardar hooks en historial
+        const registroHooks = {
+            id: Date.now(),
+            angulo: angulo,
+            psicologia: psicologiaVenta,
+            fecha: new Date().toISOString(),
+            hooks: hooks,
+            curiosidadRelacionada: curiosidad?.id || null
+        };
+        
+        const hooksHistorial = JSON.parse(fs.readFileSync(SOCIAL_HOOKS_PATH));
+        hooksHistorial.unshift(registroHooks);
+        if (hooksHistorial.length > 100) hooksHistorial.pop();
+        fs.writeFileSync(SOCIAL_HOOKS_PATH, JSON.stringify(hooksHistorial, null, 2));
+        
+        // Actualizar estadísticas
+        const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
+        stats.hooksGenerados = (stats.hooksGenerados || 0) + 
+            (hooks.pinterest?.length || 0) + 
+            (hooks.twitter?.length || 0) + 
+            (hooks.instagram?.length || 0) + 
+            (hooks.facebook?.length || 0);
+        fs.writeFileSync(ESTADISTICAS_PATH, JSON.stringify(stats, null, 2));
+        
+        return hooks;
+    } catch (e) {
+        console.log(`⚠️ [TRAFFIC] Error generando hooks: ${e.message}`);
+        return fallbackHooks;
+    }
+}
+
+/**
+ * Genera hooks basados en la nueva estrategia del Mastermind
+ * Esta función se activa cuando el Mastermind cambia de estrategia
+ */
+async function generarHooksPorEstrategia(estrategia) {
+    console.log(`\n🎯 [INTERCONEXIÓN] MASTERMIND → TRAFFIC: Generando hooks por nueva estrategia`);
+    
+    try {
+        const hooks = await generarHooksParaRedes(estrategia);
+        
+        // También generar hooks para la última curiosidad publicada
+        const curiosidades = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
+        if (curiosidades.length > 0) {
+            const ultimaCuriosidad = curiosidades[0];
+            console.log(`   📌 Generando hooks específicos para última curiosidad: ${ultimaCuriosidad.titulo_en?.substring(0, 50)}...`);
+            const hooksCuriosidad = await generarHooksParaRedes(estrategia, ultimaCuriosidad);
+            
+            return {
+                hooksEstrategia: hooks,
+                hooksCuriosidad: hooksCuriosidad
+            };
+        }
+        
+        return { hooksEstrategia: hooks };
+    } catch (e) {
+        console.log(`⚠️ [INTERCONEXIÓN] Error: ${e.message}`);
+        return null;
+    }
+}
+
+/**
+ * Genera hooks automáticos cuando se publica una nueva curiosidad
+ * El General reacciona a la publicación de la Fábrica (CONTENT)
+ */
+async function generarHooksParaNuevaCuriosidad(curiosidad) {
+    console.log(`\n🎯 [INTERCONEXIÓN] CONTENT → TRAFFIC: Nueva curiosidad publicada, generando hooks...`);
+    
+    try {
+        const estrategia = JSON.parse(fs.readFileSync(ESTRATEGIA_PATH));
+        const hooks = await generarHooksParaRedes(estrategia, curiosidad);
+        
+        console.log(`✅ [INTERCONEXIÓN] Hooks generados para la nueva curiosidad`);
+        return hooks;
+    } catch (e) {
+        console.log(`⚠️ [INTERCONEXIÓN] Error: ${e.message}`);
         return null;
     }
 }
@@ -425,7 +625,7 @@ RESPONDE SOLO CON JSON (sin markdown):
             titulo: data.titulo || fallback.titulo,
             meta_descripcion: data.meta_descripcion || fallback.meta_descripcion,
             intro: data.intro || fallback.intro,
-            descripcion_visual: data.descripso_visual || fallback.descripcion_visual,
+            descripcion_visual: data.descripcion_visual || fallback.descripcion_visual,
             problema: data.problema || fallback.problema,
             solucion: data.solucion || fallback.solucion,
             beneficio_estatus: data.beneficio_estatus || fallback.beneficio_estatus,
@@ -546,6 +746,10 @@ async function publicarCuriosidadAutomatica() {
         fs.writeFileSync(ESTADISTICAS_PATH, JSON.stringify(stats, null, 2));
         
         console.log(`✅ [CONTENT] Publicada: "${nueva.titulo_en}"`);
+        
+        // 🔥 INTERCONEXIÓN: Cuando CONTENT publica, TRAFFIC genera hooks
+        await generarHooksParaNuevaCuriosidad(nueva);
+        
         return nueva;
     } catch (e) {
         console.log('❌ [CONTENT] Error:', e.message);
@@ -611,8 +815,10 @@ app.get('/health', (req, res) => {
         timestamp: new Date().toISOString(),
         mastermind: isSalesAvailable ? 'active' : 'inactive',
         content: isContentAvailable ? 'active' : 'inactive',
+        traffic: isTrafficAvailable ? 'active' : 'inactive',
         contentModel: contentModelName,
         salesModel: salesModelName,
+        trafficModel: trafficModelName,
         uptime: process.uptime()
     });
 });
@@ -765,8 +971,10 @@ app.get('/api/estadisticas', (req, res) => {
             descripcionAngulo: angulosDesc[anguloVentaActual],
             contentDisponible: isContentAvailable,
             salesDisponible: isSalesAvailable,
+            trafficDisponible: isTrafficAvailable,
             contentModelo: contentModelName,
             salesModelo: salesModelName,
+            trafficModelo: trafficModelName,
             estrategia: estrategia
         });
     } catch (e) {
@@ -779,13 +987,22 @@ app.get('/api/motores-status', (req, res) => {
         content: {
             disponible: isContentAvailable,
             modelo: contentModelName,
-            apiKeyConfigurada: !!process.env.GEMINI_API_KEY_CONTENT
+            apiKeyConfigurada: !!process.env.GEMINI_API_KEY_CONTENT,
+            mision: "Fábrica de curiosidades virales"
         },
         mastermind: {
             disponible: isSalesAvailable,
             modelo: salesModelName,
             apiKeyConfigurada: !!process.env.GEMINI_API_KEY_SALES,
-            perfiles: ['Estratega Madison Avenue', 'Copywriter Élite (Ogilvy + Halbert)']
+            perfiles: ['Estratega Madison Avenue', 'Copywriter Élite (Ogilvy + Halbert)'],
+            mision: "Análisis estratégico + Copywriting de ventas"
+        },
+        traffic: {
+            disponible: isTrafficAvailable,
+            modelo: trafficModelName,
+            apiKeyConfigurada: !!process.env.GEMINI_API_KEY_TRAFFIC,
+            perfiles: ['General de Tráfico', 'Experto en Bombardeo Externo'],
+            mision: "Hooks virales para Pinterest, Twitter/X, Instagram, Facebook"
         }
     });
 });
@@ -796,6 +1013,43 @@ app.post('/api/analizar-estrategia', async (req, res) => {
         res.json({ success: true, analisis });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// ENDPOINTS PARA EL GENERAL DE TRÁFICO (TERCERA LLAVE)
+app.post('/api/generar-hooks', async (req, res) => {
+    try {
+        const { curiosidadId } = req.body;
+        let curiosidad = null;
+        
+        if (curiosidadId) {
+            const curiosidades = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
+            curiosidad = curiosidades.find(c => c.id == curiosidadId);
+        }
+        
+        const estrategia = JSON.parse(fs.readFileSync(ESTRATEGIA_PATH));
+        const hooks = await generarHooksParaRedes(estrategia, curiosidad);
+        res.json({ success: true, hooks, motor: 'TRAFFIC' });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+app.get('/api/hooks', (req, res) => {
+    try {
+        const hooks = JSON.parse(fs.readFileSync(SOCIAL_HOOKS_PATH));
+        res.json(hooks);
+    } catch (e) {
+        res.json([]);
+    }
+});
+
+app.get('/api/hooks/latest', (req, res) => {
+    try {
+        const hooks = JSON.parse(fs.readFileSync(SOCIAL_HOOKS_PATH));
+        res.json(hooks[0] || null);
+    } catch (e) {
+        res.json(null);
     }
 });
 
@@ -822,6 +1076,17 @@ cron.schedule('0 */6 * * *', async () => {
     await analizarEstrategiaVentas();
 });
 
+// CRON cada 2 horas para refrescar hooks (TRAFFIC)
+cron.schedule('0 */2 * * *', async () => {
+    console.log('🚀 [CRON] TRAFFIC generando hooks frescos...');
+    try {
+        const estrategia = JSON.parse(fs.readFileSync(ESTRATEGIA_PATH));
+        await generarHooksParaRedes(estrategia);
+    } catch (e) {
+        console.log(`⚠️ [CRON] Error: ${e.message}`);
+    }
+});
+
 // ============================================================
 // INICIO DEL SERVIDOR
 // ============================================================
@@ -833,6 +1098,13 @@ const startServer = async () => {
         if (curiosidades.length === 0) {
             console.log('📝 Generando primera curiosidad en 3 segundos...');
             setTimeout(() => publicarCuriosidadAutomatica(), 3000);
+        } else {
+            // Si ya hay curiosidades, generar hooks para la última
+            setTimeout(async () => {
+                console.log('🚀 Generando hooks iniciales para última curiosidad...');
+                const estrategia = JSON.parse(fs.readFileSync(ESTRATEGIA_PATH));
+                await generarHooksParaRedes(estrategia, curiosidades[0]);
+            }, 2000);
         }
         
         // Análisis inicial de estrategia
@@ -845,21 +1117,32 @@ const startServer = async () => {
             const art = JSON.parse(fs.readFileSync(ARTICULOS_PATH)).length;
             const cur = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH)).length;
             const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
+            const hooks = JSON.parse(fs.readFileSync(SOCIAL_HOOKS_PATH)).length;
             
             console.log(`
 ╔══════════════════════════════════════════════════════════════════╗
-║     🧠 PROTOCOLO "THE MASTERMIND MXL" - CEREBRO MAESTRO ACTIVO  ║
+║     🧠 PROTOCOLO "THE TRIAD MXL" - TRIPLE NÚCLEO ACTIVADO       ║
 ╠══════════════════════════════════════════════════════════════════╣
-║  🏭 CONTENT: ${isContentAvailable ? `✅ ACTIVO (${contentModelName})` : '⚠️ NO DISPONIBLE'}${' '.repeat(35 - (isContentAvailable ? contentModelName.length + 12 : 16))}║
-║  🧠 MASTERMIND: ${isSalesAvailable ? `✅ ACTIVO (${salesModelName})` : '⚠️ NO DISPONIBLE'}${' '.repeat(35 - (isSalesAvailable ? salesModelName.length + 12 : 16))}║
-║  🎯 Perfil A: Estratega Madison Avenue (Análisis de mercado)      ║
-║  📝 Perfil B: Copywriter Élite (Ogilvy + Halbert)                 ║
+║  🏭 CONTENT (Fábrica): ${isContentAvailable ? `✅ ACTIVO (${contentModelName})` : '⚠️ NO DISPONIBLE'}${' '.repeat(35 - (isContentAvailable ? contentModelName.length + 12 : 16))}║
+║  🧠 MASTERMIND (Estrategia): ${isSalesAvailable ? `✅ ACTIVO (${salesModelName})` : '⚠️ NO DISPONIBLE'}${' '.repeat(35 - (isSalesAvailable ? salesModelName.length + 12 : 16))}║
+║  🚀 TRAFFIC (Bombardeo): ${isTrafficAvailable ? `✅ ACTIVO (${trafficModelName})` : '⚠️ NO DISPONIBLE'}${' '.repeat(35 - (isTrafficAvailable ? trafficModelName.length + 12 : 16))}║
+║                                                                  ║
+║  🎯 Perfil A: Estratega Madison Avenue (Análisis de mercado)     ║
+║  📝 Perfil B: Copywriter Élite (Ogilvy + Halbert)                ║
+║  🎣 Perfil C: General de Tráfico (Hooks virales)                 ║
+║                                                                  ║
 ║  🎯 Ángulo actual: ${angulosDesc[anguloVentaActual]}${' '.repeat(45 - angulosDesc[anguloVentaActual].length)}║
 ║  💎 Curiosidades: ${cur} guardadas | ${stats.curiosidadesGeneradas} generadas${' '.repeat(20)}║
+║  🎣 Hooks generados: ${stats.hooksGenerados || 0} | ${hooks} sesiones${' '.repeat(30)}║
 ║  💰 Productos: ${art} publicados | ${stats.totalClics} clics totales${' '.repeat(25)}║
 ║  🚀 Puerto: ${PORT}${' '.repeat(48)}║
 ║  📁 Datos: ${DATA_DIR}${' '.repeat(45 - DATA_DIR.length)}║
 ╚══════════════════════════════════════════════════════════════════╝
+
+🔗 INTERCONEXIONES ACTIVADAS:
+   • MASTERMIND → TRAFFIC: Cuando cambia estrategia, genera nuevos hooks
+   • CONTENT → TRAFFIC: Cuando publica curiosidad, genera hooks específicos
+   • TRAFFIC → EXTERNO: Hooks listos para Pinterest, Twitter/X, Instagram, Facebook
             `);
         });
     } catch (error) {
