@@ -428,6 +428,18 @@
                     <div class="stat-label">Curiosidades</div>
                 </div>
             </div>
+
+            <!-- BOTÓN BORRAR TODOS -->
+            <button onclick="borrarTodosLosProductos()" style="
+                width:100%; padding:12px; border-radius:40px; border:1px solid #ef4444;
+                background:transparent; color:#ef4444; font-size:13px; font-weight:600;
+                cursor:pointer; margin-bottom:18px; font-family:'DM Sans',sans-serif;
+                transition:all .2s;
+            " onmouseover="this.style.background='#ef4444';this.style.color='#fff'"
+               onmouseout="this.style.background='transparent';this.style.color='#ef4444'">
+                🗑️ Borrar TODOS los artículos viejos
+            </button>
+
             <div class="productos-list" id="productosList">
                 <div style="text-align:center;color:var(--muted);padding:40px;font-size:13px;">
                     Cargando productos...
@@ -651,6 +663,23 @@
 
         } catch(e) {
             console.error(e);
+        }
+    }
+
+    // ── BORRAR TODOS LOS PRODUCTOS ──
+    async function borrarTodosLosProductos() {
+        if (!confirm('⚠️ ¿Borrar TODOS los artículos? Esto eliminará los viejos del bot anterior.')) return;
+        try {
+            await fetch('/api/ordenar-articulos', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ articulos: [] })
+            });
+            showToast('🗑️ Todos los artículos borrados — ahora agrega los tuyos', 'success');
+            cargarProductos();
+            cargarStats();
+        } catch(e) {
+            showToast('❌ Error borrando', 'error');
         }
     }
 
