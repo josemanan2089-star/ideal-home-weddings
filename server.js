@@ -3,7 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const cron = require('node-cron');
-const axios = require('axios');
 const compression = require('compression');
 const cors = require('cors');
 require('dotenv').config();
@@ -11,12 +10,14 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Middlewares
+// Middlewares básicos
 app.use(compression());
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use(express.static(path.join(__dirname, '/')));
+
+// Servir archivos estáticos después de montar las rutas API
+// para evitar conflictos
 
 // Directorios persistentes para Railway
 const DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH
@@ -27,13 +28,12 @@ const ARTICULOS_PATH = path.join(DATA_DIR, 'articulos.json');
 const CURIOSIDADES_PATH = path.join(DATA_DIR, 'curiosidades.json');
 const ESTADISTICAS_PATH = path.join(DATA_DIR, 'estadisticas.json');
 
-// Crear directorio
+// Crear directorio y archivos iniciales
 if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
     console.log(`📁 Directorio creado: ${DATA_DIR}`);
 }
 
-// Inicializar archivos
 const initFile = (filePath, defaultData) => {
     if (!fs.existsSync(filePath)) {
         fs.writeFileSync(filePath, JSON.stringify(defaultData, null, 2));
@@ -50,7 +50,7 @@ initFile(ESTADISTICAS_PATH, {
     ultimaActualizacion: new Date().toISOString()
 });
 
-// Gemini Init
+// Gemini Configuration
 let genAI = null;
 let model = null;
 let isGeminiAvailable = false;
@@ -67,33 +67,39 @@ const initGemini = async () => {
     try {
         genAI = new GoogleGenerativeAI(apiKey);
         
+        // Probar modelos en orden
         const modelos = ['gemini-2.0-flash-exp', 'gemini-2.0-flash', 'gemini-1.5-flash'];
         
         for (const modelName of modelos) {
             try {
                 const testModel = genAI.getGenerativeModel({ model: modelName });
-                await Promise.race([
+                // Prueba simple con timeout
+                const result = await Promise.race([
                     testModel.generateContent('ping'),
                     new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
                 ]);
-                model = testModel;
-                modeloUsado = modelName;
-                isGeminiAvailable = true;
-                console.log(`✅ Gemini activado: ${modeloUsado}`);
-                return true;
+                
+                if (result && result.response) {
+                    model = testModel;
+                    modeloUsado = modelName;
+                    isGeminiAvailable = true;
+                    console.log(`✅ Gemini activado: ${modeloUsado}`);
+                    return true;
+                }
             } catch (e) {
-                console.log(`⚠️ ${modelName} no disponible`);
+                console.log(`⚠️ ${modelName} no disponible: ${e.message}`);
             }
         }
         
         console.log('❌ No se pudo activar Gemini');
         return false;
     } catch (e) {
-        console.log('❌ Error Gemini:', e.message);
+        console.log('❌ Error inicializando Gemini:', e.message);
         return false;
     }
 };
 
+// Helper functions
 function extraerASIN(url) {
     if (!url) return null;
     const patterns = [
@@ -243,7 +249,7 @@ RESPONDE SOLO CON JSON (sin markdown):
             anguloUsado: angulo
         };
     } catch (e) {
-        console.log('⚠️ Error Gemini:', e.message);
+        console.log('⚠️ Error generando curiosidad con Gemini:', e.message);
         return fallback;
     }
 }
@@ -286,7 +292,7 @@ async function publicarCuriosidadAutomatica() {
         console.log(`✅ Publicada: "${nueva.titulo_en}"`);
         return nueva;
     } catch (e) {
-        console.log('❌ Error:', e.message);
+        console.log('❌ Error publicando curiosidad:', e.message);
         return null;
     }
 }
@@ -316,6 +322,7 @@ async function generarCopyProducto(url, imagenUrl, categoria) {
         const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
         return JSON.parse(clean);
     } catch (e) {
+        console.log('⚠️ Error generando copy:', e.message);
         return fallback;
     }
 }
@@ -380,12 +387,13 @@ app.get('/health', (req, res) => {
     });
 });
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.get('/panel', (req, res) => {
-    res.sendFile(path.join(__dirname, 'panel.html'));
+app.get('/api/curiosidades', (req, res) => {
+    try {
+        const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
+        res.json(data);
+    } catch (e) {
+        res.json([]);
+    }
 });
 
 app.post('/api/generar-curiosidad', async (req, res) => {
@@ -394,15 +402,6 @@ app.post('/api/generar-curiosidad', async (req, res) => {
         res.json({ success: true, curiosidad: c });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
-    }
-});
-
-app.get('/api/curiosidades', (req, res) => {
-    try {
-        const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
-        res.json(data);
-    } catch (e) {
-        res.json([]);
     }
 });
 
@@ -529,22 +528,41 @@ app.get('/api/gemini-status', (req, res) => {
     });
 });
 
+// Servir archivos estáticos AL FINAL para no interferir con las rutas API
+app.use(express.static(path.join(__dirname, '/')));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/panel', (req, res) => {
+    res.sendFile(path.join(__dirname, 'panel.html'));
+});
+
 // CRON cada 3 horas
 cron.schedule('0 */3 * * *', async () => {
-    console.log('⏰ CRON: Generando curiosidad...');
+    console.log('⏰ CRON: Generando curiosidad programada...');
     await publicarCuriosidadAutomatica();
 });
 
-// Iniciar servidor
+// Iniciar servidor con manejo de errores
 const startServer = async () => {
-    await initGemini();
-    
-    app.listen(PORT, '0.0.0.0', () => {
-        const art = JSON.parse(fs.readFileSync(ARTICULOS_PATH)).length;
-        const cur = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH)).length;
-        const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
+    try {
+        await initGemini();
         
-        console.log(`
+        // Generar primera curiosidad si no hay ninguna
+        const curiosidades = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
+        if (curiosidades.length === 0) {
+            console.log('📝 Generando primera curiosidad...');
+            setTimeout(() => publicarCuriosidadAutomatica(), 3000);
+        }
+        
+        app.listen(PORT, '0.0.0.0', () => {
+            const art = JSON.parse(fs.readFileSync(ARTICULOS_PATH)).length;
+            const cur = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH)).length;
+            const stats = JSON.parse(fs.readFileSync(ESTADISTICAS_PATH));
+            
+            console.log(`
 ╔══════════════════════════════════════════════════════════════╗
 ║           🏮 MXL GOLD MINER — SISTEMA LISTO 🏮              ║
 ╠══════════════════════════════════════════════════════════════╣
@@ -555,13 +573,12 @@ const startServer = async () => {
 ║  🚀 Puerto: ${PORT}${' '.repeat(48)}║
 ║  📁 Datos: ${DATA_DIR}${' '.repeat(45 - DATA_DIR.length)}║
 ╚══════════════════════════════════════════════════════════════╝
-        `);
-        
-        if (cur === 0) {
-            console.log('📝 Generando primera curiosidad en 3 segundos...');
-            setTimeout(() => publicarCuriosidadAutomatica(), 3000);
-        }
-    });
+            `);
+        });
+    } catch (error) {
+        console.error('❌ Error al iniciar servidor:', error);
+        process.exit(1);
+    }
 };
 
 startServer();
