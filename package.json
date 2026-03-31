@@ -1,16 +1,14 @@
 {
   "name": "mxl-gold-miner-triad",
-  "version": "3.0.0",
-  "description": "MXL GOLD MINER - Protocolo THE TRIAD MXL: Triple núcleo con CONTENT (Fábrica), MASTERMIND (Estrategia+Copy) y TRAFFIC (Bombardeo Externo)",
+  "version": "3.0.1",
+  "description": "MXL GOLD MINER - Protocolo THE TRIAD MXL: Triple núcleo especializado",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js",
-    "install": "npm install --production --no-audit --no-fund"
+    "postinstall": "echo '✅ THE TRIAD MXL - Triple núcleo listo'"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
-    "axios": "^1.6.0",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -28,21 +26,9 @@
     "luxury",
     "mastermind",
     "gemini",
-    "triad",
-    "traffic",
-    "content",
-    "sales",
-    "ogilvy",
-    "halbert",
-    "pinterest",
-    "twitter",
-    "viral-marketing"
+    "triad"
   ],
   "author": "MXL GOLD MINER",
   "license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mxl-gold-miner/triad-mxl"
-  },
-  "private": false
+  "private": true
 }
