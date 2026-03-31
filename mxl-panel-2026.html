@@ -3,291 +3,348 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel MXL - THE TRIAD MXL Control</title>
+    <title>COMMANDER MXL - Panel de Control</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:system-ui,sans-serif;background:#0f0f1a;color:#fff;padding:20px;}
+        
+        /* Header */
         .header{background:linear-gradient(135deg,#1a1a2e,#2d2d44);padding:20px;border-radius:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
-        h1{font-size:1.5rem;}
-        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:20px;}
-        .stat-card{background:#1a1a2e;padding:20px;border-radius:12px;text-align:center;}
+        h1{font-size:1.5rem;display:flex;align-items:center;gap:10px;}
+        .commander-badge{background:#ff4500;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:normal;}
+        
+        /* Stats Grid */
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:20px;}
+        .stat-card{background:#1a1a2e;padding:20px;border-radius:12px;text-align:center;transition:transform 0.2s;}
+        .stat-card:hover{transform:translateY(-2px);}
         .stat-number{font-size:2rem;font-weight:bold;color:#ff4500;}
         .stat-label{font-size:0.7rem;color:#c9a87b;margin-top:5px;}
-        .btn{background:#ff4500;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;margin:5px;transition:all 0.3s;}
+        .motor-icon{font-size:24px;margin-bottom:8px;}
+        
+        /* Botones */
+        .btn{background:#ff4500;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;margin:5px;transition:all 0.3s;font-weight:bold;}
         .btn:hover{background:#ff6b35;transform:translateY(-2px);}
         .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
-        .btn-danger{background:#dc2626;}
-        .btn-danger:hover{background:#ef4444;}
-        .btn-secondary{background:#2d2d44;}
-        .btn-secondary:hover{background:#3d3d5c;}
-        .btn-success{background:#10b981;}
-        .btn-success:hover{background:#059669;}
-        .btn-mastermind{background:#8b5cf6;}
-        .btn-mastermind:hover{background:#7c3aed;}
+        .btn-commander{background:#8b5cf6;}
+        .btn-commander:hover{background:#7c3aed;}
         .btn-traffic{background:#3b82f6;}
         .btn-traffic:hover{background:#2563eb;}
+        .btn-content{background:#ff4500;}
+        .btn-content:hover{background:#ff6b35;}
+        .btn-secondary{background:#2d2d44;}
+        .btn-secondary:hover{background:#3d3d5c;}
+        
+        /* Secciones */
         .section{background:#1a1a2e;border-radius:12px;padding:20px;margin-top:20px;}
         .section h3{margin-bottom:15px;color:#ff4500;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-        .curiosidad-item,.producto-item,.hook-item{border-bottom:1px solid #2d2d44;padding:15px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;}
-        .curiosidad-item:last-child,.producto-item:last-child,.hook-item:last-child{border-bottom:none;}
-        .curiosidad-titulo{flex:1;font-size:0.9rem;}
-        .producto-titulo{flex:1;font-size:0.9rem;}
-        .small-btn{background:#2d2d44;padding:5px 12px;border-radius:6px;font-size:12px;margin-left:10px;cursor:pointer;border:none;color:#fff;}
+        
+        /* Items */
+        .producto-item,.curiosidad-item,.hook-item{border-bottom:1px solid #2d2d44;padding:15px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+        .producto-item:last-child,.curiosidad-item:last-child,.hook-item:last-child{border-bottom:none;}
+        .producto-titulo,.curiosidad-titulo{flex:1;}
+        .producto-titulo strong,.curiosidad-titulo strong{font-size:14px;}
+        
+        .small-btn{background:#2d2d44;padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;border:none;color:#fff;transition:all 0.2s;}
         .small-btn:hover{background:#ff4500;}
+        
         .empty{text-align:center;padding:40px;color:#666;}
-        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;z-index:1000;}
-        .modal-content{background:#1a1a2e;padding:30px;border-radius:16px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;}
-        .modal-content input,.modal-content textarea{width:100%;padding:10px;margin:10px 0;border-radius:8px;border:none;background:#2d2d44;color:#fff;}
-        .modal-content textarea{min-height:100px;font-family:monospace;}
+        
+        /* Modal */
+        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);align-items:center;justify-content:center;z-index:1000;}
+        .modal-content{background:#1a1a2e;padding:30px;border-radius:16px;max-width:550px;width:90%;max-height:85vh;overflow-y:auto;}
+        .modal-content input,.modal-content textarea{width:100%;padding:12px;margin:10px 0;border-radius:8px;border:none;background:#2d2d44;color:#fff;}
         .form-group{margin-bottom:15px;}
         label{display:block;margin-bottom:5px;font-size:12px;color:#c9a87b;}
-        select{width:100%;padding:10px;border-radius:8px;background:#2d2d44;color:#fff;border:none;cursor:pointer;}
-        .copy-preview{background:#0f0f1a;padding:12px;border-radius:8px;font-size:12px;max-height:200px;overflow:auto;margin-top:10px;}
+        select{width:100%;padding:12px;border-radius:8px;background:#2d2d44;color:#fff;border:none;cursor:pointer;}
+        
+        /* Preview */
+        .copy-preview{background:#0f0f1a;padding:15px;border-radius:8px;font-size:12px;max-height:300px;overflow:auto;margin-top:15px;}
         .copy-preview strong{color:#ff4500;}
-        hr{margin:10px 0;border-color:#2d2d44;}
+        
+        /* Platform Cards */
+        .platform-hooks{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:15px;margin-top:15px;}
+        .platform-card{background:#0f0f1a;border-radius:12px;padding:15px;}
+        .platform-card.pinterest{border-left:3px solid #e60023;}
+        .platform-card.twitter{border-left:3px solid #1DA1F2;}
+        .platform-title{font-weight:bold;margin-bottom:10px;font-size:14px;display:flex;align-items:center;gap:8px;}
+        .hook-text{font-size:12px;padding:8px;background:#1a1a2e;border-radius:6px;margin-bottom:8px;color:#c9a87b;}
+        
+        /* Toast */
         .toast{position:fixed;bottom:20px;right:20px;background:#10b981;color:#fff;padding:12px 20px;border-radius:8px;animation:slideIn 0.3s ease;z-index:2000;}
         .toast.error{background:#ef4444;}
-        .motor-status{display:flex;gap:10px;margin-top:10px;justify-content:center;}
-        .motor-badge{font-size:10px;padding:4px 8px;border-radius:12px;}
-        .motor-content{background:#ff4500;color:#fff;}
-        .motor-sales{background:#10b981;color:#fff;}
-        .motor-traffic{background:#3b82f6;color:#fff;}
-        .motor-mastermind{background:#8b5cf6;color:#fff;}
-        .estrategia-card{background:#0f0f1a;padding:15px;border-radius:12px;margin-top:10px;border-left:3px solid #8b5cf6;}
-        .tendencia-tag{display:inline-block;background:#2d2d44;padding:4px 12px;border-radius:20px;font-size:11px;margin:4px;}
-        .platform-hooks{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;margin-top:15px;}
-        .platform-card{background:#0f0f1a;border-radius:12px;padding:15px;border-left:3px solid;}
-        .platform-card.pinterest{border-left-color:#e60023;}
-        .platform-card.twitter{border-left-color:#1DA1F2;}
-        .platform-card.instagram{border-left-color:#E4405F;}
-        .platform-card.facebook{border-left-color:#1877F2;}
-        .platform-title{font-weight:bold;margin-bottom:10px;font-size:14px;}
-        .hook-text{font-size:12px;padding:8px;background:#1a1a2e;border-radius:6px;margin-bottom:8px;color:#c9a87b;}
-        .interconexion-line{background:linear-gradient(90deg,#ff4500,#8b5cf6,#3b82f6);height:3px;border-radius:3px;margin:15px 0;}
+        
+        /* Animations */
         @keyframes slideIn{
             from{transform:translateX(100%);opacity:0;}
             to{transform:translateX(0);opacity:1;}
         }
-        @media(max-width:600px){.curiosidad-item,.producto-item,.hook-item{flex-direction:column;align-items:flex-start;gap:10px;}}
+        .processing{animation:pulse 1s infinite;}
+        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+        
+        .badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;}
+        .badge-content{background:#ff4500;}
+        .badge-mastermind{background:#8b5cf6;}
+        .badge-traffic{background:#3b82f6;}
+        
+        hr{margin:15px 0;border-color:#2d2d44;}
+        
+        @media(max-width:600px){.producto-item,.curiosidad-item{flex-direction:column;align-items:flex-start;}}
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>🧠 MXL THE TRIAD - TRIPLE NÚCLEO ACTIVADO</h1>
+        <h1>
+            🎖️ COMMANDER MXL 
+            <span class="commander-badge">mxl = Único Disparador</span>
+        </h1>
         <div>
-            <button class="btn" onclick="generarCuriosidad(this)">✨ CONTENT: Curiosidad</button>
-            <button class="btn btn-mastermind" onclick="analizarEstrategia()">🧠 MASTERMIND: Analizar Mercado</button>
-            <button class="btn btn-traffic" onclick="generarHooks()">🚀 TRAFFIC: Generar Hooks</button>
-            <button class="btn" onclick="abrirModalProducto()">💰 SALES: Nuevo Producto</button>
-            <button class="btn btn-danger" onclick="borrarTodasCuriosidades()">🗑️ Borrar Todo</button>
-            <button class="btn btn-secondary" onclick="cargarStats()">🔄 Refrescar</button>
+            <button class="btn btn-commander" onclick="abrirModalInyeccion()">💉 INYECTAR PRODUCTO</button>
+            <button class="btn btn-secondary" onclick="cargarTodo()">🔄 Refrescar</button>
         </div>
     </div>
 
-    <div class="stats-grid" id="statsGrid">
+    <!-- Stats Grid - Estado de los 3 Motores -->
+    <div class="stats-grid">
         <div class="stat-card">
-            🏭 CONTENT<br>
+            <div class="motor-icon">🏭</div>
             <span id="contentStatus" class="stat-number">-</span>
-            <div class="stat-label" id="contentModel">-</div>
+            <div class="stat-label">CONTENT - FÁBRICA</div>
+            <div class="stat-label" id="contentModel" style="font-size:10px;">-</div>
+            <div class="stat-label" style="color:#ff4500;">Ritmo: cada 3h</div>
         </div>
         <div class="stat-card">
-            🧠 MASTERMIND<br>
+            <div class="motor-icon">🧠</div>
             <span id="mastermindStatus" class="stat-number">-</span>
-            <div class="stat-label" id="mastermindModel">-</div>
+            <div class="stat-label">MASTERMIND - ARTÍCULOS</div>
+            <div class="stat-label" id="mastermindModel" style="font-size:10px;">-</div>
+            <div class="stat-label" style="color:#8b5cf6;">Bajo demanda</div>
         </div>
         <div class="stat-card">
-            🚀 TRAFFIC<br>
+            <div class="motor-icon">🚀</div>
             <span id="trafficStatus" class="stat-number">-</span>
-            <div class="stat-label" id="trafficModel">-</div>
+            <div class="stat-label">TRAFFIC - HOOKS</div>
+            <div class="stat-label" id="trafficModel" style="font-size:10px;">-</div>
+            <div class="stat-label" style="color:#3b82f6;">Post-procesamiento</div>
         </div>
         <div class="stat-card">
-            🎯 Ángulo<br>
-            <span id="anguloStatus" class="stat-number">-</span>
-            <div class="stat-label" id="anguloDesc">-</div>
-        </div>
-        <div class="stat-card">
-            💎 Curiosidades<br>
+            <div class="motor-icon">💎</div>
             <span id="curiosidadesCount" class="stat-number">0</span>
-            <div class="stat-label">generadas</div>
+            <div class="stat-label">Curiosidades activas</div>
         </div>
         <div class="stat-card">
-            🎣 Hooks<br>
-            <span id="hooksCount" class="stat-number">0</span>
-            <div class="stat-label">generados</div>
-        </div>
-        <div class="stat-card">
-            🛍️ Productos<br>
+            <div class="motor-icon">💰</div>
             <span id="productosCount" class="stat-number">0</span>
-            <div class="stat-label">publicados</div>
+            <div class="stat-label">Productos inyectados</div>
         </div>
         <div class="stat-card">
-            🖱️ Clics<br>
+            <div class="motor-icon">🖱️</div>
             <span id="clicsCount" class="stat-number">0</span>
-            <div class="stat-label">totales</div>
+            <div class="stat-label">Clics totales</div>
+        </div>
+        <div class="stat-card">
+            <div class="motor-icon">🎣</div>
+            <span id="hooksCount" class="stat-number">0</span>
+            <div class="stat-label">Hooks generados</div>
         </div>
     </div>
 
-    <!-- INTERCONEXIÓN VISUAL -->
-    <div class="interconexion-line"></div>
-    <div style="text-align:center; font-size:12px; margin-bottom:10px;">
-        🔗 CADENA DE MANDO: MASTERMIND 🧠 → dicta estrategia → TRAFFIC 🚀 genera hooks | CONTENT 🏭 publica curiosidad → TRAFFIC 🚀 genera hooks específicos
+    <!-- Cadena de mando visual -->
+    <div style="background:linear-gradient(90deg,#ff4500,#8b5cf6,#3b82f6);height:3px;border-radius:3px;margin:10px 0;"></div>
+    <div style="text-align:center; font-size:12px; margin-bottom:10px; color:#c9a87b;">
+        🔗 CADENA DE MANDO: mxl inyecta → MASTERMIND genera artículo → TRAFFIC crea hooks → CONTENT mantiene tráfico (cada 3h)
     </div>
-    <div class="interconexion-line"></div>
+    <div style="background:linear-gradient(90deg,#ff4500,#8b5cf6,#3b82f6);height:3px;border-radius:3px;margin-bottom:20px;"></div>
 
-    <!-- Sección de Estrategia MASTERMIND -->
-    <div class="section" id="estrategiaSection">
-        <h3>🧠 ANÁLISIS ESTRATÉGICO - MASTERMIND MXL</h3>
-        <div id="estrategiaContent">
-            <div class="empty">⚡ Analizando mercado 2026...</div>
-        </div>
+    <!-- Último producto inyectado (destacado) -->
+    <div class="section" id="ultimoProductoSection" style="border:1px solid #8b5cf6;">
+        <h3>🎯 ÚLTIMO PRODUCTO INYECTADO POR MXL <span class="badge badge-mastermind">MASTERMIND + TRAFFIC</span></h3>
+        <div id="ultimoProducto"></div>
     </div>
 
-    <!-- Sección de HOOKS - GENERAL DE TRÁFICO (TERCERA LLAVE) -->
+    <!-- Últimos hooks generados -->
     <div class="section">
-        <h3>🚀 HOOKS VIRALES - GENERAL DE TRÁFICO <span class="motor-badge motor-traffic">MOTOR TRAFFIC</span></h3>
-        <div style="margin-bottom:15px; display:flex; gap:10px; flex-wrap:wrap;">
-            <button class="btn btn-traffic" onclick="generarHooks()" style="padding:8px 16px;">🎣 Generar nuevos hooks</button>
-            <span style="font-size:12px; color:#c9a87b; align-self:center;">Último hook generado automáticamente cada 2h o cuando MASTERMIND cambia estrategia</span>
-        </div>
-        <div id="hooksList"></div>
+        <h3>🚀 ÚLTIMOS HOOKS VIRALES <span class="badge badge-traffic">GENERAL TRAFFIC</span></h3>
+        <div id="ultimosHooks"></div>
     </div>
 
+    <!-- Productos inyectados (historial) -->
     <div class="section">
-        <h3>📰 CURIOSIDADES RECIENTES <span class="motor-badge motor-content">MOTOR CONTENT</span></h3>
-        <div id="curiosidadesList"></div>
-    </div>
-
-    <div class="section">
-        <h3>🛍️ PRODUCTOS PUBLICADOS <span class="motor-badge motor-mastermind">MASTERMIND SALES</span></h3>
+        <h3>📦 PRODUCTOS INYECTADOS POR MXL <span class="badge badge-mastermind">MASTERMIND</span></h3>
         <div id="productosList"></div>
     </div>
 
-    <!-- Modal para nuevo producto -->
-    <div id="modalProducto" class="modal">
+    <!-- Curiosidades (CONTENT - siempre activo) -->
+    <div class="section">
+        <h3>🏭 CURIOSIDADES VIRALES <span class="badge badge-content">CONTENT - Ritmo cada 3h</span></h3>
+        <div id="curiosidadesList"></div>
+    </div>
+
+    <!-- Modal para inyección de producto (mxl dispara) -->
+    <div id="modalInyeccion" class="modal">
         <div class="modal-content">
-            <h3>💰 Nuevo Producto Exclusivo - MASTERMIND SALES</h3>
+            <h3>💉 INYECCIÓN DE PRODUCTO - mxl = Único Disparador</h3>
+            <p style="font-size:12px; color:#c9a87b; margin-bottom:15px;">
+                🎯 Inyecta el link y la imagen. MASTERMIND generará el artículo completo y TRAFFIC creará los hooks automáticamente.
+            </p>
             <div class="form-group">
-                <label>URL de Amazon *</label>
+                <label>🔗 URL de Amazon *</label>
                 <input type="text" id="productoUrl" placeholder="https://www.amazon.com/dp/XXXXXXXXXX">
             </div>
             <div class="form-group">
-                <label>URL de Imagen *</label>
-                <input type="text" id="productoImagen" placeholder="https://...">
+                <label>🖼️ URL de Imagen *</label>
+                <input type="text" id="productoImagen" placeholder="https://ejemplo.com/imagen-producto.jpg">
             </div>
             <div class="form-group">
-                <label>Categoría</label>
+                <label>📁 Categoría</label>
                 <select id="productoCategoria">
-                    <option value="LUXURY">LUXURY</option>
-                    <option value="SMART HOME">SMART HOME</option>
-                    <option value="WELLNESS">WELLNESS</option>
-                    <option value="DECOR">DECOR</option>
+                    <option value="LUXURY">LUXURY - Lujo Silencioso</option>
+                    <option value="SMART HOME">SMART HOME - Hogar Inteligente</option>
+                    <option value="WELLNESS">WELLNESS - Bienestar</option>
+                    <option value="DECOR">DECOR - Decoración</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Tamaño de imagen</label>
-                <select id="productoImageSize">
-                    <option value="small">Pequeña</option>
-                    <option value="medium" selected>Mediana</option>
-                    <option value="large">Grande</option>
-                </select>
+            <button class="btn btn-commander" onclick="inyectarProducto()" id="btnInyectar" style="width:100%; margin:10px 0;">
+                💉 EJECUTAR ORDEN - MASTERMIND + TRAFFIC
+            </button>
+            <div id="procesandoStatus" style="display:none; text-align:center; padding:10px; color:#ff4500;">
+                ⏳ PROCESANDO ORDEN... MASTERMIND generando artículo → TRAFFIC creando hooks
             </div>
-            <div class="form-group">
-                <label>Posición de imagen</label>
-                <select id="productoImagePosition">
-                    <option value="left">Izquierda</option>
-                    <option value="center" selected>Centro</option>
-                    <option value="right">Derecha</option>
-                </select>
-            </div>
-            <button class="btn btn-mastermind" onclick="generarCopy()" id="btnGenerarCopy">🧠 MASTERMIND: Generar Copy Élite</button>
-            <div id="copyPreview" style="margin-top:15px;display:none;">
-                <hr>
-                <h4>Vista previa del copy (MASTERMIND - Ogilvy + Halbert):</h4>
-                <div id="copyContent" class="copy-preview"></div>
-                <button class="btn btn-success" onclick="publicarProducto()" style="margin-top:10px;width:100%;">📢 PUBLICAR PRODUCTO</button>
-            </div>
-            <button class="btn btn-secondary" onclick="cerrarModal()" style="margin-top:10px;width:100%;">Cerrar</button>
+            <button class="btn btn-secondary" onclick="cerrarModal()" style="width:100%;">Cancelar</button>
         </div>
     </div>
 
     <script>
-        let copyGenerado = null;
+        // ============================================================
+        // PROTOCOLO COMMANDER MXL - Panel de Supervisión
+        // ============================================================
         
         function mostrarToast(mensaje, esError = false) {
             const toast = document.createElement('div');
             toast.className = `toast ${esError ? 'error' : ''}`;
             toast.textContent = mensaje;
             document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+            setTimeout(() => toast.remove(), 4000);
         }
         
-        async function cargarStats() {
+        async function cargarTodo() {
             try {
-                const [stats, curiosidades, articulos, motores, hooks] = await Promise.all([
+                const [stats, curiosidades, productos, hooks] = await Promise.all([
                     fetch('/api/estadisticas').then(r=>r.json()).catch(() => ({})),
                     fetch('/api/curiosidades').then(r=>r.json()).catch(() => []),
-                    fetch('/api/articulos').then(r=>r.json()).catch(() => []),
-                    fetch('/api/motores-status').then(r=>r.json()).catch(() => null),
-                    fetch('/api/hooks/latest').then(r=>r.json()).catch(() => null)
+                    fetch('/api/productos').then(r=>r.json()).catch(() => []),
+                    fetch('/api/hooks').then(r=>r.json()).catch(() => [])
                 ]);
                 
-                // Mostrar estado de los 3 motores
-                if (motores) {
-                    document.getElementById('contentStatus').textContent = motores.content?.disponible ? '✅' : '⚠️';
-                    document.getElementById('contentModel').textContent = motores.content?.modelo || 'no disponible';
-                    document.getElementById('mastermindStatus').textContent = motores.mastermind?.disponible ? '✅' : '⚠️';
-                    document.getElementById('mastermindModel').textContent = motores.mastermind?.modelo || 'no disponible';
-                    document.getElementById('trafficStatus').textContent = motores.traffic?.disponible ? '✅' : '⚠️';
-                    document.getElementById('trafficModel').textContent = motores.traffic?.modelo || 'no disponible';
-                } else {
-                    document.getElementById('contentStatus').textContent = stats.contentDisponible ? '✅' : '⚠️';
-                    document.getElementById('contentModel').textContent = stats.contentModelo || '?';
-                    document.getElementById('mastermindStatus').textContent = stats.salesDisponible ? '✅' : '⚠️';
-                    document.getElementById('mastermindModel').textContent = stats.salesModelo || '?';
-                    document.getElementById('trafficStatus').textContent = stats.trafficDisponible ? '✅' : '⚠️';
-                    document.getElementById('trafficModel').textContent = stats.trafficModelo || '?';
-                }
+                // Estado de motores
+                document.getElementById('contentStatus').textContent = stats.contentDisponible ? '✅' : '⚠️';
+                document.getElementById('contentModel').textContent = stats.contentModelo || 'no disponible';
+                document.getElementById('mastermindStatus').textContent = stats.mastermindDisponible ? '✅' : '⚠️';
+                document.getElementById('mastermindModel').textContent = stats.mastermindModelo || 'no disponible';
+                document.getElementById('trafficStatus').textContent = stats.trafficDisponible ? '✅' : '⚠️';
+                document.getElementById('trafficModel').textContent = stats.trafficModelo || 'no disponible';
                 
-                document.getElementById('anguloStatus').textContent = stats.anguloActual || '-';
-                document.getElementById('anguloDesc').textContent = stats.descripcionAngulo || '';
+                // Contadores
                 document.getElementById('curiosidadesCount').textContent = curiosidades.length;
-                document.getElementById('productosCount').textContent = articulos.length;
+                document.getElementById('productosCount').textContent = productos.length;
                 document.getElementById('clicsCount').textContent = stats.totalClics || 0;
                 document.getElementById('hooksCount').textContent = stats.hooksGenerados || 0;
                 
+                // Renderizar
+                renderUltimoProducto(productos);
+                renderProductos(productos);
                 renderCuriosidades(curiosidades);
-                renderProductos(articulos);
-                renderEstrategia(stats.estrategia);
-                renderHooks(hooks);
+                renderUltimosHooks(hooks);
+                
             } catch(e) {
-                console.error('Error cargando stats:', e);
-                mostrarToast('Error al cargar estadísticas', true);
+                console.error('Error cargando:', e);
+                mostrarToast('Error al cargar datos', true);
             }
         }
         
-        function renderHooks(hooksData) {
-            const container = document.getElementById('hooksList');
-            
-            if (!hooksData || !hooksData.hooks) {
-                container.innerHTML = `
-                    <div class="empty">
-                        🎣 No hay hooks generados aún.<br>
-                        El GENERAL DE TRÁFICO generará hooks automáticamente cada 2 horas<br>
-                        o cuando MASTERMIND cambie la estrategia.
-                        <br><br>
-                        <button class="btn btn-traffic" onclick="generarHooks()" style="margin-top:10px;">🚀 Generar hooks ahora</button>
-                    </div>
-                `;
+        function renderUltimoProducto(productos) {
+            const container = document.getElementById('ultimoProducto');
+            if (!productos || productos.length === 0) {
+                container.innerHTML = '<div class="empty">🎯 Esperando primera inyección de mxl...</div>';
                 return;
             }
             
-            const hooks = hooksData.hooks;
-            const fecha = hooksData.fecha ? new Date(hooksData.fecha).toLocaleString() : 'Fecha desconocida';
-            const angulo = hooksData.angulo || 'A';
-            
+            const ultimo = productos[0];
             container.innerHTML = `
-                <div style="margin-bottom:15px; font-size:12px; color:#c9a87b;">
-                    📅 Generado: ${fecha} | 🎯 Ángulo: ${angulo} | 🧠 Psicología: ${hooksData.psicologia || 'Estrategia activa'}
+                <div style="background:#0f0f1a; border-radius:12px; padding:15px;">
+                    <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                        <strong style="color:#8b5cf6;">🎯 ${escapeHtml(ultimo.titulo || 'Sin título')}</strong>
+                        <span style="font-size:11px; color:#c9a87b;">📅 ${new Date(ultimo.fecha).toLocaleString()}</span>
+                    </div>
+                    <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                        <img src="${ultimo.imagen}" style="width:80px; height:80px; object-fit:cover; border-radius:8px;" onerror="this.src='https://via.placeholder.com/80'">
+                        <div style="flex:1;">
+                            <p style="font-size:12px; margin-bottom:8px;">✨ ${escapeHtml(ultimo.curiosidad || 'Curiosidad exclusiva')}</p>
+                            <p style="font-size:11px; color:#c9a87b;">📁 ${ultimo.categoria || 'LUXURY'} | 🖱️ ${ultimo.clicks || 0} clics</p>
+                            <button class="small-btn" onclick="window.open('${ultimo.link}', '_blank')" style="margin-top:8px;">🔗 Ver en Amazon</button>
+                        </div>
+                    </div>
+                    <div style="margin-top:12px; padding-top:10px; border-top:1px solid #2d2d44; font-size:11px; color:#3b82f6;">
+                        🚀 TRAFFIC generó hooks para este producto (ver sección abajo)
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderProductos(productos) {
+            const container = document.getElementById('productosList');
+            if (!productos || productos.length === 0) {
+                container.innerHTML = '<div class="empty">📦 No hay productos inyectados aún. Usa "INYECTAR PRODUCTO" para disparar MASTERMIND.</div>';
+                return;
+            }
+            
+            container.innerHTML = productos.slice(0, 15).map(prod => `
+                <div class="producto-item">
+                    <div class="producto-titulo">
+                        <strong>${escapeHtml(prod.titulo || 'Sin título')}</strong><br>
+                        <small style="color:#c9a87b">📅 ${new Date(prod.fecha).toLocaleDateString()} | 📁 ${prod.categoria} | 🖱️ ${prod.clicks || 0} clics</small>
+                    </div>
+                    <div>
+                        <button class="small-btn" onclick="window.open('${prod.link}', '_blank')">🔗</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderCuriosidades(curiosidades) {
+            const container = document.getElementById('curiosidadesList');
+            if (!curiosidades || curiosidades.length === 0) {
+                container.innerHTML = '<div class="empty">🏭 CONTENT generará curiosidades cada 3 horas automáticamente.</div>';
+                return;
+            }
+            
+            container.innerHTML = curiosidades.slice(0, 10).map(cur => `
+                <div class="curiosidad-item">
+                    <div class="curiosidad-titulo">
+                        <strong>${escapeHtml(cur.titulo_es || cur.titulo_en || 'Sin título')}</strong><br>
+                        <small style="color:#c9a87b">📅 ${new Date(cur.fecha).toLocaleString()} | 🏭 CONTENT</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderUltimosHooks(hooksList) {
+            const container = document.getElementById('ultimosHooks');
+            if (!hooksList || hooksList.length === 0) {
+                container.innerHTML = '<div class="empty">🎣 Cuando mxl inyecte un producto, TRAFFIC generará hooks automáticamente.</div>';
+                return;
+            }
+            
+            const ultimoHook = hooksList[0];
+            if (!ultimoHook || !ultimoHook.hooks) {
+                container.innerHTML = '<div class="empty">🎣 Esperando hooks generados por TRAFFIC...</div>';
+                return;
+            }
+            
+            const hooks = ultimoHook.hooks;
+            container.innerHTML = `
+                <div style="margin-bottom:10px; font-size:11px; color:#c9a87b;">
+                    📅 Generado: ${new Date(ultimoHook.fecha).toLocaleString()} | 
+                    🎯 Producto: ${escapeHtml(ultimoHook.productoTitulo?.substring(0, 50) || 'Producto')}
                 </div>
                 <div class="platform-hooks">
                     ${hooks.pinterest ? `
@@ -302,117 +359,19 @@
                             ${hooks.twitter.map(h => `<div class="hook-text">${escapeHtml(h)}</div>`).join('')}
                         </div>
                     ` : ''}
-                    ${hooks.instagram ? `
-                        <div class="platform-card instagram">
-                            <div class="platform-title">📸 INSTAGRAM</div>
-                            ${hooks.instagram.map(h => `<div class="hook-text">${escapeHtml(h)}</div>`).join('')}
-                        </div>
-                    ` : ''}
-                    ${hooks.facebook ? `
-                        <div class="platform-card facebook">
-                            <div class="platform-title">📘 FACEBOOK</div>
-                            ${hooks.facebook.map(h => `<div class="hook-text">${escapeHtml(h)}</div>`).join('')}
-                        </div>
-                    ` : ''}
                 </div>
                 ${hooks.metaDescription ? `
-                    <div style="margin-top:15px; padding:12px; background:#0f0f1a; border-radius:8px;">
-                        <strong>🔍 Meta Description (Google News):</strong><br>
-                        <span style="font-size:12px; color:#c9a87b;">${escapeHtml(hooks.metaDescription)}</span>
-                    </div>
-                ` : ''}
-                ${hooks.seoTitle ? `
-                    <div style="margin-top:10px; padding:12px; background:#0f0f1a; border-radius:8px;">
-                        <strong>📈 SEO Title:</strong><br>
-                        <span style="font-size:12px; color:#c9a87b;">${escapeHtml(hooks.seoTitle)}</span>
+                    <div style="margin-top:12px; padding:10px; background:#0f0f1a; border-radius:8px;">
+                        <strong>🔍 Meta Description (SEO):</strong><br>
+                        <span style="font-size:11px;">${escapeHtml(hooks.metaDescription)}</span>
                     </div>
                 ` : ''}
             `;
-        }
-        
-        function renderEstrategia(estrategia) {
-            const container = document.getElementById('estrategiaContent');
-            if (!estrategia || !estrategia.ultimoAnalisis) {
-                container.innerHTML = `
-                    <div class="estrategia-card">
-                        <p style="color:#c9a87b;">⚡ MASTERMIND en espera...</p>
-                        <p style="font-size:12px;margin-top:10px;">Haz clic en "Analizar Mercado" para activar el cerebro maestro</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = `
-                <div class="estrategia-card">
-                    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:15px;">
-                        <span><strong>🎯 Ángulo recomendado:</strong> ${estrategia.anguloRecomendado || 'A'} - ${angulosDesc[estrategia.anguloRecomendado] || 'Estrategia activa'}</span>
-                        <span><strong>📅 Último análisis:</strong> ${new Date(estrategia.ultimoAnalisis).toLocaleString()}</span>
-                    </div>
-                    <div style="margin-bottom:15px;">
-                        <strong>🧠 Psicología de venta:</strong><br>
-                        <span style="font-size:13px;color:#c9a87b;">${estrategia.psicologiaDeVenta || 'Optimizando estrategia...'}</span>
-                    </div>
-                    <div style="margin-bottom:15px;">
-                        <strong>📈 Tendencias 2026 detectadas:</strong><br>
-                        <div style="margin-top:8px;">
-                            ${(estrategia.tendenciasActuales || []).map(t => `<span class="tendencia-tag">📌 ${escapeHtml(t)}</span>`).join('') || '<span class="tendencia-tag">Analizando mercado...</span>'}
-                        </div>
-                    </div>
-                    <div style="margin-bottom:15px;">
-                        <strong>💡 Recomendación estratégica:</strong><br>
-                        <span style="font-size:13px;">${escapeHtml(estrategia.recomendaciones ? estrategia.recomendaciones[0] : 'Ejecutar análisis para obtener recomendaciones')}</span>
-                    </div>
-                    <div>
-                        <strong>⚡ Próximo movimiento:</strong><br>
-                        <span style="font-size:13px;color:#3b82f6;">${escapeHtml(estrategia.proximoMovimiento || 'Analizar datos de clics para optimizar')}</span>
-                    </div>
-                </div>
-            `;
-        }
-        
-        function renderCuriosidades(curiosidades) {
-            const container = document.getElementById('curiosidadesList');
-            if (!curiosidades || curiosidades.length === 0) {
-                container.innerHTML = '<div class="empty">✨ No hay curiosidades aún. Genera la primera con CONTENT.</div>';
-                return;
-            }
-            
-            container.innerHTML = curiosidades.slice(0, 10).map(cur => `
-                <div class="curiosidad-item">
-                    <div class="curiosidad-titulo">
-                        <strong>${escapeHtml(cur.titulo_es || cur.titulo_en || 'Sin título')}</strong><br>
-                        <small style="color:#c9a87b">📅 ${new Date(cur.fecha).toLocaleString()} | 🎯 Ángulo: ${cur.anguloUsado || 'A'} | 🏭 Motor: CONTENT</small>
-                    </div>
-                    <div>
-                        <button class="small-btn" onclick="borrarCuriosidad(${cur.id})">🗑️</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        function renderProductos(productos) {
-            const container = document.getElementById('productosList');
-            if (!productos || productos.length === 0) {
-                container.innerHTML = '<div class="empty">💰 No hay productos aún. Publica tu primer producto con MASTERMIND SALES.</div>';
-                return;
-            }
-            
-            container.innerHTML = productos.map(prod => `
-                <div class="producto-item">
-                    <div class="producto-titulo">
-                        <strong>${escapeHtml(prod.titulo || 'Sin título')}</strong><br>
-                        <small style="color:#c9a87b">📁 ${prod.categoria} | 🖱️ ${prod.clicks || 0} clics | 📅 ${new Date(prod.fecha).toLocaleDateString()} | 🧠 Motor: MASTERMIND</small>
-                    </div>
-                    <div>
-                        <button class="small-btn" onclick="window.open('${prod.link}', '_blank')">🔗</button>
-                    </div>
-                </div>
-            `).join('');
         }
         
         function escapeHtml(str) {
             if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
+            return String(str).replace(/[&<>]/g, function(m) {
                 if (m === '&') return '&amp;';
                 if (m === '<') return '&lt;';
                 if (m === '>') return '&gt;';
@@ -420,227 +379,72 @@
             });
         }
         
-        async function generarCuriosidad(btn) {
-            if (!btn) btn = event.target;
-            const originalText = btn.textContent;
-            btn.textContent = '⏳ CONTENT generando...';
-            btn.disabled = true;
-            
-            try {
-                const res = await fetch('/api/generar-curiosidad', { method: 'POST' });
-                const data = await res.json();
-                if (data.success) {
-                    mostrarToast(`✅ Curiosidad generada por MOTOR CONTENT | TRAFFIC generará hooks automáticamente`);
-                    cargarStats();
-                } else {
-                    mostrarToast('❌ Error: ' + (data.error || 'Error desconocido'), true);
-                }
-            } catch(e) {
-                console.error('Error:', e);
-                mostrarToast('❌ Error al generar curiosidad', true);
-            } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
-            }
-        }
-        
-        async function generarHooks() {
-            const btn = event.target;
-            const originalText = btn.textContent;
-            btn.textContent = '🚀 TRAFFIC generando hooks...';
-            btn.disabled = true;
-            
-            try {
-                const res = await fetch('/api/generar-hooks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-                const data = await res.json();
-                if (data.success) {
-                    mostrarToast(`🎣 GENERAL DE TRÁFICO: ${data.hooks?.pinterest?.length || 0} hooks generados para bombardeo externo`);
-                    cargarStats();
-                } else {
-                    mostrarToast('❌ Error: ' + (data.error || 'Error desconocido'), true);
-                }
-            } catch(e) {
-                console.error('Error:', e);
-                mostrarToast('❌ Error al generar hooks', true);
-            } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
-            }
-        }
-        
-        async function analizarEstrategia() {
-            const btn = event.target;
-            const originalText = btn.textContent;
-            btn.textContent = '🧠 MASTERMIND analizando...';
-            btn.disabled = true;
-            
-            try {
-                const res = await fetch('/api/analizar-estrategia', { method: 'POST' });
-                const data = await res.json();
-                if (data.success) {
-                    mostrarToast(`🧠 MASTERMIND: Análisis estratégico completado | TRAFFIC generará nuevos hooks basados en la estrategia`);
-                    cargarStats();
-                } else {
-                    mostrarToast('❌ Error en análisis: ' + (data.error || 'Error desconocido'), true);
-                }
-            } catch(e) {
-                console.error('Error:', e);
-                mostrarToast('❌ Error al analizar estrategia', true);
-            } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
-            }
-        }
-        
-        async function borrarCuriosidad(id) {
-            if (!confirm('¿Eliminar esta curiosidad?')) return;
-            try {
-                const res = await fetch(`/api/curiosidad/${id}`, { method: 'DELETE' });
-                if (res.ok) {
-                    mostrarToast('✅ Curiosidad eliminada');
-                    cargarStats();
-                } else {
-                    mostrarToast('❌ Error al eliminar', true);
-                }
-            } catch(e) {
-                mostrarToast('Error: ' + e.message, true);
-            }
-        }
-        
-        async function borrarTodasCuriosidades() {
-            if (!confirm('⚠️ ¿ELIMINAR TODAS LAS CURIOSIDADES? Esta acción no se puede deshacer.')) return;
-            try {
-                const res = await fetch('/api/curiosidades/all', { method: 'DELETE' });
-                if (res.ok) {
-                    mostrarToast('✅ Todas las curiosidades eliminadas');
-                    cargarStats();
-                } else {
-                    mostrarToast('❌ Error al eliminar', true);
-                }
-            } catch(e) {
-                mostrarToast('Error: ' + e.message, true);
-            }
-        }
-        
-        function abrirModalProducto() {
-            document.getElementById('modalProducto').style.display = 'flex';
-            copyGenerado = null;
-            document.getElementById('copyPreview').style.display = 'none';
+        function abrirModalInyeccion() {
+            document.getElementById('modalInyeccion').style.display = 'flex';
             document.getElementById('productoUrl').value = '';
             document.getElementById('productoImagen').value = '';
             document.getElementById('productoCategoria').value = 'LUXURY';
-            document.getElementById('productoImageSize').value = 'medium';
-            document.getElementById('productoImagePosition').value = 'center';
+            document.getElementById('procesandoStatus').style.display = 'none';
+            document.getElementById('btnInyectar').disabled = false;
+            document.getElementById('btnInyectar').textContent = '💉 EJECUTAR ORDEN - MASTERMIND + TRAFFIC';
         }
         
         function cerrarModal() {
-            document.getElementById('modalProducto').style.display = 'none';
+            document.getElementById('modalInyeccion').style.display = 'none';
         }
         
-        async function generarCopy() {
+        async function inyectarProducto() {
             const url = document.getElementById('productoUrl').value.trim();
             const imagen = document.getElementById('productoImagen').value.trim();
             const categoria = document.getElementById('productoCategoria').value;
             
             if (!url || !imagen) {
-                mostrarToast('❌ URL de Amazon y URL de imagen son obligatorias', true);
+                mostrarToast('❌ COMANDANTE: Debes inyectar URL de Amazon y URL de imagen', true);
                 return;
             }
             
-            const btn = document.getElementById('btnGenerarCopy');
-            const originalText = btn.textContent;
-            btn.textContent = '🧠 MASTERMIND generando copy élite...';
+            const btn = document.getElementById('btnInyectar');
+            const statusDiv = document.getElementById('procesandoStatus');
+            
             btn.disabled = true;
+            btn.textContent = '⏳ PROCESANDO...';
+            statusDiv.style.display = 'block';
             
             try {
-                const res = await fetch('/api/generar-copy-producto', {
+                const res = await fetch('/api/commander/inject', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ url, imagenUrl: imagen, categoria })
                 });
+                
                 const data = await res.json();
-                if (data.success && data.copy) {
-                    copyGenerado = data.copy;
-                    document.getElementById('copyContent').innerHTML = `
-                        <strong>📝 Título (Ogilvy):</strong> ${escapeHtml(copyGenerado.titulo || 'N/A')}<br>
-                        <strong>📖 Intro (Halbert):</strong> ${escapeHtml(copyGenerado.intro || 'N/A')}<br>
-                        <strong>✨ Curiosidad (FOMO):</strong> ${escapeHtml(copyGenerado.curiosidad || 'N/A')}<br>
-                        <strong>🔍 Meta:</strong> ${escapeHtml(copyGenerado.meta_descripcion || 'N/A')}<br>
-                        <strong>🏷️ Keywords:</strong> ${(copyGenerado.palabras_clave || []).join(', ') || 'N/A'}<br>
-                        <strong>🧠 Motor:</strong> ${data.motor || 'MASTERMIND SALES'}
-                    `;
-                    document.getElementById('copyPreview').style.display = 'block';
-                    mostrarToast(`✅ Copy generado por MASTERMIND (Ogilvy + Halbert)`);
-                } else {
-                    mostrarToast('❌ Error generando copy: ' + (data.error || 'Error desconocido'), true);
-                }
-            } catch(e) {
-                console.error('Error:', e);
-                mostrarToast('❌ Error: ' + e.message, true);
-            } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
-            }
-        }
-        
-        async function publicarProducto() {
-            if (!copyGenerado) {
-                mostrarToast('Primero genera el copy con MASTERMIND', true);
-                return;
-            }
-            
-            const url = document.getElementById('productoUrl').value.trim();
-            const imagen = document.getElementById('productoImagen').value.trim();
-            const categoria = document.getElementById('productoCategoria').value;
-            const imageSize = document.getElementById('productoImageSize').value;
-            const imagePosition = document.getElementById('productoImagePosition').value;
-            
-            try {
-                const res = await fetch('/api/publicar-producto', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        url, 
-                        imagenUrl: imagen, 
-                        categoria,
-                        imageSize, 
-                        imagePosition, 
-                        copy: copyGenerado
-                    })
-                });
-                const data = await res.json();
+                
                 if (data.success) {
-                    mostrarToast(`✅ Producto publicado con MASTERMIND SALES`);
+                    mostrarToast(`✅ ORDEN EJECUTADA: MASTERMIND generó artículo + TRAFFIC creó ${data.hooks?.pinterest?.length || 0} hooks para Pinterest y ${data.hooks?.twitter?.length || 0} para Twitter`);
                     cerrarModal();
-                    cargarStats();
+                    cargarTodo();
                 } else {
-                    mostrarToast('❌ Error: ' + (data.error || 'Error desconocido'), true);
+                    mostrarToast(`❌ Error: ${data.error || 'Orden fallida'}`, true);
                 }
             } catch(e) {
                 console.error('Error:', e);
-                mostrarToast('❌ Error publicando: ' + e.message, true);
+                mostrarToast('❌ Error al procesar orden', true);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '💉 EJECUTAR ORDEN - MASTERMIND + TRAFFIC';
+                statusDiv.style.display = 'none';
             }
         }
         
-        // Ángulos de venta para mostrar en UI
-        const angulosDesc = {
-            'A': 'ESTATUS - Lujo Silencioso',
-            'B': 'FOMO - Escasez y Urgencia',
-            'C': 'BIO-HACKING - Salud y Optimización',
-            'D': 'INVERSIÓN - Valor Patrimonial'
-        };
-        
-        // Click fuera del modal para cerrar
+        // Click fuera del modal
         window.onclick = function(event) {
-            const modal = document.getElementById('modalProducto');
-            if (event.target === modal) {
-                cerrarModal();
-            }
+            const modal = document.getElementById('modalInyeccion');
+            if (event.target === modal) cerrarModal();
         }
         
-        // Inicializar y auto-refrescar cada 30 segundos
-        cargarStats();
-        setInterval(cargarStats, 30000);
+        // Auto-refrescar cada 15 segundos
+        cargarTodo();
+        setInterval(cargarTodo, 15000);
     </script>
 </body>
 </html>
