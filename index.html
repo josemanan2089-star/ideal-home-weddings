@@ -18,7 +18,7 @@
             line-height: 1.6;
         }
 
-        /* ── HEADER ── */
+        /* ── HEADER PREMIUM ── */
         .viral-header {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: white;
@@ -27,35 +27,16 @@
             position: relative;
             overflow: hidden;
         }
-        .viral-header::before {
-            content: "✦ LUXURY ✦";
-            position: absolute;
-            font-size: 120px;
-            opacity: 0.03;
-            right: -20px;
-            top: 10px;
-            font-weight: bold;
-            letter-spacing: 10px;
-            white-space: nowrap;
-        }
         .viral-header h1 {
             font-family: 'Playfair Display', serif;
             font-size: 3rem;
             font-weight: 700;
-            letter-spacing: -0.5px;
             margin-bottom: 15px;
-            line-height: 1.2;
         }
         .viral-header h1 span {
             background: linear-gradient(135deg, #ff4500, #ff6b35);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-        }
-        .viral-header p {
-            font-size: 1.1rem;
-            opacity: 0.85;
-            max-width: 600px;
-            margin: 0 auto;
         }
         .live-badge {
             display: inline-block;
@@ -67,329 +48,61 @@
             margin-top: 25px;
             animation: pulse 1.5s infinite;
             font-weight: bold;
-            letter-spacing: 1px;
         }
         @keyframes pulse {
             0%,100% { opacity: .7; transform: scale(1); }
-            50%      { opacity: 1; transform: scale(1.05); }
+            50% { opacity: 1; transform: scale(1.05); }
         }
 
-        /* ── CONTAINER ── */
-        .container {
-            max-width: 1300px;
-            margin: 0 auto;
-            padding: 60px 20px;
-        }
+        .container { max-width: 1300px; margin: 0 auto; padding: 60px 20px; }
 
-        /* ── SECTION TITLES ── */
         .section-title {
             font-family: 'Playfair Display', serif;
             font-size: 1.9rem;
             margin-bottom: 40px;
             text-align: center;
-            position: relative;
             color: #2c2418;
         }
         .section-title:after {
-            content: '';
-            display: block;
-            width: 60px;
-            height: 3px;
-            background: #c9a87b;
-            margin: 14px auto 0;
-            border-radius: 2px;
+            content: ''; display: block; width: 60px; height: 3px; background: #c9a87b; margin: 14px auto 0;
         }
 
-        /* ══════════════════════════════════════
-           CURIOSIDADES — CON IMAGEN
-           ══════════════════════════════════════ */
-        .curiosidades-section { margin-bottom: 80px; }
-
-        .curiosidades-grid {
+        /* ── GRID DE PRODUCTOS ── */
+        .productos-grid, .curiosidades-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 28px;
         }
 
-        /* Card con imagen arriba */
-        .curiosidad-card {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 6px 24px rgba(0,0,0,.07);
-            border: 1px solid #f0e2d8;
-            transition: all .3s;
-            cursor: pointer;
-            animation: fadeUp .5s ease forwards;
+        .card {
+            background: white; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 6px 24px rgba(0,0,0,.07); border: 1px solid #f0e2d8;
+            transition: all .3s; cursor: pointer;
         }
-        .curiosidad-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 16px 36px rgba(0,0,0,.13);
-        }
+        .card:hover { transform: translateY(-6px); box-shadow: 0 16px 36px rgba(0,0,0,.13); }
 
-        /* IMAGEN de la curiosidad */
-        .curiosidad-img {
-            width: 100%;
-            height: 200px;
-            overflow: hidden;
-            position: relative;
-            background: #f0e8e0;
-        }
-        .curiosidad-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform .5s;
-        }
-        .curiosidad-card:hover .curiosidad-img img {
-            transform: scale(1.06);
-        }
-        .viral-tag {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            background: #ff4500;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: .5px;
-            z-index: 10;
-        }
+        .card-img { width: 100%; height: 250px; overflow: hidden; background: #faf7f3; }
+        .card-img img { width: 100%; height: 100%; object-fit: contain; padding: 15px; }
 
-        /* Contenido de la curiosidad */
-        .curiosidad-content {
-            padding: 22px;
-        }
-        .curiosidad-content h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            color: #2c2418;
-            line-height: 1.4;
-        }
-        .curiosidad-content p {
-            color: #6b5a48;
-            font-size: .9rem;
-            margin-bottom: 14px;
-            line-height: 1.55;
-        }
-        .curiosidad-visual {
-            font-size: .82rem;
-            color: #c9a87b;
-            font-style: italic;
-            border-left: 2px solid #c9a87b;
-            padding-left: 10px;
-            margin-bottom: 14px;
-            line-height: 1.5;
-        }
-        .share-btn {
-            background: none;
-            border: none;
-            color: #ff4500;
-            cursor: pointer;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 0;
-            font-weight: 600;
-            transition: all .2s;
-        }
-        .share-btn:hover { color: #e03e00; gap: 10px; }
-
-        /* ══════════════════════════════════════
-           ARTÍCULOS / PRODUCTOS — CON IMAGEN
-           ══════════════════════════════════════ */
-        .productos-section { margin-top: 20px; }
-
-        .productos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: 32px;
-        }
-
-        .producto-card {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 6px 24px rgba(0,0,0,.07);
-            border: 1px solid #f0e2d8;
-            transition: all .4s;
-            cursor: pointer;
-            animation: fadeUp .5s ease forwards;
-        }
-        .producto-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,.13);
-        }
-
-        /* IMAGEN del producto — más grande y prominente */
-        .producto-imagen {
-            width: 100%;
-            height: 260px;
-            overflow: hidden;
-            position: relative;
-            background: #faf7f3;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .producto-imagen img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 18px;
-            transition: transform .5s;
-        }
-        .producto-card:hover .producto-imagen img {
-            transform: scale(1.04);
-        }
-        .producto-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            color: #c9a87b;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 700;
-            z-index: 10;
-            letter-spacing: .5px;
-        }
-
-        /* Contenido del producto */
-        .producto-contenido { padding: 22px; }
-        .producto-categoria {
-            display: inline-block;
-            background: #f7ede8;
-            color: #ff4500;
-            font-size: 10px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            font-weight: 700;
-            letter-spacing: .5px;
-        }
-        .producto-contenido h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.15rem;
-            margin-bottom: 10px;
-            line-height: 1.3;
-            color: #2c2418;
-        }
-        .producto-curiosidad {
-            font-size: .82rem;
-            color: #ff4500;
-            font-style: italic;
-            margin-bottom: 10px;
-            border-left: 2px solid #ff4500;
-            padding-left: 10px;
-            line-height: 1.5;
-        }
-        .producto-desc {
-            color: #6b5a48;
-            font-size: .85rem;
-            margin-bottom: 16px;
-            line-height: 1.5;
-        }
+        .card-content { padding: 22px; }
+        .tag { background: #f7ede8; color: #ff4500; font-size: 10px; padding: 4px 12px; border-radius: 20px; font-weight: 700; }
+        
         .btn-comprar {
-            display: block;
-            background: linear-gradient(135deg, #2c2418, #4a3727);
-            color: white;
-            padding: 11px 20px;
-            border-radius: 40px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all .3s;
-            width: 100%;
-            text-align: center;
-            border: none;
-            cursor: pointer;
-            letter-spacing: .3px;
+            display: block; width: 100%; background: #2c2418; color: white;
+            padding: 12px; border-radius: 40px; text-align: center; text-decoration: none;
+            font-weight: 600; margin-top: 15px; transition: .3s;
         }
-        .btn-comprar:hover {
-            background: linear-gradient(135deg, #ff4500, #ff6b35);
-        }
+        .btn-comprar:hover { background: #ff4500; }
 
-        /* ── NEWSLETTER ── */
-        .newsletter {
-            background: linear-gradient(135deg, #1a1a2e, #2c2418);
-            border-radius: 24px;
-            padding: 50px;
-            text-align: center;
-            margin: 60px 0 0;
-            color: white;
-        }
-        .newsletter h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.6rem;
-            margin-bottom: 12px;
-        }
-        .newsletter p { opacity: .8; margin-bottom: 24px; font-size: .95rem; }
-        .newsletter-form { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-        .newsletter input {
-            padding: 12px 20px;
-            border-radius: 40px;
-            border: none;
-            width: 300px;
-            max-width: 100%;
-            font-family: 'DM Sans', sans-serif;
-        }
-        .newsletter button {
-            background: #ff4500;
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: 700;
-            font-family: 'DM Sans', sans-serif;
-            transition: all .3s;
-        }
-        .newsletter button:hover { background: #e03e00; }
+        .loader { text-align: center; padding: 40px; color: #c9a87b; grid-column: 1/-1; }
 
-        /* ── FOOTER ── */
-        footer {
-            background: #1a1208;
-            color: #8a7a60;
-            text-align: center;
-            padding: 40px;
-            margin-top: 40px;
-            font-size: 12px;
-        }
+        footer { background: #1a1208; color: #8a7a60; text-align: center; padding: 40px; margin-top: 40px; font-size: 12px; }
 
-        /* ── LOADER ── */
-        .loader {
-            text-align: center;
-            padding: 60px;
-            color: #c9a87b;
-            font-size: 1rem;
-            grid-column: 1 / -1;
-        }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 768px) {
-            .viral-header h1 { font-size: 1.8rem; }
-            .productos-grid { grid-template-columns: 1fr; }
-            .curiosidades-grid { grid-template-columns: 1fr; }
-            .newsletter-form { flex-direction: column; align-items: center; }
-            .newsletter input { width: 100%; }
-            .newsletter button { width: 100%; }
-        }
+        @media (max-width: 768px) { .viral-header h1 { font-size: 1.8rem; } }
     </style>
 </head>
 <body>
 
-    <!-- HEADER -->
     <div class="viral-header">
         <h1>🔥 The Secret <span>Women Are Talking About</span> in 2026</h1>
         <p>What NYC, Miami & Beverly Hills elites don't want you to know</p>
@@ -397,202 +110,86 @@
     </div>
 
     <div class="container">
-
-        <!-- ══════════════════════════════════
-             CURIOSIDADES (Bot Gemini — con imagen)
-             ══════════════════════════════════ -->
+        <!-- SECCIÓN CURIOSIDADES -->
         <div class="curiosidades-section">
             <h2 class="section-title">💎 Curiosidades Exclusivas</h2>
             <div id="curiosidadesGrid" class="curiosidades-grid">
-                <div class="loader">🔥 Cargando secretos exclusivos...</div>
+                <div class="loader">🔥 Cargando secretos...</div>
             </div>
         </div>
 
-        <!-- ══════════════════════════════════
-             PRODUCTOS (mxl link+foto → Gemini copy)
-             ══════════════════════════════════ -->
+        <!-- SECCIÓN PRODUCTOS -->
         <div class="productos-section">
             <h2 class="section-title">🛍️ Artículos Exclusivos</h2>
             <div id="productosGrid" class="productos-grid">
-                <div class="loader">💎 Cargando productos exclusivos...</div>
+                <div class="loader">💎 Cargando artículos de lujo...</div>
             </div>
         </div>
-
-        <!-- NEWSLETTER -->
-        <div class="newsletter">
-            <h3>🔥 No te pierdas los próximos secretos</h3>
-            <p>Recibe las curiosidades más virales antes que nadie</p>
-            <div class="newsletter-form">
-                <input type="email" placeholder="tu@email.com" id="newsletterEmail">
-                <button onclick="suscribirNewsletter()">🔴 SUSCRIBIRME</button>
-            </div>
-        </div>
-
     </div>
 
     <footer>
-        <p style="color:#c9a87b;font-size:1rem;margin-bottom:8px;">🔥 MXL GOLD MINER — El Club de Las Que Saben</p>
-        <p>Descubre los secretos que todas quieren conocer | Somos afiliados de Amazon</p>
-        <p style="margin-top:12px;font-size:10px;">© 2026 Luxury Home Trends — Viral content for the modern American woman</p>
+        <p>© 2026 MXL GOLD MINER — Luxury Lifestyle & Status</p>
     </footer>
 
     <script>
-        // ── RENDER CURIOSIDADES (con imagen) ──
-        function renderCuriosidades(curiosidades) {
-            const grid = document.getElementById('curiosidadesGrid');
+        // FUNCIÓN CARGAR PRODUCTOS (Sincronizada con /api/productos)
+        async function cargarProductos() {
+            try {
+                const res = await fetch('/api/productos');
+                const productos = await res.json();
+                const grid = document.getElementById('productosGrid');
+                
+                if (!productos || productos.length === 0) {
+                    grid.innerHTML = '<div class="loader">💰 Inyecta tu primer producto desde el panel MXL</div>';
+                    return;
+                }
 
-            if (!curiosidades || curiosidades.length === 0) {
-                grid.innerHTML = `<div class="loader">✨ Pronto más secretos exclusivos...</div>`;
-                return;
-            }
-
-            grid.innerHTML = curiosidades.map(cur => {
-                // Imagen: usa la que Gemini buscó, con fallback a Pexels luxury
-                const imgSrc = cur.imagen || 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg';
-                const titulo  = cur.titulo_es || 'Secreto Exclusivo';
-                const texto   = cur.texto_es  || 'Descubre el nuevo símbolo de estatus silencioso que todas quieren.';
-                const visual  = cur.descripcion_visual_es || '';
-
-                return `
-                <div class="curiosidad-card">
-                    <!-- IMAGEN -->
-                    <div class="curiosidad-img">
-                        <div class="viral-tag">✨ EXCLUSIVO</div>
-                        <img src="${imgSrc}"
-                             alt="${titulo}"
-                             loading="lazy"
-                             onerror="this.src='https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg'">
+                grid.innerHTML = productos.map(p => `
+                    <div class="card" onclick="window.open('${p.link}', '_blank')">
+                        <div class="card-img">
+                            <img src="${p.imagen}" onerror="this.src='https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg'">
+                        </div>
+                        <div class="card-content">
+                            <span class="tag">${p.categoria || 'LUXURY'}</span>
+                            <h3 style="margin: 10px 0; font-family: Playfair Display;">${p.titulo}</h3>
+                            <p style="font-size: 0.9rem; color: #6b5a48;">${p.curiosidad || ''}</p>
+                            <a href="${p.link}" class="btn-comprar" target="_blank">VER EN AMAZON</a>
+                        </div>
                     </div>
-                    <!-- CONTENIDO -->
-                    <div class="curiosidad-content">
-                        <h3>${escapeHtml(titulo)}</h3>
-                        <p>${escapeHtml(texto)}</p>
-                        ${visual ? `<div class="curiosidad-visual">${escapeHtml(visual)}</div>` : ''}
-                        <button class="share-btn" onclick="compartirCuriosidad('${escapeHtml(titulo).replace(/'/g, "\\'")}', '${escapeHtml(texto).replace(/'/g, "\\'")}')">
-                            📤 Compartir este secreto
-                        </button>
-                    </div>
-                </div>`;
-            }).join('');
+                `).join('');
+            } catch(e) { console.error(e); }
         }
 
-        // ── RENDER PRODUCTOS (con imagen) ──
-        function renderProductos(productos) {
-            const grid = document.getElementById('productosGrid');
-
-            if (!productos || productos.length === 0) {
-                grid.innerHTML = `<div class="loader">💰 Próximamente productos exclusivos...</div>`;
-                return;
-            }
-
-            grid.innerHTML = productos.map(prod => {
-                // Imagen: la que mxl seleccionó de Amazon
-                const imgSrc  = prod.imagen || 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg';
-                const padding = prod.imageSize === 'small' ? '30px' : prod.imageSize === 'large' ? '8px' : '18px';
-                const desc    = (prod.meta || prod.intro || 'Descubre por qué todas están hablando de esto').substring(0, 130);
-                const cur     = prod.curiosidad ? prod.curiosidad.substring(0, 110) : '';
-
-                return `
-                <div class="producto-card" onclick="verProducto(${prod.id}, '${prod.link}')">
-                    <!-- IMAGEN -->
-                    <div class="producto-imagen">
-                        <div class="producto-badge">💎 ALTO TICKET</div>
-                        <img src="${imgSrc}"
-                             alt="${escapeHtml(prod.titulo || 'Producto')}"
-                             loading="lazy"
-                             onerror="this.src='https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg'"
-                             style="padding:${padding}">
-                    </div>
-                    <!-- CONTENIDO -->
-                    <div class="producto-contenido">
-                        <span class="producto-categoria">${escapeHtml(prod.categoria || 'LUXURY')}</span>
-                        <h3>${escapeHtml(prod.titulo || 'The Secret Women Are Talking About')}</h3>
-                        ${cur ? `<div class="producto-curiosidad">✨ ${escapeHtml(cur)}...</div>` : ''}
-                        <div class="producto-desc">${escapeHtml(desc)}...</div>
-                        <button class="btn-comprar"
-                            onclick="event.stopPropagation(); trackClick(${prod.id}, '${prod.link}')">
-                            🔥 VER EN AMAZON →
-                        </button>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        // Función para escapar HTML y prevenir XSS
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
-
-        // ── FETCH & LOAD ──
+        // FUNCIÓN CARGAR CURIOSIDADES
         async function cargarCuriosidades() {
             try {
                 const res = await fetch('/api/curiosidades');
                 const data = await res.json();
-                renderCuriosidades(data);
-            } catch(e) {
-                console.error('Error cargando curiosidades:', e);
-                document.getElementById('curiosidadesGrid').innerHTML = '<div class="loader">✨ Pronto más secretos exclusivos...</div>';
-            }
+                const grid = document.getElementById('curiosidadesGrid');
+                
+                if (!data || data.length === 0) {
+                    grid.innerHTML = '<div class="loader">✨ Generando secretos con Gemini...</div>';
+                    return;
+                }
+
+                grid.innerHTML = data.map(c => `
+                    <div class="card">
+                        <div class="card-img" style="height: 200px;">
+                            <img src="${c.imagen}" style="object-fit: cover; padding: 0;">
+                        </div>
+                        <div class="card-content">
+                            <h3 style="font-size: 1.1rem;">${c.titulo_es}</h3>
+                            <p style="font-size: 0.85rem; margin-top: 10px;">${c.texto_es}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) { console.error(e); }
         }
 
-        async function cargarProductos() {
-            try {
-                const res = await fetch('/api/articulos');
-                const data = await res.json();
-                renderProductos(data);
-            } catch(e) {
-                console.error('Error cargando productos:', e);
-                document.getElementById('productosGrid').innerHTML = '<div class="loader">💎 Cargando productos exclusivos...</div>';
-            }
-        }
-
-        // ── HELPERS ──
-        async function compartirCuriosidad(titulo, texto) {
-            if (navigator.share) {
-                try {
-                    await navigator.share({ title: titulo, text: texto, url: window.location.href });
-                } catch(e) {}
-            } else {
-                navigator.clipboard.writeText(texto);
-                alert('✅ Secreto copiado para compartir!');
-            }
-        }
-
-        async function trackClick(id, link) {
-            try { 
-                await fetch(`/api/click-articulo/${id}`, { method: 'POST' }); 
-            } catch(e) {}
-            window.open(link, '_blank');
-        }
-
-        function verProducto(id, link) { 
-            trackClick(id, link); 
-        }
-
-        function suscribirNewsletter() {
-            const email = document.getElementById('newsletterEmail').value;
-            if (email && email.includes('@')) {
-                alert(`✅ ¡Gracias! Recibirás los secretos más exclusivos en ${email}`);
-                document.getElementById('newsletterEmail').value = '';
-            } else {
-                alert('📧 Por favor ingresa un email válido');
-            }
-        }
-
-        // ── INIT + AUTO-REFRESH ──
-        cargarCuriosidades();
+        // Inicializar y refrescar cada 30 seg
         cargarProductos();
-        setInterval(() => {
-            cargarCuriosidades();
-            cargarProductos();
-        }, 45000);
+        cargarCuriosidades();
+        setInterval(() => { cargarProductos(); cargarCuriosidades(); }, 30000);
     </script>
-
 </body>
 </html>
