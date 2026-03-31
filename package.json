@@ -1,3 +1,4 @@
+
 {
   "name": "mxl-commander-triad",
   "version": "3.0.2",
@@ -12,7 +13,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "node-cron": "^3.0.3"
+    "node-cron": "^3.0.3",
+    "pg": "^8.11.3"
   },
   "engines": {
     "node": "18.x"
