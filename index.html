@@ -3,147 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luxury Home Trends | The Secret Women Are Talking About in 2026</title>
-    <meta name="description" content="Discover the viral home trends that American women are obsessed with. Curiosities, luxury gadgets, and secrets from NYC to Beverly Hills.">
-    <meta name="keywords" content="smart home, luxury kitchen, viral trends, USA home, wedding registry, silent luxury">
+    <title>MXL GOLD MINER | Luxury Home Trends USA 2026</title>
+    <meta name="description" content="Descubre las curiosidades más virales sobre lujo y estilo de vida en USA. Productos exclusivos para mujeres de alto poder adquisitivo en Manhattan, Miami y Beverly Hills.">
+    <meta name="keywords" content="luxury home, smart home, status symbol, NYC, Miami, Beverly Hills, zero-waste, elite living">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Georgia', 'Times New Roman', 'Playfair Display', serif;
+            font-family: 'DM Sans', sans-serif;
             background: #fffaf7;
             color: #2c2418;
             line-height: 1.6;
         }
 
-        /* Header con efecto viral */
+        /* ── HEADER ── */
         .viral-header {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: white;
-            padding: 60px 20px;
+            padding: 80px 20px;
             text-align: center;
             position: relative;
             overflow: hidden;
         }
-
         .viral-header::before {
-            content: "🔥 VIRAL 🔥";
+            content: "✦ LUXURY ✦";
             position: absolute;
-            font-size: 80px;
+            font-size: 120px;
             opacity: 0.03;
-            right: 20px;
-            top: 20px;
+            right: -20px;
+            top: 10px;
             font-weight: bold;
             letter-spacing: 10px;
+            white-space: nowrap;
         }
-
         .viral-header h1 {
-            font-size: 2.8rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
             font-weight: 700;
             letter-spacing: -0.5px;
+            margin-bottom: 15px;
+            line-height: 1.2;
         }
-
         .viral-header h1 span {
             background: linear-gradient(135deg, #ff4500, #ff6b35);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
         .viral-header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-top: 15px;
+            font-size: 1.1rem;
+            opacity: 0.85;
+            max-width: 600px;
+            margin: 0 auto;
         }
-
         .live-badge {
             display: inline-block;
             background: #ff4500;
             color: white;
-            padding: 5px 15px;
-            border-radius: 30px;
+            padding: 6px 18px;
+            border-radius: 40px;
             font-size: 12px;
-            margin-top: 20px;
+            margin-top: 25px;
             animation: pulse 1.5s infinite;
+            font-weight: bold;
+            letter-spacing: 1px;
         }
-
         @keyframes pulse {
-            0% { opacity: 0.6; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.05); }
-            100% { opacity: 0.6; transform: scale(1); }
+            0%,100% { opacity: .7; transform: scale(1); }
+            50%      { opacity: 1; transform: scale(1.05); }
         }
 
+        /* ── CONTAINER ── */
         .container {
             max-width: 1300px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 60px 20px;
         }
 
-        /* Sección de Curiosidades Virales */
-        .curiosidades-section {
-            margin-bottom: 60px;
-        }
-
+        /* ── SECTION TITLES ── */
         .section-title {
-            font-size: 1.8rem;
-            margin-bottom: 30px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.9rem;
+            margin-bottom: 40px;
             text-align: center;
             position: relative;
+            color: #2c2418;
         }
-
         .section-title:after {
             content: '';
             display: block;
-            width: 80px;
+            width: 60px;
             height: 3px;
-            background: #ff4500;
-            margin: 15px auto 0;
+            background: #c9a87b;
+            margin: 14px auto 0;
+            border-radius: 2px;
         }
+
+        /* ══════════════════════════════════════
+           CURIOSIDADES — CON IMAGEN
+           ══════════════════════════════════════ */
+        .curiosidades-section { margin-bottom: 80px; }
 
         .curiosidades-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 28px;
         }
 
+        /* Card con imagen arriba */
         .curiosidad-card {
             background: white;
             border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            border-left: 4px solid #ff4500;
-            transition: all 0.3s;
+            overflow: hidden;
+            box-shadow: 0 6px 24px rgba(0,0,0,.07);
+            border: 1px solid #f0e2d8;
+            transition: all .3s;
             cursor: pointer;
+            animation: fadeUp .5s ease forwards;
         }
-
         .curiosidad-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            transform: translateY(-6px);
+            box-shadow: 0 16px 36px rgba(0,0,0,.13);
         }
 
-        .curiosidad-icon {
-            font-size: 2rem;
-            margin-bottom: 15px;
+        /* IMAGEN de la curiosidad */
+        .curiosidad-img {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+            background: #f0e8e0;
+        }
+        .curiosidad-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .5s;
+        }
+        .curiosidad-card:hover .curiosidad-img img {
+            transform: scale(1.06);
+        }
+        .viral-tag {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #ff4500;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .5px;
+            z-index: 10;
         }
 
-        .curiosidad-card h3 {
-            font-size: 1.2rem;
-            margin-bottom: 12px;
+        /* Contenido de la curiosidad */
+        .curiosidad-content {
+            padding: 22px;
+        }
+        .curiosidad-content h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
             color: #2c2418;
+            line-height: 1.4;
         }
-
-        .curiosidad-card p {
+        .curiosidad-content p {
             color: #6b5a48;
-            line-height: 1.5;
-            font-size: 1rem;
+            font-size: .9rem;
+            margin-bottom: 14px;
+            line-height: 1.55;
         }
-
+        .curiosidad-visual {
+            font-size: .82rem;
+            color: #c9a87b;
+            font-style: italic;
+            border-left: 2px solid #c9a87b;
+            padding-left: 10px;
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
         .share-btn {
-            margin-top: 15px;
             background: none;
             border: none;
             color: #ff4500;
@@ -151,198 +192,204 @@
             font-size: 12px;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
+            padding: 0;
+            font-weight: 600;
+            transition: all .2s;
         }
+        .share-btn:hover { color: #e03e00; gap: 10px; }
 
-        /* Sección de Artículos Virales */
-        .articulos-section {
-            margin-top: 40px;
-        }
+        /* ══════════════════════════════════════
+           ARTÍCULOS / PRODUCTOS — CON IMAGEN
+           ══════════════════════════════════════ */
+        .productos-section { margin-top: 20px; }
 
-        .articulos-grid {
+        .productos-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: 35px;
+            gap: 32px;
         }
 
-        .articulo-card {
+        .producto-card {
             background: white;
-            border-radius: 24px;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            transition: all 0.4s;
-            cursor: pointer;
+            box-shadow: 0 6px 24px rgba(0,0,0,.07);
             border: 1px solid #f0e2d8;
+            transition: all .4s;
+            cursor: pointer;
+            animation: fadeUp .5s ease forwards;
+        }
+        .producto-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,.13);
         }
 
-        .articulo-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 25px 40px rgba(0,0,0,0.15);
-        }
-
-        .articulo-imagen {
-            height: 240px;
+        /* IMAGEN del producto — más grande y prominente */
+        .producto-imagen {
+            width: 100%;
+            height: 260px;
             overflow: hidden;
             position: relative;
+            background: #faf7f3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-
-        .articulo-imagen img {
+        .producto-imagen img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s;
+            object-fit: contain;
+            padding: 18px;
+            transition: transform .5s;
         }
-
-        .articulo-card:hover .articulo-imagen img {
-            transform: scale(1.05);
+        .producto-card:hover .producto-imagen img {
+            transform: scale(1.04);
         }
-
-        .viral-tag {
+        .producto-badge {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #ff4500;
-            color: white;
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #c9a87b;
             padding: 5px 12px;
             border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
+            font-size: 10px;
+            font-weight: 700;
             z-index: 10;
+            letter-spacing: .5px;
         }
 
-        .articulo-contenido {
-            padding: 25px;
-        }
-
-        .articulo-categoria {
+        /* Contenido del producto */
+        .producto-contenido { padding: 22px; }
+        .producto-categoria {
             display: inline-block;
             background: #f7ede8;
             color: #ff4500;
-            font-size: 11px;
+            font-size: 10px;
             padding: 4px 12px;
             border-radius: 20px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             text-transform: uppercase;
-            font-weight: bold;
+            font-weight: 700;
+            letter-spacing: .5px;
         }
-
-        .articulo-contenido h3 {
-            font-size: 1.3rem;
-            margin-bottom: 12px;
+        .producto-contenido h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            margin-bottom: 10px;
             line-height: 1.3;
             color: #2c2418;
         }
-
-        .articulo-curiosidad {
-            font-size: 0.9rem;
+        .producto-curiosidad {
+            font-size: .82rem;
             color: #ff4500;
             font-style: italic;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             border-left: 2px solid #ff4500;
-            padding-left: 12px;
-        }
-
-        .articulo-desc {
-            color: #6b5a48;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
+            padding-left: 10px;
             line-height: 1.5;
         }
-
-        .btn-leer {
-            display: inline-block;
-            background: #2c2418;
+        .producto-desc {
+            color: #6b5a48;
+            font-size: .85rem;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .btn-comprar {
+            display: block;
+            background: linear-gradient(135deg, #2c2418, #4a3727);
             color: white;
-            padding: 10px 20px;
+            padding: 11px 20px;
             border-radius: 40px;
             text-decoration: none;
             font-size: 13px;
-            font-weight: bold;
-            transition: all 0.3s;
+            font-weight: 600;
+            transition: all .3s;
             width: 100%;
             text-align: center;
             border: none;
             cursor: pointer;
+            letter-spacing: .3px;
+        }
+        .btn-comprar:hover {
+            background: linear-gradient(135deg, #ff4500, #ff6b35);
         }
 
-        .btn-leer:hover {
-            background: #ff4500;
-            transform: translateX(5px);
-        }
-
-        /* Newsletter */
+        /* ── NEWSLETTER ── */
         .newsletter {
-            background: linear-gradient(135deg, #2c2418 0%, #4a3727 100%);
-            border-radius: 30px;
+            background: linear-gradient(135deg, #1a1a2e, #2c2418);
+            border-radius: 24px;
             padding: 50px;
             text-align: center;
-            margin: 60px 0;
+            margin: 60px 0 0;
             color: white;
         }
-
         .newsletter h3 {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            margin-bottom: 12px;
         }
-
-        .newsletter p {
-            opacity: 0.8;
-            margin-bottom: 20px;
-        }
-
+        .newsletter p { opacity: .8; margin-bottom: 24px; font-size: .95rem; }
+        .newsletter-form { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
         .newsletter input {
             padding: 12px 20px;
             border-radius: 40px;
             border: none;
             width: 300px;
-            max-width: 80%;
-            margin-right: 10px;
+            max-width: 100%;
+            font-family: 'DM Sans', sans-serif;
         }
-
         .newsletter button {
             background: #ff4500;
             color: white;
             border: none;
-            padding: 12px 25px;
+            padding: 12px 28px;
             border-radius: 40px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
+            font-family: 'DM Sans', sans-serif;
+            transition: all .3s;
         }
+        .newsletter button:hover { background: #e03e00; }
 
+        /* ── FOOTER ── */
         footer {
-            background: #2c2418;
-            color: #f0e2d8;
+            background: #1a1208;
+            color: #8a7a60;
             text-align: center;
             padding: 40px;
             margin-top: 40px;
+            font-size: 12px;
         }
 
-        /* Loader */
+        /* ── LOADER ── */
         .loader {
             text-align: center;
-            padding: 50px;
+            padding: 60px;
             color: #c9a87b;
-            font-size: 1.2rem;
+            font-size: 1rem;
+            grid-column: 1 / -1;
         }
 
-        @keyframes fadeIn {
+        @keyframes fadeUp {
             from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .curiosidad-card, .articulo-card {
-            animation: fadeIn 0.5s ease forwards;
+            to   { opacity: 1; transform: translateY(0); }
         }
 
         @media (max-width: 768px) {
             .viral-header h1 { font-size: 1.8rem; }
-            .articulos-grid { grid-template-columns: 1fr; }
+            .productos-grid { grid-template-columns: 1fr; }
             .curiosidades-grid { grid-template-columns: 1fr; }
-            .newsletter input { width: 100%; margin-bottom: 10px; }
+            .newsletter-form { flex-direction: column; align-items: center; }
+            .newsletter input { width: 100%; }
+            .newsletter button { width: 100%; }
         }
     </style>
 </head>
 <body>
+
+    <!-- HEADER -->
     <div class="viral-header">
         <h1>🔥 The Secret <span>Women Are Talking About</span> in 2026</h1>
         <p>What NYC, Miami & Beverly Hills elites don't want you to know</p>
@@ -350,19 +397,24 @@
     </div>
 
     <div class="container">
-        <!-- SECCIÓN CURIOSIDADES VIRALES -->
+
+        <!-- ══════════════════════════════════
+             CURIOSIDADES (Bot Gemini — con imagen)
+             ══════════════════════════════════ -->
         <div class="curiosidades-section">
-            <h2 class="section-title">💎 CURIOSIDADES QUE VUELVEN LOCA A LA GENTE</h2>
+            <h2 class="section-title">💎 Curiosidades Exclusivas</h2>
             <div id="curiosidadesGrid" class="curiosidades-grid">
                 <div class="loader">🔥 Cargando secretos exclusivos...</div>
             </div>
         </div>
 
-        <!-- SECCIÓN ARTÍCULOS VIRALES -->
-        <div class="articulos-section">
-            <h2 class="section-title">📰 ARTÍCULOS QUE ESTÁN EXPLOTANDO</h2>
-            <div id="articulosGrid" class="articulos-grid">
-                <div class="loader">📰 Cargando artículos virales...</div>
+        <!-- ══════════════════════════════════
+             PRODUCTOS (mxl link+foto → Gemini copy)
+             ══════════════════════════════════ -->
+        <div class="productos-section">
+            <h2 class="section-title">🛍️ Artículos Exclusivos</h2>
+            <div id="productosGrid" class="productos-grid">
+                <div class="loader">💎 Cargando productos exclusivos...</div>
             </div>
         </div>
 
@@ -370,174 +422,160 @@
         <div class="newsletter">
             <h3>🔥 No te pierdas los próximos secretos</h3>
             <p>Recibe las curiosidades más virales antes que nadie</p>
-            <input type="email" placeholder="tu@email.com" id="newsletterEmail">
-            <button onclick="suscribirNewsletter()">🔴 SUSCRIBIRME</button>
+            <div class="newsletter-form">
+                <input type="email" placeholder="tu@email.com" id="newsletterEmail">
+                <button onclick="suscribirNewsletter()">🔴 SUSCRIBIRME</button>
+            </div>
         </div>
+
     </div>
 
     <footer>
-        <p>🔥 El Club de Las Que Saben 🔥</p>
-        <p style="font-size: 12px; margin-top: 10px;">Descubre los secretos que todas quieren conocer | Somos afiliados de Amazon</p>
-        <p style="font-size: 10px; margin-top: 15px;">© 2026 Luxury Home Trends - Viral content for the modern American woman</p>
+        <p style="color:#c9a87b;font-size:1rem;margin-bottom:8px;">🔥 MXL GOLD MINER — El Club de Las Que Saben</p>
+        <p>Descubre los secretos que todas quieren conocer | Somos afiliados de Amazon</p>
+        <p style="margin-top:12px;font-size:10px;">© 2026 Luxury Home Trends — Viral content for the modern American woman</p>
     </footer>
 
     <script>
-        let curiosidades = [];
-        let articulos = [];
+        // ── RENDER CURIOSIDADES (con imagen) ──
+        function renderCuriosidades(curiosidades) {
+            const grid = document.getElementById('curiosidadesGrid');
 
-        // Cargar curiosidades
+            if (!curiosidades || curiosidades.length === 0) {
+                grid.innerHTML = `<div class="loader">✨ Pronto más secretos exclusivos...</div>`;
+                return;
+            }
+
+            grid.innerHTML = curiosidades.map(cur => {
+                // Imagen: usa la que Gemini buscó, con fallback a Pexels luxury
+                const imgSrc = cur.imagen || 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg';
+                const titulo  = cur.titulo_es || 'Secreto Exclusivo';
+                const texto   = cur.texto_es  || 'Descubre el nuevo símbolo de estatus silencioso que todas quieren.';
+                const visual  = cur.descripcion_visual_es || '';
+
+                return `
+                <div class="curiosidad-card">
+                    <!-- IMAGEN -->
+                    <div class="curiosidad-img">
+                        <div class="viral-tag">✨ EXCLUSIVO</div>
+                        <img src="${imgSrc}"
+                             alt="${titulo}"
+                             loading="lazy"
+                             onerror="this.src='https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg'">
+                    </div>
+                    <!-- CONTENIDO -->
+                    <div class="curiosidad-content">
+                        <h3>${titulo}</h3>
+                        <p>${texto}</p>
+                        ${visual ? `<div class="curiosidad-visual">${visual}</div>` : ''}
+                        <button class="share-btn" onclick="compartirCuriosidad('${titulo}', '${texto.replace(/'/g,"\\'")}')">
+                            📤 Compartir este secreto
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // ── RENDER PRODUCTOS (con imagen) ──
+        function renderProductos(productos) {
+            const grid = document.getElementById('productosGrid');
+
+            if (!productos || productos.length === 0) {
+                grid.innerHTML = `<div class="loader">💰 Próximamente productos exclusivos...</div>`;
+                return;
+            }
+
+            grid.innerHTML = productos.map(prod => {
+                // Imagen: la que mxl seleccionó de Amazon
+                const imgSrc  = prod.imagen || 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg';
+                const padding = prod.imageSize === 'small' ? '30px' : prod.imageSize === 'large' ? '8px' : '18px';
+                const desc    = (prod.meta || prod.intro || 'Descubre por qué todas están hablando de esto').substring(0, 130);
+                const cur     = prod.curiosidad ? prod.curiosidad.substring(0, 110) : '';
+
+                return `
+                <div class="producto-card" onclick="verProducto(${prod.id}, '${prod.link}')">
+                    <!-- IMAGEN -->
+                    <div class="producto-imagen">
+                        <div class="producto-badge">💎 ALTO TICKET</div>
+                        <img src="${imgSrc}"
+                             alt="${prod.titulo || 'Producto'}"
+                             loading="lazy"
+                             onerror="this.src='https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg'"
+                             style="padding:${padding}">
+                    </div>
+                    <!-- CONTENIDO -->
+                    <div class="producto-contenido">
+                        <span class="producto-categoria">${prod.categoria || 'LUXURY'}</span>
+                        <h3>${prod.titulo || 'The Secret Women Are Talking About'}</h3>
+                        ${cur ? `<div class="producto-curiosidad">✨ ${cur}...</div>` : ''}
+                        <div class="producto-desc">${desc}...</div>
+                        <button class="btn-comprar"
+                            onclick="event.stopPropagation(); trackClick(${prod.id}, '${prod.link}')">
+                            🔥 VER EN AMAZON →
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // ── FETCH & LOAD ──
         async function cargarCuriosidades() {
             try {
                 const res = await fetch('/api/curiosidades');
-                curiosidades = await res.json();
-                renderCuriosidades();
-            } catch (error) {
-                console.error('Error cargando curiosidades:', error);
+                const data = await res.json();
+                renderCuriosidades(data);
+            } catch(e) {
+                document.getElementById('curiosidadesGrid').innerHTML = '<div class="loader">✨ Pronto más secretos exclusivos...</div>';
             }
         }
 
-        // Cargar artículos
-        async function cargarArticulos() {
+        async function cargarProductos() {
             try {
                 const res = await fetch('/api/articulos');
-                articulos = await res.json();
-                renderArticulos();
-            } catch (error) {
-                console.error('Error cargando artículos:', error);
+                const data = await res.json();
+                renderProductos(data);
+            } catch(e) {
+                document.getElementById('productosGrid').innerHTML = '<div class="loader">💎 Cargando productos exclusivos...</div>';
             }
         }
 
-        // Renderizar curiosidades
-        function renderCuriosidades() {
-            const grid = document.getElementById('curiosidadesGrid');
-            
-            if (!curiosidades || curiosidades.length === 0) {
-                grid.innerHTML = `
-                    <div class="curiosidad-card">
-                        <div class="curiosidad-icon">🔥</div>
-                        <h3>Americans Are Spending Less on Designer Bags</h3>
-                        <p>Sales of smart home devices have increased 156% since 2024. Women are investing in their homes, not their closets.</p>
-                        <button class="share-btn" onclick="compartirCuriosidad(this)">📤 Compartir este secreto</button>
-                    </div>
-                    <div class="curiosidad-card">
-                        <div class="curiosidad-icon">💎</div>
-                        <h3>The Kitchen Trend Saving NYC Families $2,000/Year</h3>
-                        <p>Smart composters reduce food waste by 73% and eliminate odors completely. Upper East Side moms are obsessed.</p>
-                        <button class="share-btn" onclick="compartirCuriosidad(this)">📤 Compartir este secreto</button>
-                    </div>
-                    <div class="curiosidad-card">
-                        <div class="curiosidad-icon">🏠</div>
-                        <h3>Why Beverly Hills Women Are Judging Their Neighbors</h3>
-                        <p>The new status symbol? What's NOT in your trash. Zero-waste homes are the ultimate flex in 2026.</p>
-                        <button class="share-btn" onclick="compartirCuriosidad(this)">📤 Compartir este secreto</button>
-                    </div>
-                `;
-                return;
-            }
-            
-            grid.innerHTML = curiosidades.map(cur => `
-                <div class="curiosidad-card">
-                    <div class="curiosidad-icon">🔥</div>
-                    <h3>${cur.titulo || 'Secreto Exclusivo'}</h3>
-                    <p>${cur.texto || cur.dato || 'Descubre el nuevo símbolo de estatus silencioso que todas quieren'}</p>
-                    <button class="share-btn" onclick="compartirCuriosidad(this, '${cur.texto || cur.dato}')">📤 Compartir este secreto</button>
-                </div>
-            `).join('');
-        }
-
-        // Renderizar artículos
-        function renderArticulos() {
-            const grid = document.getElementById('articulosGrid');
-            
-            if (!articulos || articulos.length === 0) {
-                grid.innerHTML = `
-                    <div class="loader">🔥 Publicando nuevos artículos virales...</div>
-                `;
-                return;
-            }
-            
-            grid.innerHTML = articulos.map(art => `
-                <div class="articulo-card" onclick="verArticulo(${art.id}, '${art.link}')">
-                    <div class="articulo-imagen">
-                        <div class="viral-tag">🔥 VIRAL</div>
-                        <img src="${art.imagen || 'https://picsum.photos/400/300'}" 
-                             alt="${art.titulo}"
-                             loading="lazy"
-                             onerror="this.src='https://picsum.photos/400/300'">
-                    </div>
-                    <div class="articulo-contenido">
-                        <span class="articulo-categoria">${art.categoria || 'TRENDING'}</span>
-                        <h3>${art.titulo || 'The Secret Women Are Talking About'}</h3>
-                        ${art.curiosidad ? `<div class="articulo-curiosidad">✨ ${art.curiosidad.substring(0, 100)}...</div>` : ''}
-                        <div class="articulo-desc">
-                            ${(art.intro || art.meta || 'Descubre por qué todas están hablando de esto').substring(0, 120)}...
-                        </div>
-                        <button class="btn-leer" onclick="event.stopPropagation(); trackClick(${art.id}, '${art.link}')">
-                            🔥 LEER ARTÍCULO COMPLETO →
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Compartir curiosidad
-        async function compartirCuriosidad(btn, texto) {
-            const textoCompartir = texto || '🔥 Descubre este secreto exclusivo: Las mujeres de NYC están cambiando sus cocinas para siempre';
-            
+        // ── HELPERS ──
+        async function compartirCuriosidad(titulo, texto) {
             if (navigator.share) {
                 try {
-                    await navigator.share({
-                        title: 'Secreto Exclusivo',
-                        text: textoCompartir,
-                        url: window.location.href
-                    });
+                    await navigator.share({ title: titulo, text: texto, url: window.location.href });
                 } catch(e) {}
             } else {
-                navigator.clipboard.writeText(textoCompartir);
-                btn.textContent = '✓ Copiado!';
-                setTimeout(() => {
-                    btn.textContent = '📤 Compartir este secreto';
-                }, 2000);
+                navigator.clipboard.writeText(texto);
+                alert('✅ Secreto copiado para compartir!');
             }
         }
 
-        // Ver artículo
-        async function verArticulo(id, link) {
-            await trackClick(id, link);
-        }
-
-        // Track click
         async function trackClick(id, link) {
-            try {
-                await fetch(`/api/click-articulo/${id}`, { method: 'POST' });
-                window.open(link, '_blank');
-            } catch (e) {
-                window.open(link, '_blank');
-            }
+            try { await fetch(`/api/click-articulo/${id}`, { method: 'POST' }); } catch(e) {}
+            window.open(link, '_blank');
         }
 
-        // Newsletter
+        function verProducto(id, link) { trackClick(id, link); }
+
         function suscribirNewsletter() {
             const email = document.getElementById('newsletterEmail').value;
-            if (email) {
-                alert(`✅ ¡Gracias por suscribirte! Recibirás los secretos más exclusivos en ${email}`);
+            if (email && email.includes('@')) {
+                alert(`✅ ¡Gracias! Recibirás los secretos más exclusivos en ${email}`);
                 document.getElementById('newsletterEmail').value = '';
             } else {
-                alert('📧 Por favor ingresa tu email');
+                alert('📧 Por favor ingresa un email válido');
             }
         }
 
-        // Cargar todo
-        async function cargarTodo() {
-            await Promise.all([cargarCuriosidades(), cargarArticulos()]);
-        }
-
-        // Auto-refresh cada 30 segundos
-        cargarTodo();
+        // ── INIT + AUTO-REFRESH ──
+        cargarCuriosidades();
+        cargarProductos();
         setInterval(() => {
             cargarCuriosidades();
-            cargarArticulos();
-        }, 30000);
+            cargarProductos();
+        }, 45000);
     </script>
+
 </body>
 </html>
