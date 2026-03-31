@@ -13,11 +13,11 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '/')));
 app.use('/temp', express.static(path.join(__dirname, 'temp')));
 
-// Cache
+// ============ CACHE ============
 const cache = new Map();
 const CACHE_TTL = 300000;
 
-// ============ EL BOT = GEMINI ============
+// ============ BOT GEMINI ============
 let genAI;
 let model;
 try {
@@ -28,19 +28,19 @@ try {
     console.log('⚠️ Bot Gemini no disponible');
 }
 
-// Configuración persistente
-const DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH 
+// ============ RUTAS DE DATOS ============
+const DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH
     ? path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, 'data')
     : path.join(__dirname, 'data');
 
-const ARTICULOS_PATH = path.join(DATA_DIR, 'articulos.json');
+const ARTICULOS_PATH    = path.join(DATA_DIR, 'articulos.json');
 const CURIOSIDADES_PATH = path.join(DATA_DIR, 'curiosidades.json');
 
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(ARTICULOS_PATH)) fs.writeFileSync(ARTICULOS_PATH, JSON.stringify([]));
-if (!fs.existsSync(CURIOSIDADES_PATH)) fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify([]));
+if (!fs.existsSync(DATA_DIR))            fs.mkdirSync(DATA_DIR, { recursive: true });
+if (!fs.existsSync(ARTICULOS_PATH))      fs.writeFileSync(ARTICULOS_PATH,    JSON.stringify([]));
+if (!fs.existsSync(CURIOSIDADES_PATH))   fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify([]));
 
-// ============ FUNCIÓN AUXILIAR ============
+// ============ HELPER: EXTRAER ASIN ============
 function extraerASIN(url) {
     const patterns = [
         /(?:dp|product|gp\/product)\/([A-Z0-9]{10})/i,
@@ -54,9 +54,8 @@ function extraerASIN(url) {
     return null;
 }
 
-// ============ BUSCAR IMAGEN PARA CURIOSIDAD ============
+// ============ HELPER: BUSCAR IMAGEN PARA CURIOSIDAD ============
 async function buscarImagenParaCuriosidad(promptImagen) {
-    // Unsplash
     if (process.env.UNSPLASH_ACCESS_KEY) {
         try {
             const response = await axios.get('https://api.unsplash.com/search/photos', {
@@ -69,8 +68,7 @@ async function buscarImagenParaCuriosidad(promptImagen) {
             }
         } catch(e) {}
     }
-    
-    // Google Images
+
     if (process.env.GOOGLE_API_KEY && process.env.GOOGLE_CX) {
         try {
             const response = await axios.get('https://www.googleapis.com/customsearch/v1', {
@@ -89,60 +87,72 @@ async function buscarImagenParaCuriosidad(promptImagen) {
             }
         } catch(e) {}
     }
-    
-    // Placeholder
+
     const placeholders = {
         kitchen: 'https://images.pexels.com/photos/2635038/pexels-photo-2635038.jpeg',
-        luxury: 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg',
-        woman: 'https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg',
+        luxury:  'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg',
+        woman:   'https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg',
         default: 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg'
     };
-    
     let key = 'default';
     if (promptImagen.toLowerCase().includes('kitchen')) key = 'kitchen';
-    if (promptImagen.toLowerCase().includes('luxury')) key = 'luxury';
-    if (promptImagen.toLowerCase().includes('woman')) key = 'woman';
-    
+    if (promptImagen.toLowerCase().includes('luxury'))  key = 'luxury';
+    if (promptImagen.toLowerCase().includes('woman'))   key = 'woman';
     return { url: placeholders[key], fuente: 'placeholder' };
 }
 
-// ============ MÓDULO 1: CURIOSIDADES (BOT GEMINI AUTÓNOMO) ============
+// ============================================================
+// MÓDULO 1 — CURIOSIDADES (BOT GEMINI AUTÓNOMO)
+// mxl NO toca este módulo. Gemini genera TODO solo.
+// ============================================================
+
 async function generarCuriosidadConGemini() {
     const prompt = `
-    Actúa como redactor de alto impacto para MXL GOLD MINER.
-    
-    Genera una CURIOSIDAD BILINGÜE (ES/EN) para mujeres de alto poder adquisitivo en USA (Manhattan, Miami, Beverly Hills) y diáspora dominicana.
-    
-    FORMATO JSON:
-    {
-        "titulo_es": "Título magnético español (max 60)",
-        "titulo_en": "Magnetic title English (max 60)",
-        "texto_es": "Dato impactante en español",
-        "texto_en": "Shocking fact in English",
-        "imagen_prompt": "Prompt para buscar imagen impactante"
-    }
+Actúa como redactor de alto impacto VISUAL para MXL GOLD MINER.
+
+Genera una CURIOSIDAD BILINGÜE (ES/EN) para mujeres de alto poder adquisitivo en USA
+(Manhattan, Miami, Beverly Hills) y diáspora dominicana.
+
+REGLA CRÍTICA DE ESCRITURA VISUAL:
+- Tu texto debe CONECTAR con una imagen de lujo que acompañará el post.
+- Usa frases que inviten a mirar: "Como puedes ver en la imagen...", "Ese acabado que ves...", "El detalle que notas..."
+- Describe SENSACIONES de tener el objeto, no solo el objeto.
+- Lenguaje HIGH-END: como Vogue en español e inglés.
+
+FORMATO JSON (solo JSON, sin nada más):
+{
+    "titulo_es": "Título magnético español máx 60 chars",
+    "titulo_en": "Magnetic English title max 60 chars",
+    "texto_es": "Curiosidad impactante en español - conecta con la imagen",
+    "texto_en": "Shocking fact in English - connects with the visual",
+    "descripcion_visual_es": "Párrafo que describe la imagen con lenguaje sensorial aspiracional (2-3 oraciones)",
+    "descripcion_visual_en": "Visual description paragraph in English aspirational tone (2-3 sentences)",
+    "imagen_prompt": "Prompt en inglés para buscar imagen en Unsplash/Google (ej: luxury kitchen marble countertop)"
+}
     `;
-    
+
     const fallback = {
-        titulo_es: "El secreto que las mujeres de NYC esconden",
-        titulo_en: "The secret NYC women hide",
-        texto_es: "El 78% de las mujeres de Manhattan invierten más en tecnología para el hogar que en bolsos de lujo.",
-        texto_en: "78% of Manhattan women invest more in home tech than luxury handbags.",
-        imagen_prompt: "luxury modern kitchen, elegant woman, NYC view"
+        titulo_es: "El secreto que las mujeres de NYC esconden en sus hogares",
+        titulo_en: "The secret NYC women hide in their homes",
+        texto_es: "El 78% de las mujeres de Manhattan invierten más en tecnología para el hogar que en bolsos de lujo. Como puedes ver en la imagen, el nuevo lujo no se lleva — se vive.",
+        texto_en: "78% of Manhattan women invest more in home tech than luxury handbags. As you can see, the new luxury isn't worn — it's lived.",
+        descripcion_visual_es: "Ese acabado que ves en la imagen no es casualidad. Es la elección deliberada de una mujer que sabe que el verdadero estatus se siente desde adentro.",
+        descripcion_visual_en: "That finish you see in the image is no accident. It's the deliberate choice of a woman who knows real status is felt from within.",
+        imagen_prompt: "luxury modern kitchen marble woman NYC view elegant"
     };
-    
+
     if (!model) return fallback;
-    
+
     try {
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
-        const cleanJson = text.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+        const cleanJson = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
         const contenido = JSON.parse(cleanJson);
-        console.log('✨ Bot Gemini: Curiosidad generada');
+        console.log('✨ Bot Gemini: Curiosidad visual generada');
         return contenido;
     } catch (error) {
-        console.log('⚠️ Error Gemini:', error.message);
+        console.log('⚠️ Error Gemini curiosidad:', error.message);
         return fallback;
     }
 }
@@ -151,145 +161,189 @@ async function publicarCuriosidadAutomatica() {
     console.log('🤖 Bot Gemini: Publicando curiosidad automática...');
     const curiosidadGemini = await generarCuriosidadConGemini();
     const imagen = await buscarImagenParaCuriosidad(curiosidadGemini.imagen_prompt);
-    
+
     const nuevaCuriosidad = {
         id: Date.now(),
         titulo_es: curiosidadGemini.titulo_es,
         titulo_en: curiosidadGemini.titulo_en,
         texto_es: curiosidadGemini.texto_es,
         texto_en: curiosidadGemini.texto_en,
+        descripcion_visual_es: curiosidadGemini.descripcion_visual_es,
+        descripcion_visual_en: curiosidadGemini.descripcion_visual_en,
         imagen: imagen.url,
         imagenFuente: imagen.fuente,
         fecha: new Date().toISOString(),
         compartidas: 0
     };
-    
+
     const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
     data.unshift(nuevaCuriosidad);
     if (data.length > 30) data.pop();
     fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify(data, null, 2));
-    
+
     console.log(`✨ Nueva curiosidad: ${nuevaCuriosidad.titulo_es}`);
     return nuevaCuriosidad;
 }
 
-// ============ MÓDULO 2: COPY PARA VENTAS (BOT GEMINI ASISTE A MXL) ============
-async function generarCopyVentasConGemini(url, categoria, precio) {
+// ============================================================
+// MÓDULO 2 — PRODUCTOS (MXL PONE LINK + FOTO, GEMINI ESCRIBE)
+// mxl provee: URL de Amazon + URL de imagen del producto
+// Gemini provee: TODO el copy escrito, conectado con la imagen
+// ============================================================
+
+async function generarCopyProductoConGemini(url, imagenUrl, categoria, precio) {
     const prompt = `
-    Actúa como copywriter de alto impacto para MXL GOLD MINER.
-    
-    PRODUCTO: ${url}
-    CATEGORÍA: ${categoria || 'lujo'}
-    PRECIO: ${precio || 'Alto Ticket USA'}
-    
-    Genera el "VENENO" de ventas en JSON:
-    {
-        "titulo": "Título SEO clickbait (max 70 chars)",
-        "intro": "Frase que enganche en 3 segundos",
-        "problema": "El problema que cuesta dinero/tiempo/estatus",
-        "solucion": "Cómo este producto resuelve el problema",
-        "beneficio_estatus": "El beneficio de estatus social",
-        "prueba_social": "Testimonio con nombre y ciudad (ej: Carolina desde NYC)",
-        "cierre": "Frase que genere FOMO",
-        "curiosidad": "Dato impactante",
-        "palabras_clave": []
-    }
-    
-    PALABRAS CLAVE: luxury, status, smart home, USA, NYC, Miami, elite
-    TONO: Aspiracional, sofisticado, como Vogue.
+Actúa como copywriter de alto impacto VISUAL para MXL GOLD MINER.
+
+PRODUCTO AMAZON: ${url}
+IMAGEN DEL PRODUCTO: ${imagenUrl}
+CATEGORÍA: ${categoria || 'luxury home'}
+PRECIO ESTIMADO: ${precio || 'Alto Ticket USA'}
+
+MISIÓN: Escribir copy que haga que la lectora SIENTA que ya tiene ese producto.
+Tu texto debe HABLAR CON LA IMAGEN que mxl seleccionó.
+
+REGLAS DE ESCRITURA VISUAL OBLIGATORIAS:
+1. Menciona partes visibles del producto: "Ese acabado que ves...", "La textura que notas en la imagen...", "El diseño que llama tu atención..."
+2. Usa lenguaje sensorial: tacto, peso, brillo, elegancia percibida.
+3. Conecta la imagen con un estilo de vida aspiracional.
+4. Tono: Vogue meets WSJ. Nunca barato, nunca genérico.
+
+FORMATO JSON ESTRICTO (solo JSON):
+{
+    "titulo": "Título SEO clickbait máx 70 chars",
+    "intro": "Frase de enganche en 3 segundos - menciona algo visual del producto",
+    "descripcion_visual": "Párrafo aspiracional describiendo lo que se VE en la imagen (3-4 oraciones)",
+    "problema": "El problema costoso que este producto resuelve",
+    "solucion": "Cómo lo resuelve - describe su apariencia premium visualmente",
+    "beneficio_estatus": "El beneficio de estatus social - lenguaje sensorial",
+    "prueba_social": "Testimonio con nombre y ciudad (ej: Valentina desde Miami)",
+    "cierre": "Frase FOMO que mencione algo visible del producto",
+    "curiosidad": "Dato impactante sobre este tipo de producto",
+    "palabras_clave": ["luxury", "status", "smart home", "USA", "NYC", "Miami"]
+}
     `;
-    
+
     const fallback = {
-        titulo: `The $${precio?.replace('$', '') || '1,200'} Status Symbol Taking Over Manhattan`,
-        intro: "There's a new way women in NYC are showing they've 'made it'.",
-        problema: "You've been spending thousands on items that impress others for seconds.",
-        solucion: `This $${precio?.replace('$', '') || '1,200'} innovation is the secret wealthy families use.`,
-        beneficio_estatus: "Join the elite circle of women who understand true status is lived, not shown.",
-        prueba_social: "Carolina from NYC: 'This is my secret. My friends can't stop asking about my home.'",
-        cierre: "While others chase trends, you could be setting them.",
-        curiosidad: "Women in Manhattan now invest 156% more in home tech than designer bags.",
-        palabras_clave: ["luxury", "status", "smart home", "USA", "NYC"]
+        titulo: `The Premium Home Investment Taking Over Manhattan in 2026`,
+        intro: "There's a detail in this image that women in NYC's Upper East Side can't stop talking about.",
+        descripcion_visual: "Look at the finish you see in the image — that's not a coincidence. Every curve, every material choice speaks to a woman who has stopped settling. This is what intentional luxury looks like in 2026.",
+        problema: "You've been spending thousands on items that impress others for seconds, while your home tells a different story.",
+        solucion: "This investment piece — the one you see right here — is what separates the homes that are simply expensive from the ones that feel truly exceptional.",
+        beneficio_estatus: "Women who own this don't explain it. They let the space speak.",
+        prueba_social: "Valentina from Miami: 'I've had guests ask who my designer is. It's just this one piece. That's the secret.'",
+        cierre: "While others are still decorating, you could be curating. The difference is visible.",
+        curiosidad: "Interior designers in Manhattan report that women are now prioritizing 3 signature home pieces over an entire wardrobe refresh.",
+        palabras_clave: ["luxury home", "status symbol", "NYC elite", "Miami luxury", "premium home", "high ticket"]
     };
-    
+
     if (!model) return fallback;
-    
+
     try {
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
-        const cleanJson = text.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+        const cleanJson = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
         const copy = JSON.parse(cleanJson);
-        console.log('🔥 Bot Gemini: Copy de ventas generado para mxl');
+        console.log('🔥 Bot Gemini: Copy visual generado para mxl');
         return copy;
     } catch (error) {
-        console.log('⚠️ Error Gemini:', error.message);
+        console.log('⚠️ Error Gemini copy:', error.message);
         return fallback;
     }
 }
 
-async function generarArticuloVentaCompleto(url, imagenUrl, categoria, imageSize, imagePosition, copy) {
-    const htmlCompleto = `
-<!DOCTYPE html>
+function generarHTMLArticulo(url, imagenUrl, categoria, imageSize, imagePosition, copy) {
+    const paddingMap = { small: '40px', medium: '20px', large: '10px' };
+    const imgPadding = paddingMap[imageSize] || '20px';
+
+    return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${copy.titulo}</title>
     <meta name="description" content="${copy.curiosidad}">
-    <meta name="keywords" content="${copy.palabras_clave.join(', ')}">
+    <meta name="keywords" content="${(copy.palabras_clave || []).join(', ')}">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Georgia', serif; background: #fff; color: #1a1a1a; line-height: 1.6; }
-        .article-container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-        h1 { font-size: 2.5rem; line-height: 1.2; margin-bottom: 20px; }
-        .lead { font-size: 1.2rem; color: #666; border-left: 4px solid #ff4500; padding-left: 20px; margin: 20px 0; }
-        .viral-fact { background: #fff5f0; padding: 20px; border-radius: 12px; margin: 30px 0; border-left: 4px solid #ff4500; }
-        img { width: 100%; border-radius: 12px; margin: 30px 0; object-fit: contain; ${imageSize === 'large' ? 'max-height: 600px;' : imageSize === 'small' ? 'max-height: 300px;' : 'max-height: 450px;'} }
-        .image-container { text-align: ${imagePosition}; }
-        h2 { font-size: 1.5rem; margin: 30px 0 15px; }
-        .btn-buy { display: block; background: #ff4500; color: white; padding: 15px 30px; text-decoration: none; border-radius: 40px; font-weight: bold; text-align: center; margin: 30px 0; }
-        .social-proof { background: #f8f8f8; padding: 20px; border-radius: 12px; margin: 30px 0; font-style: italic; border-left: 3px solid #ff4500; }
-        footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #999; }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap');
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Lato',sans-serif; background:#fffaf7; color:#1a1a1a; line-height:1.7; }
+        .hero { background:linear-gradient(135deg,#1a1a2e,#16213e); padding:60px 20px; text-align:center; }
+        .hero h1 { font-family:'Playfair Display',serif; font-size:2.4rem; color:#fff; max-width:800px; margin:0 auto 20px; line-height:1.25; }
+        .hero .viral-fact { display:inline-block; background:#ff4500; color:#fff; padding:10px 22px; border-radius:40px; font-size:13px; font-weight:700; margin-top:10px; }
+        .article-body { max-width:800px; margin:0 auto; padding:50px 20px; }
+        .intro-lead { font-family:'Playfair Display',serif; font-size:1.25rem; color:#4a3727; border-left:4px solid #ff4500; padding-left:20px; margin:30px 0; font-style:italic; line-height:1.6; }
+        .product-image-wrap { text-align:${imagePosition || 'center'}; margin:35px 0; background:#faf7f3; border-radius:20px; padding:${imgPadding}; }
+        .product-image-wrap img { max-width:100%; border-radius:12px; object-fit:contain; ${imageSize === 'large' ? 'max-height:600px;' : imageSize === 'small' ? 'max-height:280px;' : 'max-height:420px;'} }
+        .visual-description { background:linear-gradient(135deg,#fff5f0,#fdf0e8); border-left:4px solid #c9a87b; padding:25px 25px 25px 30px; border-radius:0 16px 16px 0; margin:30px 0; font-family:'Playfair Display',serif; font-style:italic; color:#4a3727; font-size:1.05rem; line-height:1.7; }
+        h2 { font-family:'Playfair Display',serif; font-size:1.6rem; color:#2c2418; margin:40px 0 15px; }
+        p { color:#3a2e24; margin-bottom:18px; font-size:1rem; }
+        .social-proof { background:#fff; border:1px solid #f0e2d8; border-left:4px solid #ff4500; padding:25px; border-radius:0 16px 16px 0; margin:35px 0; font-style:italic; color:#6b5a48; }
+        .social-proof strong { color:#2c2418; display:block; margin-top:12px; font-style:normal; font-size:0.9rem; }
+        .btn-buy { display:block; background:linear-gradient(135deg,#ff4500,#ff6b35); color:#fff; padding:18px 35px; text-decoration:none; border-radius:50px; font-weight:700; text-align:center; margin:40px 0; font-size:1.1rem; letter-spacing:0.5px; transition:all .3s; box-shadow:0 8px 25px rgba(255,69,0,.3); }
+        .btn-buy:hover { transform:translateY(-2px); box-shadow:0 12px 30px rgba(255,69,0,.4); }
+        .curiosity-box { background:#1a1a2e; color:#fff; padding:25px; border-radius:16px; margin:30px 0; text-align:center; }
+        .curiosity-box .icon { font-size:2rem; margin-bottom:10px; }
+        .curiosity-box p { color:rgba(255,255,255,.85); font-size:0.95rem; }
+        footer { margin-top:60px; padding:30px 0; border-top:1px solid #f0e2d8; font-size:11px; color:#aaa; text-align:center; }
+        @media(max-width:600px){ .hero h1{font-size:1.6rem} }
     </style>
 </head>
 <body>
-    <div class="article-container">
+    <div class="hero">
         <h1>${copy.titulo}</h1>
-        <div class="viral-fact"><strong>🔥 VIRAL FACT:</strong> ${copy.curiosidad}</div>
-        <div class="image-container"><img src="${imagenUrl}" alt="${copy.titulo}"></div>
-        <div class="lead">${copy.intro}</div>
-        <h2>The Problem That's Costing Americans a Fortune</h2>
+        <span class="viral-fact">🔥 ${copy.curiosidad}</span>
+    </div>
+    <div class="article-body">
+        <div class="intro-lead">${copy.intro}</div>
+
+        <div class="product-image-wrap">
+            <img src="${imagenUrl}" alt="${copy.titulo}" loading="lazy">
+        </div>
+
+        <div class="visual-description">
+            ✨ ${copy.descripcion_visual}
+        </div>
+
+        <h2>The Problem That's Costing You Status</h2>
         <p>${copy.problema}</p>
-        <h2>The Solution That's Changing Everything</h2>
+
+        <h2>Why This Changes Everything</h2>
         <p>${copy.solucion}</p>
-        <h2>Why This Is the New Status Symbol</h2>
+
+        <a href="${url}" class="btn-buy" target="_blank" rel="nofollow noopener">
+            🔴 CHECK PRICE ON AMAZON →
+        </a>
+
+        <h2>The New Status Signal</h2>
         <p>${copy.beneficio_estatus}</p>
-        <div class="social-proof">"${copy.prueba_social}"</div>
-        <h2>Why Everyone Is Making the Switch</h2>
-        <p>${copy.cierre}</p>
-        <a href="${url}" class="btn-buy" target="_blank">🔴 CHECK PRICE ON AMAZON →</a>
-        <footer><p>As an Amazon Associate we earn from qualifying purchases.</p></footer>
+
+        <div class="social-proof">
+            "${copy.prueba_social}"
+            <strong>⭐⭐⭐⭐⭐ Verified Purchase</strong>
+        </div>
+
+        <div class="curiosity-box">
+            <div class="icon">💎</div>
+            <p>${copy.cierre}</p>
+        </div>
+
+        <a href="${url}" class="btn-buy" target="_blank" rel="nofollow noopener">
+            🔥 GET IT ON AMAZON →
+        </a>
+
+        <footer>
+            <p>As an Amazon Associate we earn from qualifying purchases. | © 2026 MXL GOLD MINER</p>
+        </footer>
     </div>
 </body>
-</html>
-    `;
-    
-    return {
-        id: Date.now(),
-        asin: extraerASIN(url),
-        titulo: copy.titulo,
-        meta: copy.curiosidad,
-        contenido: htmlCompleto,
-        imagen: imagenUrl,
-        imageSize: imageSize,
-        imagePosition: imagePosition,
-        link: url,
-        fecha: new Date().toISOString(),
-        clicks: 0
-    };
+</html>`;
 }
 
-// ============ ENDPOINTS ============
+// ============================================================
+// ENDPOINTS
+// ============================================================
 
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -303,7 +357,8 @@ app.get('/panel', (req, res) => {
     res.sendFile(path.join(__dirname, 'panel.html'));
 });
 
-// Endpoint para curiosidades (Bot Gemini autónomo)
+// --- CURIOSIDADES (Bot Gemini solo) ---
+
 app.post('/api/generar-curiosidad', async (req, res) => {
     try {
         const nuevaCuriosidad = await publicarCuriosidadAutomatica();
@@ -313,161 +368,161 @@ app.post('/api/generar-curiosidad', async (req, res) => {
     }
 });
 
-// Endpoint para generar copy de ventas (mxl lo pide al Bot Gemini)
-app.post('/api/generar-copy-ventas', async (req, res) => {
+app.get('/api/curiosidades', (req, res) => {
+    const cached = cache.get('curiosidades');
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) return res.json(cached.data);
     try {
-        const { url, categoria, precio } = req.body;
-        if (!url) {
-            return res.status(400).json({ success: false, error: 'URL requerida' });
+        const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
+        cache.set('curiosidades', { data, timestamp: Date.now() });
+        res.json(data);
+    } catch(e) { res.json([]); }
+});
+
+app.post('/api/compartir-curiosidad/:id', (req, res) => {
+    try {
+        const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
+        const i = data.findIndex(c => c.id == req.params.id);
+        if (i !== -1) {
+            data[i].compartidas = (data[i].compartidas || 0) + 1;
+            fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify(data, null, 2));
         }
-        
-        console.log('📝 mxl solicita copy al Bot Gemini');
-        const copy = await generarCopyVentasConGemini(url, categoria, precio);
-        
-        res.json({ 
-            success: true, 
-            copy: copy,
-            mensaje: "mxl: Revisa el copy. Si te gusta, pega la imagen URL y publica."
+        res.json({ success: true });
+    } catch(e) { res.json({ success: false }); }
+});
+
+// --- PRODUCTOS (mxl pone link + foto, Gemini escribe) ---
+
+// PASO 1: mxl envía URL Amazon + URL imagen → Gemini genera copy
+app.post('/api/generar-copy-producto', async (req, res) => {
+    try {
+        const { url, imagenUrl, categoria, precio } = req.body;
+        if (!url)       return res.status(400).json({ success: false, error: 'URL de Amazon requerida' });
+        if (!imagenUrl) return res.status(400).json({ success: false, error: 'URL de imagen requerida — mxl debe seleccionarla' });
+
+        console.log('📝 mxl envió link + imagen → Gemini generando copy visual...');
+        const copy = await generarCopyProductoConGemini(url, imagenUrl, categoria, precio);
+
+        res.json({
+            success: true,
+            copy,
+            mensaje: '✅ mxl: Revisa el copy. Si apruebas, llama a /api/publicar-producto'
         });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// Endpoint para publicar venta (mxl controla imagen y publicación)
-app.post('/api/publicar-venta', async (req, res) => {
+// PASO 2: mxl aprueba y publica
+app.post('/api/publicar-producto', async (req, res) => {
     try {
         const { url, imagenUrl, categoria, imageSize, imagePosition, copy } = req.body;
-        
-        if (!url) return res.status(400).json({ success: false, error: 'URL requerida' });
-        if (!imagenUrl) return res.status(400).json({ success: false, error: 'Imagen requerida - mxl debe seleccionarla' });
-        if (!copy) return res.status(400).json({ success: false, error: 'Copy requerido - genera primero' });
-        
-        console.log('💰 mxl publicando producto con su imagen');
-        
-        const nuevoArticulo = await generarArticuloVentaCompleto(url, imagenUrl, categoria, imageSize, imagePosition, copy);
-        
+
+        if (!url)       return res.status(400).json({ success: false, error: 'URL Amazon requerida' });
+        if (!imagenUrl) return res.status(400).json({ success: false, error: 'URL imagen requerida' });
+        if (!copy)      return res.status(400).json({ success: false, error: 'Copy requerido — genera primero con /api/generar-copy-producto' });
+
+        console.log('💰 mxl publicando producto...');
+
+        const htmlCompleto = generarHTMLArticulo(url, imagenUrl, categoria, imageSize, imagePosition, copy);
+
+        const nuevoArticulo = {
+            id: Date.now(),
+            asin: extraerASIN(url),
+            titulo: copy.titulo,
+            meta: copy.curiosidad,
+            intro: copy.intro,
+            curiosidad: copy.curiosidad,
+            contenido: htmlCompleto,
+            imagen: imagenUrl,
+            imageSize: imageSize || 'medium',
+            imagePosition: imagePosition || 'center',
+            categoria: categoria || 'LUXURY',
+            link: url,
+            fecha: new Date().toISOString(),
+            clicks: 0
+        };
+
         const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
         data.unshift(nuevoArticulo);
         fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(data, null, 2));
-        
+
         cache.clear();
+        console.log(`✅ Producto publicado: ${nuevoArticulo.titulo}`);
         res.json({ success: true, articulo: nuevoArticulo });
-        
+
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// Obtener artículos
 app.get('/api/articulos', (req, res) => {
     const cached = cache.get('articulos');
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-        return res.json(cached.data);
-    }
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) return res.json(cached.data);
     try {
         const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
         cache.set('articulos', { data, timestamp: Date.now() });
         res.json(data);
-    } catch (e) {
-        res.json([]);
-    }
+    } catch(e) { res.json([]); }
 });
 
-// Obtener curiosidades
-app.get('/api/curiosidades', (req, res) => {
-    const cached = cache.get('curiosidades');
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-        return res.json(cached.data);
-    }
-    try {
-        const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
-        cache.set('curiosidades', { data, timestamp: Date.now() });
-        res.json(data);
-    } catch (e) {
-        res.json([]);
-    }
-});
-
-// Ordenar artículos
 app.put('/api/ordenar-articulos', (req, res) => {
     try {
-        const { articulos: nuevosArticulos } = req.body;
-        fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(nuevosArticulos, null, 2));
+        fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(req.body.articulos, null, 2));
         cache.clear();
         res.json({ success: true });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
+    } catch(e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
-// Click tracking
 app.post('/api/click-articulo/:id', (req, res) => {
     try {
-        const { id } = req.params;
         const data = JSON.parse(fs.readFileSync(ARTICULOS_PATH));
-        const index = data.findIndex(a => a.id == id);
-        if (index !== -1) {
-            data[index].clicks = (data[index].clicks || 0) + 1;
+        const i = data.findIndex(a => a.id == req.params.id);
+        if (i !== -1) {
+            data[i].clicks = (data[i].clicks || 0) + 1;
             fs.writeFileSync(ARTICULOS_PATH, JSON.stringify(data, null, 2));
         }
         res.json({ success: true });
-    } catch (error) {
-        res.json({ success: false });
-    }
+    } catch(e) { res.json({ success: false }); }
 });
 
-// Compartir curiosidad
-app.post('/api/compartir-curiosidad/:id', (req, res) => {
-    try {
-        const { id } = req.params;
-        const data = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH));
-        const index = data.findIndex(c => c.id == id);
-        if (index !== -1) {
-            data[index].compartidas = (data[index].compartidas || 0) + 1;
-            fs.writeFileSync(CURIOSIDADES_PATH, JSON.stringify(data, null, 2));
-        }
-        res.json({ success: true });
-    } catch (error) {
-        res.json({ success: false });
-    }
-});
-
-// CRON: Curiosidades cada 3 horas (Bot Gemini autónomo)
+// ============================================================
+// CRON — Curiosidades cada 3 horas (solo Gemini)
+// ============================================================
 cron.schedule('0 */3 * * *', async () => {
-    console.log('⏰ CRON: Bot Gemini publicando curiosidad...');
+    console.log('⏰ CRON: Bot Gemini publicando curiosidad automática...');
     await publicarCuriosidadAutomatica();
 });
 
-// ============ INICIAR SERVIDOR ============
+// ============================================================
+// ARRANQUE
+// ============================================================
 app.listen(PORT, '0.0.0.0', () => {
-    const articulosCount = JSON.parse(fs.readFileSync(ARTICULOS_PATH)).length;
-    const curiosidadesCount = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH)).length;
-    
+    const artCount  = JSON.parse(fs.readFileSync(ARTICULOS_PATH)).length;
+    const curCount  = JSON.parse(fs.readFileSync(CURIOSIDADES_PATH)).length;
+
     console.log(`
-    ╔═══════════════════════════════════════════════════════════════╗
-    ║     🏮 MXL GOLD MINER - SISTEMA HÍBRIDO 🏮                   ║
-    ╠═══════════════════════════════════════════════════════════════╣
-    ║                                                               ║
-    ║  💎 CURIOSIDADES (Bot Gemini Autónomo):                      ║
-    ║     ✅ Genera curiosidad + imagen cada 3 horas               ║
-    ║     ✅ Publica solo - Flujo continuo                         ║
-    ║     📊 ${curiosidadesCount} curiosidades guardadas            ║
-    ║                                                               ║
-    ║  💰 VENTAS (mxl controla):                                   ║
-    ║     ✅ mxl elige producto de alto ticket                     ║
-    ║     ✅ mxl selecciona imagen real de Amazon                  ║
-    ║     ✅ mxl define tamaño y posición                          ║
-    ║     🤖 Bot Gemini SOLO redacta copy (cuando mxl lo pide)    ║
-    ║     📊 ${articulosCount} productos publicados                 ║
-    ║                                                               ║
-    ║  🚀 Puerto: ${PORT}                                           ║
-    ║  🤖 Bot Gemini: ${model ? '✅ ACTIVADO' : '⚠️ NO DISPONIBLE'}                      ║
-    ╚═══════════════════════════════════════════════════════════════╝
+╔══════════════════════════════════════════════════════════╗
+║         🏮 MXL GOLD MINER — SISTEMA HÍBRIDO 🏮          ║
+╠══════════════════════════════════════════════════════════╣
+║                                                          ║
+║  💎 CURIOSIDADES (Bot Gemini autónomo)                  ║
+║     ✅ Genera curiosidad + imagen cada 3 horas          ║
+║     ✅ Texto conectado visualmente con la imagen        ║
+║     📊 ${String(curCount).padEnd(3)} curiosidades guardadas               ║
+║                                                          ║
+║  💰 PRODUCTOS (mxl link+foto → Gemini escribe)          ║
+║     ✅ mxl elige link Amazon                            ║
+║     ✅ mxl selecciona foto del producto                 ║
+║     🤖 Gemini escribe copy visual conectado             ║
+║     📊 ${String(artCount).padEnd(3)} productos publicados                 ║
+║                                                          ║
+║  🚀 Puerto: ${PORT}                                        ║
+║  🤖 Bot Gemini: ${model ? '✅ ACTIVADO     ' : '⚠️ NO DISPONIBLE'}               ║
+╚══════════════════════════════════════════════════════════╝
     `);
-    
-    if (curiosidadesCount === 0) {
-        console.log('📦 Generando primera curiosidad...');
+
+    if (curCount === 0) {
+        console.log('📦 Generando primera curiosidad automática...');
         setTimeout(() => publicarCuriosidadAutomatica(), 3000);
     }
 });
