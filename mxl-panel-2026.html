@@ -7,31 +7,43 @@
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:system-ui,sans-serif;background:#0f0f1a;color:#fff;padding:20px;}
-        .header{background:linear-gradient(135deg,#1a1a2e,#2d2d44);padding:20px;border-radius:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;}
+        .header{background:linear-gradient(135deg,#1a1a2e,#2d2d44);padding:20px;border-radius:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
         h1{font-size:1.5rem;}
         .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:20px;}
         .stat-card{background:#1a1a2e;padding:20px;border-radius:12px;text-align:center;}
         .stat-number{font-size:2rem;font-weight:bold;color:#ff4500;}
-        .btn{background:#ff4500;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;margin:5px;}
-        .btn:hover{background:#ff6b35;}
+        .btn{background:#ff4500;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;margin:5px;transition:all 0.3s;}
+        .btn:hover{background:#ff6b35;transform:translateY(-2px);}
+        .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
         .btn-danger{background:#dc2626;}
         .btn-danger:hover{background:#ef4444;}
+        .btn-secondary{background:#2d2d44;}
+        .btn-secondary:hover{background:#3d3d5c;}
         .section{background:#1a1a2e;border-radius:12px;padding:20px;margin-top:20px;}
         .section h3{margin-bottom:15px;color:#ff4500;}
         .curiosidad-item,.producto-item{border-bottom:1px solid #2d2d44;padding:15px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;}
         .curiosidad-item:last-child,.producto-item:last-child{border-bottom:none;}
         .curiosidad-titulo{flex:1;font-size:0.9rem;}
         .producto-titulo{flex:1;font-size:0.9rem;}
-        .small-btn{background:#2d2d44;padding:5px 12px;border-radius:6px;font-size:12px;margin-left:10px;}
+        .small-btn{background:#2d2d44;padding:5px 12px;border-radius:6px;font-size:12px;margin-left:10px;cursor:pointer;border:none;color:#fff;}
         .small-btn:hover{background:#ff4500;}
         .empty{text-align:center;padding:40px;color:#666;}
         .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;z-index:1000;}
-        .modal-content{background:#1a1a2e;padding:30px;border-radius:16px;max-width:500px;width:90%;}
+        .modal-content{background:#1a1a2e;padding:30px;border-radius:16px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;}
         .modal-content input,.modal-content textarea{width:100%;padding:10px;margin:10px 0;border-radius:8px;border:none;background:#2d2d44;color:#fff;}
-        .modal-content textarea{min-height:100px;}
+        .modal-content textarea{min-height:100px;font-family:monospace;}
         .form-group{margin-bottom:15px;}
         label{display:block;margin-bottom:5px;font-size:12px;color:#c9a87b;}
-        select{width:100%;padding:10px;border-radius:8px;background:#2d2d44;color:#fff;border:none;}
+        select{width:100%;padding:10px;border-radius:8px;background:#2d2d44;color:#fff;border:none;cursor:pointer;}
+        .copy-preview{background:#0f0f1a;padding:12px;border-radius:8px;font-size:12px;max-height:200px;overflow:auto;margin-top:10px;}
+        .copy-preview strong{color:#ff4500;}
+        hr{margin:10px 0;border-color:#2d2d44;}
+        .toast{position:fixed;bottom:20px;right:20px;background:#10b981;color:#fff;padding:12px 20px;border-radius:8px;animation:slideIn 0.3s ease;z-index:2000;}
+        .toast.error{background:#ef4444;}
+        @keyframes slideIn{
+            from{transform:translateX(100%);opacity:0;}
+            to{transform:translateX(0);opacity:1;}
+        }
         @media(max-width:600px){.curiosidad-item,.producto-item{flex-direction:column;align-items:flex-start;gap:10px;}}
     </style>
 </head>
@@ -39,9 +51,10 @@
     <div class="header">
         <h1>🏮 MXL GOLD MINER - PANEL DE CONTROL</h1>
         <div>
-            <button class="btn" onclick="generarCuriosidad()">✨ Generar Curiosidad</button>
+            <button class="btn" onclick="generarCuriosidad(this)">✨ Generar Curiosidad</button>
             <button class="btn" onclick="abrirModalProducto()">📦 Nuevo Producto</button>
             <button class="btn btn-danger" onclick="borrarTodasCuriosidades()">🗑️ Borrar Todo</button>
+            <button class="btn btn-secondary" onclick="cargarStats()">🔄 Refrescar</button>
         </div>
     </div>
 
@@ -102,17 +115,25 @@
             </div>
             <button class="btn" onclick="generarCopy()" id="btnGenerarCopy">🤖 Generar Copy con Gemini</button>
             <div id="copyPreview" style="margin-top:15px;display:none;">
-                <hr style="margin:10px 0;border-color:#2d2d44;">
+                <hr>
                 <h4>Vista previa del copy:</h4>
-                <div id="copyContent" style="background:#0f0f1a;padding:10px;border-radius:8px;font-size:12px;max-height:200px;overflow:auto;"></div>
-                <button class="btn" onclick="publicarProducto()" style="margin-top:10px;">📢 PUBLICAR PRODUCTO</button>
+                <div id="copyContent" class="copy-preview"></div>
+                <button class="btn" onclick="publicarProducto()" style="margin-top:10px;width:100%;">📢 PUBLICAR PRODUCTO</button>
             </div>
-            <button class="btn small-btn" onclick="cerrarModal()" style="background:#2d2d44;margin-top:10px;">Cerrar</button>
+            <button class="btn btn-secondary" onclick="cerrarModal()" style="margin-top:10px;width:100%;">Cerrar</button>
         </div>
     </div>
 
     <script>
         let copyGenerado = null;
+        
+        function mostrarToast(mensaje, esError = false) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${esError ? 'error' : ''}`;
+            toast.textContent = mensaje;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
         
         async function cargarStats() {
             try {
@@ -124,7 +145,7 @@
                 ]);
                 
                 document.getElementById('geminiStatus').textContent = stats.geminiDisponible ? '✅' : '⚠️';
-                document.getElementById('anguloStatus').textContent = stats.descripcionAngulo || '-';
+                document.getElementById('anguloStatus').textContent = stats.descripcionAngulo || stats.anguloActual || '-';
                 document.getElementById('curiosidadesCount').textContent = curiosidades.length;
                 document.getElementById('productosCount').textContent = articulos.length;
                 document.getElementById('clicsCount').textContent = stats.totalClics || 0;
@@ -132,7 +153,8 @@
                 renderCuriosidades(curiosidades);
                 renderProductos(articulos);
             } catch(e) {
-                console.error(e);
+                console.error('Error cargando stats:', e);
+                mostrarToast('Error al cargar estadísticas', true);
             }
         }
         
@@ -146,8 +168,8 @@
             container.innerHTML = curiosidades.slice(0, 10).map(cur => `
                 <div class="curiosidad-item">
                     <div class="curiosidad-titulo">
-                        <strong>${cur.titulo_es || cur.titulo_en || 'Sin título'}</strong><br>
-                        <small style="color:#c9a87b">${new Date(cur.fecha).toLocaleString()}</small>
+                        <strong>${escapeHtml(cur.titulo_es || cur.titulo_en || 'Sin título')}</strong><br>
+                        <small style="color:#c9a87b">${new Date(cur.fecha).toLocaleString()} | Ángulo: ${cur.anguloUsado || 'A'}</small>
                     </div>
                     <div>
                         <button class="small-btn" onclick="borrarCuriosidad(${cur.id})">🗑️</button>
@@ -166,8 +188,8 @@
             container.innerHTML = productos.map(prod => `
                 <div class="producto-item">
                     <div class="producto-titulo">
-                        <strong>${prod.titulo || 'Sin título'}</strong><br>
-                        <small style="color:#c9a87b">${prod.categoria} | ${prod.clicks || 0} clics</small>
+                        <strong>${escapeHtml(prod.titulo || 'Sin título')}</strong><br>
+                        <small style="color:#c9a87b">${prod.categoria} | ${prod.clicks || 0} clics | ${new Date(prod.fecha).toLocaleDateString()}</small>
                     </div>
                     <div>
                         <button class="small-btn" onclick="window.open('${prod.link}', '_blank')">🔗</button>
@@ -176,8 +198,19 @@
             `).join('');
         }
         
-        async function generarCuriosidad() {
-            const btn = event.target;
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        async function generarCuriosidad(btn) {
+            if (!btn) btn = event.target;
+            const originalText = btn.textContent;
             btn.textContent = '⏳ Generando...';
             btn.disabled = true;
             
@@ -185,15 +218,16 @@
                 const res = await fetch('/api/generar-curiosidad', { method: 'POST' });
                 const data = await res.json();
                 if (data.success) {
-                    alert('✅ Curiosidad generada exitosamente');
+                    mostrarToast('✅ Curiosidad generada exitosamente');
                     cargarStats();
                 } else {
-                    alert('❌ Error: ' + data.error);
+                    mostrarToast('❌ Error: ' + (data.error || 'Error desconocido'), true);
                 }
             } catch(e) {
-                alert('❌ Error al generar');
+                console.error('Error:', e);
+                mostrarToast('❌ Error al generar curiosidad', true);
             } finally {
-                btn.textContent = '✨ Generar Curiosidad';
+                btn.textContent = originalText;
                 btn.disabled = false;
             }
         }
@@ -201,21 +235,30 @@
         async function borrarCuriosidad(id) {
             if (!confirm('¿Eliminar esta curiosidad?')) return;
             try {
-                await fetch(`/api/curiosidad/${id}`, { method: 'DELETE' });
-                cargarStats();
+                const res = await fetch(`/api/curiosidad/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    mostrarToast('✅ Curiosidad eliminada');
+                    cargarStats();
+                } else {
+                    mostrarToast('❌ Error al eliminar', true);
+                }
             } catch(e) {
-                alert('Error');
+                mostrarToast('Error: ' + e.message, true);
             }
         }
         
         async function borrarTodasCuriosidades() {
             if (!confirm('⚠️ ¿ELIMINAR TODAS LAS CURIOSIDADES? Esta acción no se puede deshacer.')) return;
             try {
-                await fetch('/api/curiosidades/all', { method: 'DELETE' });
-                cargarStats();
-                alert('✅ Todas las curiosidades eliminadas');
+                const res = await fetch('/api/curiosidades/all', { method: 'DELETE' });
+                if (res.ok) {
+                    mostrarToast('✅ Todas las curiosidades eliminadas');
+                    cargarStats();
+                } else {
+                    mostrarToast('❌ Error al eliminar', true);
+                }
             } catch(e) {
-                alert('Error');
+                mostrarToast('Error: ' + e.message, true);
             }
         }
         
@@ -225,6 +268,9 @@
             document.getElementById('copyPreview').style.display = 'none';
             document.getElementById('productoUrl').value = '';
             document.getElementById('productoImagen').value = '';
+            document.getElementById('productoCategoria').value = 'LUXURY';
+            document.getElementById('productoImageSize').value = 'medium';
+            document.getElementById('productoImagePosition').value = 'center';
         }
         
         function cerrarModal() {
@@ -232,16 +278,17 @@
         }
         
         async function generarCopy() {
-            const url = document.getElementById('productoUrl').value;
-            const imagen = document.getElementById('productoImagen').value;
+            const url = document.getElementById('productoUrl').value.trim();
+            const imagen = document.getElementById('productoImagen').value.trim();
             const categoria = document.getElementById('productoCategoria').value;
             
             if (!url || !imagen) {
-                alert('❌ URL de Amazon y URL de imagen son obligatorias');
+                mostrarToast('❌ URL de Amazon y URL de imagen son obligatorias', true);
                 return;
             }
             
             const btn = document.getElementById('btnGenerarCopy');
+            const originalText = btn.textContent;
             btn.textContent = '🤖 Generando copy...';
             btn.disabled = true;
             
@@ -252,34 +299,37 @@
                     body: JSON.stringify({ url, imagenUrl: imagen, categoria })
                 });
                 const data = await res.json();
-                if (data.success) {
+                if (data.success && data.copy) {
                     copyGenerado = data.copy;
                     document.getElementById('copyContent').innerHTML = `
-                        <strong>Título:</strong> ${copyGenerado.titulo}<br>
-                        <strong>Intro:</strong> ${copyGenerado.intro}<br>
-                        <strong>Curiosidad:</strong> ${copyGenerado.curiosidad}<br>
-                        <strong>Meta:</strong> ${copyGenerado.meta_descripcion}
+                        <strong>📝 Título:</strong> ${escapeHtml(copyGenerado.titulo || 'N/A')}<br>
+                        <strong>📖 Intro:</strong> ${escapeHtml(copyGenerado.intro || 'N/A')}<br>
+                        <strong>✨ Curiosidad:</strong> ${escapeHtml(copyGenerado.curiosidad || 'N/A')}<br>
+                        <strong>🔍 Meta:</strong> ${escapeHtml(copyGenerado.meta_descripcion || 'N/A')}<br>
+                        <strong>🏷️ Keywords:</strong> ${(copyGenerado.palabras_clave || []).join(', ') || 'N/A'}
                     `;
                     document.getElementById('copyPreview').style.display = 'block';
+                    mostrarToast('✅ Copy generado exitosamente');
                 } else {
-                    alert('❌ Error generando copy');
+                    mostrarToast('❌ Error generando copy: ' + (data.error || 'Error desconocido'), true);
                 }
             } catch(e) {
-                alert('❌ Error: ' + e.message);
+                console.error('Error:', e);
+                mostrarToast('❌ Error: ' + e.message, true);
             } finally {
-                btn.textContent = '🤖 Generar Copy con Gemini';
+                btn.textContent = originalText;
                 btn.disabled = false;
             }
         }
         
         async function publicarProducto() {
             if (!copyGenerado) {
-                alert('Primero genera el copy');
+                mostrarToast('Primero genera el copy', true);
                 return;
             }
             
-            const url = document.getElementById('productoUrl').value;
-            const imagen = document.getElementById('productoImagen').value;
+            const url = document.getElementById('productoUrl').value.trim();
+            const imagen = document.getElementById('productoImagen').value.trim();
             const categoria = document.getElementById('productoCategoria').value;
             const imageSize = document.getElementById('productoImageSize').value;
             const imagePosition = document.getElementById('productoImagePosition').value;
@@ -289,23 +339,37 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        url, imagenUrl: imagen, categoria,
-                        imageSize, imagePosition, copy: copyGenerado
+                        url, 
+                        imagenUrl: imagen, 
+                        categoria,
+                        imageSize, 
+                        imagePosition, 
+                        copy: copyGenerado
                     })
                 });
                 const data = await res.json();
                 if (data.success) {
-                    alert('✅ Producto publicado exitosamente');
+                    mostrarToast('✅ Producto publicado exitosamente');
                     cerrarModal();
                     cargarStats();
                 } else {
-                    alert('❌ Error: ' + data.error);
+                    mostrarToast('❌ Error: ' + (data.error || 'Error desconocido'), true);
                 }
             } catch(e) {
-                alert('❌ Error publicando');
+                console.error('Error:', e);
+                mostrarToast('❌ Error publicando: ' + e.message, true);
             }
         }
         
+        // Click fuera del modal para cerrar
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalProducto');
+            if (event.target === modal) {
+                cerrarModal();
+            }
+        }
+        
+        // Inicializar
         cargarStats();
         setInterval(cargarStats, 30000);
     </script>
