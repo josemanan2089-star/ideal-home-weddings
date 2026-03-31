@@ -12,6 +12,7 @@
         .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:20px;}
         .stat-card{background:#1a1a2e;padding:20px;border-radius:12px;text-align:center;}
         .stat-number{font-size:2rem;font-weight:bold;color:#ff4500;}
+        .stat-label{font-size:0.7rem;color:#c9a87b;margin-top:5px;}
         .btn{background:#ff4500;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;margin:5px;transition:all 0.3s;}
         .btn:hover{background:#ff6b35;transform:translateY(-2px);}
         .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
@@ -19,6 +20,8 @@
         .btn-danger:hover{background:#ef4444;}
         .btn-secondary{background:#2d2d44;}
         .btn-secondary:hover{background:#3d3d5c;}
+        .btn-success{background:#10b981;}
+        .btn-success:hover{background:#059669;}
         .section{background:#1a1a2e;border-radius:12px;padding:20px;margin-top:20px;}
         .section h3{margin-bottom:15px;color:#ff4500;}
         .curiosidad-item,.producto-item{border-bottom:1px solid #2d2d44;padding:15px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;}
@@ -40,6 +43,10 @@
         hr{margin:10px 0;border-color:#2d2d44;}
         .toast{position:fixed;bottom:20px;right:20px;background:#10b981;color:#fff;padding:12px 20px;border-radius:8px;animation:slideIn 0.3s ease;z-index:2000;}
         .toast.error{background:#ef4444;}
+        .motor-status{display:flex;gap:10px;margin-top:10px;justify-content:center;}
+        .motor-badge{font-size:10px;padding:4px 8px;border-radius:12px;}
+        .motor-content{background:#ff4500;color:#fff;}
+        .motor-sales{background:#10b981;color:#fff;}
         @keyframes slideIn{
             from{transform:translateX(100%);opacity:0;}
             to{transform:translateX(0);opacity:1;}
@@ -59,20 +66,45 @@
     </div>
 
     <div class="stats-grid" id="statsGrid">
-        <div class="stat-card">🤖 Gemini<br><span id="geminiStatus" class="stat-number">-</span></div>
-        <div class="stat-card">🎯 Ángulo<br><span id="anguloStatus" class="stat-number">-</span></div>
-        <div class="stat-card">💎 Curiosidades<br><span id="curiosidadesCount" class="stat-number">0</span></div>
-        <div class="stat-card">💰 Productos<br><span id="productosCount" class="stat-number">0</span></div>
-        <div class="stat-card">🖱️ Clics<br><span id="clicsCount" class="stat-number">0</span></div>
+        <div class="stat-card">
+            🤖 CONTENT<br>
+            <span id="contentStatus" class="stat-number">-</span>
+            <div class="stat-label" id="contentModel">-</div>
+        </div>
+        <div class="stat-card">
+            💰 SALES<br>
+            <span id="salesStatus" class="stat-number">-</span>
+            <div class="stat-label" id="salesModel">-</div>
+        </div>
+        <div class="stat-card">
+            🎯 Ángulo<br>
+            <span id="anguloStatus" class="stat-number">-</span>
+            <div class="stat-label" id="anguloDesc">-</div>
+        </div>
+        <div class="stat-card">
+            💎 Curiosidades<br>
+            <span id="curiosidadesCount" class="stat-number">0</span>
+            <div class="stat-label">generadas</div>
+        </div>
+        <div class="stat-card">
+            🛍️ Productos<br>
+            <span id="productosCount" class="stat-number">0</span>
+            <div class="stat-label">publicados</div>
+        </div>
+        <div class="stat-card">
+            🖱️ Clics<br>
+            <span id="clicsCount" class="stat-number">0</span>
+            <div class="stat-label">totales</div>
+        </div>
     </div>
 
     <div class="section">
-        <h3>📰 CURIOSIDADES RECIENTES</h3>
+        <h3>📰 CURIOSIDADES RECIENTES <span style="font-size:10px;background:#ff4500;padding:2px 8px;border-radius:12px;">MOTOR CONTENT</span></h3>
         <div id="curiosidadesList"></div>
     </div>
 
     <div class="section">
-        <h3>🛍️ PRODUCTOS PUBLICADOS</h3>
+        <h3>🛍️ PRODUCTOS PUBLICADOS <span style="font-size:10px;background:#10b981;padding:2px 8px;border-radius:12px;">MOTOR SALES</span></h3>
         <div id="productosList"></div>
     </div>
 
@@ -113,10 +145,10 @@
                     <option value="right">Derecha</option>
                 </select>
             </div>
-            <button class="btn" onclick="generarCopy()" id="btnGenerarCopy">🤖 Generar Copy con Gemini</button>
+            <button class="btn" onclick="generarCopy()" id="btnGenerarCopy">💰 Generar Copy con SALES</button>
             <div id="copyPreview" style="margin-top:15px;display:none;">
                 <hr>
-                <h4>Vista previa del copy:</h4>
+                <h4>Vista previa del copy (generado por SALES):</h4>
                 <div id="copyContent" class="copy-preview"></div>
                 <button class="btn" onclick="publicarProducto()" style="margin-top:10px;width:100%;">📢 PUBLICAR PRODUCTO</button>
             </div>
@@ -137,15 +169,29 @@
         
         async function cargarStats() {
             try {
-                const [stats, curiosidades, articulos, gemini] = await Promise.all([
+                const [stats, curiosidades, articulos, motores] = await Promise.all([
                     fetch('/api/estadisticas').then(r=>r.json()),
                     fetch('/api/curiosidades').then(r=>r.json()),
                     fetch('/api/articulos').then(r=>r.json()),
-                    fetch('/api/gemini-status').then(r=>r.json())
+                    fetch('/api/motores-status').then(r=>r.json()).catch(() => null)
                 ]);
                 
-                document.getElementById('geminiStatus').textContent = stats.geminiDisponible ? '✅' : '⚠️';
-                document.getElementById('anguloStatus').textContent = stats.descripcionAngulo || stats.anguloActual || '-';
+                // Mostrar estado de motores
+                if (motores) {
+                    document.getElementById('contentStatus').textContent = motores.content?.disponible ? '✅' : '⚠️';
+                    document.getElementById('contentModel').textContent = motores.content?.modelo || 'no disponible';
+                    document.getElementById('salesStatus').textContent = motores.sales?.disponible ? '✅' : '⚠️';
+                    document.getElementById('salesModel').textContent = motores.sales?.modelo || 'no disponible';
+                } else {
+                    // Fallback si el endpoint no existe
+                    document.getElementById('contentStatus').textContent = stats.contentDisponible ? '✅' : '⚠️';
+                    document.getElementById('contentModel').textContent = stats.contentModelo || '?';
+                    document.getElementById('salesStatus').textContent = stats.salesDisponible ? '✅' : '⚠️';
+                    document.getElementById('salesModel').textContent = stats.salesModelo || '?';
+                }
+                
+                document.getElementById('anguloStatus').textContent = stats.anguloActual || '-';
+                document.getElementById('anguloDesc').textContent = stats.descripcionAngulo || '';
                 document.getElementById('curiosidadesCount').textContent = curiosidades.length;
                 document.getElementById('productosCount').textContent = articulos.length;
                 document.getElementById('clicsCount').textContent = stats.totalClics || 0;
@@ -161,7 +207,7 @@
         function renderCuriosidades(curiosidades) {
             const container = document.getElementById('curiosidadesList');
             if (!curiosidades || curiosidades.length === 0) {
-                container.innerHTML = '<div class="empty">✨ No hay curiosidades aún. Genera la primera.</div>';
+                container.innerHTML = '<div class="empty">✨ No hay curiosidades aún. Genera la primera con CONTENT.</div>';
                 return;
             }
             
@@ -169,7 +215,7 @@
                 <div class="curiosidad-item">
                     <div class="curiosidad-titulo">
                         <strong>${escapeHtml(cur.titulo_es || cur.titulo_en || 'Sin título')}</strong><br>
-                        <small style="color:#c9a87b">${new Date(cur.fecha).toLocaleString()} | Ángulo: ${cur.anguloUsado || 'A'}</small>
+                        <small style="color:#c9a87b">📅 ${new Date(cur.fecha).toLocaleString()} | 🎯 Ángulo: ${cur.anguloUsado || 'A'} | 🏭 Motor: CONTENT</small>
                     </div>
                     <div>
                         <button class="small-btn" onclick="borrarCuriosidad(${cur.id})">🗑️</button>
@@ -181,7 +227,7 @@
         function renderProductos(productos) {
             const container = document.getElementById('productosList');
             if (!productos || productos.length === 0) {
-                container.innerHTML = '<div class="empty">💰 No hay productos aún. Publica tu primer producto.</div>';
+                container.innerHTML = '<div class="empty">💰 No hay productos aún. Publica tu primer producto con SALES.</div>';
                 return;
             }
             
@@ -189,7 +235,7 @@
                 <div class="producto-item">
                     <div class="producto-titulo">
                         <strong>${escapeHtml(prod.titulo || 'Sin título')}</strong><br>
-                        <small style="color:#c9a87b">${prod.categoria} | ${prod.clicks || 0} clics | ${new Date(prod.fecha).toLocaleDateString()}</small>
+                        <small style="color:#c9a87b">📁 ${prod.categoria} | 🖱️ ${prod.clicks || 0} clics | 📅 ${new Date(prod.fecha).toLocaleDateString()} | 💰 Motor: SALES</small>
                     </div>
                     <div>
                         <button class="small-btn" onclick="window.open('${prod.link}', '_blank')">🔗</button>
@@ -211,14 +257,14 @@
         async function generarCuriosidad(btn) {
             if (!btn) btn = event.target;
             const originalText = btn.textContent;
-            btn.textContent = '⏳ Generando...';
+            btn.textContent = '⏳ CONTENT generando...';
             btn.disabled = true;
             
             try {
                 const res = await fetch('/api/generar-curiosidad', { method: 'POST' });
                 const data = await res.json();
                 if (data.success) {
-                    mostrarToast('✅ Curiosidad generada exitosamente');
+                    mostrarToast(`✅ Curiosidad generada por MOTOR CONTENT (${data.motor || 'CONTENT'})`);
                     cargarStats();
                 } else {
                     mostrarToast('❌ Error: ' + (data.error || 'Error desconocido'), true);
@@ -289,7 +335,7 @@
             
             const btn = document.getElementById('btnGenerarCopy');
             const originalText = btn.textContent;
-            btn.textContent = '🤖 Generando copy...';
+            btn.textContent = '💰 SALES generando copy...';
             btn.disabled = true;
             
             try {
@@ -306,10 +352,11 @@
                         <strong>📖 Intro:</strong> ${escapeHtml(copyGenerado.intro || 'N/A')}<br>
                         <strong>✨ Curiosidad:</strong> ${escapeHtml(copyGenerado.curiosidad || 'N/A')}<br>
                         <strong>🔍 Meta:</strong> ${escapeHtml(copyGenerado.meta_descripcion || 'N/A')}<br>
-                        <strong>🏷️ Keywords:</strong> ${(copyGenerado.palabras_clave || []).join(', ') || 'N/A'}
+                        <strong>🏷️ Keywords:</strong> ${(copyGenerado.palabras_clave || []).join(', ') || 'N/A'}<br>
+                        <strong>💰 Motor:</strong> ${data.motor || 'SALES'}
                     `;
                     document.getElementById('copyPreview').style.display = 'block';
-                    mostrarToast('✅ Copy generado exitosamente');
+                    mostrarToast(`✅ Copy generado por MOTOR ${data.motor || 'SALES'}`);
                 } else {
                     mostrarToast('❌ Error generando copy: ' + (data.error || 'Error desconocido'), true);
                 }
@@ -324,7 +371,7 @@
         
         async function publicarProducto() {
             if (!copyGenerado) {
-                mostrarToast('Primero genera el copy', true);
+                mostrarToast('Primero genera el copy con SALES', true);
                 return;
             }
             
@@ -349,7 +396,7 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    mostrarToast('✅ Producto publicado exitosamente');
+                    mostrarToast(`✅ Producto publicado con MOTOR ${data.motor || 'SALES'}`);
                     cerrarModal();
                     cargarStats();
                 } else {
@@ -369,7 +416,7 @@
             }
         }
         
-        // Inicializar
+        // Inicializar y auto-refrescar cada 30 segundos
         cargarStats();
         setInterval(cargarStats, 30000);
     </script>
