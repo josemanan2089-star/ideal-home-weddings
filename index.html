@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MXL Gold | Luxury Home & Lifestyle Secrets 2026</title>
-    <meta name="description" content="Discover the luxury home trends and exclusive products that elite women in New York, London, and Paris are obsessing over in 2026. Curated finds on Amazon.">
+    <title id="pageTitle">MXL Gold | Luxury Home & Lifestyle Secrets 2026</title>
+    <meta name="description" id="pageDesc" content="Discover the luxury home trends and exclusive products that elite women in New York, London, and Paris are obsessing over in 2026. Curated finds on Amazon.">
     <meta name="keywords" content="luxury home 2026, luxury lifestyle women, smart home NYC, elite home decor, luxury products Amazon, high end home essentials, Beverly Hills luxury, Manhattan apartment luxury">
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
     <link rel="canonical" href="https://mxlgold.com/">
@@ -12,11 +12,9 @@
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="MXL Gold">
-    <meta property="og:title" content="The Luxury Secrets Elite Women in NYC & London Don't Share">
-    <meta property="og:description" content="Exclusive luxury trends and curated Amazon finds for high-income women in New York, London, and Paris.">
-    <meta property="og:image" content="https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=1200">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
+    <meta property="og:title" id="ogTitle" content="The Luxury Secrets Elite Women in NYC & London Don't Share">
+    <meta property="og:description" id="ogDesc" content="Exclusive luxury trends and curated Amazon finds for high-income women in New York, London, and Paris.">
+    <meta property="og:image" id="ogImage" content="https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=1200">
     <meta property="og:url" content="https://mxlgold.com/">
     <meta property="og:locale" content="en_US">
 
@@ -27,7 +25,7 @@
     <meta name="twitter:image" content="https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=1200">
 
     <!-- Schema.org -->
-    <script type="application/ld+json">
+    <script type="application/ld+json" id="schemaOrg">
     {
         "@context": "https://schema.org",
         "@type": "WebSite",
@@ -92,11 +90,27 @@
         }
         .section-title {
             font-family:'Playfair Display',serif; font-size:1.85rem;
-            text-align:center; color:#2c2418; margin-bottom:48px;
+            text-align:center; color:#2c2418; margin-bottom:32px;
         }
         .section-title::after {
             content:''; display:block; width:50px; height:2px;
             background:#c9a87b; margin:14px auto 0;
+        }
+
+        /* CATEGORY FILTERS */
+        .filters {
+            display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+            margin-bottom:36px;
+        }
+        .filter-btn {
+            background:white; border:1.5px solid #e8d5c8; color:#6b5a48;
+            padding:7px 18px; border-radius:40px; font-size:.75rem;
+            font-weight:600; cursor:pointer; transition:all .2s ease;
+            font-family:'DM Sans',sans-serif; letter-spacing:.3px;
+        }
+        .filter-btn:hover { border-color:#c9a87b; color:#2c2418; }
+        .filter-btn.active {
+            background:#1a1208; color:white; border-color:#1a1208;
         }
 
         /* GRID */
@@ -108,6 +122,11 @@
             background:white; border-radius:20px; overflow:hidden;
             box-shadow:0 4px 20px rgba(0,0,0,.06); border:1px solid #f0e2d8;
             transition:transform .3s ease, box-shadow .3s ease;
+            animation:fadeUp .4s ease both;
+        }
+        @keyframes fadeUp {
+            from { opacity:0; transform:translateY(16px); }
+            to   { opacity:1; transform:translateY(0); }
         }
         .card:hover { transform:translateY(-5px); box-shadow:0 14px 40px rgba(0,0,0,.12); }
 
@@ -129,7 +148,15 @@
             font-family:'Playfair Display',serif; font-size:1.05rem;
             line-height:1.45; margin:10px 0 8px; color:#1a1208;
         }
+        .card-title a { color:inherit; text-decoration:none; }
+        .card-title a:hover { color:#ff4500; }
         .card-text { font-size:.875rem; color:#6b5a48; line-height:1.65; }
+
+        /* TIMESTAMP */
+        .card-time {
+            font-size:.65rem; color:#b0967a; margin-top:8px;
+            display:flex; align-items:center; gap:4px;
+        }
 
         /* SOCIAL PROOF */
         .views-badge {
@@ -170,6 +197,19 @@
         }
         .btn-pill:hover { background:#1a1208; }
 
+        /* LOAD MORE */
+        .load-more-wrap { text-align:center; margin-top:36px; }
+        .btn-load-more {
+            background:white; border:2px solid #e8d5c8; color:#6b5a48;
+            padding:12px 36px; border-radius:40px; font-size:.85rem;
+            font-weight:600; cursor:pointer; transition:all .25s;
+            font-family:'DM Sans',sans-serif;
+        }
+        .btn-load-more:hover { border-color:#c9a87b; color:#1a1208; background:#faf7f3; }
+        .btn-load-more:disabled { opacity:.5; cursor:default; }
+        .btn-load-more.loading::after { content:' ···'; animation:dots 1s infinite; }
+        @keyframes dots { 0%,100%{opacity:1} 50%{opacity:.3} }
+
         /* NEWS CARD */
         .news-card {
             background:white; border-radius:16px; overflow:hidden;
@@ -189,6 +229,70 @@
         /* EMPTY / LOADER */
         .loader { text-align:center; padding:50px 20px; color:#c9a87b; grid-column:1/-1; font-size:.9rem; }
 
+        /* ── PRODUCT PAGE ── */
+        #productPage { display:none; }
+        .product-page-wrap {
+            max-width:900px; margin:0 auto; padding:60px 20px;
+        }
+        .product-back {
+            display:inline-flex; align-items:center; gap:8px;
+            color:#c9a87b; font-size:.8rem; font-weight:600;
+            cursor:pointer; margin-bottom:36px; text-decoration:none;
+            transition:color .2s;
+        }
+        .product-back:hover { color:#ff4500; }
+        .product-hero {
+            display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start;
+        }
+        .product-img-wrap {
+            background:white; border-radius:20px; padding:24px;
+            box-shadow:0 8px 32px rgba(0,0,0,.08); border:1px solid #f0e2d8;
+            position:sticky; top:24px;
+        }
+        .product-img-wrap img {
+            width:100%; max-height:420px; object-fit:contain;
+        }
+        .product-info {}
+        .product-category {
+            display:inline-block; background:#f7ede8; color:#ff4500;
+            font-size:.65rem; padding:4px 14px; border-radius:20px;
+            font-weight:700; text-transform:uppercase; letter-spacing:.8px;
+            margin-bottom:16px;
+        }
+        .product-title {
+            font-family:'Playfair Display',serif; font-size:clamp(1.5rem,3vw,2.2rem);
+            line-height:1.25; color:#1a1208; margin-bottom:16px;
+        }
+        .product-meta-line {
+            font-size:.8rem; color:#b0967a; margin-bottom:24px;
+            display:flex; gap:16px; flex-wrap:wrap; align-items:center;
+        }
+        .product-desc {
+            font-size:1rem; color:#4a3a28; line-height:1.8;
+            margin-bottom:28px; padding:20px; background:#faf7f3;
+            border-radius:12px; border-left:3px solid #c9a87b;
+        }
+        .product-cta {
+            display:block; background:#ff4500; color:white;
+            padding:16px 32px; border-radius:40px; text-align:center;
+            text-decoration:none; font-weight:700; font-size:1rem;
+            transition:background .25s ease, transform .15s ease;
+            margin-bottom:16px; border:none; cursor:pointer; width:100%;
+        }
+        .product-cta:hover { background:#1a1208; transform:translateY(-2px); }
+        .product-guarantee {
+            font-size:.72rem; color:#b0967a; text-align:center;
+            display:flex; align-items:center; justify-content:center; gap:6px;
+        }
+        .product-clicks { font-size:.75rem; color:#ff4500; font-weight:600; }
+
+        @media(max-width:768px) {
+            .grid, .grid-news { grid-template-columns:1fr; }
+            .hero { padding:60px 20px; }
+            .product-hero { grid-template-columns:1fr; }
+            .product-img-wrap { position:static; }
+        }
+
         /* FOOTER */
         footer {
             background:#110e08; color:#6b5a40; text-align:center;
@@ -199,17 +303,12 @@
             max-width:680px; margin:16px auto 0; font-size:.68rem;
             color:#4a3a24; line-height:1.8;
         }
-
-        @media(max-width:768px) {
-            .grid, .grid-news { grid-template-columns:1fr; }
-            .hero { padding:60px 20px; }
-        }
     </style>
 </head>
 <body>
 
-<!-- HERO -->
-<header class="hero">
+<!-- HERO (hidden on product pages) -->
+<header class="hero" id="mainHero">
     <p class="hero-eyebrow">✦ The insider's guide to luxury living ✦</p>
     <h1>The Luxury Secrets<br><em>Elite Women</em> Keep to Themselves</h1>
     <p class="hero-sub">Curated for women who demand the best — from Manhattan penthouses to London townhouses.</p>
@@ -219,7 +318,9 @@
     </div>
 </header>
 
-<main class="container">
+<!-- MAIN FEED (home) -->
+<main id="mainFeed">
+<div class="container">
 
     <!-- INSIGHTS -->
     <section class="section" aria-label="Luxury lifestyle insights">
@@ -228,14 +329,34 @@
         <div id="insightsGrid" class="grid" role="list">
             <div class="loader">Curating luxury insights...</div>
         </div>
+        <div class="load-more-wrap" id="insightsMore" style="display:none">
+            <button class="btn-load-more" id="btnInsightsMore" onclick="loadMoreInsights()">Load more insights</button>
+        </div>
     </section>
 
     <!-- PRODUCTS -->
     <section class="section" aria-label="Exclusive luxury products on Amazon">
         <p class="section-label">✦ Exclusive Finds ✦</p>
         <h2 class="section-title">Shop the Elite Edit</h2>
+
+        <!-- Category filters -->
+        <div class="filters" id="categoryFilters">
+            <button class="filter-btn active" data-cat="ALL" onclick="filterProducts('ALL',this)">All</button>
+            <button class="filter-btn" data-cat="LUXURY" onclick="filterProducts('LUXURY',this)">Luxury</button>
+            <button class="filter-btn" data-cat="SMART HOME" onclick="filterProducts('SMART HOME',this)">Smart Home</button>
+            <button class="filter-btn" data-cat="KITCHEN" onclick="filterProducts('KITCHEN',this)">Kitchen</button>
+            <button class="filter-btn" data-cat="WELLNESS" onclick="filterProducts('WELLNESS',this)">Wellness</button>
+            <button class="filter-btn" data-cat="FASHION" onclick="filterProducts('FASHION',this)">Fashion</button>
+            <button class="filter-btn" data-cat="TECH" onclick="filterProducts('TECH',this)">Tech</button>
+            <button class="filter-btn" data-cat="BEDROOM" onclick="filterProducts('BEDROOM',this)">Bedroom</button>
+            <button class="filter-btn" data-cat="OUTDOOR" onclick="filterProducts('OUTDOOR',this)">Outdoor</button>
+        </div>
+
         <div id="productsGrid" class="grid" role="list">
             <div class="loader">Loading exclusive products...</div>
+        </div>
+        <div class="load-more-wrap" id="productsMore" style="display:none">
+            <button class="btn-load-more" id="btnProductsMore" onclick="loadMoreProducts()">Load more products</button>
         </div>
     </section>
 
@@ -248,7 +369,16 @@
         </div>
     </section>
 
+</div>
 </main>
+
+<!-- PRODUCT PAGE -->
+<div id="productPage">
+    <div class="product-page-wrap">
+        <a class="product-back" onclick="goHome()">← Back to MXL Gold</a>
+        <div id="productContent"><div class="loader">Loading product...</div></div>
+    </div>
+</div>
 
 <footer>
     <p><strong style="color:#c9a87b;">MXL Gold</strong> — Luxury Lifestyle & Exclusive Finds</p>
@@ -261,7 +391,30 @@
 </footer>
 
 <script>
-// ── Click tracking ──
+// ── STATE ──────────────────────────────────────────────────
+const state = {
+    insightsPage: 1,
+    insightsHasMore: false,
+    insightsLoading: false,
+    productsPage: 1,
+    productsHasMore: false,
+    productsLoading: false,
+    activeCategory: 'ALL'
+};
+
+// ── TIME HELPERS ──────────────────────────────────────────
+function timeAgo(dateStr) {
+    const now = new Date();
+    const date = new Date(dateStr);
+    const diff = Math.floor((now - date) / 1000);
+    if (diff < 60)   return 'Just now';
+    if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+    if (diff < 604800) return `${Math.floor(diff/86400)}d ago`;
+    return date.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+}
+
+// ── CLICK TRACKING ────────────────────────────────────────
 async function trackClick(productId, url) {
     try {
         await fetch('/api/track/click', {
@@ -273,77 +426,231 @@ async function trackClick(productId, url) {
     window.open(url, '_blank', 'noopener noreferrer');
 }
 
-// ── Insights (formerly curiosidades) ──
-async function loadInsights() {
+// ── ROUTING ───────────────────────────────────────────────
+function goHome() {
+    history.pushState({}, '', '/');
+    showHome();
+}
+
+function goProduct(id) {
+    history.pushState({ productId: id }, '', `/product/${id}`);
+    showProduct(id);
+}
+
+function showHome() {
+    document.getElementById('mainHero').style.display = '';
+    document.getElementById('mainFeed').style.display = '';
+    document.getElementById('productPage').style.display = 'none';
+    document.title = 'MXL Gold | Luxury Home & Lifestyle Secrets 2026';
+}
+
+async function showProduct(id) {
+    document.getElementById('mainHero').style.display = 'none';
+    document.getElementById('mainFeed').style.display = 'none';
+    document.getElementById('productPage').style.display = 'block';
+    document.getElementById('productContent').innerHTML = '<div class="loader">Loading product...</div>';
+    window.scrollTo(0,0);
+
     try {
-        const data = await fetch('/api/curiosidades').then(r => r.json());
-        const grid = document.getElementById('insightsGrid');
-        if (!data?.length) {
+        const p = await fetch(`/api/productos/${id}`).then(r => r.json());
+        if (p.error) {
+            document.getElementById('productContent').innerHTML = '<div class="loader">Product not found.</div>';
+            return;
+        }
+
+        // Update meta for SEO
+        document.title = `${p.titulo} | MXL Gold`;
+        document.getElementById('pageDesc').content = p.meta || '';
+        document.getElementById('ogTitle').content = p.titulo;
+        document.getElementById('ogDesc').content = p.meta || '';
+        document.getElementById('ogImage').content = p.imagen || '';
+
+        // Product Schema
+        document.getElementById('schemaOrg').textContent = JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": p.titulo,
+            "image": p.imagen,
+            "description": p.curiosidad || p.meta,
+            "offers": {
+                "@type": "Offer",
+                "url": p.link,
+                "availability": "https://schema.org/InStock",
+                "seller": { "@type": "Organization", "name": "Amazon" }
+            }
+        });
+
+        document.getElementById('productContent').innerHTML = `
+            <div class="product-hero">
+                <div class="product-img-wrap">
+                    <img src="${p.imagen}" alt="${p.titulo}" loading="eager"
+                         onerror="this.src='https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=600'">
+                </div>
+                <div class="product-info">
+                    <span class="product-category">${p.categoria || 'LUXURY'}</span>
+                    <h1 class="product-title">${p.titulo}</h1>
+                    <div class="product-meta-line">
+                        <span>🕐 ${timeAgo(p.fecha)}</span>
+                        ${p.clics > 0 ? `<span class="product-clicks">🔥 ${p.clics} people viewed this</span>` : ''}
+                    </div>
+                    ${p.curiosidad ? `<div class="product-desc">${p.curiosidad}</div>` : ''}
+                    ${p.meta ? `<p style="font-size:.85rem;color:#6b5a48;margin-bottom:24px;line-height:1.7;">${p.meta}</p>` : ''}
+                    <button class="product-cta" onclick="trackClick(${p.id},'${p.link}')">
+                        View on Amazon →
+                    </button>
+                    <p class="product-guarantee">
+                        🔒 Secure Amazon checkout &nbsp;·&nbsp; Prime eligible
+                    </p>
+                </div>
+            </div>
+        `;
+    } catch(e) {
+        document.getElementById('productContent').innerHTML = '<div class="loader">Error loading product.</div>';
+    }
+}
+
+window.addEventListener('popstate', (e) => {
+    const match = location.pathname.match(/^\/product\/(\d+)$/);
+    if (match) showProduct(match[1]);
+    else showHome();
+});
+
+// ── INSIGHTS ─────────────────────────────────────────────
+function renderInsightCard(c) {
+    const relatedHTML = c.producto_link ? `
+        <div class="related-block">
+            <img src="${c.producto_imagen || ''}"
+                 alt="${c.producto_titulo || 'Related product'}" loading="lazy"
+                 onerror="this.src='https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=200'">
+            <div class="related-block-info">
+                <div class="related-eyebrow">✨ Found on Amazon</div>
+                <div class="related-name">${c.producto_titulo || ''}</div>
+                <button class="btn-pill" onclick="trackClick(${c.producto_id_ref},'${c.producto_link}')">
+                    See price →
+                </button>
+            </div>
+        </div>` : '';
+
+    return `
+    <article class="card" role="listitem" itemscope itemtype="https://schema.org/Article">
+        <div class="card-img">
+            <img src="${c.imagen}" alt="${c.titulo_es}" loading="lazy" itemprop="image"
+                 onerror="this.src='https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=600'">
+        </div>
+        <div class="card-body">
+            <h3 class="card-title" itemprop="headline">${c.titulo_es}</h3>
+            <p class="card-text" itemprop="articleBody">${c.texto_es}</p>
+            <div class="card-time">🕐 ${timeAgo(c.fecha)}</div>
+            ${relatedHTML}
+        </div>
+    </article>`;
+}
+
+async function loadInsights(append = false) {
+    if (state.insightsLoading) return;
+    state.insightsLoading = true;
+
+    const grid = document.getElementById('insightsGrid');
+    if (!append) grid.innerHTML = '<div class="loader">Curating luxury insights...</div>';
+    else {
+        const btn = document.getElementById('btnInsightsMore');
+        btn.disabled = true; btn.classList.add('loading');
+    }
+
+    try {
+        const data = await fetch(`/api/curiosidades?page=${state.insightsPage}&limit=9`).then(r => r.json());
+        if (!data?.items?.length && !append) {
             grid.innerHTML = '<div class="loader">Generating luxury insights with AI... check back shortly.</div>';
             return;
         }
-        grid.innerHTML = data.map(c => {
-            const relatedHTML = c.producto_link ? `
-                <div class="related-block">
-                    <img src="${c.producto_imagen || ''}"
-                         alt="${c.producto_titulo || 'Related product'}" loading="lazy"
-                         onerror="this.src='https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=200'">
-                    <div class="related-block-info">
-                        <div class="related-eyebrow">✨ Found on Amazon</div>
-                        <div class="related-name">${c.producto_titulo || ''}</div>
-                        <button class="btn-pill" onclick="trackClick(${c.producto_id_ref},'${c.producto_link}')">
-                            See price →
-                        </button>
-                    </div>
-                </div>` : '';
+        if (!append) grid.innerHTML = '';
+        grid.insertAdjacentHTML('beforeend', data.items.map(renderInsightCard).join(''));
 
-            return `
-            <article class="card" role="listitem" itemscope itemtype="https://schema.org/Article">
-                <div class="card-img">
-                    <img src="${c.imagen}" alt="${c.titulo_es}" loading="lazy" itemprop="image"
-                         onerror="this.src='https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=600'">
-                </div>
-                <div class="card-body">
-                    <h3 class="card-title" itemprop="headline">${c.titulo_es}</h3>
-                    <p class="card-text" itemprop="articleBody">${c.texto_es}</p>
-                    ${relatedHTML}
-                </div>
-            </article>`;
-        }).join('');
+        state.insightsHasMore = data.hasMore;
+        const moreWrap = document.getElementById('insightsMore');
+        const btn = document.getElementById('btnInsightsMore');
+        moreWrap.style.display = data.hasMore ? 'block' : 'none';
+        if (btn) { btn.disabled = false; btn.classList.remove('loading'); }
     } catch(e) { console.error(e); }
+    finally { state.insightsLoading = false; }
 }
 
-// ── Products ──
-async function loadProducts() {
+function loadMoreInsights() {
+    state.insightsPage++;
+    loadInsights(true);
+}
+
+// ── PRODUCTS ─────────────────────────────────────────────
+function renderProductCard(p) {
+    return `
+    <article class="card" role="listitem" id="card-${p.id}"
+             itemscope itemtype="https://schema.org/Product">
+        <div class="card-img contain" onclick="goProduct(${p.id})" style="cursor:pointer">
+            <img src="${p.imagen}" alt="${p.titulo} — Luxury product" loading="lazy" itemprop="image"
+                 onerror="this.src='https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=600'">
+        </div>
+        <div class="card-body">
+            <span class="card-tag">${p.categoria || 'LUXURY'}</span>
+            ${p.clics > 0 ? `<div class="views-badge">🔥 ${p.clics} people viewed this today</div>` : ''}
+            <h3 class="card-title" itemprop="name">
+                <a href="/product/${p.id}" onclick="goProduct(${p.id});return false;">${p.titulo}</a>
+            </h3>
+            <p class="card-text" itemprop="description">${p.curiosidad || ''}</p>
+            <div class="card-time">🕐 ${timeAgo(p.fecha)}</div>
+            <button class="btn-primary" onclick="trackClick(${p.id},'${p.link}')" itemprop="url">
+                View on Amazon →
+            </button>
+        </div>
+    </article>`;
+}
+
+async function loadProducts(append = false) {
+    if (state.productsLoading) return;
+    state.productsLoading = true;
+
+    const grid = document.getElementById('productsGrid');
+    if (!append) grid.innerHTML = '<div class="loader">Loading exclusive products...</div>';
+    else {
+        const btn = document.getElementById('btnProductsMore');
+        btn.disabled = true; btn.classList.add('loading');
+    }
+
     try {
-        const products = await fetch('/api/productos').then(r => r.json());
-        const grid = document.getElementById('productsGrid');
-        if (!products?.length) {
-            grid.innerHTML = '<div class="loader">No products yet. Inject your first product from the MXL panel.</div>';
+        const catParam = state.activeCategory !== 'ALL' ? `&categoria=${encodeURIComponent(state.activeCategory)}` : '';
+        const data = await fetch(`/api/productos?page=${state.productsPage}&limit=12${catParam}`).then(r => r.json());
+
+        if (!data?.items?.length && !append) {
+            grid.innerHTML = '<div class="loader">No products in this category yet.</div>';
+            document.getElementById('productsMore').style.display = 'none';
             return;
         }
-        grid.innerHTML = products.map(p => `
-            <article class="card" role="listitem" id="product-${p.id}"
-                     itemscope itemtype="https://schema.org/Product">
-                <div class="card-img contain">
-                    <img src="${p.imagen}" alt="${p.titulo} — Luxury product" loading="lazy" itemprop="image"
-                         onerror="this.src='https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=600'">
-                </div>
-                <div class="card-body">
-                    <span class="card-tag">${p.categoria || 'LUXURY'}</span>
-                    ${p.clics > 0 ? `<div class="views-badge">🔥 ${p.clics} people viewed this today</div>` : ''}
-                    <h3 class="card-title" itemprop="name">${p.titulo}</h3>
-                    <p class="card-text" itemprop="description">${p.curiosidad || ''}</p>
-                    <button class="btn-primary" onclick="trackClick(${p.id},'${p.link}')" itemprop="url">
-                        View on Amazon →
-                    </button>
-                </div>
-            </article>
-        `).join('');
+        if (!append) grid.innerHTML = '';
+        grid.insertAdjacentHTML('beforeend', data.items.map(renderProductCard).join(''));
+
+        state.productsHasMore = data.hasMore;
+        const moreWrap = document.getElementById('productsMore');
+        const btn = document.getElementById('btnProductsMore');
+        moreWrap.style.display = data.hasMore ? 'block' : 'none';
+        if (btn) { btn.disabled = false; btn.classList.remove('loading'); }
     } catch(e) { console.error(e); }
+    finally { state.productsLoading = false; }
 }
 
-// ── News ──
+function loadMoreProducts() {
+    state.productsPage++;
+    loadProducts(true);
+}
+
+function filterProducts(cat, btnEl) {
+    if (state.activeCategory === cat) return;
+    state.activeCategory = cat;
+    state.productsPage = 1;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+    loadProducts(false);
+}
+
+// ── NEWS ─────────────────────────────────────────────────
 async function loadNews() {
     try {
         const data = await fetch('/api/noticias').then(r => r.json());
@@ -360,6 +667,7 @@ async function loadNews() {
                     <div class="news-source">${n.fuente}</div>
                     <h3 class="news-title">${n.titulo}</h3>
                     <p class="news-text">${n.resumen}</p>
+                    <div class="card-time" style="margin-top:8px;">🕐 ${timeAgo(n.fecha)}</div>
                     ${n.link ? `<a href="${n.link}" class="news-link" target="_blank" rel="noopener">Read more →</a>` : ''}
                 </div>
             </article>
@@ -367,11 +675,30 @@ async function loadNews() {
     } catch(e) { console.error(e); }
 }
 
-// Init
-loadInsights();
-loadProducts();
-loadNews();
-setInterval(() => { loadInsights(); loadProducts(); loadNews(); }, 60000);
+// ── INIT ─────────────────────────────────────────────────
+function init() {
+    const match = location.pathname.match(/^\/product\/(\d+)$/);
+    if (match) {
+        showProduct(match[1]);
+    } else {
+        showHome();
+        loadInsights();
+        loadProducts();
+        loadNews();
+        setInterval(() => {
+            if (location.pathname === '/') {
+                // Only auto-refresh first pages silently
+                fetch('/api/curiosidades?page=1&limit=9').then(r=>r.json()).then(data=>{
+                    if (data?.items?.length) {
+                        document.getElementById('insightsGrid').innerHTML = data.items.map(renderInsightCard).join('');
+                    }
+                }).catch(()=>{});
+            }
+        }, 60000);
+    }
+}
+
+init();
 </script>
 </body>
 </html>
