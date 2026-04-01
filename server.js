@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 8080;
 // ============================================================
 const AFFILIATE_TAG = process.env.AMAZON_AFFILIATE_TAG || 'mxlgold-20';
 
-function agregarAffiliateTag(url) {
+function addAffiliateTag(url) {
     if (!url) return url;
     try {
         const u = new URL(url);
@@ -28,14 +28,8 @@ app.use(compression());
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// ============================================================
-// HEALTH CHECK
-// ============================================================
-app.get('/health', (req, res) => res.json({ status: 'ok', version: '6.0' }));
+app.get('/health', (req, res) => res.json({ status: 'ok', version: '7.0' }));
 
-// ============================================================
-// ROBOTS.TXT — Google sabe qué indexar
-// ============================================================
 app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
     res.send(`User-agent: *\nAllow: /\nDisallow: /mxl-panel-2026.html\nDisallow: /api/commander/\n\nSitemap: https://${req.headers.host}/sitemap.xml`);
@@ -49,9 +43,9 @@ const db = new Pool({
     ssl: { rejectUnauthorized: false }
 });
 
-const cache = { productos: null, curiosidades: null, noticias: null, ts: {} };
+const cache = { products: null, insights: null, news: null, ts: {} };
 const CACHE_TTL = 60 * 1000;
-function cacheValido(key) {
+function cacheValid(key) {
     return cache[key] && cache.ts[key] && (Date.now() - cache.ts[key] < CACHE_TTL);
 }
 
@@ -80,21 +74,22 @@ async function initDB() {
         `);
         await db.query(`
             CREATE TABLE IF NOT EXISTS clics (
-                id BIGSERIAL PRIMARY KEY, producto_id BIGINT, tipo VARCHAR(20) DEFAULT 'producto',
+                id BIGSERIAL PRIMARY KEY, producto_id BIGINT,
+                tipo VARCHAR(20) DEFAULT 'product',
                 fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
-        // Migracion segura — añadir columnas si la tabla ya existia
+        // Safe migrations
         await db.query(`ALTER TABLE articulos ADD COLUMN IF NOT EXISTS clics INT DEFAULT 0`).catch(() => {});
         await db.query(`ALTER TABLE articulos ADD COLUMN IF NOT EXISTS keyword TEXT`).catch(() => {});
         await db.query(`ALTER TABLE curiosidades ADD COLUMN IF NOT EXISTS keyword TEXT`).catch(() => {});
         await db.query(`ALTER TABLE curiosidades ADD COLUMN IF NOT EXISTS producto_id BIGINT`).catch(() => {});
-        console.log('✅ DB Lista v6.0');
-    } catch (e) { console.error('❌ Error DB:', e.message); }
+        console.log('✅ DB Ready v7.0');
+    } catch (e) { console.error('❌ DB Error:', e.message); }
 }
 
 // ============================================================
-// MOTOR GEMINI — ROTACIÓN 3 KEYS
+// GEMINI — ROTATE 3 KEYS
 // ============================================================
 const geminiKeys = [
     process.env.GEMINI_API_KEY_CONTENT,
@@ -112,15 +107,15 @@ async function generateContent(prompt) {
             const result = await model.generateContent(prompt);
             geminiIndex = (geminiIndex + i + 1) % geminiKeys.length;
             return result.response.text().replace(/```json|```/g, '').trim();
-        } catch (e) { console.warn(`⚠️ Gemini key ${i} falló: ${e.message}`); }
+        } catch (e) { console.warn(`⚠️ Gemini key ${i} failed: ${e.message}`); }
     }
-    throw new Error('Todos los motores Gemini fallaron');
+    throw new Error('All Gemini keys failed');
 }
 
 // ============================================================
-// IMÁGENES: Pexels → Unsplash → Fija
+// IMAGES: Pexels → Unsplash → Fallback
 // ============================================================
-async function buscarImagenPexels(keyword) {
+async function fetchPexels(keyword) {
     const key = process.env.PEXELS_API_KEY;
     if (!key) return null;
     try {
@@ -130,11 +125,11 @@ async function buscarImagenPexels(keyword) {
         });
         const data = await res.json();
         if (data.photos?.length > 0) return data.photos[Math.floor(Math.random() * data.photos.length)].src.large;
-    } catch (e) { console.warn('Pexels falló:', e.message); }
+    } catch (e) { console.warn('Pexels failed:', e.message); }
     return null;
 }
 
-async function buscarImagenUnsplash(keyword) {
+async function fetchUnsplash(keyword) {
     const key = process.env.UNSPLASH_ACCESS_KEY;
     if (!key) return null;
     try {
@@ -144,22 +139,22 @@ async function buscarImagenUnsplash(keyword) {
         });
         const data = await res.json();
         if (data.results?.length > 0) return data.results[Math.floor(Math.random() * data.results.length)].urls.regular;
-    } catch (e) { console.warn('Unsplash falló:', e.message); }
+    } catch (e) { console.warn('Unsplash failed:', e.message); }
     return null;
 }
 
-async function obtenerImagen(keyword) {
-    const img = await buscarImagenPexels(keyword) || await buscarImagenUnsplash(keyword);
+async function getImage(keyword) {
+    const img = await fetchPexels(keyword) || await fetchUnsplash(keyword);
     if (img) return img;
-    const fijas = ['280229','258154','1643383','323780','1571460','2093107','1457842','276724'];
-    const id = fijas[Math.floor(Math.random() * fijas.length)];
+    const fallback = ['280229','258154','1643383','323780','1571460','2093107','1457842','276724'];
+    const id = fallback[Math.floor(Math.random() * fallback.length)];
     return `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=1200`;
 }
 
 // ============================================================
-// HELPER — Producto relacionado por keyword
+// HELPER — Find related product by keyword
 // ============================================================
-async function encontrarProductoRelacionado(keyword) {
+async function findRelatedProduct(keyword) {
     try {
         const words = keyword.toLowerCase().split(' ').filter(w => w.length > 3);
         if (!words.length) return null;
@@ -173,114 +168,128 @@ async function encontrarProductoRelacionado(keyword) {
 }
 
 // ============================================================
-// PILOTO — Curiosidades SEO linkadas a producto
+// AUTO-PILOT — Insights (formerly curiosidades) in ENGLISH
+// Targeting USA + Europe high-income women
 // ============================================================
-const TEMAS_SEO = [
-    { tema: 'best luxury kitchen appliances Amazon 2026', keyword: 'luxury kitchen appliances' },
-    { tema: 'smart home gadgets millionaires NYC buy', keyword: 'smart home luxury' },
-    { tema: 'luxury bedroom upgrade products Amazon', keyword: 'luxury bedroom decor' },
-    { tema: 'wine cooler refrigerator luxury home bar', keyword: 'luxury wine cooler' },
-    { tema: 'best air purifier luxury apartment', keyword: 'luxury air purifier home' },
-    { tema: 'luxury coffee maker espresso machine Amazon', keyword: 'luxury espresso machine' },
-    { tema: 'heated towel rack bathroom luxury Amazon', keyword: 'heated towel rack luxury' },
-    { tema: 'smart lighting luxury home Philips Hue', keyword: 'smart lighting luxury home' },
-    { tema: 'luxury mattress sleep quality Amazon 2026', keyword: 'luxury mattress brand' },
-    { tema: 'high end vacuum cleaner luxury apartment', keyword: 'luxury vacuum cleaner' },
-    { tema: 'outdoor luxury furniture patio Manhattan', keyword: 'luxury outdoor furniture' },
-    { tema: 'luxury candle home fragrance Amazon bestseller', keyword: 'luxury candle home decor' },
+const SEO_TOPICS = [
+    { topic: 'best luxury kitchen appliances Amazon 2026', keyword: 'luxury kitchen appliances' },
+    { topic: 'smart home gadgets wealthy women NYC buy', keyword: 'smart home luxury gadgets' },
+    { topic: 'luxury bedroom upgrade Amazon best sellers', keyword: 'luxury bedroom products' },
+    { topic: 'best wine cooler refrigerator luxury home bar', keyword: 'luxury wine cooler' },
+    { topic: 'best air purifier luxury apartment 2026', keyword: 'luxury air purifier home' },
+    { topic: 'luxury espresso machine coffee maker Amazon', keyword: 'luxury espresso machine' },
+    { topic: 'heated towel warmer rack bathroom luxury', keyword: 'heated towel rack luxury' },
+    { topic: 'smart lighting luxury home interior design', keyword: 'smart lighting luxury home' },
+    { topic: 'luxury mattress best sleep quality 2026', keyword: 'luxury mattress brand' },
+    { topic: 'best robotic vacuum luxury apartment women', keyword: 'luxury robotic vacuum' },
+    { topic: 'outdoor luxury patio furniture Manhattan penthouse', keyword: 'luxury outdoor furniture' },
+    { topic: 'luxury scented candle home fragrance Amazon', keyword: 'luxury scented candle home' },
+    { topic: 'best luxury skincare devices home use', keyword: 'luxury skincare device' },
+    { topic: 'high end standing desk home office luxury', keyword: 'luxury home office desk' },
+    { topic: 'luxury throw blanket cashmere Amazon bestseller', keyword: 'cashmere throw blanket luxury' },
 ];
-let temaIndex = 0;
 
-async function publicarCuriosidadViral() {
+let topicIndex = 0;
+
+async function publishInsight() {
     if (!geminiKeys.length) return;
-    console.log('⏰ [CRON] Generando curiosidad SEO...');
+    console.log('⏰ [CRON] Generating SEO insight...');
     try {
-        const temaActual = TEMAS_SEO[temaIndex % TEMAS_SEO.length];
-        temaIndex++;
+        const topic = SEO_TOPICS[topicIndex % SEO_TOPICS.length];
+        topicIndex++;
 
-        const prompt = `Eres experto en SEO, marketing de afiliados Amazon y copywriting de lujo.
+        const prompt = `You are an expert in SEO copywriting, Amazon affiliate marketing, and luxury lifestyle content.
 
-TEMA: "${temaActual.tema}"
-AUDIENCIA: Mujeres 35-55, alto poder adquisitivo, NYC/Miami/Beverly Hills.
+TARGET AUDIENCE: High-income women aged 35–55 living in New York, Los Angeles, Miami, London, or Paris.
+They shop on Amazon, read Architectural Digest and Vogue Living, and expect premium quality.
 
-OBJETIVO: Artículo que rankee en Google Y genere clics hacia Amazon.
+TOPIC: "${topic.topic}"
 
-REGLAS:
-- titulo_es: Título tipo Vogue Living con keyword real. Máx 12 palabras. Ej: "Las 5 Cafeteras de Lujo Que Todo Penthouse en NYC Necesita en 2026"
-- texto_es: 3 oraciones. (1) Dato o estadística real. (2) Por qué la élite lo quiere. (3) CTA suave: termina con "Lo encuentras en Amazon por menos de lo que imaginas." Máx 100 palabras.
-- keyword: Lo que alguien escribe en Google para comprar esto (inglés, 3-5 palabras).
-- PROHIBIDO: Títulos abstractos o filosóficos sin producto real.
+YOUR GOAL:
+1. SEO: Write a title containing exact keywords people search on Google (include 2026 if relevant).
+2. Conversion: The body text must spark desire and naturally guide the reader toward Amazon.
 
-SOLO JSON sin markdown: {"titulo_es":"...","texto_es":"...","keyword":"..."}`;
+STRICT RULES:
+- title: Magazine-style headline, max 12 words. Example: "The 5 Luxury Wine Coolers Every Manhattan Penthouse Needs in 2026"
+- body: Exactly 3 sentences. (1) A surprising fact or real statistic. (2) Why elite women in NYC or London want this. (3) Soft call-to-action ending with: "Find it on Amazon for less than you'd expect."
+- keyword: Exactly what someone types in Google to BUY this (3–5 words, English).
+- FORBIDDEN: Abstract, philosophical, or fictional titles. Must reference a REAL product category.
+- Write ONLY in English. Zero Spanish words.
+
+Respond ONLY with raw JSON, no markdown:
+{"title": "...", "body": "...", "keyword": "..."}`;
 
         const raw = await generateContent(prompt);
         const data = JSON.parse(raw);
-        const imagen = await obtenerImagen(data.keyword || temaActual.keyword);
-        const productoRelacionado = await encontrarProductoRelacionado(data.keyword || temaActual.keyword);
+        const image = await getImage(data.keyword || topic.keyword);
+        const related = await findRelatedProduct(data.keyword || topic.keyword);
 
         await db.query(
             `INSERT INTO curiosidades (id, titulo_es, texto_es, imagen, keyword, producto_id, fecha)
              VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-            [Date.now(), data.titulo_es, data.texto_es, imagen,
-             data.keyword, productoRelacionado?.id || null, new Date().toISOString()]
+            [Date.now(), data.title, data.body, image,
+             data.keyword, related?.id || null, new Date().toISOString()]
         );
-        cache.curiosidades = null;
-        console.log(`✨ Curiosidad: "${data.titulo_es}" → Producto: ${productoRelacionado?.titulo || 'sin enlace aun'}`);
-    } catch (e) { console.error('❌ Error curiosidad:', e.message); }
+        cache.insights = null;
+        console.log(`✨ [SEO] Insight: "${data.title}" → Product: ${related?.titulo || 'none yet'}`);
+    } catch (e) { console.error('❌ Insight error:', e.message); }
 }
 
 // ============================================================
-// PILOTO — Noticias de lujo
+// AUTO-PILOT — Luxury News in ENGLISH
 // ============================================================
-async function publicarNoticiaLujo() {
+async function publishLuxuryNews() {
     const newsKey = process.env.NEWS_API_KEY;
     if (!newsKey || !geminiKeys.length) return;
     try {
-        const queries = ['luxury home', 'luxury lifestyle NYC', 'elite real estate Manhattan'];
+        const queries = ['luxury home decor', 'luxury lifestyle NYC', 'elite real estate London', 'luxury interior design'];
         const q = encodeURIComponent(queries[Math.floor(Math.random() * queries.length)]);
         const res = await fetch(
             `https://newsapi.org/v2/everything?q=${q}&language=en&sortBy=publishedAt&pageSize=5`,
             { headers: { 'X-Api-Key': newsKey } }
         );
         const data = await res.json();
-        const articulo = data.articles?.find(a => a.title && a.description);
-        if (!articulo) return;
+        const article = data.articles?.find(a => a.title && a.description);
+        if (!article) return;
 
         const raw = await generateContent(
-            `Copywriter de lujo y SEO para afiliados Amazon. Reescribe para mujeres de alto poder adquisitivo NYC.
-             Título estilo Architectural Digest o Vogue Living. Resumen termina con CTA suave hacia Amazon.
-             Noticia: "${articulo.title} — ${articulo.description}"
-             SOLO JSON: {"titulo":"...","resumen":"...","keyword":"..."}`
+            `You are a luxury lifestyle copywriter and Amazon affiliate SEO expert.
+             Rewrite this news article for high-income women in NYC, London, and Paris.
+             The title must sound like Architectural Digest or Vogue Living.
+             The summary must end with a soft call-to-action toward Amazon.
+             Write ONLY in English. Zero Spanish words.
+             Article: "${article.title} — ${article.description}"
+             Respond ONLY raw JSON: {"title":"...","summary":"...","keyword":"..."}`
         );
         const copy = JSON.parse(raw);
-        const imagen = articulo.urlToImage || await obtenerImagen(copy.keyword || 'luxury');
+        const image = article.urlToImage || await getImage(copy.keyword || 'luxury home');
 
         await db.query(
             `INSERT INTO noticias (id, titulo, resumen, fuente, imagen, link, fecha) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-            [Date.now(), copy.titulo, copy.resumen, articulo.source?.name || 'MXL Gold', imagen, articulo.url, new Date().toISOString()]
+            [Date.now(), copy.title, copy.summary, article.source?.name || 'MXL Gold', image, article.url, new Date().toISOString()]
         );
-        cache.noticias = null;
-        console.log(`📰 Noticia: ${copy.titulo}`);
-    } catch (e) { console.error('❌ Error noticias:', e.message); }
+        cache.news = null;
+        console.log(`📰 News: ${copy.title}`);
+    } catch (e) { console.error('❌ News error:', e.message); }
 }
 
 // ============================================================
 // ENDPOINTS
 // ============================================================
 
-// 📊 TRACKING — registrar clic
+// Track click
 app.post('/api/track/click', async (req, res) => {
-    const { producto_id, tipo = 'producto' } = req.body;
+    const { producto_id, tipo = 'product' } = req.body;
     if (!producto_id) return res.status(400).json({ ok: false });
     try {
         await db.query(`UPDATE articulos SET clics = clics + 1 WHERE id = $1`, [producto_id]);
         await db.query(`INSERT INTO clics (producto_id, tipo) VALUES ($1, $2)`, [producto_id, tipo]);
-        cache.productos = null;
+        cache.products = null;
         res.json({ ok: true });
     } catch (e) { res.status(500).json({ ok: false }); }
 });
 
-// 📊 Top productos por clics (para Commander)
+// Top clicked products
 app.get('/api/track/top', async (req, res) => {
     try {
         const r = await db.query(`
@@ -295,39 +304,44 @@ app.get('/api/track/top', async (req, res) => {
     } catch (e) { res.status(500).json([]); }
 });
 
-// Inyectar producto
+// Inject product — generate English copy
 app.post('/api/commander/inject', async (req, res) => {
     const { url, imagenUrl, categoria, tituloReal } = req.body;
-    if (!geminiKeys.length || !tituloReal) return res.status(400).json({ success: false, error: 'Falta tituloReal o motor IA' });
+    if (!geminiKeys.length || !tituloReal) return res.status(400).json({ success: false, error: 'Missing product name or AI engine' });
     try {
         const raw = await generateContent(
-            `Copywriter experto afiliados Amazon y psicología de compra de lujo.
-             PRODUCTO: "${tituloReal}" — AUDIENCIA: Mujeres 35-55, NYC/Miami/Beverly Hills.
-             - titulo: Nombre elevado con adjetivo de lujo. Máx 10 palabras.
-             - meta: Beneficio principal, 20 palabras, para Google.
-             - curiosidad: 2-3 oraciones. Dato → exclusividad → urgencia suave. Máx 60 palabras.
-             - keyword: 3-4 palabras inglés para buscar en Google.
-             SOLO JSON: {"titulo":"...","meta":"...","curiosidad":"...","keyword":"..."}`
+            `You are an expert Amazon affiliate copywriter specializing in luxury products.
+             PRODUCT: "${tituloReal}"
+             TARGET: High-income women aged 35–55 in NYC, Miami, Los Angeles, London, Paris.
+
+             Write persuasive copy that sells without feeling salesy:
+             - title: Elevated product name with luxury adjective. Max 10 words. In English.
+             - meta: Main benefit in 20 words for Google. In English.
+             - teaser: 2–3 sentences. Opens with a fact or problem the product solves → exclusivity → subtle urgency. Max 60 words. In English.
+             - keyword: 3–4 English words someone would Google to buy this.
+
+             Write ONLY in English. Zero Spanish. Respond ONLY raw JSON:
+             {"title":"...","meta":"...","teaser":"...","keyword":"..."}`
         );
         const copy = JSON.parse(raw);
-        const imagen = imagenUrl || await obtenerImagen(copy.keyword || tituloReal);
-        const linkConTag = agregarAffiliateTag(url);
+        const image = imagenUrl || await getImage(copy.keyword || tituloReal);
+        const linkWithTag = addAffiliateTag(url);
 
         await db.query(
             `INSERT INTO articulos (id,asin,titulo,meta,curiosidad,imagen,categoria,link,keyword,clics,fecha)
              VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,0,$10)`,
-            [Date.now(),'MXL'+Date.now(),copy.titulo,copy.meta,copy.curiosidad,
-             imagen,categoria,linkConTag,copy.keyword,new Date().toISOString()]
+            [Date.now(),'MXL'+Date.now(), copy.title, copy.meta, copy.teaser,
+             image, categoria, linkWithTag, copy.keyword, new Date().toISOString()]
         );
-        cache.productos = null;
-        res.json({ success: true, producto: copy.titulo, affiliateTag: AFFILIATE_TAG, imagen });
+        cache.products = null;
+        res.json({ success: true, product: copy.title, affiliateTag: AFFILIATE_TAG, image });
     } catch (e) {
-        console.error('❌ Error inject:', e.message);
+        console.error('❌ Inject error:', e.message);
         res.status(500).json({ success: false, error: e.message });
     }
 });
 
-// Búsqueda Google desde Commander
+// Google search from Commander
 app.get('/api/commander/buscar', async (req, res) => {
     const { q } = req.query;
     const googleKey = process.env.GOOGLE_API_KEY;
@@ -348,23 +362,23 @@ app.delete('/api/productos/:id', async (req, res) => {
     try {
         await db.query('DELETE FROM articulos WHERE id = $1', [req.params.id]);
         await db.query('DELETE FROM clics WHERE producto_id = $1', [req.params.id]);
-        cache.productos = null;
+        cache.products = null;
         res.json({ success: true });
     } catch (e) { res.status(500).json({ success: false }); }
 });
 
 app.get('/api/productos', async (req, res) => {
-    if (cacheValido('productos')) return res.json(cache.productos);
+    if (cacheValid('products')) return res.json(cache.products);
     const r = await db.query(`SELECT * FROM articulos ORDER BY fecha DESC LIMIT 100`);
-    cache.productos = r.rows; cache.ts.productos = Date.now();
+    cache.products = r.rows; cache.ts.products = Date.now();
     res.json(r.rows);
 });
 
-// Curiosidades con JOIN al producto relacionado
+// Insights with related product JOIN
 app.get('/api/curiosidades', async (req, res) => {
-    if (cacheValido('curiosidades')) return res.json(cache.curiosidades);
+    if (cacheValid('insights')) return res.json(cache.insights);
     const r = await db.query(`
-        SELECT c.*, 
+        SELECT c.*,
                a.titulo AS producto_titulo,
                a.link   AS producto_link,
                a.imagen AS producto_imagen,
@@ -373,20 +387,20 @@ app.get('/api/curiosidades', async (req, res) => {
         LEFT JOIN articulos a ON a.id = c.producto_id
         ORDER BY c.fecha DESC LIMIT 50
     `);
-    cache.curiosidades = r.rows; cache.ts.curiosidades = Date.now();
+    cache.insights = r.rows; cache.ts.insights = Date.now();
     res.json(r.rows);
 });
 
 app.get('/api/noticias', async (req, res) => {
-    if (cacheValido('noticias')) return res.json(cache.noticias);
+    if (cacheValid('news')) return res.json(cache.news);
     const r = await db.query(`SELECT * FROM noticias ORDER BY fecha DESC LIMIT 20`);
-    cache.noticias = r.rows; cache.ts.noticias = Date.now();
+    cache.news = r.rows; cache.ts.news = Date.now();
     res.json(r.rows);
 });
 
 app.get('/api/stats', async (req, res) => {
     try {
-        const [prods, curios, news, topClic] = await Promise.all([
+        const [prods, insights, news, topClick] = await Promise.all([
             db.query('SELECT COUNT(*) FROM articulos'),
             db.query('SELECT COUNT(*) FROM curiosidades'),
             db.query('SELECT COUNT(*) FROM noticias'),
@@ -394,11 +408,11 @@ app.get('/api/stats', async (req, res) => {
         ]);
         res.json({
             productos: parseInt(prods.rows[0].count),
-            curiosidades: parseInt(curios.rows[0].count),
+            curiosidades: parseInt(insights.rows[0].count),
             noticias: parseInt(news.rows[0].count),
-            topProducto: topClic.rows[0] || null,
+            topProducto: topClick.rows[0] || null,
             affiliateTag: AFFILIATE_TAG,
-            motor: geminiKeys.length ? `Gemini 2.5 Flash ✅ (${geminiKeys.length} keys)` : '❌ Sin API Key',
+            motor: geminiKeys.length ? `Gemini 2.5 Flash ✅ (${geminiKeys.length} keys)` : '❌ No API Key',
             pexels: process.env.PEXELS_API_KEY ? '✅' : '❌',
             unsplash: process.env.UNSPLASH_ACCESS_KEY ? '✅' : '❌',
             newsApi: process.env.NEWS_API_KEY ? '✅' : '❌',
@@ -412,11 +426,11 @@ app.get('/sitemap.xml', async (req, res) => {
     try {
         const r = await db.query('SELECT id, fecha FROM articulos ORDER BY fecha DESC LIMIT 200');
         const urls = r.rows.map(p =>
-            `<url><loc>${host}/#producto-${p.id}</loc><lastmod>${new Date(p.fecha).toISOString().split('T')[0]}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`
+            `<url><loc>${host}/#product-${p.id}</loc><lastmod>${new Date(p.fecha).toISOString().split('T')[0]}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`
         ).join('');
         res.header('Content-Type', 'application/xml');
         res.send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${host}/</loc><changefreq>hourly</changefreq><priority>1.0</priority></url>${urls}</urlset>`);
-    } catch (e) { res.status(500).send('Error sitemap'); }
+    } catch (e) { res.status(500).send('Sitemap error'); }
 });
 
 app.use(express.static(__dirname));
@@ -425,12 +439,12 @@ app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 async function start() {
     await initDB();
     console.log(`🔑 Gemini keys: ${geminiKeys.length}`);
-    cron.schedule('*/15 * * * *', () => publicarCuriosidadViral()); // Cada 15 min
-    cron.schedule('0 */2 * * *', () => publicarNoticiaLujo());
-    setTimeout(() => publicarCuriosidadViral(), 10000);
-    setTimeout(() => publicarNoticiaLujo(), 30000);
+    cron.schedule('*/15 * * * *', () => publishInsight());
+    cron.schedule('0 */2 * * *', () => publishLuxuryNews());
+    setTimeout(() => publishInsight(), 10000);
+    setTimeout(() => publishLuxuryNews(), 30000);
     app.listen(PORT, '0.0.0.0', () =>
-        console.log(`🚀 MXL v6.0 — TAG:${AFFILIATE_TAG} — Keys:${geminiKeys.length} — Puerto:${PORT}`)
+        console.log(`🚀 MXL v7.0 — TAG:${AFFILIATE_TAG} — Keys:${geminiKeys.length} — Port:${PORT}`)
     );
 }
 start();
