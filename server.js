@@ -198,25 +198,30 @@ async function publishInsight() {
         const topic = SEO_TOPICS[topicIndex % SEO_TOPICS.length];
         topicIndex++;
 
-        const prompt = `You are an expert in SEO copywriting, Amazon affiliate marketing, and luxury lifestyle content.
-
-TARGET AUDIENCE: High-income women aged 35–55 living in New York, Los Angeles, Miami, London, or Paris.
-They shop on Amazon, read Architectural Digest and Vogue Living, and expect premium quality.
+        const prompt = `You are a senior editor at Architectural Digest and a former features writer for The New York Times Style section. You have lived in Manhattan's Upper East Side for 15 years. You write naturally, the way a well-educated American woman talks to her friends — confident, specific, a little witty, never stiff or translated.
 
 TOPIC: "${topic.topic}"
 
-YOUR GOAL:
-1. SEO: Write a title containing exact keywords people search on Google (include 2026 if relevant).
-2. Conversion: The body text must spark desire and naturally guide the reader toward Amazon.
+READER: A 42-year-old woman. She lives in a Tribeca loft or a Chelsea townhouse. She shops on Amazon Prime but she's not cheap — she just knows where to find quality. She reads the Sunday Times, follows interior designers on Instagram, and has a second home in the Hamptons or Cotswolds.
 
-STRICT RULES:
-- title: Magazine-style headline, max 12 words. Example: "The 5 Luxury Wine Coolers Every Manhattan Penthouse Needs in 2026"
-- body: Exactly 3 sentences. (1) A surprising fact or real statistic. (2) Why elite women in NYC or London want this. (3) Soft call-to-action ending with: "Find it on Amazon for less than you'd expect."
-- keyword: Exactly what someone types in Google to BUY this (3–5 words, English).
-- FORBIDDEN: Abstract, philosophical, or fictional titles. Must reference a REAL product category.
-- Write ONLY in English. Zero Spanish words.
+WRITE TWO THINGS:
 
-Respond ONLY with raw JSON, no markdown:
+1. title — A headline that feels like it belongs in a magazine. Conversational but smart. Uses real search keywords naturally. Max 12 words. NOT clickbait. NOT translated. Examples of the TONE we want:
+   ✅ "The Wine Cooler Our Editor Finally Splurged On (And Never Looked Back)"
+   ✅ "Why Every Smart Home in 2026 Starts With This One Upgrade"
+   ✅ "The Heated Towel Rail That Makes a $200 Hotel Bathroom Feel Possible at Home"
+   ❌ "The 5 Products Elite Women Want" (too generic)
+   ❌ "Discover the luxury secrets" (sounds translated)
+
+2. body — Exactly 3 sentences written like a friend texting you a recommendation:
+   Sentence 1: A surprising or specific fact that makes you go "huh, I didn't know that."
+   Sentence 2: Why this particular thing matters right now — a cultural moment, a shift in how people live.
+   Sentence 3: End naturally with "You can find it on Amazon — usually for less than you'd think."
+
+- keyword: The exact phrase someone types into Google when they're ready to buy this (3–5 words, no brand names).
+- Sound like a native American or British English speaker. No stiff phrasing. No "discover", "unveil", "embrace". Write the way smart people actually talk.
+
+Respond ONLY raw JSON, no markdown:
 {"title": "...", "body": "...", "keyword": "..."}`;
 
         const raw = await generateContent(prompt);
@@ -253,13 +258,18 @@ async function publishLuxuryNews() {
         if (!article) return;
 
         const raw = await generateContent(
-            `You are a luxury lifestyle copywriter and Amazon affiliate SEO expert.
-             Rewrite this news article for high-income women in NYC, London, and Paris.
-             The title must sound like Architectural Digest or Vogue Living.
-             The summary must end with a soft call-to-action toward Amazon.
-             Write ONLY in English. Zero Spanish words.
-             Article: "${article.title} — ${article.description}"
-             Respond ONLY raw JSON: {"title":"...","summary":"...","keyword":"..."}`
+            `You are a features editor at Vogue Living and a contributor to The Telegraph's lifestyle section. You write in natural, confident British-American English — never stiff, never translated. You're rewriting a news story for your readers: affluent women in New York, London, and LA who are curious, educated, and have excellent taste.
+
+REWRITE THIS ARTICLE with your own voice:
+"${article.title} — ${article.description}"
+
+RULES:
+- title: Write it like a magazine cover line. Specific, smart, a little unexpected. Not generic. Max 12 words.
+- summary: 3 sentences max. Make it feel like a tip from a well-connected friend, not a press release. End with a natural product recommendation toward Amazon — something like "It's the kind of thing you find on Amazon and wonder how you lived without it."
+- keyword: What someone types in Google to find and buy the product mentioned (3–5 words).
+- Write exactly as a native American or British English speaker would. No stiff phrases, no "discover", no translated tone.
+
+Respond ONLY raw JSON: {"title":"...","summary":"...","keyword":"..."}`
         );
         const copy = JSON.parse(raw);
         const image = article.urlToImage || await getImage(copy.keyword || 'luxury home');
@@ -310,18 +320,25 @@ app.post('/api/commander/inject', async (req, res) => {
     if (!geminiKeys.length || !tituloReal) return res.status(400).json({ success: false, error: 'Missing product name or AI engine' });
     try {
         const raw = await generateContent(
-            `You are an expert Amazon affiliate copywriter specializing in luxury products.
-             PRODUCT: "${tituloReal}"
-             TARGET: High-income women aged 35–55 in NYC, Miami, Los Angeles, London, Paris.
+            `You are a shopping editor at The Cut and a contributing writer for Domino Magazine. You write product recommendations the way a trusted friend texts them — direct, specific, genuinely enthusiastic but never pushy. Your readers are women aged 35–55 in New York, Miami, Los Angeles, and London. They use Amazon Prime, they have high standards, and they can smell a lazy product description from a mile away.
 
-             Write persuasive copy that sells without feeling salesy:
-             - title: Elevated product name with luxury adjective. Max 10 words. In English.
-             - meta: Main benefit in 20 words for Google. In English.
-             - teaser: 2–3 sentences. Opens with a fact or problem the product solves → exclusivity → subtle urgency. Max 60 words. In English.
-             - keyword: 3–4 English words someone would Google to buy this.
+PRODUCT: "${tituloReal}"
 
-             Write ONLY in English. Zero Spanish. Respond ONLY raw JSON:
-             {"title":"...","meta":"...","teaser":"...","keyword":"..."}`
+Write copy that sounds like YOU discovered this product and can't stop recommending it:
+
+- title: The product's name, elevated. Sounds like something you'd see in a magazine gift guide. Specific adjectives. Max 10 words. NOT "luxury [product]" as a formula — be creative.
+  ✅ "The Espresso Machine That Turned Our Kitchen Into a Café"
+  ✅ "A Wine Cooler So Good It Changed How We Entertain"
+  ❌ "Luxury Espresso Machine for Elite Women" (too stiff)
+
+- meta: One sentence, 20 words, for Google. States the main benefit clearly. Reads like a subtitle, not an ad.
+
+- teaser: 2 sentences. First: a specific detail or fact about why this product is genuinely worth it. Second: who it's perfect for, described naturally — not "elite women" but something like "anyone who's ever stood in a Pottery Barn and thought, I could do this at home." Max 55 words.
+
+- keyword: 3–4 words someone types into Google when they're ready to buy this. No brand names.
+
+Write ONLY in natural American or British English. Respond ONLY raw JSON:
+{"title":"...","meta":"...","teaser":"...","keyword":"..."}`
         );
         const copy = JSON.parse(raw);
         const image = imagenUrl || await getImage(copy.keyword || tituloReal);
