@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const cron = require('node-cron'); // Añadido para el piloto automático
+const cron = require('node-cron');
 const compression = require('compression');
 const cors = require('cors');
 const { Pool } = require('pg');
@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 // ============================================================
-// DB POSTGRESQL - MANDO MXL
+// DB POSTGRESQL - MANDO MXL v4.7
 // ============================================================
 const db = new Pool({
     connectionString: process.env.DATABASE_URL,
@@ -24,7 +24,6 @@ const db = new Pool({
 
 async function initDB() {
     try {
-        // Creamos ambas tablas: Productos y Curiosidades
         await db.query(`
             CREATE TABLE IF NOT EXISTS articulos (
                 id BIGINT PRIMARY KEY, asin VARCHAR(20), titulo TEXT, meta TEXT, 
@@ -36,12 +35,12 @@ async function initDB() {
                 imagen TEXT, fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
-        console.log('✅ DB Lista (Articulos + Curiosidades) - Familia MXL');
+        console.log('✅ DB Lista (Tráfico Viral Activado) - Familia MXL');
     } catch (e) { console.error('❌ Error DB:', e.message); }
 }
 
 // ============================================================
-// MOTOR 2.5 - FOCO TOTAL EN EL TÍTULO
+// MOTOR 2.5 - EL CEREBRO DEL MARKETING
 // ============================================================
 let contentModel = null;
 async function initGemini() {
@@ -49,40 +48,54 @@ async function initGemini() {
     if (key) {
         const genAI = new GoogleGenerativeAI(key.trim());
         contentModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        console.log("✅ MOTOR MXL 2.5 ACTIVO - EL TÍTULO MANDA");
+        console.log("✅ MOTOR MXL 2.5 ACTIVO - ESTRATEGIA SEO INICIADA");
     }
 }
 
 // ============================================================
-// PILOTO AUTOMÁTICO - CADA 40 MINUTOS
+// PILOTO AUTOMÁTICO - IMÁGENES DINÁMICAS & SEO
 // ============================================================
 async function publicarCuriosidadViral() {
     if (!contentModel) return;
-    console.log('⏰ [CRON] Generando curiosidad de lujo automática...');
+    console.log('⏰ [CRON] Generando contenido viral con imagen dinámica...');
     try {
-        const prompt = "Genera una curiosidad viral de lujo extremo para millonarias en NYC. Responde SOLO JSON: {\"titulo_es\": \"...\", \"texto_es\": \"...\"}";
+        // Pedimos a la IA una palabra clave para la imagen (keyword)
+        const prompt = `Genera una curiosidad viral de ultra-lujo para millonarias en NYC. 
+        Responde ESTRICTAMENTE en JSON: 
+        {"titulo_es": "...", "texto_es": "...", "keyword": "una palabra en ingles para buscar imagen de lujo"}`;
+        
         const result = await contentModel.generateContent(prompt);
         const data = JSON.parse(result.response.text().replace(/```json|```/g, '').trim());
         
+        // 🚀 TRÁFICO MXL: Imagen dinámica basada en el tema
+        const keyword = data.keyword || 'luxury';
+        const imagenVariada = `https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80&sig=${Date.now()}`;
+        // Nota: Usamos una URL base de Unsplash con un "sig" (firma) de tiempo para que siempre sea distinta
+        const imagenFinal = `https://loremflickr.com/1200/800/${keyword},luxury/all`;
+
         const id = Date.now();
         await db.query(`INSERT INTO curiosidades (id, titulo_es, texto_es, imagen, fecha) VALUES ($1, $2, $3, $4, $5)`, 
-        [id, data.titulo_es, data.texto_es, 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg', new Date().toISOString()]);
+        [id, data.titulo_es, data.texto_es, imagenFinal, new Date().toISOString()]);
         
-        console.log(`✨ [AUTO] Publicado: ${data.titulo_es}`);
+        console.log(`✨ [AUTO-SEO] Publicado: ${data.titulo_es} (Tema: ${keyword})`);
     } catch (e) { console.error('❌ Error en Piloto Automático:', e.message); }
 }
 
 // ============================================================
-// ENDPOINTS API
+// ENDPOINTS API - OPTIMIZADOS PARA CLICS
 // ============================================================
 
-// Inyección Manual (Tú mandas, la IA obedece al título)
 app.post('/api/commander/inject', async (req, res) => {
     const { url, imagenUrl, categoria, tituloReal } = req.body;
     if (!contentModel || !tituloReal) return res.status(400).json({ success: false, error: "Faltan datos" });
 
+    console.log(`🎯 [INYECCIÓN SEO] Creando copy de ventas para: ${tituloReal}`);
     try {
-        const prompt = `Eres un experto en marketing de lujo en NYC. TEMA OBLIGATORIO: "${tituloReal}". Escribe un artículo corto y persuasivo basado ÚNICAMENTE en ese título. Responde SOLO JSON: {"titulo": "...", "meta": "...", "curiosidad": "..."}`;
+        const prompt = `Eres experto en SEO y Ventas de Lujo. 
+        Producto: "${tituloReal}". 
+        INSTRUCCIÓN: Crea un copy que genere clics. 
+        Responde SOLO JSON: {"titulo": "Título Gancho", "meta": "Descripción SEO para Google", "curiosidad": "Dato curioso del producto"}`;
+        
         const result = await contentModel.generateContent(prompt);
         const copy = JSON.parse(result.response.text().replace(/```json|```/g, '').trim());
 
@@ -95,7 +108,6 @@ app.post('/api/commander/inject', async (req, res) => {
     } catch (e) { res.status(500).json({ success: false }); }
 });
 
-// Lectura de Productos
 app.get('/api/productos', async (req, res) => {
     try {
         const r = await db.query(`SELECT * FROM articulos ORDER BY fecha DESC LIMIT 100`);
@@ -103,7 +115,6 @@ app.get('/api/productos', async (req, res) => {
     } catch (e) { res.json([]); }
 });
 
-// Lectura de Curiosidades (IMPORTANTE PARA EL FRONTEND)
 app.get('/api/curiosidades', async (req, res) => {
     try {
         const r = await db.query(`SELECT * FROM curiosidades ORDER BY fecha DESC LIMIT 50`);
@@ -115,20 +126,26 @@ app.use(express.static(__dirname));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 // ============================================================
-// LANZAMIENTO
+// LANZAMIENTO INTEGRAL
 // ============================================================
 async function start() {
     await initDB();
     await initGemini();
     
-    // Programar cada 40 minutos
+    // Publicar curiosidades cada 40 minutos para mantener el tráfico vivo
     cron.schedule('*/40 * * * *', () => publicarCuriosidadViral());
     
-    // Publicar una al arrancar (espera 20 seg por seguridad)
+    // Inyección inicial para verificar que todo corre
     setTimeout(() => publicarCuriosidadViral(), 20000);
 
     app.listen(PORT, '0.0.0.0', () => {
-        console.log(`🚀 MXL 2.5 - MOTOR COMPLETO v4.6 - PUERTO ${PORT}`);
+        console.log(`
+╔══════════════════════════════════════════════════════════════╗
+║  🚀 MXL 2.5 GOLD MINER - v4.7 TRAFFIC EDITION               ║
+║  🏭 CURIOSIDADES: Dinámicas (Cada 40 min)                   ║
+║  📦 PRODUCTOS: SEO Blindado                                 ║
+╚══════════════════════════════════════════════════════════════╝
+        `);
     });
 }
 start();
