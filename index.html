@@ -3,375 +3,369 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MXL Gold | Luxury Home & Lifestyle Secrets 2026</title>
-    <meta name="description" content="Discover the luxury home trends and exclusive products that elite women in New York, London, and Paris are obsessing over in 2026. Curated finds on Amazon.">
-    <meta name="keywords" content="luxury home 2026, luxury lifestyle women, smart home NYC, elite home decor, luxury products Amazon, high end home essentials, Beverly Hills luxury, Manhattan apartment luxury">
+    <title id="pageTitle">MXL Gold | Luxury Home & Lifestyle 2026</title>
+    <meta name="description" id="pageDesc" content="Discover the luxury home trends and exclusive products that elite women in New York, London, and Paris are obsessing over in 2026.">
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
-    <link rel="canonical" href="https://mxlgold.com/">
-
-    <!-- Open Graph -->
+    <link rel="canonical" href="https://mxlgold.com/" id="canonical">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="MXL Gold">
     <meta property="og:title" content="The Luxury Secrets Elite Women in NYC & London Don't Share">
-    <meta property="og:description" content="Exclusive luxury trends and curated Amazon finds for high-income women in New York, London, and Paris.">
+    <meta property="og:description" content="Exclusive luxury trends and curated Amazon finds for high-income women.">
     <meta property="og:image" content="https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=1200">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:url" content="https://mxlgold.com/">
     <meta property="og:locale" content="en_US">
-
-    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="The Luxury Secrets Elite Women in NYC & London Don't Share">
-    <meta name="twitter:description" content="Exclusive luxury trends and curated Amazon finds for high-income women.">
     <meta name="twitter:image" content="https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=1200">
-
-    <!-- Schema.org -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "MXL Gold",
-        "url": "https://mxlgold.com/",
-        "description": "Luxury lifestyle trends and exclusive Amazon products for high-income women in NYC, London, and Paris.",
-        "inLanguage": "en-US",
-        "publisher": { "@type": "Organization", "name": "MXL Gold" }
-    }
-    </script>
-
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"MXL Gold","url":"https://mxlgold.com/","inLanguage":"en-US","publisher":{"@type":"Organization","name":"MXL Gold"}}</script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'DM Sans',sans-serif; background:#fffaf7; color:#2c2418; line-height:1.6; }
+        :root{--gold:#c9a87b;--orange:#ff4500;--dark:#1a1208;--cream:#fffaf7;--text:#2c2418;--muted:#6b5a48;--border:#f0e2d8;}
+        *{margin:0;padding:0;box-sizing:border-box;}
+        html{scroll-behavior:smooth;}
+        body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);line-height:1.6;}
 
-        /* HEADER */
-        .hero {
-            background: linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);
-            color: white; padding: 90px 20px; text-align: center;
-            position: relative; overflow: hidden;
-        }
-        .hero::before {
-            content:''; position:absolute; inset:0;
-            background: radial-gradient(ellipse at 65% 40%, rgba(255,69,0,.14) 0%, transparent 65%);
-        }
-        .hero-eyebrow {
-            font-size:.75rem; letter-spacing:3px; text-transform:uppercase;
-            color:#c9a87b; margin-bottom:20px; position:relative;
-        }
-        .hero h1 {
-            font-family:'Playfair Display',serif;
-            font-size:clamp(1.8rem,4.5vw,3.2rem); font-weight:700;
-            line-height:1.2; margin-bottom:18px; position:relative;
-        }
-        .hero h1 em {
-            font-style:italic;
-            background:linear-gradient(135deg,#ff4500,#ff6b35);
-            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-        }
-        .hero-sub { color:#a89070; font-size:.95rem; max-width:500px; margin:0 auto; position:relative; }
-        .live-pill {
-            display:inline-flex; align-items:center; gap:7px;
-            background:rgba(255,69,0,.15); border:1px solid rgba(255,69,0,.4);
-            color:#ff6b35; padding:6px 16px; border-radius:40px;
-            font-size:.72rem; font-weight:700; letter-spacing:1.5px;
-            text-transform:uppercase; margin-top:28px; position:relative;
-        }
-        .live-dot { width:6px; height:6px; border-radius:50%; background:#ff4500; animation:blink 1.4s infinite; }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+        /* PRODUCT PAGE */
+        #productPage{display:none;position:fixed;inset:0;background:var(--cream);z-index:500;overflow-y:auto;}
+        .pp-inner{max-width:960px;margin:0 auto;padding:40px 24px 100px;}
+        .back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--orange);font-weight:600;font-size:.85rem;cursor:pointer;background:none;border:none;margin-bottom:32px;padding:0;}
+        .back-btn:hover{color:var(--dark);}
+        .pp-grid{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:start;}
+        .pp-img{border-radius:18px;overflow:hidden;background:#faf7f3;aspect-ratio:1;display:flex;align-items:center;justify-content:center;}
+        .pp-img img{width:100%;height:100%;object-fit:contain;padding:24px;}
+        .pp-info{display:flex;flex-direction:column;gap:14px;}
+        .pp-tag{display:inline-block;background:#f7ede8;color:var(--orange);font-size:.62rem;padding:4px 12px;border-radius:20px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;width:fit-content;}
+        .pp-title{font-family:'Playfair Display',serif;font-size:1.75rem;line-height:1.3;}
+        .pp-meta{font-size:.9rem;color:var(--muted);line-height:1.7;}
+        .pp-teaser{font-size:1rem;line-height:1.8;border-left:3px solid var(--gold);padding-left:18px;color:var(--text);}
+        .pp-cta{display:block;background:var(--dark);color:white;padding:15px;border-radius:40px;text-align:center;font-weight:700;font-size:.95rem;border:none;cursor:pointer;transition:background .25s;}
+        .pp-cta:hover{background:var(--orange);}
+        .pp-date{font-size:.7rem;color:#bbb;}
+        .pp-views{font-size:.75rem;color:#b07040;}
+        @media(max-width:640px){.pp-grid{grid-template-columns:1fr;}.pp-title{font-size:1.4rem;}}
+
+        /* HERO */
+        .hero{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);color:white;padding:90px 20px 70px;text-align:center;position:relative;overflow:hidden;}
+        .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 65% 40%,rgba(255,69,0,.14) 0%,transparent 65%);}
+        .hero-eye{font-size:.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:20px;position:relative;}
+        .hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4.5vw,3.2rem);font-weight:700;line-height:1.2;margin-bottom:18px;position:relative;}
+        .hero h1 em{font-style:italic;background:linear-gradient(135deg,#ff4500,#ff6b35);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        .hero-sub{color:#a89070;font-size:.95rem;max-width:500px;margin:0 auto;position:relative;}
+        .live-pill{display:inline-flex;align-items:center;gap:7px;background:rgba(255,69,0,.15);border:1px solid rgba(255,69,0,.4);color:#ff6b35;padding:6px 16px;border-radius:40px;font-size:.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:28px;position:relative;}
+        .live-dot{width:6px;height:6px;border-radius:50%;background:#ff4500;animation:blink 1.4s infinite;}
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
         /* LAYOUT */
-        .container { max-width:1300px; margin:0 auto; padding:70px 20px; }
-        .section + .section { margin-top:80px; }
+        .container{max-width:1300px;margin:0 auto;padding:70px 20px;}
+        .section+.section{margin-top:80px;}
+        .sec-label{font-size:.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:12px;}
+        .sec-title{font-family:'Playfair Display',serif;font-size:1.85rem;text-align:center;color:var(--text);margin-bottom:24px;}
+        .sec-title::after{content:'';display:block;width:50px;height:2px;background:var(--gold);margin:14px auto 0;}
 
-        .section-label {
-            font-size:.68rem; letter-spacing:3px; text-transform:uppercase;
-            color:#c9a87b; text-align:center; margin-bottom:12px;
-        }
-        .section-title {
-            font-family:'Playfair Display',serif; font-size:1.85rem;
-            text-align:center; color:#2c2418; margin-bottom:48px;
-        }
-        .section-title::after {
-            content:''; display:block; width:50px; height:2px;
-            background:#c9a87b; margin:14px auto 0;
-        }
+        /* CATEGORY FILTERS */
+        .cat-filters{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:36px;}
+        .cat-btn{background:white;border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:30px;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.5px;}
+        .cat-btn:hover,.cat-btn.active{background:var(--dark);color:white;border-color:var(--dark);}
+        .cat-count{font-size:.6rem;opacity:.65;margin-left:3px;}
 
         /* GRID */
-        .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:28px; }
-        .grid-news { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:22px; }
+        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:26px;}
+        .grid-news{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px;}
 
         /* CARD */
-        .card {
-            background:white; border-radius:20px; overflow:hidden;
-            box-shadow:0 4px 20px rgba(0,0,0,.06); border:1px solid #f0e2d8;
-            transition:transform .3s ease, box-shadow .3s ease;
-        }
-        .card:hover { transform:translateY(-5px); box-shadow:0 14px 40px rgba(0,0,0,.12); }
+        .card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.06);border:1px solid var(--border);transition:transform .3s,box-shadow .3s;cursor:pointer;}
+        .card:hover{transform:translateY(-5px);box-shadow:0 14px 40px rgba(0,0,0,.12);}
+        .card-img{width:100%;height:210px;overflow:hidden;background:#faf7f3;}
+        .card-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+        .card:hover .card-img img{transform:scale(1.04);}
+        .card-img.contain img{object-fit:contain;padding:18px;}
+        .card:hover .card-img.contain img{transform:scale(1.03);}
+        .card-body{padding:22px;}
+        .card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+        .card-tag{background:#f7ede8;color:var(--orange);font-size:.6rem;padding:4px 10px;border-radius:20px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;}
+        .card-time{font-size:.62rem;color:#ccc;}
+        .card-title{font-family:'Playfair Display',serif;font-size:1rem;line-height:1.45;margin:0 0 8px;color:#1a1208;}
+        .card-text{font-size:.84rem;color:var(--muted);line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+        .views{display:inline-flex;align-items:center;gap:4px;font-size:.67rem;color:#b07040;margin:5px 0;}
 
-        .card-img { width:100%; height:220px; overflow:hidden; background:#faf7f3; }
-        .card-img img { width:100%; height:100%; object-fit:cover; transition:transform .4s ease; }
-        .card:hover .card-img img { transform:scale(1.04); }
-        .card-img.contain img { object-fit:contain; padding:20px; transform:none; }
-        .card:hover .card-img.contain img { transform:scale(1.03); }
-
-        .card-body { padding:24px; }
-
-        .card-tag {
-            display:inline-block; background:#f7ede8; color:#ff4500;
-            font-size:.65rem; padding:4px 12px; border-radius:20px;
-            font-weight:700; text-transform:uppercase; letter-spacing:.8px;
-        }
-
-        .card-title {
-            font-family:'Playfair Display',serif; font-size:1.05rem;
-            line-height:1.45; margin:10px 0 8px; color:#1a1208;
-        }
-        .card-text { font-size:.875rem; color:#6b5a48; line-height:1.65; }
-
-        /* SOCIAL PROOF */
-        .views-badge {
-            display:inline-flex; align-items:center; gap:5px;
-            font-size:.7rem; color:#b07040; margin:6px 0 0;
-            font-weight:500;
-        }
-
-        /* RELATED PRODUCT BLOCK inside insight card */
-        .related-block {
-            margin-top:18px; padding:14px; background:#faf7f3;
-            border-radius:12px; border:1px solid #ede0d4;
-            display:flex; gap:12px; align-items:center;
-        }
-        .related-block img {
-            width:58px; height:58px; object-fit:contain;
-            border-radius:8px; background:white; padding:4px; flex-shrink:0;
-        }
-        .related-block-info { flex:1; min-width:0; }
-        .related-eyebrow { font-size:.6rem; color:#c9a87b; text-transform:uppercase; letter-spacing:.8px; font-weight:700; }
-        .related-name { font-size:.78rem; color:#1a1208; font-weight:600; margin:2px 0 7px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        /* RELATED inside insight */
+        .related{margin-top:16px;padding:12px;background:#faf7f3;border-radius:12px;border:1px solid #ede0d4;display:flex;gap:10px;align-items:center;}
+        .related img{width:52px;height:52px;object-fit:contain;border-radius:7px;background:white;padding:3px;flex-shrink:0;}
+        .related-info{flex:1;min-width:0;}
+        .related-eye{font-size:.58rem;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;font-weight:700;}
+        .related-name{font-size:.75rem;color:#1a1208;font-weight:600;margin:2px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
         /* BUTTONS */
-        .btn-primary {
-            display:block; width:100%; background:#1a1208; color:white;
-            padding:12px; border-radius:40px; text-align:center;
-            text-decoration:none; font-weight:600; font-size:.85rem;
-            margin-top:18px; border:none; cursor:pointer;
-            transition:background .25s ease, transform .15s ease;
-        }
-        .btn-primary:hover { background:#ff4500; transform:translateY(-1px); }
+        .btn-primary{display:block;width:100%;background:var(--dark);color:white;padding:11px;border-radius:40px;text-align:center;text-decoration:none;font-weight:600;font-size:.83rem;margin-top:16px;border:none;cursor:pointer;transition:background .25s,transform .15s;}
+        .btn-primary:hover{background:var(--orange);transform:translateY(-1px);}
+        .btn-pill{display:inline-block;background:var(--orange);color:white;padding:5px 12px;border-radius:20px;font-size:.7rem;font-weight:700;text-decoration:none;border:none;cursor:pointer;transition:background .2s;}
+        .btn-pill:hover{background:var(--dark);}
 
-        .btn-pill {
-            display:inline-block; background:#ff4500; color:white;
-            padding:6px 14px; border-radius:20px; font-size:.72rem;
-            font-weight:700; text-decoration:none; border:none; cursor:pointer;
-            transition:background .25s;
-        }
-        .btn-pill:hover { background:#1a1208; }
+        /* LOAD MORE */
+        .lm-wrap{text-align:center;margin-top:40px;}
+        .btn-lm{background:white;border:2px solid var(--border);color:var(--muted);padding:12px 32px;border-radius:40px;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .25s;}
+        .btn-lm:hover{border-color:var(--dark);color:var(--dark);}
+        .btn-lm:disabled{opacity:.4;cursor:not-allowed;}
+        .spinner{display:none;width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;margin:20px auto;}
+        @keyframes spin{to{transform:rotate(360deg);}}
 
-        /* NEWS CARD */
-        .news-card {
-            background:white; border-radius:16px; overflow:hidden;
-            box-shadow:0 4px 16px rgba(0,0,0,.06); border:1px solid #f0e2d8;
-            display:flex; flex-direction:column;
-            transition:transform .3s;
-        }
-        .news-card:hover { transform:translateY(-4px); }
-        .news-img { width:100%; height:155px; object-fit:cover; }
-        .news-body { padding:16px; flex:1; display:flex; flex-direction:column; }
-        .news-source { font-size:.6rem; color:#c9a87b; text-transform:uppercase; letter-spacing:.8px; font-weight:700; margin-bottom:6px; }
-        .news-title { font-family:'Playfair Display',serif; font-size:.9rem; line-height:1.4; flex:1; color:#1a1208; }
-        .news-text { font-size:.78rem; color:#6b5a48; margin-top:8px; line-height:1.6; }
-        .news-link { font-size:.72rem; color:#ff4500; text-decoration:none; margin-top:10px; font-weight:700; display:inline-block; }
-        .news-link:hover { color:#1a1208; }
+        /* NEWS */
+        .news-card{background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.06);border:1px solid var(--border);display:flex;flex-direction:column;transition:transform .3s;}
+        .news-card:hover{transform:translateY(-4px);}
+        .news-img{width:100%;height:155px;object-fit:cover;}
+        .news-body{padding:16px;flex:1;display:flex;flex-direction:column;}
+        .news-src{font-size:.58rem;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin-bottom:5px;}
+        .news-title{font-family:'Playfair Display',serif;font-size:.9rem;line-height:1.4;flex:1;color:#1a1208;}
+        .news-text{font-size:.78rem;color:var(--muted);margin-top:8px;line-height:1.6;}
+        .news-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+        .news-link{font-size:.7rem;color:var(--orange);text-decoration:none;font-weight:700;}
+        .news-link:hover{color:var(--dark);}
+        .news-time{font-size:.6rem;color:#ccc;}
 
-        /* EMPTY / LOADER */
-        .loader { text-align:center; padding:50px 20px; color:#c9a87b; grid-column:1/-1; font-size:.9rem; }
+        .loader{text-align:center;padding:50px 20px;color:var(--gold);grid-column:1/-1;font-size:.9rem;}
 
         /* FOOTER */
-        footer {
-            background:#110e08; color:#6b5a40; text-align:center;
-            padding:48px 20px; margin-top:40px; font-size:.75rem; line-height:2.2;
-        }
-        footer a { color:#9a7a50; text-decoration:none; }
-        .footer-disclaimer {
-            max-width:680px; margin:16px auto 0; font-size:.68rem;
-            color:#4a3a24; line-height:1.8;
-        }
+        footer{background:#110e08;color:#6b5a40;text-align:center;padding:48px 20px;margin-top:40px;font-size:.75rem;line-height:2.2;}
+        footer a{color:#9a7a50;text-decoration:none;}
+        .f-disc{max-width:680px;margin:16px auto 0;font-size:.68rem;color:#4a3a24;line-height:1.8;}
 
-        @media(max-width:768px) {
-            .grid, .grid-news { grid-template-columns:1fr; }
-            .hero { padding:60px 20px; }
-        }
+        @media(max-width:768px){.grid,.grid-news{grid-template-columns:1fr;}.hero{padding:60px 20px 50px;}}
     </style>
 </head>
 <body>
 
-<!-- HERO -->
+<!-- PRODUCT PAGE OVERLAY -->
+<div id="productPage">
+    <div class="pp-inner">
+        <button class="back-btn" onclick="closePage()">← Back to all products</button>
+        <div id="ppContent"></div>
+    </div>
+</div>
+
+<!-- MAIN SITE -->
+<div id="mainSite">
+
 <header class="hero">
-    <p class="hero-eyebrow">✦ The insider's guide to luxury living ✦</p>
+    <p class="hero-eye">✦ The insider's guide to luxury living ✦</p>
     <h1>The Luxury Secrets<br><em>Elite Women</em> Keep to Themselves</h1>
     <p class="hero-sub">Curated for women who demand the best — from Manhattan penthouses to London townhouses.</p>
-    <div class="live-pill">
-        <span class="live-dot"></span>
-        Live trends · Updated every 15 min
-    </div>
+    <div class="live-pill"><span class="live-dot"></span>Live trends · Updated every 15 min</div>
 </header>
 
 <main class="container">
 
     <!-- INSIGHTS -->
     <section class="section" aria-label="Luxury lifestyle insights">
-        <p class="section-label">✦ Insider Intelligence ✦</p>
-        <h2 class="section-title">What They're Buying Right Now</h2>
-        <div id="insightsGrid" class="grid" role="list">
-            <div class="loader">Curating luxury insights...</div>
+        <p class="sec-label">✦ Insider Intelligence ✦</p>
+        <h2 class="sec-title">What They're Buying Right Now</h2>
+        <div id="insightsGrid" class="grid"><div class="loader">Curating luxury insights...</div></div>
+        <div class="lm-wrap">
+            <div class="spinner" id="iSpin"></div>
+            <button class="btn-lm" id="iMore" onclick="loadMoreInsights()" style="display:none;">Load more insights</button>
         </div>
     </section>
 
     <!-- PRODUCTS -->
-    <section class="section" aria-label="Exclusive luxury products on Amazon">
-        <p class="section-label">✦ Exclusive Finds ✦</p>
-        <h2 class="section-title">Shop the Elite Edit</h2>
-        <div id="productsGrid" class="grid" role="list">
-            <div class="loader">Loading exclusive products...</div>
+    <section class="section" aria-label="Exclusive luxury products">
+        <p class="sec-label">✦ Exclusive Finds ✦</p>
+        <h2 class="sec-title">Shop the Elite Edit</h2>
+        <div class="cat-filters" id="catFilters"></div>
+        <div id="productsGrid" class="grid"><div class="loader">Loading exclusive products...</div></div>
+        <div class="lm-wrap">
+            <div class="spinner" id="pSpin"></div>
+            <button class="btn-lm" id="pMore" onclick="loadMoreProducts()" style="display:none;">Load more products</button>
         </div>
     </section>
 
     <!-- NEWS -->
-    <section class="section" aria-label="Luxury lifestyle news">
-        <p class="section-label">✦ Latest Intelligence ✦</p>
-        <h2 class="section-title">Trending This Week</h2>
-        <div id="newsGrid" class="grid-news" role="list">
-            <div class="loader">Loading luxury news...</div>
-        </div>
+    <section class="section" aria-label="Luxury news">
+        <p class="sec-label">✦ Latest Intelligence ✦</p>
+        <h2 class="sec-title">Trending This Week</h2>
+        <div id="newsGrid" class="grid-news"><div class="loader">Loading luxury news...</div></div>
     </section>
 
 </main>
 
 <footer>
-    <p><strong style="color:#c9a87b;">MXL Gold</strong> — Luxury Lifestyle & Exclusive Finds</p>
+    <p><strong style="color:var(--gold);">MXL Gold</strong> — Luxury Lifestyle & Exclusive Finds</p>
     <p><a href="/sitemap.xml">Sitemap</a> &nbsp;·&nbsp; © 2026 MXL Gold</p>
-    <p class="footer-disclaimer">
-        MXL Gold is a participant in the Amazon Services LLC Associates Program, an affiliate advertising
-        program designed to provide a means for sites to earn advertising fees by advertising and linking
-        to Amazon.com. We may earn a commission on qualifying purchases at no additional cost to you.
-    </p>
+    <p class="f-disc">MXL Gold is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com. We may earn a commission on qualifying purchases at no additional cost to you.</p>
 </footer>
 
+</div><!-- #mainSite -->
+
 <script>
-// ── Click tracking ──
-async function trackClick(productId, url) {
-    try {
-        await fetch('/api/track/click', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ producto_id: productId, tipo: 'amazon' })
-        });
-    } catch(e) {}
-    window.open(url, '_blank', 'noopener noreferrer');
+// ── STATE ──
+const S = {
+    products:{ page:1, hasMore:false, loading:false, cat:null },
+    insights:{ page:1, hasMore:false, loading:false }
+};
+const FB  = 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=600';
+const FB2 = 'https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=600';
+
+// ── TIME AGO ──
+function ago(d){
+    const m=Math.floor((Date.now()-new Date(d))/60000),h=Math.floor(m/60),dy=Math.floor(h/24);
+    if(m<2)return'just now';if(m<60)return m+'m ago';if(h<24)return h+'h ago';
+    if(dy<7)return dy+'d ago';
+    return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'});
 }
 
-// ── Insights (formerly curiosidades) ──
-async function loadInsights() {
-    try {
-        const data = await fetch('/api/curiosidades').then(r => r.json());
-        const grid = document.getElementById('insightsGrid');
-        if (!data?.length) {
-            grid.innerHTML = '<div class="loader">Generating luxury insights with AI... check back shortly.</div>';
-            return;
-        }
-        grid.innerHTML = data.map(c => {
-            const relatedHTML = c.producto_link ? `
-                <div class="related-block">
-                    <img src="${c.producto_imagen || ''}"
-                         alt="${c.producto_titulo || 'Related product'}" loading="lazy"
-                         onerror="this.src='https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=200'">
-                    <div class="related-block-info">
-                        <div class="related-eyebrow">✨ Found on Amazon</div>
-                        <div class="related-name">${c.producto_titulo || ''}</div>
-                        <button class="btn-pill" onclick="trackClick(${c.producto_id_ref},'${c.producto_link}')">
-                            See price →
-                        </button>
-                    </div>
-                </div>` : '';
-
-            return `
-            <article class="card" role="listitem" itemscope itemtype="https://schema.org/Article">
-                <div class="card-img">
-                    <img src="${c.imagen}" alt="${c.titulo_es}" loading="lazy" itemprop="image"
-                         onerror="this.src='https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=600'">
-                </div>
-                <div class="card-body">
-                    <h3 class="card-title" itemprop="headline">${c.titulo_es}</h3>
-                    <p class="card-text" itemprop="articleBody">${c.texto_es}</p>
-                    ${relatedHTML}
-                </div>
-            </article>`;
-        }).join('');
-    } catch(e) { console.error(e); }
+// ── CLICK TRACKING ──
+async function trackClick(id, url){
+    try{ await fetch('/api/track/click',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({producto_id:id,tipo:'amazon'})}); }catch(e){}
+    window.open(url,'_blank','noopener noreferrer');
 }
 
-// ── Products ──
-async function loadProducts() {
-    try {
-        const products = await fetch('/api/productos').then(r => r.json());
-        const grid = document.getElementById('productsGrid');
-        if (!products?.length) {
-            grid.innerHTML = '<div class="loader">No products yet. Inject your first product from the MXL panel.</div>';
-            return;
-        }
-        grid.innerHTML = products.map(p => `
-            <article class="card" role="listitem" id="product-${p.id}"
-                     itemscope itemtype="https://schema.org/Product">
-                <div class="card-img contain">
-                    <img src="${p.imagen}" alt="${p.titulo} — Luxury product" loading="lazy" itemprop="image"
-                         onerror="this.src='https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=600'">
-                </div>
-                <div class="card-body">
-                    <span class="card-tag">${p.categoria || 'LUXURY'}</span>
-                    ${p.clics > 0 ? `<div class="views-badge">🔥 ${p.clics} people viewed this today</div>` : ''}
-                    <h3 class="card-title" itemprop="name">${p.titulo}</h3>
-                    <p class="card-text" itemprop="description">${p.curiosidad || ''}</p>
-                    <button class="btn-primary" onclick="trackClick(${p.id},'${p.link}')" itemprop="url">
-                        View on Amazon →
-                    </button>
-                </div>
-            </article>
-        `).join('');
-    } catch(e) { console.error(e); }
+// ── PRODUCT PAGE ──
+function openPage(p){
+    document.getElementById('productPage').style.display='block';
+    document.getElementById('mainSite').style.display='none';
+    window.scrollTo(0,0);
+    document.getElementById('pageTitle').textContent=p.titulo+' — MXL Gold';
+    document.getElementById('pageDesc').setAttribute('content', p.meta||p.curiosidad||'');
+    document.getElementById('ppContent').innerHTML=`
+        <div class="pp-grid">
+            <div class="pp-img"><img src="${p.imagen}" alt="${p.titulo}" onerror="this.src='${FB}'"></div>
+            <div class="pp-info">
+                <span class="pp-tag">${p.categoria||'LUXURY'}</span>
+                ${p.clics>0?`<div class="pp-views">🔥 ${p.clics} people viewed this</div>`:''}
+                <h1 class="pp-title">${p.titulo}</h1>
+                ${p.meta?`<p class="pp-meta">${p.meta}</p>`:''}
+                ${p.curiosidad?`<blockquote class="pp-teaser">${p.curiosidad}</blockquote>`:''}
+                <button class="pp-cta" onclick="trackClick(${p.id},'${p.link}')">View on Amazon →</button>
+                <p class="pp-date">Added ${ago(p.fecha)}</p>
+            </div>
+        </div>`;
+    history.pushState({pid:p.id},'','/product/'+p.id);
+}
+function closePage(){
+    document.getElementById('productPage').style.display='none';
+    document.getElementById('mainSite').style.display='block';
+    document.getElementById('pageTitle').textContent='MXL Gold | Luxury Home & Lifestyle 2026';
+    history.pushState({},'','/');
+    window.scrollTo(0,0);
+}
+window.addEventListener('popstate',e=>{ if(!e.state?.pid) closePage(); });
+
+// ── CATEGORIES ──
+async function loadCategories(){
+    try{
+        const cats=await fetch('/api/categorias').then(r=>r.json());
+        const el=document.getElementById('catFilters');
+        if(!cats.length) return;
+        el.innerHTML=`<button class="cat-btn active" onclick="filterCat(null,this)">All</button>`
+            +cats.map(c=>`<button class="cat-btn" onclick="filterCat('${c.categoria}',this)">${c.categoria}<span class="cat-count">(${c.total})</span></button>`).join('');
+    }catch(e){}
+}
+function filterCat(cat,btn){
+    document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    S.products={page:1,hasMore:false,loading:false,cat:cat};
+    document.getElementById('productsGrid').innerHTML='<div class="loader">Filtering...</div>';
+    loadProducts(true);
 }
 
-// ── News ──
-async function loadNews() {
-    try {
-        const data = await fetch('/api/noticias').then(r => r.json());
-        const grid = document.getElementById('newsGrid');
-        if (!data?.length) {
-            grid.innerHTML = '<div class="loader">Loading luxury news...</div>';
-            return;
-        }
-        grid.innerHTML = data.map(n => `
-            <article class="news-card" role="listitem">
-                <img class="news-img" src="${n.imagen}" alt="${n.titulo}" loading="lazy"
-                     onerror="this.src='https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=600'">
-                <div class="news-body">
-                    <div class="news-source">${n.fuente}</div>
-                    <h3 class="news-title">${n.titulo}</h3>
-                    <p class="news-text">${n.resumen}</p>
-                    ${n.link ? `<a href="${n.link}" class="news-link" target="_blank" rel="noopener">Read more →</a>` : ''}
-                </div>
-            </article>
-        `).join('');
-    } catch(e) { console.error(e); }
+// ── PRODUCTS ──
+function prodCard(p){
+    // Escape for onclick attribute
+    const esc=JSON.stringify(p).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    return `<article class="card" onclick="openPage(JSON.parse(this.dataset.p))" data-p="${esc}" itemscope itemtype="https://schema.org/Product">
+        <div class="card-img contain"><img src="${p.imagen}" alt="${p.titulo}" loading="lazy" itemprop="image" onerror="this.src='${FB}'"></div>
+        <div class="card-body">
+            <div class="card-top"><span class="card-tag">${p.categoria||'LUXURY'}</span><span class="card-time">${ago(p.fecha)}</span></div>
+            ${p.clics>0?`<div class="views">🔥 ${p.clics} viewed today</div>`:''}
+            <h3 class="card-title" itemprop="name">${p.titulo}</h3>
+            <p class="card-text" itemprop="description">${p.curiosidad||''}</p>
+            <button class="btn-primary" onclick="event.stopPropagation();trackClick(${p.id},'${p.link}')">View on Amazon →</button>
+        </div>
+    </article>`;
 }
 
-// Init
+async function loadProducts(reset=false){
+    if(S.products.loading) return;
+    S.products.loading=true;
+    const sp=document.getElementById('pSpin'), mb=document.getElementById('pMore');
+    sp.style.display='block'; mb.style.display='none';
+    try{
+        const cat=S.products.cat?`&categoria=${encodeURIComponent(S.products.cat)}`:'';
+        const data=await fetch(`/api/productos?page=${S.products.page}${cat}`).then(r=>r.json());
+        const grid=document.getElementById('productsGrid');
+        if(reset||S.products.page===1) grid.innerHTML=data.items.length?'':'<div class="loader">No products yet. Check back soon.</div>';
+        if(data.items.length) grid.insertAdjacentHTML('beforeend',data.items.map(prodCard).join(''));
+        S.products.hasMore=data.hasMore; S.products.page++;
+        mb.style.display=data.hasMore?'inline-block':'none'; mb.disabled=false;
+    }catch(e){console.error(e);}
+    finally{sp.style.display='none'; S.products.loading=false;}
+}
+function loadMoreProducts(){ document.getElementById('pMore').disabled=true; loadProducts(); }
+
+// ── INSIGHTS ──
+function insightCard(c){
+    const rel=c.producto_link?`<div class="related">
+        <img src="${c.producto_imagen||FB}" alt="${c.producto_titulo||''}" loading="lazy" onerror="this.src='${FB}'">
+        <div class="related-info">
+            <div class="related-eye">✨ Found on Amazon</div>
+            <div class="related-name">${c.producto_titulo||''}</div>
+            <button class="btn-pill" onclick="trackClick(${c.producto_id_ref},'${c.producto_link}')">See price →</button>
+        </div>
+    </div>`:'';
+    return `<article class="card" itemscope itemtype="https://schema.org/Article">
+        <div class="card-img"><img src="${c.imagen}" alt="${c.titulo_es}" loading="lazy" itemprop="image" onerror="this.src='${FB2}'"></div>
+        <div class="card-body">
+            <div class="card-top"><span class="card-tag">Insider</span><span class="card-time">${ago(c.fecha)}</span></div>
+            <h3 class="card-title" itemprop="headline">${c.titulo_es}</h3>
+            <p class="card-text" itemprop="articleBody">${c.texto_es}</p>
+            ${rel}
+        </div>
+    </article>`;
+}
+
+async function loadInsights(reset=false){
+    if(S.insights.loading) return;
+    S.insights.loading=true;
+    const sp=document.getElementById('iSpin'), mb=document.getElementById('iMore');
+    sp.style.display='block'; mb.style.display='none';
+    try{
+        const data=await fetch(`/api/curiosidades?page=${S.insights.page}`).then(r=>r.json());
+        const grid=document.getElementById('insightsGrid');
+        if(reset||S.insights.page===1) grid.innerHTML=data.items.length?'':'<div class="loader">Generating insights with AI... check back in a moment.</div>';
+        if(data.items.length) grid.insertAdjacentHTML('beforeend',data.items.map(insightCard).join(''));
+        S.insights.hasMore=data.hasMore; S.insights.page++;
+        mb.style.display=data.hasMore?'inline-block':'none'; mb.disabled=false;
+    }catch(e){console.error(e);}
+    finally{sp.style.display='none'; S.insights.loading=false;}
+}
+function loadMoreInsights(){ document.getElementById('iMore').disabled=true; loadInsights(); }
+
+// ── NEWS ──
+async function loadNews(){
+    try{
+        const data=await fetch('/api/noticias').then(r=>r.json());
+        const grid=document.getElementById('newsGrid');
+        if(!data?.length){grid.innerHTML='<div class="loader">Loading luxury news...</div>';return;}
+        grid.innerHTML=data.map(n=>`<article class="news-card">
+            <img class="news-img" src="${n.imagen}" alt="${n.titulo}" loading="lazy" onerror="this.src='${FB2}'">
+            <div class="news-body">
+                <div class="news-src">${n.fuente}</div>
+                <h3 class="news-title">${n.titulo}</h3>
+                <p class="news-text">${n.resumen}</p>
+                <div class="news-foot">
+                    ${n.link?`<a href="${n.link}" class="news-link" target="_blank" rel="noopener">Read more →</a>`:'<span></span>'}
+                    <span class="news-time">${ago(n.fecha)}</span>
+                </div>
+            </div>
+        </article>`).join('');
+    }catch(e){console.error(e);}
+}
+
+// ── INIT ──
+loadCategories();
 loadInsights();
 loadProducts();
 loadNews();
-setInterval(() => { loadInsights(); loadProducts(); loadNews(); }, 60000);
+// Refresh news and insights every 5 min — products only on category change
+setInterval(()=>{ loadNews(); }, 300000);
 </script>
 </body>
 </html>
