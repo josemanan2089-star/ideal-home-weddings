@@ -3,12 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MXL GOLD MINER | Luxury Home Trends USA 2026</title>
-    <meta name="description" content="Descubre las curiosidades más virales sobre lujo y estilo de vida en USA. Productos exclusivos para mujeres de alto poder adquisitivo en Manhattan, Miami y Beverly Hills.">
-    <meta name="keywords" content="luxury home, smart home, status symbol, NYC, Miami, Beverly Hills, zero-waste, elite living">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
 
+    <!-- ═══════════════════════════════════════════
+         SEO PRIMARIO
+    ═══════════════════════════════════════════ -->
+    <title>MXL Gold | Luxury Lifestyle & Status Secrets USA 2026</title>
+    <meta name="description" content="Descubre los secretos de lujo que las mujeres de Manhattan, Miami y Beverly Hills no quieren que sepas. Tendencias exclusivas, productos de élite y curiosidades virales del estilo de vida millonario.">
+    <meta name="keywords" content="luxury lifestyle, luxury home 2026, smart home NYC, status symbols women, elite living Manhattan, Beverly Hills luxury, Miami luxury homes, millionaire lifestyle, luxury products Amazon, high end home decor">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <link rel="canonical" href="https://mxlgold.com/">
+
+    <!-- ═══════════════════════════════════════════
+         OPEN GRAPH (Facebook, WhatsApp, LinkedIn)
+    ═══════════════════════════════════════════ -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MXL Gold">
+    <meta property="og:title" content="Los Secretos de Lujo Que Manhattan No Quiere Que Sepas">
+    <meta property="og:description" content="Tendencias exclusivas, productos de élite y curiosidades virales del estilo de vida millonario en NYC, Miami y Beverly Hills.">
+    <meta property="og:image" content="https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=1200">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Luxury lifestyle - MXL Gold">
+    <meta property="og:url" content="https://mxlgold.com/">
+    <meta property="og:locale" content="es_US">
+
+    <!-- ═══════════════════════════════════════════
+         TWITTER / X CARD
+    ═══════════════════════════════════════════ -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@mxlgold">
+    <meta name="twitter:title" content="Los Secretos de Lujo Que Manhattan No Quiere Que Sepas">
+    <meta name="twitter:description" content="Tendencias exclusivas del estilo de vida millonario en NYC, Miami y Beverly Hills.">
+    <meta name="twitter:image" content="https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=1200">
+
+    <!-- ═══════════════════════════════════════════
+         PINTEREST
+    ═══════════════════════════════════════════ -->
+    <meta name="pinterest-rich-pin" content="true">
+    <meta property="og:image:type" content="image/jpeg">
+
+    <!-- ═══════════════════════════════════════════
+         SCHEMA.ORG — DATOS ESTRUCTURADOS
+    ═══════════════════════════════════════════ -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "MXL Gold",
+        "url": "https://mxlgold.com/",
+        "description": "Luxury lifestyle trends, exclusive products and viral curiosities for high-net-worth women in NYC, Miami and Beverly Hills.",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://mxlgold.com/?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "MXL Gold",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://mxlgold.com/logo.png"
+            }
+        }
+    }
+    </script>
+
+    <!-- ═══════════════════════════════════════════
+         PERFORMANCE & PRELOADS
+    ═══════════════════════════════════════════ -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://images.pexels.com">
+    <link rel="dns-prefetch" href="https://images.pexels.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -18,7 +87,7 @@
             line-height: 1.6;
         }
 
-        /* ── HEADER PREMIUM ── */
+        /* ── HEADER ── */
         .viral-header {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: white;
@@ -27,16 +96,29 @@
             position: relative;
             overflow: hidden;
         }
+        .viral-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 60% 40%, rgba(255,69,0,0.12) 0%, transparent 60%);
+            pointer-events: none;
+        }
         .viral-header h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 3rem;
+            font-size: clamp(1.6rem, 4vw, 3rem);
             font-weight: 700;
             margin-bottom: 15px;
+            position: relative;
         }
         .viral-header h1 span {
             background: linear-gradient(135deg, #ff4500, #ff6b35);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+        .viral-header p {
+            color: #c9a87b;
+            font-size: 1rem;
+            position: relative;
         }
         .live-badge {
             display: inline-block;
@@ -48,6 +130,7 @@
             margin-top: 25px;
             animation: pulse 1.5s infinite;
             font-weight: bold;
+            position: relative;
         }
         @keyframes pulse {
             0%,100% { opacity: .7; transform: scale(1); }
@@ -63,133 +146,175 @@
             text-align: center;
             color: #2c2418;
         }
-        .section-title:after {
-            content: ''; display: block; width: 60px; height: 3px; background: #c9a87b; margin: 14px auto 0;
+        .section-title::after {
+            content: ''; display: block; width: 60px; height: 3px;
+            background: #c9a87b; margin: 14px auto 0;
         }
 
-        /* ── GRID DE PRODUCTOS ── */
+        /* ── GRIDS ── */
         .productos-grid, .curiosidades-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 28px;
         }
 
         .card {
             background: white; border-radius: 20px; overflow: hidden;
             box-shadow: 0 6px 24px rgba(0,0,0,.07); border: 1px solid #f0e2d8;
-            transition: all .3s; cursor: pointer;
+            transition: transform .3s, box-shadow .3s;
         }
         .card:hover { transform: translateY(-6px); box-shadow: 0 16px 36px rgba(0,0,0,.13); }
 
         .card-img { width: 100%; height: 250px; overflow: hidden; background: #faf7f3; }
-        .card-img img { width: 100%; height: 100%; object-fit: contain; padding: 15px; }
+        .card-img img {
+            width: 100%; height: 100%; object-fit: contain; padding: 15px;
+            loading: lazy;
+        }
+        .card-img.cover img { object-fit: cover; padding: 0; height: 200px; }
 
         .card-content { padding: 22px; }
-        .tag { background: #f7ede8; color: #ff4500; font-size: 10px; padding: 4px 12px; border-radius: 20px; font-weight: 700; }
-        
+        .tag {
+            background: #f7ede8; color: #ff4500;
+            font-size: 10px; padding: 4px 12px; border-radius: 20px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .5px;
+        }
+
         .btn-comprar {
             display: block; width: 100%; background: #2c2418; color: white;
-            padding: 12px; border-radius: 40px; text-align: center; text-decoration: none;
-            font-weight: 600; margin-top: 15px; transition: .3s;
+            padding: 12px; border-radius: 40px; text-align: center;
+            text-decoration: none; font-weight: 600; margin-top: 15px;
+            transition: background .3s;
         }
         .btn-comprar:hover { background: #ff4500; }
 
         .loader { text-align: center; padding: 40px; color: #c9a87b; grid-column: 1/-1; }
 
-        footer { background: #1a1208; color: #8a7a60; text-align: center; padding: 40px; margin-top: 40px; font-size: 12px; }
+        /* ── SEPARADOR ── */
+        .productos-section { margin-top: 70px; }
 
-        @media (max-width: 768px) { .viral-header h1 { font-size: 1.8rem; } }
+        footer {
+            background: #1a1208; color: #8a7a60;
+            text-align: center; padding: 40px;
+            margin-top: 40px; font-size: 12px;
+            line-height: 2;
+        }
+        footer a { color: #c9a87b; text-decoration: none; }
+        .footer-disclaimer {
+            margin-top: 12px; font-size: 11px; color: #5a4a36; max-width: 700px; margin: 12px auto 0;
+        }
+
+        @media (max-width: 768px) {
+            .productos-grid, .curiosidades-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
     <div class="viral-header">
         <h1>🔥 The Secret <span>Women Are Talking About</span> in 2026</h1>
-        <p>What NYC, Miami & Beverly Hills elites don't want you to know</p>
+        <p>What NYC, Miami &amp; Beverly Hills elites don't want you to know</p>
         <div class="live-badge">⚡ LIVE TRENDS ⚡</div>
     </div>
 
     <div class="container">
-        <!-- SECCIÓN CURIOSIDADES -->
-        <div class="curiosidades-section">
+
+        <!-- CURIOSIDADES -->
+        <section aria-label="Curiosidades de lujo exclusivas">
             <h2 class="section-title">💎 Curiosidades Exclusivas</h2>
-            <div id="curiosidadesGrid" class="curiosidades-grid">
+            <div id="curiosidadesGrid" class="curiosidades-grid" role="list">
                 <div class="loader">🔥 Cargando secretos...</div>
             </div>
-        </div>
+        </section>
 
-        <!-- SECCIÓN PRODUCTOS -->
-        <div class="productos-section">
+        <!-- PRODUCTOS -->
+        <section class="productos-section" aria-label="Artículos exclusivos de Amazon">
             <h2 class="section-title">🛍️ Artículos Exclusivos</h2>
-            <div id="productosGrid" class="productos-grid">
+            <div id="productosGrid" class="productos-grid" role="list">
                 <div class="loader">💎 Cargando artículos de lujo...</div>
             </div>
-        </div>
+        </section>
+
     </div>
 
     <footer>
-        <p>© 2026 MXL GOLD MINER — Luxury Lifestyle & Status</p>
+        <p>© 2026 <strong>MXL Gold</strong> — Luxury Lifestyle &amp; Status</p>
+        <p><a href="/sitemap.xml">Sitemap</a></p>
+        <p class="footer-disclaimer">
+            MXL Gold es participante del Programa de Afiliados de Amazon Services LLC,
+            un programa de publicidad diseñado para proporcionar a los sitios web un medio
+            para ganar honorarios de publicidad mediante la publicidad y el enlace a Amazon.com.
+        </p>
     </footer>
 
     <script>
-        // FUNCIÓN CARGAR PRODUCTOS (Sincronizada con /api/productos)
+        // ─── Cargar Productos ───
         async function cargarProductos() {
             try {
                 const res = await fetch('/api/productos');
                 const productos = await res.json();
                 const grid = document.getElementById('productosGrid');
-                
+
                 if (!productos || productos.length === 0) {
                     grid.innerHTML = '<div class="loader">💰 Inyecta tu primer producto desde el panel MXL</div>';
                     return;
                 }
 
                 grid.innerHTML = productos.map(p => `
-                    <div class="card" onclick="window.open('${p.link}', '_blank')">
+                    <article class="card" role="listitem" itemscope itemtype="https://schema.org/Product">
                         <div class="card-img">
-                            <img src="${p.imagen}" onerror="this.src='https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg'">
+                            <img src="${p.imagen}"
+                                 alt="${p.titulo} — Luxury product"
+                                 loading="lazy"
+                                 itemprop="image"
+                                 onerror="this.src='https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=600'">
                         </div>
                         <div class="card-content">
                             <span class="tag">${p.categoria || 'LUXURY'}</span>
-                            <h3 style="margin: 10px 0; font-family: Playfair Display;">${p.titulo}</h3>
-                            <p style="font-size: 0.9rem; color: #6b5a48;">${p.curiosidad || ''}</p>
-                            <a href="${p.link}" class="btn-comprar" target="_blank">VER EN AMAZON</a>
+                            <h3 style="margin:10px 0; font-family:'Playfair Display',serif; font-size:1.1rem;" itemprop="name">${p.titulo}</h3>
+                            <p style="font-size:.9rem; color:#6b5a48;" itemprop="description">${p.curiosidad || ''}</p>
+                            <a href="${p.link}" class="btn-comprar" target="_blank" rel="noopener sponsored" itemprop="url">
+                                VER EN AMAZON →
+                            </a>
                         </div>
-                    </div>
+                    </article>
                 `).join('');
             } catch(e) { console.error(e); }
         }
 
-        // FUNCIÓN CARGAR CURIOSIDADES
+        // ─── Cargar Curiosidades ───
         async function cargarCuriosidades() {
             try {
                 const res = await fetch('/api/curiosidades');
                 const data = await res.json();
                 const grid = document.getElementById('curiosidadesGrid');
-                
+
                 if (!data || data.length === 0) {
                     grid.innerHTML = '<div class="loader">✨ Generando secretos con Gemini...</div>';
                     return;
                 }
 
                 grid.innerHTML = data.map(c => `
-                    <div class="card">
-                        <div class="card-img" style="height: 200px;">
-                            <img src="${c.imagen}" style="object-fit: cover; padding: 0;">
+                    <article class="card" role="listitem" itemscope itemtype="https://schema.org/Article">
+                        <div class="card-img cover">
+                            <img src="${c.imagen}"
+                                 alt="${c.titulo_es}"
+                                 loading="lazy"
+                                 itemprop="image"
+                                 onerror="this.src='https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=600'">
                         </div>
                         <div class="card-content">
-                            <h3 style="font-size: 1.1rem;">${c.titulo_es}</h3>
-                            <p style="font-size: 0.85rem; margin-top: 10px;">${c.texto_es}</p>
+                            <h3 style="font-size:1.05rem; font-family:'Playfair Display',serif;" itemprop="headline">${c.titulo_es}</h3>
+                            <p style="font-size:.85rem; margin-top:10px; color:#6b5a48;" itemprop="articleBody">${c.texto_es}</p>
                         </div>
-                    </div>
+                    </article>
                 `).join('');
             } catch(e) { console.error(e); }
         }
 
-        // Inicializar y refrescar cada 30 seg
+        // Inicializar y refrescar cada 60 seg
         cargarProductos();
         cargarCuriosidades();
-        setInterval(() => { cargarProductos(); cargarCuriosidades(); }, 30000);
+        setInterval(() => { cargarProductos(); cargarCuriosidades(); }, 60000);
     </script>
 </body>
 </html>
