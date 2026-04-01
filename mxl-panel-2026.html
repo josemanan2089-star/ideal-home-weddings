@@ -3,148 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMMANDER MXL - Panel v6.0</title>
+    <title>COMMANDER MXL — Panel de Control v7.0</title>
     <meta name="robots" content="noindex, nofollow">
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:system-ui,sans-serif;background:#0f0f1a;color:#fff;padding:20px;}
 
-        .header{background:linear-gradient(135deg,#1a1a2e,#2d2d44);padding:20px;border-radius:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
-        h1{font-size:1.4rem;display:flex;align-items:center;gap:10px;}
-        .v-badge{background:#8b5cf6;padding:3px 10px;border-radius:20px;font-size:11px;}
+        .header{background:linear-gradient(135deg,#1a1a2e,#2d2d44);padding:20px;border-radius:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+        h1{font-size:1.3rem;display:flex;align-items:center;gap:10px;}
+        .v-badge{background:#8b5cf6;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:normal;}
 
-        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:20px;}
         .stat-card{background:#1a1a2e;padding:18px;border-radius:12px;text-align:center;}
-        .stat-number{font-size:1.8rem;font-weight:bold;color:#ff4500;}
-        .stat-label{font-size:.65rem;color:#c9a87b;margin-top:4px;text-transform:uppercase;letter-spacing:.5px;}
-        .stat-sub{font-size:.7rem;color:#10b981;margin-top:6px;}
+        .stat-num{font-size:1.8rem;font-weight:bold;color:#ff4500;}
+        .stat-label{font-size:.62rem;color:#c9a87b;margin-top:4px;text-transform:uppercase;letter-spacing:.5px;}
+        .stat-sub{font-size:.68rem;color:#10b981;margin-top:5px;}
 
-        .btn{background:#ff4500;color:#fff;border:none;padding:9px 18px;border-radius:8px;cursor:pointer;margin:4px;transition:all .3s;font-weight:bold;font-size:.85rem;}
+        .btn{background:#ff4500;color:#fff;border:none;padding:9px 16px;border-radius:8px;cursor:pointer;margin:3px;font-weight:bold;font-size:.82rem;transition:opacity .2s;}
+        .btn:hover{opacity:.85;}
         .btn-purple{background:#8b5cf6;}
         .btn-dark{background:#2d2d44;}
-        .btn-red{background:#dc2626;padding:5px 11px;font-size:.75rem;}
-        .btn-sm{padding:5px 12px;font-size:.75rem;}
+        .btn-red{background:#dc2626;padding:5px 10px;font-size:.72rem;}
+        .btn-sm{padding:5px 11px;font-size:.72rem;}
 
-        .section{background:#1a1a2e;border-radius:12px;padding:20px;margin-top:16px;}
-        .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:8px;}
-        .section-header h3{color:#c9a87b;font-size:.95rem;}
-        .badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;background:#8b5cf6;margin-left:6px;}
+        .panel{background:#1a1a2e;border-radius:12px;padding:20px;margin-top:16px;}
+        .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+        .panel-head h3{color:#c9a87b;font-size:.9rem;}
+        .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.65rem;background:#8b5cf6;margin-left:6px;}
 
         /* MODAL */
         .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);align-items:center;justify-content:center;z-index:1000;}
-        .modal-inner{background:#1a1a2e;padding:28px;border-radius:16px;max-width:540px;width:90%;max-height:88vh;overflow-y:auto;}
-        .modal-inner input,.modal-inner select{width:100%;padding:11px;margin:8px 0;border-radius:8px;border:1px solid #3d3d5c;background:#2d2d44;color:#fff;font-size:13px;}
-        label{display:block;margin-bottom:3px;font-size:11px;color:#c9a87b;}
+        .modal-box{background:#1a1a2e;padding:28px;border-radius:16px;max-width:530px;width:92%;max-height:88vh;overflow-y:auto;}
+        .modal-box input,.modal-box select{width:100%;padding:11px;margin:7px 0 14px;border-radius:8px;border:1px solid #3d3d5c;background:#2d2d44;color:#fff;font-size:13px;}
+        label{display:block;margin-bottom:2px;font-size:11px;color:#c9a87b;}
 
         /* TOAST */
-        .toast{position:fixed;bottom:20px;right:20px;background:#10b981;color:#fff;padding:11px 18px;border-radius:8px;z-index:2000;font-weight:bold;animation:slideIn .3s ease;}
-        .toast.error{background:#dc2626;}
-        @keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
+        .toast{position:fixed;bottom:20px;right:20px;background:#10b981;color:#fff;padding:11px 18px;border-radius:8px;z-index:2000;font-weight:bold;animation:slide .3s ease;}
+        .toast.err{background:#dc2626;}
+        @keyframes slide{from{transform:translateX(110px);opacity:0}to{transform:translateX(0);opacity:1}}
 
-        /* PRODUCTO ROW */
+        /* FILAS */
         .prod-row{padding:11px;border-bottom:1px solid #2d2d44;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
         .prod-row:last-child{border-bottom:none;}
         .prod-info{flex:1;min-width:180px;}
-        .prod-titulo{font-size:.85rem;margin-bottom:3px;}
-        .prod-meta{font-size:.72rem;color:#c9a87b;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-        .cat-tag{background:#2d2d44;padding:2px 7px;border-radius:10px;font-size:.65rem;}
-        .clics-tag{color:#ff4500;font-weight:bold;}
-        .tag-ok{color:#10b981;font-size:.65rem;}
+        .prod-title{font-size:.84rem;margin-bottom:3px;}
+        .prod-meta{font-size:.7rem;color:#c9a87b;display:flex;gap:9px;flex-wrap:wrap;align-items:center;}
+        .tag-cat{background:#2d2d44;padding:2px 7px;border-radius:9px;font-size:.62rem;}
+        .tag-clicks{color:#ff4500;font-weight:bold;}
+        .tag-ok{color:#10b981;font-size:.62rem;}
 
-        /* TOP CLICS */
-        .top-row{padding:10px 14px;border-radius:10px;background:#16161e;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
-        .top-rank{font-size:1.1rem;width:28px;text-align:center;flex-shrink:0;}
+        /* TOP CLICKS */
+        .top-row{padding:10px 13px;border-radius:10px;background:#16161e;margin-bottom:7px;display:flex;align-items:center;gap:12px;}
+        .top-rank{font-size:1.05rem;width:26px;text-align:center;flex-shrink:0;}
         .top-info{flex:1;min-width:0;}
-        .top-titulo{font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-        .top-clics{font-size:.75rem;color:#ff4500;font-weight:bold;}
-        .bar-wrap{width:80px;height:6px;background:#2d2d44;border-radius:3px;flex-shrink:0;}
-        .bar-fill{height:6px;background:linear-gradient(90deg,#ff4500,#ff6b35);border-radius:3px;transition:width .5s;}
+        .top-title{font-size:.83rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .top-clicks{font-size:.72rem;color:#ff4500;font-weight:bold;}
+        .bar{width:70px;height:5px;background:#2d2d44;border-radius:3px;flex-shrink:0;}
+        .bar-fill{height:5px;background:linear-gradient(90deg,#ff4500,#ff6b35);border-radius:3px;}
 
-        /* AFFILIATE STATUS */
-        #aff-status{display:flex;align-items:center;gap:7px;background:#0d2b1d;border:1px solid #10b981;padding:7px 14px;border-radius:8px;font-size:12px;}
+        #aff{display:flex;align-items:center;gap:7px;background:#0d2b1d;border:1px solid #10b981;padding:7px 13px;border-radius:8px;font-size:.75rem;}
         .dot{width:7px;height:7px;border-radius:50%;background:#10b981;animation:blink 2s infinite;}
         @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-        .empty{text-align:center;padding:30px;color:#5a5a7a;font-size:.85rem;}
-        .loading{text-align:center;padding:20px;color:#c9a87b;font-size:.85rem;}
+        .empty{text-align:center;padding:28px;color:#5a5a7a;font-size:.82rem;}
+        .loading{text-align:center;padding:20px;color:#c9a87b;font-size:.82rem;}
+
+        /* NOTA IMPORTANTE */
+        .tip-box{background:#1a2010;border:1px solid #4a7c20;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.78rem;color:#8fbc50;line-height:1.7;}
+        .tip-box strong{color:#aada70;}
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>🎖️ COMMANDER MXL <span class="v-badge">v6.0</span></h1>
+    <h1>🎖️ COMMANDER MXL <span class="v-badge">v7.0</span></h1>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-        <div id="aff-status"><span class="dot"></span><span id="affLabel">Cargando...</span></div>
-        <button class="btn btn-purple" onclick="abrirModal()">💉 INYECTAR</button>
+        <div id="aff"><span class="dot"></span><span id="affLabel">Cargando...</span></div>
+        <button class="btn btn-purple" onclick="abrirModal()">💉 INYECTAR PRODUCTO</button>
         <button class="btn btn-dark" onclick="cargarTodo()">🔄 Refrescar</button>
         <a href="/" target="_blank" class="btn btn-dark" style="text-decoration:none;">🌐 Ver Sitio</a>
     </div>
 </div>
 
+<!-- TIP PARA EL DUEÑO -->
+<div class="tip-box">
+    💡 <strong>Consejo importante:</strong> El sitio público está en inglés para tus clientes de USA y Europa.
+    Cuando inyectes un producto, escribe el nombre <strong>en inglés</strong> para que la IA genere el mejor copy de venta.
+    Ejemplo: en vez de <em>"Enfriador de vino de lujo"</em> escribe <em>"Dual zone luxury wine cooler"</em>.
+    El resto lo hace el Motor 2.5 solo. ✅
+</div>
+
 <!-- STATS -->
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="stat-number" id="sProductos">–</div>
+        <div class="stat-num" id="sProds">–</div>
         <div class="stat-label">Productos</div>
     </div>
     <div class="stat-card">
-        <div class="stat-number" id="sCuriosidades">–</div>
-        <div class="stat-label">Curiosidades</div>
+        <div class="stat-num" id="sInsights">–</div>
+        <div class="stat-label">Artículos Auto</div>
         <div class="stat-sub">⏱ cada 15 min</div>
     </div>
     <div class="stat-card">
-        <div class="stat-number" id="sNoticias">–</div>
+        <div class="stat-num" id="sNews">–</div>
         <div class="stat-label">Noticias</div>
     </div>
     <div class="stat-card">
-        <div class="stat-number" style="font-size:1rem;color:#10b981;" id="sMotor">–</div>
+        <div class="stat-num" style="font-size:.9rem;color:#10b981;" id="sMotor">–</div>
         <div class="stat-label">Motor IA</div>
     </div>
     <div class="stat-card">
-        <div class="stat-number" style="font-size:.85rem;color:#c9a87b;margin-top:4px;" id="sTop">–</div>
-        <div class="stat-label">🏆 Top Producto</div>
+        <div class="stat-num" style="font-size:.8rem;color:#c9a87b;margin-top:4px;line-height:1.5;" id="sTop">–</div>
+        <div class="stat-label">🏆 Producto Top</div>
     </div>
-    <div class="stat-card">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px;">
-            <span id="sPexels" style="font-size:.7rem;">Pexels –</span>
-            <span id="sUnsplash" style="font-size:.7rem;">Unsplash –</span>
-            <span id="sNews" style="font-size:.7rem;">News –</span>
-            <span id="sGoogle" style="font-size:.7rem;">Google –</span>
-        </div>
-        <div class="stat-label" style="margin-top:8px;">APIs</div>
+    <div class="stat-card" style="font-size:.68rem;line-height:2.2;">
+        <div id="sApis" style="margin-top:4px;color:#c9a87b;">Cargando APIs...</div>
+        <div class="stat-label" style="margin-top:8px;">Estado APIs</div>
     </div>
 </div>
 
 <!-- TOP CLICS -->
-<div class="section">
-    <div class="section-header">
-        <h3>📊 TOP PRODUCTOS POR CLICS <span class="badge">LIVE</span></h3>
+<div class="panel">
+    <div class="panel-head">
+        <h3>📊 TOP PRODUCTOS POR CLICS <span class="badge">EN VIVO</span></h3>
+        <small style="color:#5a5a7a;font-size:.7rem;">Cuáles están generando más comisiones</small>
     </div>
     <div id="topClics"><div class="loading">Cargando datos...</div></div>
 </div>
 
-<!-- LISTA PRODUCTOS -->
-<div class="section">
-    <div class="section-header">
+<!-- TODOS LOS PRODUCTOS -->
+<div class="panel">
+    <div class="panel-head">
         <h3>📦 TODOS LOS PRODUCTOS <span class="badge">MOTOR 2.5</span></h3>
     </div>
     <div id="prodList"><div class="loading">Cargando...</div></div>
 </div>
 
-<!-- MODAL INYECCIÓN -->
+<!-- MODAL INYECCIÓN — en español para el dueño -->
 <div id="modal" class="modal">
-    <div class="modal-inner">
-        <h3 style="margin-bottom:5px;">💉 INYECCIÓN MAESTRA — MOTOR 2.5</h3>
-        <p style="font-size:11px;color:#c9a87b;margin-bottom:18px;">El affiliate tag se añade solo. Pega el link limpio de Amazon.</p>
+    <div class="modal-box">
+        <h3 style="margin-bottom:6px;">💉 INYECCIÓN DE PRODUCTO — MOTOR 2.5</h3>
+        <p style="font-size:.72rem;color:#c9a87b;margin-bottom:6px;">
+            El affiliate tag se añade automáticamente. Pega el link limpio de Amazon.
+        </p>
+        <p style="font-size:.72rem;color:#8fbc50;margin-bottom:18px;">
+            ⚠️ Escribe el nombre del producto <strong>en inglés</strong> — la IA generará mejor copy para tu audiencia de USA/Europa.
+        </p>
 
-        <label>🏷️ NOMBRE REAL DEL PRODUCTO *</label>
-        <input type="text" id="fTitulo" placeholder="Ej: Cafetera espresso acero inoxidable">
+        <label>🏷️ NOMBRE DEL PRODUCTO (en inglés) *</label>
+        <input type="text" id="fTitle" placeholder="Ej: Dual zone luxury wine cooler stainless steel">
 
-        <label>🔗 URL Amazon *</label>
+        <label>🔗 URL de Amazon *</label>
         <input type="url" id="fUrl" placeholder="https://amazon.com/dp/ASIN...">
 
-        <label>🖼️ URL Imagen (opcional — si no, la IA la busca)</label>
-        <input type="url" id="fImagen" placeholder="https://m.media-amazon.com/...">
+        <label>🖼️ URL de Imagen (opcional — la IA la busca si no pones)</label>
+        <input type="url" id="fImg" placeholder="https://m.media-amazon.com/images/...">
 
         <label>📁 Categoría</label>
         <select id="fCat">
@@ -154,88 +167,95 @@
             <option value="WELLNESS">WELLNESS & SPA</option>
             <option value="FASHION">FASHION ELITE</option>
             <option value="TECH">TECH PREMIUM</option>
+            <option value="BEDROOM">BEDROOM LUXURY</option>
+            <option value="OUTDOOR">OUTDOOR ELITE</option>
         </select>
 
-        <button class="btn btn-purple" id="btnInject" onclick="inyectar()" style="width:100%;margin-top:14px;padding:12px;">
+        <button class="btn btn-purple" id="btnInject" onclick="inyectar()" style="width:100%;padding:13px;margin-top:6px;">
             🚀 EJECUTAR INYECCIÓN 2.5
         </button>
-        <button class="btn btn-dark" onclick="cerrarModal()" style="width:100%;margin-top:8px;">Cerrar</button>
+        <button class="btn btn-dark" onclick="cerrarModal()" style="width:100%;margin-top:8px;">Cancelar</button>
     </div>
 </div>
 
 <script>
 function toast(msg, err=false) {
     const t = document.createElement('div');
-    t.className = 'toast' + (err ? ' error' : '');
+    t.className = 'toast' + (err ? ' err' : '');
     t.textContent = msg;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 3500);
 }
 
-function abrirModal() { document.getElementById('modal').style.display = 'flex'; }
+function abrirModal()  { document.getElementById('modal').style.display = 'flex'; }
 function cerrarModal() {
     document.getElementById('modal').style.display = 'none';
-    ['fTitulo','fUrl','fImagen'].forEach(id => document.getElementById(id).value = '');
+    ['fTitle','fUrl','fImg'].forEach(id => document.getElementById(id).value = '');
 }
 
 async function cargarStats() {
     try {
         const d = await fetch('/api/stats').then(r => r.json());
-        document.getElementById('sProductos').textContent   = d.productos ?? '–';
-        document.getElementById('sCuriosidades').textContent = d.curiosidades ?? '–';
-        document.getElementById('sNoticias').textContent    = d.noticias ?? '–';
-        document.getElementById('sMotor').textContent       = d.motor ?? '–';
-        document.getElementById('sTop').textContent         = d.topProducto ? `${d.topProducto.titulo.slice(0,22)}… (${d.topProducto.clics} clics)` : 'Sin datos aún';
-        document.getElementById('affLabel').textContent     = `TAG: ${d.affiliateTag}`;
-        document.getElementById('sPexels').textContent      = `Pexels ${d.pexels}`;
-        document.getElementById('sUnsplash').textContent    = `Unsplash ${d.unsplash}`;
-        document.getElementById('sNews').textContent        = `News ${d.newsApi}`;
-        document.getElementById('sGoogle').textContent      = `Google ${d.google}`;
-    } catch(e) { document.getElementById('affLabel').textContent = 'Sin conexión'; }
+        document.getElementById('sProds').textContent    = d.productos ?? '–';
+        document.getElementById('sInsights').textContent = d.curiosidades ?? '–';
+        document.getElementById('sNews').textContent     = d.noticias ?? '–';
+        document.getElementById('sMotor').textContent    = d.motor ?? '–';
+        document.getElementById('sTop').textContent      = d.topProducto
+            ? `${d.topProducto.titulo.slice(0,22)}… (${d.topProducto.clics} clics)` : 'Sin datos aún';
+        document.getElementById('affLabel').textContent  = `TAG: ${d.affiliateTag}`;
+        document.getElementById('sApis').innerHTML =
+            `Pexels ${d.pexels} &nbsp; Unsplash ${d.unsplash}<br>Noticias ${d.newsApi} &nbsp; Google ${d.google}`;
+    } catch { document.getElementById('affLabel').textContent = 'Sin conexión'; }
 }
 
 async function cargarTopClics() {
     try {
         const data = await fetch('/api/track/top').then(r => r.json());
         const el = document.getElementById('topClics');
-        if (!data.length) { el.innerHTML = '<div class="empty">Sin clics aún. Comparte el sitio para generar tráfico.</div>'; return; }
-        const maxClics = data[0].clics || 1;
-        const medals = ['🥇','🥈','🥉'];
+        if (!data.length) {
+            el.innerHTML = '<div class="empty">Sin clics aún. Comparte el sitio para generar tráfico.</div>';
+            return;
+        }
+        const max = data[0].clics || 1;
+        const medallas = ['🥇','🥈','🥉'];
         el.innerHTML = data.map((p,i) => `
             <div class="top-row">
-                <span class="top-rank">${medals[i] || `${i+1}`}</span>
+                <span class="top-rank">${medallas[i] || `${i+1}`}</span>
                 <div class="top-info">
-                    <div class="top-titulo">${p.titulo}</div>
-                    <div class="top-clics">${p.clics} clics totales · ${p.clics_semana || 0} esta semana</div>
+                    <div class="top-title">${p.titulo}</div>
+                    <div class="top-clicks">${p.clics} clics totales · ${p.clics_semana || 0} esta semana</div>
                 </div>
-                <div class="bar-wrap"><div class="bar-fill" style="width:${Math.round((p.clics/maxClics)*100)}%"></div></div>
+                <div class="bar"><div class="bar-fill" style="width:${Math.round((p.clics/max)*100)}%"></div></div>
                 <a href="${p.link}" target="_blank" rel="noopener" class="btn btn-sm btn-dark" style="text-decoration:none;">Ver →</a>
             </div>
         `).join('');
-    } catch(e) { document.getElementById('topClics').innerHTML = '<div class="empty">Error cargando datos</div>'; }
+    } catch { document.getElementById('topClics').innerHTML = '<div class="empty">Error cargando datos</div>'; }
 }
 
 async function eliminar(id) {
-    if (!confirm('¿Eliminar este producto y sus clics?')) return;
+    if (!confirm('¿Eliminar este producto y su historial de clics?')) return;
     try {
         const d = await fetch(`/api/productos/${id}`, { method: 'DELETE' }).then(r => r.json());
         if (d.success) { toast('✅ Producto eliminado'); cargarTodo(); }
-    } catch(e) { toast('❌ Error', true); }
+    } catch { toast('❌ Error al eliminar', true); }
 }
 
 async function cargarProductos() {
     const prods = await fetch('/api/productos').then(r => r.json());
     const el = document.getElementById('prodList');
-    if (!prods.length) { el.innerHTML = '<div class="empty">Inyecta tu primer producto 👆</div>'; return; }
+    if (!prods.length) {
+        el.innerHTML = '<div class="empty">Sin productos aún. ¡Inyecta el primero! ☝️</div>';
+        return;
+    }
     el.innerHTML = prods.map(p => `
         <div class="prod-row">
             <div class="prod-info">
-                <div class="prod-titulo">${p.titulo}</div>
+                <div class="prod-title">${p.titulo}</div>
                 <div class="prod-meta">
-                    <span class="cat-tag">${p.categoria}</span>
-                    <span class="clics-tag">🔥 ${p.clics || 0} clics</span>
+                    <span class="tag-cat">${p.categoria}</span>
+                    <span class="tag-clicks">🔥 ${p.clics || 0} clics</span>
                     <span class="tag-ok">✅ tag activo</span>
-                    <span style="color:#5a5a7a;">${new Date(p.fecha).toLocaleDateString('es-DO')}</span>
+                    <span style="color:#4a4a5a;">${new Date(p.fecha).toLocaleDateString('es-DO')}</span>
                 </div>
             </div>
             <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
@@ -247,9 +267,9 @@ async function cargarProductos() {
 }
 
 async function inyectar() {
-    const titulo = document.getElementById('fTitulo').value.trim();
+    const titulo = document.getElementById('fTitle').value.trim();
     const url    = document.getElementById('fUrl').value.trim();
-    const img    = document.getElementById('fImagen').value.trim();
+    const img    = document.getElementById('fImg').value.trim();
     const cat    = document.getElementById('fCat').value;
 
     if (!titulo) return toast('❌ Falta el nombre del producto', true);
@@ -266,12 +286,12 @@ async function inyectar() {
         }).then(r => r.json());
 
         if (d.success) {
-            toast(`✅ "${d.producto}" inyectado con ${d.affiliateTag}`);
+            toast(`✅ "${d.product}" inyectado con tag ${d.affiliateTag}`);
             cerrarModal(); cargarTodo();
         } else {
             toast('❌ ' + (d.error || 'Inténtalo de nuevo'), true);
         }
-    } catch(e) { toast('❌ Error de red', true); }
+    } catch { toast('❌ Error de red', true); }
     finally { btn.disabled = false; btn.textContent = '🚀 EJECUTAR INYECCIÓN 2.5'; }
 }
 
