@@ -28,7 +28,7 @@ app.use(compression());
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-app.get('/health', (req, res) => res.json({ status: 'ok', version: '8.0' }));
+app.get('/health', (req, res) => res.json({ status: 'ok', version: '7.0' }));
 
 app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
@@ -84,7 +84,7 @@ async function initDB() {
         await db.query(`ALTER TABLE articulos ADD COLUMN IF NOT EXISTS keyword TEXT`).catch(() => {});
         await db.query(`ALTER TABLE curiosidades ADD COLUMN IF NOT EXISTS keyword TEXT`).catch(() => {});
         await db.query(`ALTER TABLE curiosidades ADD COLUMN IF NOT EXISTS producto_id BIGINT`).catch(() => {});
-        console.log('✅ DB Ready v8.0');
+        console.log('✅ DB Ready v7.0');
     } catch (e) { console.error('❌ DB Error:', e.message); }
 }
 
@@ -168,7 +168,8 @@ async function findRelatedProduct(keyword) {
 }
 
 // ============================================================
-// AUTO-PILOT — Insights in ENGLISH
+// AUTO-PILOT — Insights (formerly curiosidades) in ENGLISH
+// Targeting USA + Europe high-income women
 // ============================================================
 const SEO_TOPICS = [
     { topic: 'best luxury kitchen appliances Amazon 2026', keyword: 'luxury kitchen appliances' },
@@ -313,15 +314,6 @@ app.get('/api/track/top', async (req, res) => {
     } catch (e) { res.status(500).json([]); }
 });
 
-// Single product page API
-app.get('/api/productos/:id', async (req, res) => {
-    try {
-        const r = await db.query(`SELECT * FROM articulos WHERE id = $1`, [req.params.id]);
-        if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
-        res.json(r.rows[0]);
-    } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
 // Inject product — generate English copy
 app.post('/api/commander/inject', async (req, res) => {
     const { url, imagenUrl, categoria, tituloReal } = req.body;
@@ -392,58 +384,54 @@ app.delete('/api/productos/:id', async (req, res) => {
     } catch (e) { res.status(500).json({ success: false }); }
 });
 
-// Products with pagination + category filter
+// Products — paginated + category filter
 app.get('/api/productos', async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 12;
+    const page     = Math.max(1, parseInt(req.query.page) || 1);
+    const limit    = 12;
+    const offset   = (page - 1) * limit;
     const categoria = req.query.categoria || null;
-    const offset = (page - 1) * limit;
-
-    // Only use cache for default query
-    if (!categoria && page === 1 && cacheValid('products')) return res.json(cache.products);
 
     try {
-        let whereClause = '';
-        let params = [limit, offset];
-        if (categoria && categoria !== 'ALL') {
-            whereClause = `WHERE categoria = $3`;
-            params.push(categoria);
-        }
+        const where  = categoria ? `WHERE UPPER(categoria) = $3` : '';
+        const params = categoria ? [limit, offset, categoria.toUpperCase()] : [limit, offset];
 
-        const r = await db.query(
-            `SELECT * FROM articulos ${whereClause} ORDER BY fecha DESC LIMIT $1 OFFSET $2`,
-            params
-        );
-
-        const countParams = categoria && categoria !== 'ALL' ? [categoria] : [];
-        const countWhere = categoria && categoria !== 'ALL' ? `WHERE categoria = $1` : '';
-        const countR = await db.query(`SELECT COUNT(*) FROM articulos ${countWhere}`, countParams);
-        const total = parseInt(countR.rows[0].count);
-
-        const result = {
-            items: r.rows,
+        const [rows, total] = await Promise.all([
+            db.query(`SELECT * FROM articulos ${where} ORDER BY fecha DESC LIMIT $1 OFFSET $2`, params),
+            db.query(`SELECT COUNT(*) FROM articulos ${categoria ? `WHERE UPPER(categoria) = $1` : ''}`,
+                     categoria ? [categoria.toUpperCase()] : [])
+        ]);
+        res.json({
+            items:    rows.rows,
+            total:    parseInt(total.rows[0].count),
             page,
-            limit,
-            total,
-            hasMore: offset + r.rows.length < total
-        };
-
-        if (!categoria && page === 1) {
-            cache.products = result;
-            cache.ts.products = Date.now();
-        }
-        res.json(result);
-    } catch (e) { res.status(500).json({ items: [], total: 0, hasMore: false }); }
+            pages:    Math.ceil(parseInt(total.rows[0].count) / limit),
+            hasMore:  offset + limit < parseInt(total.rows[0].count)
+        });
+    } catch (e) { res.status(500).json({ items: [], total: 0, page: 1, pages: 1, hasMore: false }); }
 });
 
-// Insights with pagination + related product JOIN
+// Available categories
+app.get('/api/categorias', async (req, res) => {
+    try {
+        const r = await db.query(`SELECT DISTINCT categoria, COUNT(*) as total FROM articulos GROUP BY categoria ORDER BY total DESC`);
+        res.json(r.rows);
+    } catch (e) { res.status(500).json([]); }
+});
+
+// Single product page — SEO
+app.get('/api/productos/:id', async (req, res) => {
+    try {
+        const r = await db.query(`SELECT * FROM articulos WHERE id = $1`, [req.params.id]);
+        if (!r.rows.length) return res.status(404).json({ error: 'Not found' });
+        res.json(r.rows[0]);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Insights — paginated
 app.get('/api/curiosidades', async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 9;
+    const page  = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = 9;
     const offset = (page - 1) * limit;
-
-    if (page === 1 && cacheValid('insights')) return res.json(cache.insights);
-
     try {
         const r = await db.query(`
             SELECT c.*,
@@ -453,27 +441,16 @@ app.get('/api/curiosidades', async (req, res) => {
                    a.id     AS producto_id_ref
             FROM curiosidades c
             LEFT JOIN articulos a ON a.id = c.producto_id
-            ORDER BY c.fecha DESC
-            LIMIT $1 OFFSET $2
+            ORDER BY c.fecha DESC LIMIT $1 OFFSET $2
         `, [limit, offset]);
-
-        const countR = await db.query('SELECT COUNT(*) FROM curiosidades');
-        const total = parseInt(countR.rows[0].count);
-
-        const result = {
-            items: r.rows,
+        const total = await db.query(`SELECT COUNT(*) FROM curiosidades`);
+        res.json({
+            items:   r.rows,
+            total:   parseInt(total.rows[0].count),
             page,
-            limit,
-            total,
-            hasMore: offset + r.rows.length < total
-        };
-
-        if (page === 1) {
-            cache.insights = result;
-            cache.ts.insights = Date.now();
-        }
-        res.json(result);
-    } catch (e) { res.status(500).json({ items: [], total: 0, hasMore: false }); }
+            hasMore: offset + limit < parseInt(total.rows[0].count)
+        });
+    } catch (e) { res.status(500).json({ items: [], total: 0, page: 1, hasMore: false }); }
 });
 
 app.get('/api/noticias', async (req, res) => {
@@ -509,31 +486,26 @@ app.get('/api/stats', async (req, res) => {
 app.get('/sitemap.xml', async (req, res) => {
     const host = `https://${req.headers.host}`;
     try {
-        const r = await db.query('SELECT id, titulo, fecha FROM articulos ORDER BY fecha DESC LIMIT 200');
+        const r = await db.query('SELECT id, fecha FROM articulos ORDER BY fecha DESC LIMIT 200');
         const urls = r.rows.map(p =>
-            `<url><loc>${host}/product/${p.id}</loc><lastmod>${new Date(p.fecha).toISOString().split('T')[0]}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`
+            `<url><loc>${host}/#product-${p.id}</loc><lastmod>${new Date(p.fecha).toISOString().split('T')[0]}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`
         ).join('');
         res.header('Content-Type', 'application/xml');
         res.send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${host}/</loc><changefreq>hourly</changefreq><priority>1.0</priority></url>${urls}</urlset>`);
     } catch (e) { res.status(500).send('Sitemap error'); }
 });
 
-// ============================================================
-// PRODUCT PAGE — serve index.html for SPA routing
-// ============================================================
-app.get('/product/:id', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
 app.use(express.static(__dirname));
+// Product pages and all other routes → index.html (SPA)
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 async function start() {
     await initDB();
     console.log(`🔑 Gemini keys: ${geminiKeys.length}`);
+    // 3 keys → publish every 15 min without hitting rate limits
     cron.schedule('*/15 * * * *', () => publishInsight());
-    cron.schedule('0 */2 * * *', () => publishLuxuryNews());
-    setTimeout(() => publishInsight(), 10000);
+    cron.schedule('0 */2 * * *',  () => publishLuxuryNews());
+    setTimeout(() => publishInsight(),   10000);
     setTimeout(() => publishLuxuryNews(), 30000);
     app.listen(PORT, '0.0.0.0', () =>
         console.log(`🚀 MXL v8.0 — TAG:${AFFILIATE_TAG} — Keys:${geminiKeys.length} — Port:${PORT}`)
