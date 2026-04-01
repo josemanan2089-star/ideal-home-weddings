@@ -3,125 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMMANDER MXL - Panel de Control v4.2</title>
+    <title>COMMANDER MXL - Panel v4.9</title>
+    <meta name="robots" content="noindex, nofollow">
     <style>
-        /* [Tus estilos se mantienen iguales para no romper el diseño] */
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:system-ui,sans-serif;background:#0f0f1a;color:#fff;padding:20px;}
-        .header{background:linear-gradient(135deg,#1a1a2e,#2d2d44);padding:20px;border-radius:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+
+        .header{
+            background:linear-gradient(135deg,#1a1a2e,#2d2d44);
+            padding:20px;border-radius:16px;margin-bottom:20px;
+            display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
+        }
         h1{font-size:1.5rem;display:flex;align-items:center;gap:10px;}
         .commander-badge{background:#ff4500;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:normal;}
+
         .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:20px;}
-        .stat-card{background:#1a1a2e;padding:20px;border-radius:12px;text-align:center;transition:transform 0.2s;}
+        .stat-card{background:#1a1a2e;padding:20px;border-radius:12px;text-align:center;}
         .stat-number{font-size:2rem;font-weight:bold;color:#ff4500;}
-        .stat-label{font-size:0.7rem;color:#c9a87b;margin-top:5px;}
-        .btn{background:#ff4500;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;margin:5px;transition:all 0.3s;font-weight:bold;}
+        .stat-label{font-size:0.7rem;color:#c9a87b;margin-top:5px;text-transform:uppercase;letter-spacing:.5px;}
+
+        .btn{background:#ff4500;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;margin:5px;transition:all .3s;font-weight:bold;}
         .btn-commander{background:#8b5cf6;}
+        .btn-danger{background:#dc2626;padding:6px 12px;font-size:12px;}
+        .btn-sm{padding:6px 14px;font-size:12px;}
+
         .section{background:#1a1a2e;border-radius:12px;padding:20px;margin-top:20px;}
-        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);align-items:center;justify-content:center;z-index:1000;}
+        .section h3{margin-bottom:15px;color:#c9a87b;}
+
+        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);align-items:center;justify-content:center;z-index:1000;}
         .modal-content{background:#1a1a2e;padding:30px;border-radius:16px;max-width:550px;width:90%;max-height:85vh;overflow-y:auto;}
-        .modal-content input,.modal-content select{width:100%;padding:12px;margin:10px 0;border-radius:8px;border:none;background:#2d2d44;color:#fff;}
-        label{display:block;margin-bottom:5px;font-size:12px;color:#c9a87b;}
-        .toast{position:fixed;bottom:20px;right:20px;background:#10b981;color:#fff;padding:12px 20px;border-radius:8px;z-index:2000;}
+        .modal-content input,.modal-content select{
+            width:100%;padding:12px;margin:10px 0;border-radius:8px;
+            border:1px solid #3d3d5c;background:#2d2d44;color:#fff;font-size:14px;
+        }
+        label{display:block;margin-bottom:4px;font-size:12px;color:#c9a87b;}
+
+        .toast{
+            position:fixed;bottom:20px;right:20px;background:#10b981;color:#fff;
+            padding:12px 20px;border-radius:8px;z-index:2000;font-weight:bold;
+            animation:slideIn .3s ease;
+        }
+        .toast.error{background:#dc2626;}
+        @keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
+
         .badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;background:#8b5cf6;}
+
+        .producto-row{
+            padding:12px;border-bottom:1px solid #2d2d44;
+            display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+        }
+        .producto-row:last-child{border-bottom:none;}
+        .producto-info{flex:1;min-width:200px;}
+        .producto-titulo{font-size:.9rem;margin-bottom:4px;}
+        .producto-meta{font-size:.75rem;color:#c9a87b;display:flex;gap:12px;flex-wrap:wrap;}
+        .tag-cat{background:#2d2d44;padding:2px 8px;border-radius:12px;font-size:10px;}
+        .tag-affiliate{color:#10b981;font-size:10px;}
+
+        .empty-state{text-align:center;padding:40px;color:#5a5a7a;}
+        .loading{text-align:center;padding:30px;color:#c9a87b;}
+
+        #affiliate-status{
+            display:flex;align-items:center;gap:8px;
+            background:#0d2b1d;border:1px solid #10b981;
+            padding:8px 16px;border-radius:8px;font-size:13px;
+        }
+        .dot{width:8px;height:8px;border-radius:50%;background:#10b981;animation:pulse2 2s infinite;}
+        @keyframes pulse2{0%,100%{opacity:1}50%{opacity:.3}}
     </style>
 </head>
 <body>
+
     <div class="header">
-        <h1>🎖️ COMMANDER MXL <span class="commander-badge">mxl = Único Disparador</span></h1>
-        <div>
+        <h1>🎖️ COMMANDER MXL <span class="commander-badge">v4.9</span></h1>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <div id="affiliate-status">
+                <span class="dot"></span>
+                <span id="affiliateTagLabel">Cargando tag...</span>
+            </div>
             <button class="btn btn-commander" onclick="abrirModalInyeccion()">💉 INYECTAR PRODUCTO</button>
             <button class="btn" style="background:#2d2d44" onclick="cargarTodo()">🔄 Refrescar</button>
         </div>
     </div>
 
-    <!-- Stats omitidas por brevedad pero se mantienen en tu código real -->
-    <div id="stats" class="stats-grid"></div>
-
-    <div class="section">
-        <h3>📦 PRODUCTOS INYECTADOS <span class="badge">MOTOR 2.5</span></h3>
-        <div id="productosList"></div>
+    <!-- STATS REALES -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number" id="statProductos">–</div>
+            <div class="stat-label">Productos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="statCuriosidades">–</div>
+            <div class="stat-label">Curiosidades Auto</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" style="font-size:1.1rem;color:#10b981;" id="statMotor">–</div>
+            <div class="stat-label">Motor IA</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" style="font-size:1.1rem;color:#c9a87b;">40min</div>
+            <div class="stat-label">Ciclo Piloto Auto</div>
+        </div>
     </div>
 
-    <!-- MODAL DE INYECCIÓN ARREGLADO -->
+    <!-- LISTA DE PRODUCTOS -->
+    <div class="section">
+        <h3>📦 PRODUCTOS INYECTADOS <span class="badge">MOTOR 2.5</span></h3>
+        <div id="productosList"><div class="loading">Cargando...</div></div>
+    </div>
+
+    <!-- MODAL DE INYECCIÓN -->
     <div id="modalInyeccion" class="modal">
         <div class="modal-content">
-            <h3>💉 INYECCIÓN MAESTRA - MOTOR 2.5</h3>
-            <p style="font-size:12px; color:#c9a87b; margin-bottom:15px;">Dile a la IA qué es el producto para evitar errores.</p>
-            
-            <div class="form-group">
-                <label>🏷️ NOMBRE REAL DEL PRODUCTO (Ej: Cama de Lujo, Horno Grill)</label>
-                <input type="text" id="productoTituloReal" placeholder="Escribe qué es exactamente...">
-            </div>
-            
-            <div class="form-group">
-                <label>🔗 URL de Amazon</label>
-                <input type="text" id="productoUrl" placeholder="https://amazon.com/...">
-            </div>
-            
-            <div class="form-group">
-                <label>🖼️ URL de Imagen</label>
-                <input type="text" id="productoImagen" placeholder="https://...">
-            </div>
+            <h3 style="margin-bottom:5px;">💉 INYECCIÓN MAESTRA - MOTOR 2.5</h3>
+            <p style="font-size:12px;color:#c9a87b;margin-bottom:20px;">
+                El affiliate tag se añade automáticamente. Solo pega el link limpio de Amazon.
+            </p>
 
-            <div class="form-group">
-                <label>📁 Categoría</label>
-                <select id="productoCategoria">
-                    <option value="LUXURY">LUXURY</option>
-                    <option value="SMART HOME">SMART HOME</option>
-                    <option value="KITCHEN">KITCHEN GOURMET</option>
-                </select>
-            </div>
+            <label>🏷️ NOMBRE REAL DEL PRODUCTO *</label>
+            <input type="text" id="productoTituloReal" placeholder="Ej: Cafetera espresso de acero inoxidable">
 
-            <button class="btn btn-commander" id="btnInyectar" onclick="inyectarProducto()" style="width:100%;">🚀 EJECUTAR INYECCIÓN 2.5</button>
-            <button class="btn" style="width:100%; background:#2d2d44;" onclick="cerrarModal()">Cerrar</button>
+            <label>🔗 URL de Amazon *</label>
+            <input type="url" id="productoUrl" placeholder="https://amazon.com/dp/ASIN...">
+
+            <label>🖼️ URL de Imagen</label>
+            <input type="url" id="productoImagen" placeholder="https://m.media-amazon.com/images/...">
+
+            <label>📁 Categoría</label>
+            <select id="productoCategoria">
+                <option value="LUXURY">LUXURY</option>
+                <option value="SMART HOME">SMART HOME</option>
+                <option value="KITCHEN">KITCHEN GOURMET</option>
+                <option value="WELLNESS">WELLNESS & SPA</option>
+                <option value="FASHION">FASHION ELITE</option>
+                <option value="TECH">TECH PREMIUM</option>
+            </select>
+
+            <button class="btn btn-commander" id="btnInyectar" onclick="inyectarProducto()" style="width:100%;margin-top:15px;">
+                🚀 EJECUTAR INYECCIÓN 2.5
+            </button>
+            <button class="btn" style="width:100%;background:#2d2d44;margin-top:8px;" onclick="cerrarModal()">
+                Cerrar
+            </button>
         </div>
     </div>
 
     <script>
-        function mostrarToast(m) { const t=document.createElement('div'); t.className='toast'; t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
-        
-        function abrirModalInyeccion() { document.getElementById('modalInyeccion').style.display='flex'; }
-        function cerrarModal() { document.getElementById('modalInyeccion').style.display='none'; }
+        function mostrarToast(m, error=false) {
+            const t = document.createElement('div');
+            t.className = 'toast' + (error ? ' error' : '');
+            t.textContent = m;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3500);
+        }
+
+        function abrirModalInyeccion() { document.getElementById('modalInyeccion').style.display = 'flex'; }
+        function cerrarModal() {
+            document.getElementById('modalInyeccion').style.display = 'none';
+            document.getElementById('productoTituloReal').value = '';
+            document.getElementById('productoUrl').value = '';
+            document.getElementById('productoImagen').value = '';
+        }
+
+        async function cargarStats() {
+            try {
+                const res = await fetch('/api/stats');
+                const d = await res.json();
+                document.getElementById('statProductos').textContent = d.productos ?? '–';
+                document.getElementById('statCuriosidades').textContent = d.curiosidades ?? '–';
+                document.getElementById('statMotor').textContent = d.motor ?? '–';
+                document.getElementById('affiliateTagLabel').textContent = `TAG: ${d.affiliateTag}`;
+            } catch(e) {
+                document.getElementById('affiliateTagLabel').textContent = 'Sin conexión';
+            }
+        }
+
+        async function eliminarProducto(id) {
+            if (!confirm('¿Eliminar este producto?')) return;
+            try {
+                const res = await fetch(`/api/productos/${id}`, { method: 'DELETE' });
+                const d = await res.json();
+                if (d.success) { mostrarToast('✅ Producto eliminado'); cargarTodo(); }
+            } catch(e) { mostrarToast('❌ Error al eliminar', true); }
+        }
 
         async function inyectarProducto() {
-            const titulo = document.getElementById('productoTituloReal').value;
-            const url = document.getElementById('productoUrl').value;
-            const img = document.getElementById('productoImagen').value;
+            const titulo = document.getElementById('productoTituloReal').value.trim();
+            const url = document.getElementById('productoUrl').value.trim();
+            const img = document.getElementById('productoImagen').value.trim();
             const cat = document.getElementById('productoCategoria').value;
 
-            if(!titulo || !url) return mostrarToast("❌ Falta el Nombre o Link");
+            if (!titulo) return mostrarToast('❌ Falta el nombre del producto', true);
+            if (!url) return mostrarToast('❌ Falta la URL de Amazon', true);
 
             const btn = document.getElementById('btnInyectar');
-            btn.disabled = true; btn.textContent = "⌛ INYECTANDO...";
+            btn.disabled = true;
+            btn.textContent = '⌛ MOTOR 2.5 TRABAJANDO...';
 
             try {
                 const res = await fetch('/api/commander/inject', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ url, imagenUrl: img, categoria: cat, tituloReal: titulo })
                 });
                 const data = await res.json();
-                if(data.success) {
-                    mostrarToast("✅ ¡Producto Inyectado con Éxito!");
+                if (data.success) {
+                    mostrarToast(`✅ "${data.producto}" inyectado con tag ${data.affiliateTag}`);
                     cerrarModal();
                     cargarTodo();
+                } else {
+                    mostrarToast('❌ Error: ' + (data.error || 'Inténtalo de nuevo'), true);
                 }
-            } catch(e) { mostrarToast("❌ Error en el servidor"); }
-            finally { btn.disabled = false; btn.textContent = "🚀 EJECUTAR INYECCIÓN 2.5"; }
+            } catch(e) {
+                mostrarToast('❌ Error de red', true);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🚀 EJECUTAR INYECCIÓN 2.5';
+            }
         }
 
-        async function cargarTodo() {
+        async function cargarProductos() {
             const res = await fetch('/api/productos');
             const prods = await res.json();
-            document.getElementById('productosList').innerHTML = prods.map(p => `
-                <div style="padding:10px; border-bottom:1px solid #2d2d44; display:flex; justify-content:space-between;">
-                    <span>${p.titulo}</span>
-                    <small>${p.categoria}</small>
+            const el = document.getElementById('productosList');
+
+            if (!prods.length) {
+                el.innerHTML = '<div class="empty-state">💡 Aún no hay productos. ¡Inyecta el primero!</div>';
+                return;
+            }
+
+            el.innerHTML = prods.map(p => `
+                <div class="producto-row">
+                    <div class="producto-info">
+                        <div class="producto-titulo">${p.titulo}</div>
+                        <div class="producto-meta">
+                            <span class="tag-cat">${p.categoria}</span>
+                            <span class="tag-affiliate">✅ affiliate tag activo</span>
+                            <span style="color:#5a5a7a;">${new Date(p.fecha).toLocaleDateString('es-DO')}</span>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <a href="${p.link}" target="_blank" rel="noopener" class="btn btn-sm" style="background:#2d2d44;text-decoration:none;font-size:12px;">
+                            Ver →
+                        </a>
+                        <button class="btn btn-danger" onclick="eliminarProducto(${p.id})">🗑️</button>
+                    </div>
                 </div>
             `).join('');
         }
+
+        async function cargarTodo() {
+            await Promise.all([cargarStats(), cargarProductos()]);
+        }
+
         cargarTodo();
+        setInterval(cargarStats, 30000);
     </script>
 </body>
 </html>
