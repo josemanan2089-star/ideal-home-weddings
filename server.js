@@ -31,7 +31,15 @@ app.use(express.json({ limit: '10mb' }));
 // ============================================================
 // HEALTH CHECK
 // ============================================================
-app.get('/health', (req, res) => res.json({ status: 'ok', version: '5.0' }));
+app.get('/health', (req, res) => res.json({ status: 'ok', version: '6.0' }));
+
+// ============================================================
+// ROBOTS.TXT — Google sabe qué indexar
+// ============================================================
+app.get('/robots.txt', (req, res) => {
+    res.type('text/plain');
+    res.send(`User-agent: *\nAllow: /\nDisallow: /mxl-panel-2026.html\nDisallow: /api/commander/\n\nSitemap: https://${req.headers.host}/sitemap.xml`);
+});
 
 // ============================================================
 // DB POSTGRESQL
@@ -53,13 +61,15 @@ async function initDB() {
             CREATE TABLE IF NOT EXISTS articulos (
                 id BIGINT PRIMARY KEY, asin VARCHAR(20), titulo TEXT, meta TEXT,
                 curiosidad TEXT, imagen TEXT, categoria VARCHAR(100),
-                link TEXT, fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                link TEXT, keyword TEXT, clics INT DEFAULT 0,
+                fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
         await db.query(`
             CREATE TABLE IF NOT EXISTS curiosidades (
                 id BIGINT PRIMARY KEY, titulo_es TEXT, texto_es TEXT,
-                imagen TEXT, fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                imagen TEXT, keyword TEXT, producto_id BIGINT,
+                fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
         await db.query(`
@@ -68,12 +78,23 @@ async function initDB() {
                 imagen TEXT, link TEXT, fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
-        console.log('✅ DB Lista v5.0');
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS clics (
+                id BIGSERIAL PRIMARY KEY, producto_id BIGINT, tipo VARCHAR(20) DEFAULT 'producto',
+                fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        // Migracion segura — añadir columnas si la tabla ya existia
+        await db.query(`ALTER TABLE articulos ADD COLUMN IF NOT EXISTS clics INT DEFAULT 0`).catch(() => {});
+        await db.query(`ALTER TABLE articulos ADD COLUMN IF NOT EXISTS keyword TEXT`).catch(() => {});
+        await db.query(`ALTER TABLE curiosidades ADD COLUMN IF NOT EXISTS keyword TEXT`).catch(() => {});
+        await db.query(`ALTER TABLE curiosidades ADD COLUMN IF NOT EXISTS producto_id BIGINT`).catch(() => {});
+        console.log('✅ DB Lista v6.0');
     } catch (e) { console.error('❌ Error DB:', e.message); }
 }
 
 // ============================================================
-// MOTOR GEMINI — ROTACIÓN DE 3 KEYS (evita rate limits)
+// MOTOR GEMINI — ROTACIÓN 3 KEYS
 // ============================================================
 const geminiKeys = [
     process.env.GEMINI_API_KEY_CONTENT,
@@ -91,15 +112,13 @@ async function generateContent(prompt) {
             const result = await model.generateContent(prompt);
             geminiIndex = (geminiIndex + i + 1) % geminiKeys.length;
             return result.response.text().replace(/```json|```/g, '').trim();
-        } catch (e) {
-            console.warn(`⚠️ Gemini key ${i} falló: ${e.message}`);
-        }
+        } catch (e) { console.warn(`⚠️ Gemini key ${i} falló: ${e.message}`); }
     }
     throw new Error('Todos los motores Gemini fallaron');
 }
 
 // ============================================================
-// IMÁGENES: Pexels → Unsplash → Foto fija (nunca falla)
+// IMÁGENES: Pexels → Unsplash → Fija
 // ============================================================
 async function buscarImagenPexels(keyword) {
     const key = process.env.PEXELS_API_KEY;
@@ -110,10 +129,7 @@ async function buscarImagenPexels(keyword) {
             headers: { Authorization: key }
         });
         const data = await res.json();
-        if (data.photos && data.photos.length > 0) {
-            const foto = data.photos[Math.floor(Math.random() * data.photos.length)];
-            return foto.src.large;
-        }
+        if (data.photos?.length > 0) return data.photos[Math.floor(Math.random() * data.photos.length)].src.large;
     } catch (e) { console.warn('Pexels falló:', e.message); }
     return null;
 }
@@ -127,10 +143,7 @@ async function buscarImagenUnsplash(keyword) {
             headers: { Authorization: `Client-ID ${key}` }
         });
         const data = await res.json();
-        if (data.results && data.results.length > 0) {
-            const foto = data.results[Math.floor(Math.random() * data.results.length)];
-            return foto.urls.regular;
-        }
+        if (data.results?.length > 0) return data.results[Math.floor(Math.random() * data.results.length)].urls.regular;
     } catch (e) { console.warn('Unsplash falló:', e.message); }
     return null;
 }
@@ -144,10 +157,24 @@ async function obtenerImagen(keyword) {
 }
 
 // ============================================================
-// PILOTO AUTOMÁTICO — Curiosidades con SEO + CTR + Afiliados
+// HELPER — Producto relacionado por keyword
 // ============================================================
+async function encontrarProductoRelacionado(keyword) {
+    try {
+        const words = keyword.toLowerCase().split(' ').filter(w => w.length > 3);
+        if (!words.length) return null;
+        const conditions = words.map((w, i) => `LOWER(titulo) LIKE $${i + 1}`).join(' OR ');
+        const r = await db.query(
+            `SELECT id, titulo, link, imagen, categoria FROM articulos WHERE ${conditions} ORDER BY clics DESC LIMIT 1`,
+            words.map(w => `%${w}%`)
+        );
+        return r.rows[0] || null;
+    } catch { return null; }
+}
 
-// Temas con alta intención de búsqueda y compra — rotan para variedad
+// ============================================================
+// PILOTO — Curiosidades SEO linkadas a producto
+// ============================================================
 const TEMAS_SEO = [
     { tema: 'best luxury kitchen appliances Amazon 2026', keyword: 'luxury kitchen appliances' },
     { tema: 'smart home gadgets millionaires NYC buy', keyword: 'smart home luxury' },
@@ -162,55 +189,52 @@ const TEMAS_SEO = [
     { tema: 'outdoor luxury furniture patio Manhattan', keyword: 'luxury outdoor furniture' },
     { tema: 'luxury candle home fragrance Amazon bestseller', keyword: 'luxury candle home decor' },
 ];
-
 let temaIndex = 0;
 
 async function publicarCuriosidadViral() {
     if (!geminiKeys.length) return;
     console.log('⏰ [CRON] Generando curiosidad SEO...');
     try {
-        // Rotar temas para máxima cobertura de keywords
         const temaActual = TEMAS_SEO[temaIndex % TEMAS_SEO.length];
         temaIndex++;
 
-        const prompt = `Eres un experto en SEO, marketing de afiliados de Amazon y copywriting de lujo.
+        const prompt = `Eres experto en SEO, marketing de afiliados Amazon y copywriting de lujo.
 
 TEMA: "${temaActual.tema}"
-AUDIENCIA: Mujeres de 35-55 años, alto poder adquisitivo, viven en NYC, Miami o Beverly Hills. Buscan en Google productos premium para su hogar.
+AUDIENCIA: Mujeres 35-55, alto poder adquisitivo, NYC/Miami/Beverly Hills.
 
-OBJETIVO DOBLE:
-1. SEO: El título debe contener keywords que la gente realmente busca en Google (incluye año 2026 si aplica).
-2. CTR + Afiliados: El texto debe despertar deseo de compra y llevar al lector a buscar el producto en Amazon.
+OBJETIVO: Artículo que rankee en Google Y genere clics hacia Amazon.
 
-REGLAS ESTRICTAS:
-- El titulo_es debe sonar como un artículo de revista de lujo (máx 12 palabras). Ejemplo: "Las 5 Cafeteras de Lujo Que Todo Penthouse en NYC Necesita en 2026"
-- El texto_es debe tener 3-4 oraciones: (1) dato sorprendente o estadística, (2) por qué las mujeres de élite lo quieren, (3) call-to-action suave hacia Amazon. Máx 120 palabras.
-- La keyword debe ser exactamente lo que alguien escribiría en Google para buscar este producto (en inglés, 3-5 palabras).
-- PROHIBIDO: títulos abstractos, filosóficos o que no hablen de un producto real.
+REGLAS:
+- titulo_es: Título tipo Vogue Living con keyword real. Máx 12 palabras. Ej: "Las 5 Cafeteras de Lujo Que Todo Penthouse en NYC Necesita en 2026"
+- texto_es: 3 oraciones. (1) Dato o estadística real. (2) Por qué la élite lo quiere. (3) CTA suave: termina con "Lo encuentras en Amazon por menos de lo que imaginas." Máx 100 palabras.
+- keyword: Lo que alguien escribe en Google para comprar esto (inglés, 3-5 palabras).
+- PROHIBIDO: Títulos abstractos o filosóficos sin producto real.
 
-Responde SOLO JSON sin markdown ni explicaciones:
-{"titulo_es": "...", "texto_es": "...", "keyword": "..."}`;
+SOLO JSON sin markdown: {"titulo_es":"...","texto_es":"...","keyword":"..."}`;
 
         const raw = await generateContent(prompt);
         const data = JSON.parse(raw);
         const imagen = await obtenerImagen(data.keyword || temaActual.keyword);
+        const productoRelacionado = await encontrarProductoRelacionado(data.keyword || temaActual.keyword);
 
         await db.query(
-            `INSERT INTO curiosidades (id, titulo_es, texto_es, imagen, fecha) VALUES ($1,$2,$3,$4,$5)`,
-            [Date.now(), data.titulo_es, data.texto_es, imagen, new Date().toISOString()]
+            `INSERT INTO curiosidades (id, titulo_es, texto_es, imagen, keyword, producto_id, fecha)
+             VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+            [Date.now(), data.titulo_es, data.texto_es, imagen,
+             data.keyword, productoRelacionado?.id || null, new Date().toISOString()]
         );
         cache.curiosidades = null;
-        console.log(`✨ [SEO] Curiosidad publicada: ${data.titulo_es}`);
+        console.log(`✨ Curiosidad: "${data.titulo_es}" → Producto: ${productoRelacionado?.titulo || 'sin enlace aun'}`);
     } catch (e) { console.error('❌ Error curiosidad:', e.message); }
 }
 
 // ============================================================
-// PILOTO AUTOMÁTICO — Noticias de lujo con NEWS_API
+// PILOTO — Noticias de lujo
 // ============================================================
 async function publicarNoticiaLujo() {
     const newsKey = process.env.NEWS_API_KEY;
     if (!newsKey || !geminiKeys.length) return;
-    console.log('📰 [CRON] Buscando noticias de lujo...');
     try {
         const queries = ['luxury home', 'luxury lifestyle NYC', 'elite real estate Manhattan'];
         const q = encodeURIComponent(queries[Math.floor(Math.random() * queries.length)]);
@@ -219,18 +243,14 @@ async function publicarNoticiaLujo() {
             { headers: { 'X-Api-Key': newsKey } }
         );
         const data = await res.json();
-        if (!data.articles || data.articles.length === 0) return;
-
-        const articulo = data.articles.find(a => a.title && a.description);
+        const articulo = data.articles?.find(a => a.title && a.description);
         if (!articulo) return;
 
         const raw = await generateContent(
-            `Eres copywriter de lujo y experto en SEO para afiliados de Amazon.
-             Reescribe esta noticia para mujeres de alto poder adquisitivo en NYC.
-             El título debe sonar como artículo viral de Architectural Digest o Vogue Living.
-             El resumen debe terminar con una frase que lleve a buscar el producto relacionado en Amazon (call-to-action suave).
-             Noticia original: "${articulo.title} — ${articulo.description}"
-             Responde SOLO JSON sin markdown: {"titulo": "...", "resumen": "...", "keyword": "..."}`
+            `Copywriter de lujo y SEO para afiliados Amazon. Reescribe para mujeres de alto poder adquisitivo NYC.
+             Título estilo Architectural Digest o Vogue Living. Resumen termina con CTA suave hacia Amazon.
+             Noticia: "${articulo.title} — ${articulo.description}"
+             SOLO JSON: {"titulo":"...","resumen":"...","keyword":"..."}`
         );
         const copy = JSON.parse(raw);
         const imagen = articulo.urlToImage || await obtenerImagen(copy.keyword || 'luxury');
@@ -240,7 +260,7 @@ async function publicarNoticiaLujo() {
             [Date.now(), copy.titulo, copy.resumen, articulo.source?.name || 'MXL Gold', imagen, articulo.url, new Date().toISOString()]
         );
         cache.noticias = null;
-        console.log(`📰 [AUTO] Noticia: ${copy.titulo}`);
+        console.log(`📰 Noticia: ${copy.titulo}`);
     } catch (e) { console.error('❌ Error noticias:', e.message); }
 }
 
@@ -248,33 +268,56 @@ async function publicarNoticiaLujo() {
 // ENDPOINTS
 // ============================================================
 
-// Inyectar producto — imagen automática si no se provee
+// 📊 TRACKING — registrar clic
+app.post('/api/track/click', async (req, res) => {
+    const { producto_id, tipo = 'producto' } = req.body;
+    if (!producto_id) return res.status(400).json({ ok: false });
+    try {
+        await db.query(`UPDATE articulos SET clics = clics + 1 WHERE id = $1`, [producto_id]);
+        await db.query(`INSERT INTO clics (producto_id, tipo) VALUES ($1, $2)`, [producto_id, tipo]);
+        cache.productos = null;
+        res.json({ ok: true });
+    } catch (e) { res.status(500).json({ ok: false }); }
+});
+
+// 📊 Top productos por clics (para Commander)
+app.get('/api/track/top', async (req, res) => {
+    try {
+        const r = await db.query(`
+            SELECT a.id, a.titulo, a.categoria, a.clics, a.link,
+                   COUNT(c.id) FILTER (WHERE c.fecha > NOW() - INTERVAL '7 days') AS clics_semana
+            FROM articulos a
+            LEFT JOIN clics c ON c.producto_id = a.id
+            GROUP BY a.id, a.titulo, a.categoria, a.clics, a.link
+            ORDER BY a.clics DESC LIMIT 20
+        `);
+        res.json(r.rows);
+    } catch (e) { res.status(500).json([]); }
+});
+
+// Inyectar producto
 app.post('/api/commander/inject', async (req, res) => {
     const { url, imagenUrl, categoria, tituloReal } = req.body;
     if (!geminiKeys.length || !tituloReal) return res.status(400).json({ success: false, error: 'Falta tituloReal o motor IA' });
-
     try {
         const raw = await generateContent(
-            `Eres un copywriter experto en afiliados de Amazon y psicología de compra de lujo.
-             PRODUCTO: "${tituloReal}"
-             AUDIENCIA: Mujeres 35-55, alto poder adquisitivo, NYC/Miami/Beverly Hills.
-
-             Escribe copy que venda sin parecer que vende. Reglas:
-             - titulo: Nombre del producto elevado, con adjetivo de lujo. Máx 10 palabras.
-             - meta: Una frase de 20 palabras que explique el beneficio principal. Para Google.
-             - curiosidad: 2-3 oraciones. Empieza con un dato o problema que el producto resuelve. Termina creando urgencia o exclusividad. Máx 60 palabras.
-             - keyword: 3-4 palabras en inglés que alguien buscaría en Google para comprar esto.
-
-             Responde SOLO JSON sin markdown: {"titulo": "...", "meta": "...", "curiosidad": "...", "keyword": "..."}`
+            `Copywriter experto afiliados Amazon y psicología de compra de lujo.
+             PRODUCTO: "${tituloReal}" — AUDIENCIA: Mujeres 35-55, NYC/Miami/Beverly Hills.
+             - titulo: Nombre elevado con adjetivo de lujo. Máx 10 palabras.
+             - meta: Beneficio principal, 20 palabras, para Google.
+             - curiosidad: 2-3 oraciones. Dato → exclusividad → urgencia suave. Máx 60 palabras.
+             - keyword: 3-4 palabras inglés para buscar en Google.
+             SOLO JSON: {"titulo":"...","meta":"...","curiosidad":"...","keyword":"..."}`
         );
         const copy = JSON.parse(raw);
         const imagen = imagenUrl || await obtenerImagen(copy.keyword || tituloReal);
         const linkConTag = agregarAffiliateTag(url);
 
         await db.query(
-            `INSERT INTO articulos (id, asin, titulo, meta, curiosidad, imagen, categoria, link, fecha)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-            [Date.now(), 'MXL'+Date.now(), copy.titulo, copy.meta, copy.curiosidad, imagen, categoria, linkConTag, new Date().toISOString()]
+            `INSERT INTO articulos (id,asin,titulo,meta,curiosidad,imagen,categoria,link,keyword,clics,fecha)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,0,$10)`,
+            [Date.now(),'MXL'+Date.now(),copy.titulo,copy.meta,copy.curiosidad,
+             imagen,categoria,linkConTag,copy.keyword,new Date().toISOString()]
         );
         cache.productos = null;
         res.json({ success: true, producto: copy.titulo, affiliateTag: AFFILIATE_TAG, imagen });
@@ -288,28 +331,23 @@ app.post('/api/commander/inject', async (req, res) => {
 app.get('/api/commander/buscar', async (req, res) => {
     const { q } = req.query;
     const googleKey = process.env.GOOGLE_API_KEY;
-    const googleCX = process.env.GOOGLE_CX;
+    const googleCX  = process.env.GOOGLE_CX;
     if (!googleKey || !googleCX || !q) return res.status(400).json({ results: [] });
-
     try {
         const query = encodeURIComponent(q + ' site:amazon.com');
         const r = await fetch(`https://www.googleapis.com/customsearch/v1?key=${googleKey}&cx=${googleCX}&q=${query}&num=5`);
         const data = await r.json();
-        const results = (data.items || []).map(item => ({
-            titulo: item.title,
-            link: item.link,
-            snippet: item.snippet,
+        res.json({ results: (data.items || []).map(item => ({
+            titulo: item.title, link: item.link, snippet: item.snippet,
             imagen: item.pagemap?.cse_image?.[0]?.src || null
-        }));
-        res.json({ results });
-    } catch (e) {
-        res.status(500).json({ results: [], error: e.message });
-    }
+        }))});
+    } catch (e) { res.status(500).json({ results: [], error: e.message }); }
 });
 
 app.delete('/api/productos/:id', async (req, res) => {
     try {
         await db.query('DELETE FROM articulos WHERE id = $1', [req.params.id]);
+        await db.query('DELETE FROM clics WHERE producto_id = $1', [req.params.id]);
         cache.productos = null;
         res.json({ success: true });
     } catch (e) { res.status(500).json({ success: false }); }
@@ -318,62 +356,66 @@ app.delete('/api/productos/:id', async (req, res) => {
 app.get('/api/productos', async (req, res) => {
     if (cacheValido('productos')) return res.json(cache.productos);
     const r = await db.query(`SELECT * FROM articulos ORDER BY fecha DESC LIMIT 100`);
-    cache.productos = r.rows;
-    cache.ts.productos = Date.now();
+    cache.productos = r.rows; cache.ts.productos = Date.now();
     res.json(r.rows);
 });
 
+// Curiosidades con JOIN al producto relacionado
 app.get('/api/curiosidades', async (req, res) => {
     if (cacheValido('curiosidades')) return res.json(cache.curiosidades);
-    const r = await db.query(`SELECT * FROM curiosidades ORDER BY fecha DESC LIMIT 50`);
-    cache.curiosidades = r.rows;
-    cache.ts.curiosidades = Date.now();
+    const r = await db.query(`
+        SELECT c.*, 
+               a.titulo AS producto_titulo,
+               a.link   AS producto_link,
+               a.imagen AS producto_imagen,
+               a.id     AS producto_id_ref
+        FROM curiosidades c
+        LEFT JOIN articulos a ON a.id = c.producto_id
+        ORDER BY c.fecha DESC LIMIT 50
+    `);
+    cache.curiosidades = r.rows; cache.ts.curiosidades = Date.now();
     res.json(r.rows);
 });
 
 app.get('/api/noticias', async (req, res) => {
     if (cacheValido('noticias')) return res.json(cache.noticias);
     const r = await db.query(`SELECT * FROM noticias ORDER BY fecha DESC LIMIT 20`);
-    cache.noticias = r.rows;
-    cache.ts.noticias = Date.now();
+    cache.noticias = r.rows; cache.ts.noticias = Date.now();
     res.json(r.rows);
 });
 
 app.get('/api/stats', async (req, res) => {
     try {
-        const [prods, curios, news] = await Promise.all([
+        const [prods, curios, news, topClic] = await Promise.all([
             db.query('SELECT COUNT(*) FROM articulos'),
             db.query('SELECT COUNT(*) FROM curiosidades'),
-            db.query('SELECT COUNT(*) FROM noticias')
+            db.query('SELECT COUNT(*) FROM noticias'),
+            db.query('SELECT titulo, clics FROM articulos ORDER BY clics DESC LIMIT 1')
         ]);
         res.json({
             productos: parseInt(prods.rows[0].count),
             curiosidades: parseInt(curios.rows[0].count),
             noticias: parseInt(news.rows[0].count),
+            topProducto: topClic.rows[0] || null,
             affiliateTag: AFFILIATE_TAG,
             motor: geminiKeys.length ? `Gemini 2.5 Flash ✅ (${geminiKeys.length} keys)` : '❌ Sin API Key',
-            pexels: process.env.PEXELS_API_KEY ? '✅ Activo' : '❌',
-            unsplash: process.env.UNSPLASH_ACCESS_KEY ? '✅ Activo' : '❌',
-            newsApi: process.env.NEWS_API_KEY ? '✅ Activo' : '❌',
-            google: (process.env.GOOGLE_API_KEY && process.env.GOOGLE_CX) ? '✅ Activo' : '❌'
+            pexels: process.env.PEXELS_API_KEY ? '✅' : '❌',
+            unsplash: process.env.UNSPLASH_ACCESS_KEY ? '✅' : '❌',
+            newsApi: process.env.NEWS_API_KEY ? '✅' : '❌',
+            google: (process.env.GOOGLE_API_KEY && process.env.GOOGLE_CX) ? '✅' : '❌'
         });
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// Sitemap dinámico para SEO
 app.get('/sitemap.xml', async (req, res) => {
     const host = `https://${req.headers.host}`;
     try {
         const r = await db.query('SELECT id, fecha FROM articulos ORDER BY fecha DESC LIMIT 200');
         const urls = r.rows.map(p =>
-            `<url><loc>${host}/producto/${p.id}</loc><lastmod>${new Date(p.fecha).toISOString().split('T')[0]}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`
+            `<url><loc>${host}/#producto-${p.id}</loc><lastmod>${new Date(p.fecha).toISOString().split('T')[0]}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`
         ).join('');
         res.header('Content-Type', 'application/xml');
-        res.send(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url><loc>${host}</loc><changefreq>hourly</changefreq><priority>1.0</priority></url>
-${urls}
-</urlset>`);
+        res.send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${host}/</loc><changefreq>hourly</changefreq><priority>1.0</priority></url>${urls}</urlset>`);
     } catch (e) { res.status(500).send('Error sitemap'); }
 });
 
@@ -382,13 +424,13 @@ app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 async function start() {
     await initDB();
-    console.log(`🔑 Gemini keys activas: ${geminiKeys.length}`);
-    cron.schedule('*/40 * * * *', () => publicarCuriosidadViral());
+    console.log(`🔑 Gemini keys: ${geminiKeys.length}`);
+    cron.schedule('*/15 * * * *', () => publicarCuriosidadViral()); // Cada 15 min
     cron.schedule('0 */2 * * *', () => publicarNoticiaLujo());
-    setTimeout(() => publicarCuriosidadViral(), 15000);
-    setTimeout(() => publicarNoticiaLujo(), 35000);
+    setTimeout(() => publicarCuriosidadViral(), 10000);
+    setTimeout(() => publicarNoticiaLujo(), 30000);
     app.listen(PORT, '0.0.0.0', () =>
-        console.log(`🚀 MXL v5.0 — TAG:${AFFILIATE_TAG} — Keys:${geminiKeys.length} — Puerto:${PORT}`)
+        console.log(`🚀 MXL v6.0 — TAG:${AFFILIATE_TAG} — Keys:${geminiKeys.length} — Puerto:${PORT}`)
     );
 }
 start();
