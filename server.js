@@ -25,7 +25,7 @@ app.use(compression());
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-app.get('/health', (req, res) => res.json({ status: 'ok', version: '8.2.1' }));
+app.get('/health', (req, res) => res.json({ status: 'ok', version: '8.3.0' }));
 
 app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
@@ -59,22 +59,41 @@ async function initDB() {
             tipo VARCHAR(20) DEFAULT 'product',
             fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`);
+        // v8.3.0: audit log table
+        await db.query(`CREATE TABLE IF NOT EXISTS audit_log (
+            id BIGSERIAL PRIMARY KEY,
+            accion VARCHAR(60) NOT NULL,
+            producto_id BIGINT,
+            titulo TEXT,
+            affiliate_tag VARCHAR(60),
+            detalle TEXT,
+            fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`);
         // Safe migrations
         for (const sql of [
             `ALTER TABLE articulos ADD COLUMN IF NOT EXISTS clics INT DEFAULT 0`,
             `ALTER TABLE articulos ADD COLUMN IF NOT EXISTS keyword TEXT`,
             `ALTER TABLE curiosidades ADD COLUMN IF NOT EXISTS keyword TEXT`,
             `ALTER TABLE curiosidades ADD COLUMN IF NOT EXISTS producto_id BIGINT`,
-            // v8.2.1: section targeting column
             `ALTER TABLE curiosidades ADD COLUMN IF NOT EXISTS seccion VARCHAR(60) DEFAULT 'trending'`,
             `ALTER TABLE articulos    ADD COLUMN IF NOT EXISTS seccion VARCHAR(60) DEFAULT 'trending'`,
         ]) { await db.query(sql).catch(() => {}); }
-        console.log('✅ DB Ready v8.2.1');
+        console.log('✅ DB Ready v8.3.0');
     } catch (e) { console.error('❌ DB Error:', e.message); }
 }
 
+// ── Audit helper ──────────────────────────────────────────────
+async function audit(accion, producto_id, titulo, tag, detalle = '') {
+    try {
+        await db.query(
+            `INSERT INTO audit_log (accion, producto_id, titulo, affiliate_tag, detalle) VALUES ($1,$2,$3,$4,$5)`,
+            [accion, producto_id || null, titulo || null, tag || AFFILIATE_TAG, detalle]
+        );
+    } catch (e) { console.warn('⚠️ Audit write failed:', e.message); }
+}
+
 // ============================================================
-// GEMINI — ROTATE 3 KEYS  (v8.2.1: 10s delay on fail)
+// GEMINI — ROTATE 3 KEYS
 // ============================================================
 const geminiKeys = [
     process.env.GEMINI_API_KEY_CONTENT,
@@ -83,7 +102,6 @@ const geminiKeys = [
 ].filter(Boolean);
 
 let geminiIndex = 0;
-
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function generateContent(prompt) {
@@ -97,7 +115,6 @@ async function generateContent(prompt) {
             return result.response.text().replace(/```json|```/g, '').trim();
         } catch (e) {
             console.warn(`⚠️ Gemini key ${i} failed: ${e.message}`);
-            // v8.2.1 — 10s delay before trying next key to avoid chain-429
             if (i < geminiKeys.length - 1) {
                 console.log(`⏳ Waiting 10s before next Gemini key attempt...`);
                 await sleep(10000);
@@ -157,14 +174,8 @@ async function findRelatedProduct(keyword) {
 }
 
 // ============================================================
-// v8.2.1 — SECTION STRATEGY
-//
-// "What They're Buying Right Now"  → impulse picks $25–$50
-// "Trending This Week"             → popular / aspirational
+// SECTION STRATEGY
 // ============================================================
-
-// Products targeting the $25–$50 impulse-buy sweet spot
-// These feed the "What They're Buying Right Now" section
 const SECTION_BUYING_NOW = [
     { topic: 'best luxury scented candle home fragrance Amazon $25-$45', keyword: 'luxury scented candle home', seccion: 'buying_now' },
     { topic: 'silk eye mask luxury sleep quality Amazon $25-$40', keyword: 'luxury silk sleep mask', seccion: 'buying_now' },
@@ -172,13 +183,12 @@ const SECTION_BUYING_NOW = [
     { topic: 'luxury bath salts spa set gift Amazon $28-$48', keyword: 'luxury bath spa salts set', seccion: 'buying_now' },
     { topic: 'artisan ceramic mug luxury gift Amazon $22-$42', keyword: 'luxury ceramic mug artisan', seccion: 'buying_now' },
     { topic: 'luxury hand cream gift set Amazon $25-$50', keyword: 'luxury hand cream gift set', seccion: 'buying_now' },
-    { topic: 'cashmere socks luxury women Amazon $30-$50', keyword: 'luxury cashmere socks women', seccion: 'buying_now' },
+    { topic: 'cashmere socks luxury women Amazon $30-$50', keyword: 'cashmere socks luxury women', seccion: 'buying_now' },
     { topic: 'crystal luxury wine glasses set Amazon $35-$50', keyword: 'crystal luxury wine glasses', seccion: 'buying_now' },
     { topic: 'luxury kitchen gadgets bestseller Amazon $28-$48', keyword: 'luxury kitchen gadgets', seccion: 'buying_now' },
     { topic: 'aromatherapy diffuser luxury home Amazon $30-$48', keyword: 'luxury aromatherapy diffuser', seccion: 'buying_now' },
 ];
 
-// Products for the "Trending This Week" section — higher price, aspirational
 const SECTION_TRENDING = [
     { topic: 'smart lighting luxury home Amazon $50-$90', keyword: 'smart lighting luxury home', seccion: 'trending' },
     { topic: 'luxury cashmere throw blanket Amazon $60-$95', keyword: 'cashmere throw blanket luxury', seccion: 'trending' },
@@ -195,7 +205,6 @@ const SECTION_TRENDING = [
 let topicIndex = 0;
 function getNextTopic() {
     topicIndex++;
-    // 60% buying_now ($25–$50), 40% trending (aspirational)
     if (topicIndex % 5 <= 1) {
         const i = Math.floor(Math.random() * SECTION_TRENDING.length);
         return SECTION_TRENDING[i];
@@ -205,7 +214,7 @@ function getNextTopic() {
 }
 
 // ============================================================
-// AUTO-PILOT — Insights  (v8.2.1: every 45 min)
+// AUTO-PILOT — Insights (every 45 min)
 // ============================================================
 async function publishInsight() {
     if (!geminiKeys.length) return;
@@ -213,7 +222,6 @@ async function publishInsight() {
     try {
         const topic = getNextTopic();
         const isBuyingNow = topic.seccion === 'buying_now';
-
         const sectionContext = isBuyingNow
             ? `SECTION: "What They're Buying Right Now" — impulse purchase, under $50, something a friend texts you about.`
             : `SECTION: "Trending This Week" — aspirational, the item everyone in the know has discovered this month.`;
@@ -227,29 +235,22 @@ READER: A 42-year-old woman. Tribeca loft or Chelsea townhouse. Shops Amazon Pri
 
 WRITE:
 1. title — Magazine headline, conversational but smart, uses real search keywords naturally. Max 12 words.
-   ✅ "The Wine Cooler Our Editor Finally Splurged On (And Never Looked Back)"
-   ✅ "Why Every Smart Home in 2026 Starts With This One Upgrade"
-   ❌ "The 5 Products Elite Women Want" (too generic)
-
-2. body — Exactly 3 sentences like a friend texting a recommendation:
-   Sentence 1: A surprising or specific fact.
-   Sentence 2: Why this matters right now — a cultural moment, a shift in how people live.
-   Sentence 3: End with "You can find it on Amazon — usually for less than you'd think."
-
+2. body — Exactly 3 sentences like a friend texting a recommendation.
 3. keyword — Exact phrase someone types in Google when ready to buy this (3–5 words, no brand names).
 
-Sound like a native American or British English speaker. No "discover", "unveil", "embrace".
 Respond ONLY raw JSON: {"title":"...","body":"...","keyword":"..."}`);
 
         const data = JSON.parse(raw);
         const image = await getImage(data.keyword || topic.keyword);
         const related = await findRelatedProduct(data.keyword || topic.keyword);
+        const id = Date.now();
 
         await db.query(
             `INSERT INTO curiosidades (id, titulo_es, texto_es, imagen, keyword, producto_id, seccion, fecha) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
-            [Date.now(), data.title, data.body, image, data.keyword, related?.id || null, topic.seccion, new Date().toISOString()]
+            [id, data.title, data.body, image, data.keyword, related?.id || null, topic.seccion, new Date().toISOString()]
         );
-        console.log(`✨ [${topic.seccion.toUpperCase()}] Insight: "${data.title}" → linked: ${related?.titulo || 'none yet'}`);
+        await audit('AUTO_INSIGHT', id, data.title, AFFILIATE_TAG, `seccion:${topic.seccion}`);
+        console.log(`✨ [${topic.seccion.toUpperCase()}] Insight: "${data.title}"`);
     } catch (e) { console.error('❌ Insight error:', e.message); }
 }
 
@@ -267,24 +268,19 @@ async function publishLuxuryNews() {
         const article = data.articles?.find(a => a.title && a.description);
         if (!article) return;
 
-        const raw = await generateContent(`You are a features editor at Vogue Living and contributor to The Telegraph's lifestyle section. You write in natural, confident British-American English — never stiff, never translated.
-
-Rewrite this article for affluent women in New York, London, and LA:
+        const raw = await generateContent(`You are a features editor at Vogue Living. Rewrite this article for affluent women in New York, London, and LA:
 "${article.title} — ${article.description}"
-
-- title: Magazine cover line. Specific, smart, a little unexpected. Max 12 words.
-- summary: 3 sentences max. Feel like a tip from a well-connected friend, not a press release. End naturally toward Amazon.
-- keyword: What someone types in Google to find and buy the product mentioned (3–5 words).
-
 Respond ONLY raw JSON: {"title":"...","summary":"...","keyword":"..."}`);
 
         const copy = JSON.parse(raw);
         const image = article.urlToImage || await getImage(copy.keyword || 'luxury home');
+        const id = Date.now();
 
         await db.query(
             `INSERT INTO noticias (id, titulo, resumen, fuente, imagen, link, fecha) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-            [Date.now(), copy.title, copy.summary, article.source?.name || 'MXL Gold', image, article.url, new Date().toISOString()]
+            [id, copy.title, copy.summary, article.source?.name || 'MXL Gold', image, article.url, new Date().toISOString()]
         );
+        await audit('AUTO_NEWS', id, copy.title, AFFILIATE_TAG, `fuente:${article.source?.name}`);
         console.log(`📰 News: ${copy.title}`);
     } catch (e) { console.error('❌ News error:', e.message); }
 }
@@ -301,14 +297,7 @@ app.post('/api/track/click', async (req, res) => {
         const update = await db.query(`UPDATE articulos SET clics = clics + 1 WHERE id = $1 RETURNING id, titulo, clics`, [producto_id]);
         await db.query(`INSERT INTO clics (producto_id, tipo) VALUES ($1, $2)`, [producto_id, tipo]);
         const product = update.rows[0] || null;
-        res.json({
-            ok: true,
-            producto_id,
-            tipo,
-            total_clics: product?.clics || null,
-            titulo: product?.titulo || null,
-            timestamp: new Date().toISOString()
-        });
+        res.json({ ok: true, producto_id, tipo, total_clics: product?.clics || null, titulo: product?.titulo || null, timestamp: new Date().toISOString() });
     } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
 });
 
@@ -340,18 +329,12 @@ app.get('/api/productos', async (req, res) => {
         if (categoria) { conditions.push(`UPPER(categoria) = $${params.length + 1}`); params.push(categoria.toUpperCase()); }
         if (seccion)   { conditions.push(`seccion = $${params.length + 1}`); params.push(seccion); }
         const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
-
-        const countParams = params.slice(2); // strip limit/offset
+        const countParams = params.slice(2);
         const [rows, total] = await Promise.all([
             db.query(`SELECT * FROM articulos ${where} ORDER BY fecha DESC LIMIT $1 OFFSET $2`, params),
             db.query(`SELECT COUNT(*) FROM articulos ${where}`, countParams)
         ]);
-        res.json({
-            items:   rows.rows,
-            total:   parseInt(total.rows[0].count),
-            page, pages: Math.ceil(parseInt(total.rows[0].count) / limit),
-            hasMore: offset + limit < parseInt(total.rows[0].count)
-        });
+        res.json({ items: rows.rows, total: parseInt(total.rows[0].count), page, pages: Math.ceil(parseInt(total.rows[0].count) / limit), hasMore: offset + limit < parseInt(total.rows[0].count) });
     } catch { res.status(500).json({ items:[], total:0, page:1, pages:1, hasMore:false }); }
 });
 
@@ -372,7 +355,7 @@ app.get('/api/categorias', async (req, res) => {
     } catch { res.status(500).json([]); }
 });
 
-// Insights — paginated + section filter + related product JOIN
+// Insights
 app.get('/api/curiosidades', async (req, res) => {
     const page    = Math.max(1, parseInt(req.query.page) || 1);
     const limit   = 9;
@@ -401,43 +384,38 @@ app.get('/api/noticias', async (req, res) => {
     } catch { res.status(500).json([]); }
 });
 
-// Inject product — v8.2.1: section-aware injection
+// Inject product
 app.post('/api/commander/inject', async (req, res) => {
     const { url, imagenUrl, categoria, tituloReal, seccion = 'buying_now' } = req.body;
     if (!geminiKeys.length || !tituloReal) return res.status(400).json({ success: false, error: 'Missing product name or AI engine' });
     try {
         const isBuyingNow = seccion === 'buying_now';
         const sectionHint = isBuyingNow
-            ? `SECTION TARGET: "What They're Buying Right Now" — under $50, impulse buy, feels like a friend's recommendation.`
-            : `SECTION TARGET: "Trending This Week" — aspirational item, the one everyone wants right now.`;
+            ? `SECTION TARGET: "What They're Buying Right Now" — under $50, impulse buy.`
+            : `SECTION TARGET: "Trending This Week" — aspirational item.`;
 
-        const raw = await generateContent(`You are a shopping editor at The Cut and contributing writer for Domino Magazine. You write product recommendations the way a trusted friend texts them — direct, specific, genuinely enthusiastic but never pushy. Readers: women aged 35–55 in New York, Miami, Los Angeles, and London.
-
+        const raw = await generateContent(`You are a shopping editor at The Cut. Write product copy for affluent women aged 35–55.
 PRODUCT: "${tituloReal}"
 ${sectionHint}
-
-Write copy that sounds like YOU discovered this and can't stop recommending it:
-- title: Product name elevated. Sounds like a magazine gift guide. Specific adjectives. Max 10 words. NOT "luxury [product]" as a formula.
-  ✅ "The Espresso Machine That Turned Our Kitchen Into a Café"
-  ✅ "A Wine Cooler So Good It Changed How We Entertain"
-- meta: One sentence, 20 words, for Google. States the main benefit clearly. Reads like a subtitle.
-- teaser: 2 sentences. First: a specific detail or fact about why this product is genuinely worth it. Second: who it's perfect for, described naturally. Max 55 words.
-- keyword: 3–4 words someone types in Google when ready to buy this. No brand names.
-- badge: ONE of these ONLY — pick the most fitting for this product type:
-  "Amazon's Choice" | "Best Seller" | "Limited Stock" | "Editor's Pick" | "Top Rated"
-
-Write ONLY in natural American or British English. Respond ONLY raw JSON:
-{"title":"...","meta":"...","teaser":"...","keyword":"...","badge":"..."}`);
+Respond ONLY raw JSON: {"title":"...","meta":"...","teaser":"...","keyword":"...","badge":"..."}`);
 
         const copy = JSON.parse(raw);
         const image = imagenUrl || await getImage(copy.keyword || tituloReal);
         const linkWithTag = addAffiliateTag(url);
-        const metaWithBadge = JSON.stringify({ badge: copy.badge || 'Editor\'s Pick', text: copy.meta });
+        const metaWithBadge = JSON.stringify({ badge: copy.badge || "Editor's Pick", text: copy.meta });
+        const id = Date.now();
+
+        // ── TAG VERIFICATION before INSERT ──────────────────
+        const tagInLink = new URL(linkWithTag).searchParams.get('tag');
+        if (tagInLink !== AFFILIATE_TAG) throw new Error(`Tag mismatch: expected ${AFFILIATE_TAG}, got ${tagInLink}`);
 
         await db.query(
             `INSERT INTO articulos (id,asin,titulo,meta,curiosidad,imagen,categoria,link,keyword,seccion,clics,fecha) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,0,$11)`,
-            [Date.now(), 'MXL'+Date.now(), copy.title, metaWithBadge, copy.teaser, image, categoria, linkWithTag, copy.keyword, seccion, new Date().toISOString()]
+            [id, 'MXL'+id, copy.title, metaWithBadge, copy.teaser, image, categoria, linkWithTag, copy.keyword, seccion, new Date().toISOString()]
         );
+        // ── AUDIT LOG ────────────────────────────────────────
+        await audit('INJECT_MANUAL', id, copy.title, tagInLink, `seccion:${seccion} | categoria:${categoria}`);
+
         res.json({ success: true, product: copy.title, badge: copy.badge, seccion, affiliateTag: AFFILIATE_TAG, image });
     } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
@@ -445,13 +423,15 @@ Write ONLY in natural American or British English. Respond ONLY raw JSON:
 // Delete product
 app.delete('/api/productos/:id', async (req, res) => {
     try {
+        const prod = await db.query('SELECT titulo FROM articulos WHERE id = $1', [req.params.id]);
         await db.query('DELETE FROM articulos WHERE id = $1', [req.params.id]);
         await db.query('DELETE FROM clics WHERE producto_id = $1', [req.params.id]);
+        await audit('DELETE', req.params.id, prod.rows[0]?.titulo || '–', AFFILIATE_TAG);
         res.json({ success: true });
     } catch { res.status(500).json({ success: false }); }
 });
 
-// Google search from Commander
+// Google search
 app.get('/api/commander/buscar', async (req, res) => {
     const { q } = req.query;
     const googleKey = process.env.GOOGLE_API_KEY, googleCX = process.env.GOOGLE_CX;
@@ -463,10 +443,60 @@ app.get('/api/commander/buscar', async (req, res) => {
     } catch { res.status(500).json({ results: [] }); }
 });
 
+// ============================================================
+// v8.3.0 — REPAIR TAGS ENDPOINT (manual trigger by mxl)
+// ============================================================
+app.post('/api/admin/repair-tags', async (req, res) => {
+    try {
+        const rows = await db.query(`SELECT id, titulo, link FROM articulos`);
+        let fixed = 0, skipped = 0, errors = 0;
+        const log = [];
+
+        for (const row of rows.rows) {
+            try {
+                const corrected = addAffiliateTag(row.link);
+                const currentTag = new URL(row.link).searchParams.get('tag');
+                if (currentTag === AFFILIATE_TAG) {
+                    skipped++;
+                    log.push({ id: row.id, status: 'ok', titulo: row.titulo.slice(0,40) });
+                } else {
+                    await db.query(`UPDATE articulos SET link = $1 WHERE id = $2`, [corrected, row.id]);
+                    await audit('REPAIR_TAG', row.id, row.titulo, AFFILIATE_TAG, `old_tag:${currentTag || 'none'}`);
+                    fixed++;
+                    log.push({ id: row.id, status: 'fixed', old: currentTag || 'none', new: AFFILIATE_TAG, titulo: row.titulo.slice(0,40) });
+                }
+            } catch {
+                errors++;
+                log.push({ id: row.id, status: 'error', titulo: (row.titulo || '').slice(0,40) });
+            }
+        }
+
+        res.json({
+            success: true,
+            summary: { total: rows.rows.length, fixed, skipped, errors },
+            activeTag: AFFILIATE_TAG,
+            log
+        });
+    } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// ============================================================
+// v8.3.0 — AUDIT LOG ENDPOINT
+// ============================================================
+app.get('/api/admin/audit', async (req, res) => {
+    const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+    try {
+        const r = await db.query(
+            `SELECT * FROM audit_log ORDER BY fecha DESC LIMIT $1`, [limit]
+        );
+        res.json(r.rows);
+    } catch (e) { res.status(500).json([]); }
+});
+
 // Stats
 app.get('/api/stats', async (req, res) => {
     try {
-        const [prods, insights, news, topClick, clicksHoy, buyingNow, trending] = await Promise.all([
+        const [prods, insights, news, topClick, clicksHoy, buyingNow, trending, auditCount] = await Promise.all([
             db.query('SELECT COUNT(*) FROM articulos'),
             db.query('SELECT COUNT(*) FROM curiosidades'),
             db.query('SELECT COUNT(*) FROM noticias'),
@@ -474,6 +504,7 @@ app.get('/api/stats', async (req, res) => {
             db.query(`SELECT COUNT(*) FROM clics WHERE fecha > NOW() - INTERVAL '24 hours'`),
             db.query(`SELECT COUNT(*) FROM articulos WHERE seccion = 'buying_now'`),
             db.query(`SELECT COUNT(*) FROM articulos WHERE seccion = 'trending'`),
+            db.query('SELECT COUNT(*) FROM audit_log'),
         ]);
         res.json({
             productos:    parseInt(prods.rows[0].count),
@@ -482,6 +513,7 @@ app.get('/api/stats', async (req, res) => {
             clicsHoy:     parseInt(clicksHoy.rows[0].count),
             topProducto:  topClick.rows[0] || null,
             affiliateTag: AFFILIATE_TAG,
+            auditTotal:   parseInt(auditCount.rows[0].count),
             secciones: {
                 buying_now: parseInt(buyingNow.rows[0].count),
                 trending:   parseInt(trending.rows[0].count),
@@ -491,7 +523,7 @@ app.get('/api/stats', async (req, res) => {
             unsplash: process.env.UNSPLASH_ACCESS_KEY   ? '✅' : '❌',
             newsApi:  process.env.NEWS_API_KEY           ? '✅' : '❌',
             google:   (process.env.GOOGLE_API_KEY && process.env.GOOGLE_CX) ? '✅' : '❌',
-            version:  '8.2.1'
+            version:  '8.3.0'
         });
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -516,15 +548,12 @@ app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 async function start() {
     await initDB();
     console.log(`🔑 Gemini keys: ${geminiKeys.length}`);
-
-    // v8.2.1 — publishInsight every 45 min (was 15 min)
     cron.schedule('*/45 * * * *', () => publishInsight());
     cron.schedule('0 */2 * * *',  () => publishLuxuryNews());
-
     setTimeout(() => publishInsight(),    10000);
     setTimeout(() => publishLuxuryNews(), 30000);
     app.listen(PORT, '0.0.0.0', () =>
-        console.log(`🚀 MXL v8.2.1 — TAG:${AFFILIATE_TAG} — Keys:${geminiKeys.length} — Port:${PORT}`)
+        console.log(`🚀 MXL v8.3.0 — TAG:${AFFILIATE_TAG} — Keys:${geminiKeys.length} — Port:${PORT}`)
     );
 }
 start();
