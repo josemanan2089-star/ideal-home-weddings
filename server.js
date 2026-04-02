@@ -10,7 +10,7 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-const AFFILIATE_TAG = process.env.AMAZON_AFFILIATE_TAG || 'mxlgold-20';
+const AFFILIATE_TAG = process.env.AMAZON_AFFILIATE_TAG || 'farolaldiauno-20';
 
 function addAffiliateTag(url) {
     if (!url) return url;
@@ -172,7 +172,7 @@ const SECTION_BUYING_NOW = [
     { topic: 'luxury bath salts spa set gift Amazon $28-$48', keyword: 'luxury bath spa salts set', seccion: 'buying_now' },
     { topic: 'artisan ceramic mug luxury gift Amazon $22-$42', keyword: 'luxury ceramic mug artisan', seccion: 'buying_now' },
     { topic: 'luxury hand cream gift set Amazon $25-$50', keyword: 'luxury hand cream gift set', seccion: 'buying_now' },
-    { topic: 'cashmere socks luxury women Amazon $30-$50', keyword: 'cashmere socks luxury women', seccion: 'buying_now' },
+    { topic: 'cashmere socks luxury women Amazon $30-$50', keyword: 'luxury cashmere socks women', seccion: 'buying_now' },
     { topic: 'crystal luxury wine glasses set Amazon $35-$50', keyword: 'crystal luxury wine glasses', seccion: 'buying_now' },
     { topic: 'luxury kitchen gadgets bestseller Amazon $28-$48', keyword: 'luxury kitchen gadgets', seccion: 'buying_now' },
     { topic: 'aromatherapy diffuser luxury home Amazon $30-$48', keyword: 'luxury aromatherapy diffuser', seccion: 'buying_now' },
