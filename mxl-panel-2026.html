@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMMANDER MXL — Panel de Control v7.0</title>
+    <title>COMMANDER MXL — Panel de Control v8.2</title>
     <meta name="robots" content="noindex, nofollow">
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
@@ -51,6 +51,7 @@
         .tag-cat{background:#2d2d44;padding:2px 7px;border-radius:9px;font-size:.62rem;}
         .tag-clicks{color:#ff4500;font-weight:bold;}
         .tag-ok{color:#10b981;font-size:.62rem;}
+        .tag-badge{background:#8b5cf6;padding:2px 8px;border-radius:9px;font-size:.6rem;color:#fff;}
 
         /* TOP CLICKS */
         .top-row{padding:10px 13px;border-radius:10px;background:#16161e;margin-bottom:7px;display:flex;align-items:center;gap:12px;}
@@ -65,18 +66,28 @@
         .dot{width:7px;height:7px;border-radius:50%;background:#10b981;animation:blink 2s infinite;}
         @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
+        /* v8.2 — TRACKING VALIDATOR */
+        .track-log{background:#0d1117;border:1px solid #2d2d44;border-radius:10px;padding:14px;font-family:monospace;font-size:.72rem;max-height:160px;overflow-y:auto;margin-top:10px;}
+        .track-log .ok{color:#10b981;}
+        .track-log .err{color:#f87171;}
+        .track-log .ts{color:#4a5568;margin-right:8px;}
+
         .empty{text-align:center;padding:28px;color:#5a5a7a;font-size:.82rem;}
         .loading{text-align:center;padding:20px;color:#c9a87b;font-size:.82rem;}
 
         /* NOTA IMPORTANTE */
         .tip-box{background:#1a2010;border:1px solid #4a7c20;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.78rem;color:#8fbc50;line-height:1.7;}
         .tip-box strong{color:#aada70;}
+
+        /* PRICE STRATEGY HINT */
+        .price-box{background:#0d1a2e;border:1px solid #1e4a7c;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.76rem;color:#7eb4e8;line-height:1.7;}
+        .price-box strong{color:#a0d0ff;}
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>🎖️ COMMANDER MXL <span class="v-badge">v7.0</span></h1>
+    <h1>🎖️ COMMANDER MXL <span class="v-badge">v8.2</span></h1>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <div id="aff"><span class="dot"></span><span id="affLabel">Cargando...</span></div>
         <button class="btn btn-purple" onclick="abrirModal()">💉 INYECTAR PRODUCTO</button>
@@ -85,12 +96,17 @@
     </div>
 </div>
 
-<!-- TIP PARA EL DUEÑO -->
+<!-- CONSEJO EDITORIAL -->
 <div class="tip-box">
-    💡 <strong>Consejo importante:</strong> El sitio público está en inglés para tus clientes de USA y Europa.
-    Cuando inyectes un producto, escribe el nombre <strong>en inglés</strong> para que la IA genere el mejor copy de venta.
-    Ejemplo: en vez de <em>"Enfriador de vino de lujo"</em> escribe <em>"Dual zone luxury wine cooler"</em>.
-    El resto lo hace el Motor 2.5 solo. ✅
+    💡 <strong>Consejo de copy:</strong> Escribe el nombre del producto <strong>en inglés</strong> para que el Motor 2.5 genere el mejor copy de venta.
+    Ej: en vez de "Enfriador de vino" escribe <em>"Dual zone luxury wine cooler"</em>. El badge, el copy y el link de afiliado se generan solos. ✅
+</div>
+
+<!-- ESTRATEGIA DE PRECIOS -->
+<div class="price-box">
+    📊 <strong>Estrategia de precios v8.2:</strong> El piloto automático prioriza productos entre <strong>$25–$95 USD</strong> (80% del contenido auto-generado).
+    Este rango maximiza conversiones — bajo riesgo para el comprador, alta frecuencia de compra impulsiva.
+    Los productos premium (espresso machines, vacuums) siguen apareciendo como contenido aspiracional (20%).
 </div>
 
 <!-- STATS -->
@@ -109,6 +125,11 @@
         <div class="stat-label">Noticias</div>
     </div>
     <div class="stat-card">
+        <div class="stat-num" style="color:#10b981;" id="sClicsHoy">–</div>
+        <div class="stat-label">Clics Hoy</div>
+        <div class="stat-sub">📡 Amazon tracking</div>
+    </div>
+    <div class="stat-card">
         <div class="stat-num" style="font-size:.9rem;color:#10b981;" id="sMotor">–</div>
         <div class="stat-label">Motor IA</div>
     </div>
@@ -117,9 +138,20 @@
         <div class="stat-label">🏆 Producto Top</div>
     </div>
     <div class="stat-card" style="font-size:.68rem;line-height:2.2;">
-        <div id="sApis" style="margin-top:4px;color:#c9a87b;">Cargando APIs...</div>
+        <div id="sApis" style="margin-top:4px;color:#c9a87b;">Cargando...</div>
         <div class="stat-label" style="margin-top:8px;">Estado APIs</div>
     </div>
+</div>
+
+<!-- TRACKING VALIDATOR -->
+<div class="panel">
+    <div class="panel-head">
+        <h3>📡 VALIDACIÓN DE TRACKING <span class="badge">EN VIVO</span></h3>
+        <small style="color:#5a5a7a;font-size:.7rem;">Compara estos clics con tu dashboard de Amazon Associates</small>
+    </div>
+    <p style="font-size:.72rem;color:#5a5a7a;margin-bottom:8px;">Los clics registrados abajo deben aparecer en Amazon Associates → Reports → Clicks. Si hay diferencia, verifica que el tag <strong id="tagVerif" style="color:#10b981;">–</strong> esté activo en tu cuenta.</p>
+    <div class="track-log" id="trackLog"><span style="color:#4a5568;">Esperando eventos de clic...</span></div>
+    <button class="btn btn-dark btn-sm" onclick="limpiarLog()" style="margin-top:8px;">Limpiar log</button>
 </div>
 
 <!-- TOP CLICS -->
@@ -139,7 +171,7 @@
     <div id="prodList"><div class="loading">Cargando...</div></div>
 </div>
 
-<!-- MODAL INYECCIÓN — en español para el dueño -->
+<!-- MODAL INYECCIÓN -->
 <div id="modal" class="modal">
     <div class="modal-box">
         <h3 style="margin-bottom:6px;">💉 INYECCIÓN DE PRODUCTO — MOTOR 2.5</h3>
@@ -179,6 +211,50 @@
 </div>
 
 <script>
+// ── TRACK LOG (in-memory for this session) ──
+const trackEvents = [];
+
+function addTrackLog(msg, isErr=false){
+    const ts = new Date().toLocaleTimeString('es-DO');
+    trackEvents.unshift({ ts, msg, isErr });
+    if(trackEvents.length > 50) trackEvents.pop();
+    renderTrackLog();
+}
+
+function renderTrackLog(){
+    const el = document.getElementById('trackLog');
+    if(!trackEvents.length){
+        el.innerHTML = '<span style="color:#4a5568;">Esperando eventos de clic...</span>';
+        return;
+    }
+    el.innerHTML = trackEvents.map(e =>
+        `<div class="${e.isErr?'err':'ok'}"><span class="ts">${e.ts}</span>${e.msg}</div>`
+    ).join('');
+}
+
+function limpiarLog(){
+    trackEvents.length = 0;
+    renderTrackLog();
+}
+
+// ── Intercept fetch to track /api/track/click responses ──
+const _origFetch = window.fetch;
+window.fetch = async function(...args){
+    const res = await _origFetch(...args);
+    const url = typeof args[0]==='string' ? args[0] : args[0]?.url || '';
+    if(url.includes('/api/track/click')){
+        const clone = res.clone();
+        clone.json().then(data => {
+            if(data.ok){
+                addTrackLog(`✅ Clic registrado — ID: ${data.producto_id} | "${(data.titulo||'').slice(0,30)}" | Total: ${data.total_clics} clics`);
+            } else {
+                addTrackLog(`❌ Error tracking — ${data.error||'desconocido'}`, true);
+            }
+        }).catch(()=>{});
+    }
+    return res;
+};
+
 function toast(msg, err=false) {
     const t = document.createElement('div');
     t.className = 'toast' + (err ? ' err' : '');
@@ -199,10 +275,12 @@ async function cargarStats() {
         document.getElementById('sProds').textContent    = d.productos ?? '–';
         document.getElementById('sInsights').textContent = d.curiosidades ?? '–';
         document.getElementById('sNews').textContent     = d.noticias ?? '–';
+        document.getElementById('sClicsHoy').textContent = d.clicsHoy ?? '–';
         document.getElementById('sMotor').textContent    = d.motor ?? '–';
         document.getElementById('sTop').textContent      = d.topProducto
             ? `${d.topProducto.titulo.slice(0,22)}… (${d.topProducto.clics} clics)` : 'Sin datos aún';
         document.getElementById('affLabel').textContent  = `TAG: ${d.affiliateTag}`;
+        document.getElementById('tagVerif').textContent  = d.affiliateTag || '–';
         document.getElementById('sApis').innerHTML =
             `Pexels ${d.pexels} &nbsp; Unsplash ${d.unsplash}<br>Noticias ${d.newsApi} &nbsp; Google ${d.google}`;
     } catch { document.getElementById('affLabel').textContent = 'Sin conexión'; }
@@ -223,7 +301,7 @@ async function cargarTopClics() {
                 <span class="top-rank">${medallas[i] || `${i+1}`}</span>
                 <div class="top-info">
                     <div class="top-title">${p.titulo}</div>
-                    <div class="top-clicks">${p.clics} clics totales · ${p.clics_semana || 0} esta semana</div>
+                    <div class="top-clicks">${p.clics} clics totales · ${p.clics_semana || 0} esta semana · ${p.clics_hoy || 0} hoy</div>
                 </div>
                 <div class="bar"><div class="bar-fill" style="width:${Math.round((p.clics/max)*100)}%"></div></div>
                 <a href="${p.link}" target="_blank" rel="noopener" class="btn btn-sm btn-dark" style="text-decoration:none;">Ver →</a>
@@ -243,16 +321,20 @@ async function eliminar(id) {
 async function cargarProductos() {
     const prods = await fetch('/api/productos').then(r => r.json());
     const el = document.getElementById('prodList');
-    if (!prods.length) {
+    if (!prods.items?.length) {
         el.innerHTML = '<div class="empty">Sin productos aún. ¡Inyecta el primero! ☝️</div>';
         return;
     }
-    el.innerHTML = prods.map(p => `
-        <div class="prod-row">
+    el.innerHTML = prods.items.map(p => {
+        // Parse badge from meta
+        let badge = '';
+        try { const m = JSON.parse(p.meta); badge = m.badge || ''; } catch {}
+        return `<div class="prod-row">
             <div class="prod-info">
                 <div class="prod-title">${p.titulo}</div>
                 <div class="prod-meta">
                     <span class="tag-cat">${p.categoria}</span>
+                    ${badge ? `<span class="tag-badge">✦ ${badge}</span>` : ''}
                     <span class="tag-clicks">🔥 ${p.clics || 0} clics</span>
                     <span class="tag-ok">✅ tag activo</span>
                     <span style="color:#4a4a5a;">${new Date(p.fecha).toLocaleDateString('es-DO')}</span>
@@ -262,8 +344,8 @@ async function cargarProductos() {
                 <a href="${p.link}" target="_blank" rel="noopener" class="btn btn-sm btn-dark" style="text-decoration:none;">Ver →</a>
                 <button class="btn btn-red" onclick="eliminar(${p.id})">🗑️</button>
             </div>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
 }
 
 async function inyectar() {
@@ -286,7 +368,7 @@ async function inyectar() {
         }).then(r => r.json());
 
         if (d.success) {
-            toast(`✅ "${d.product}" inyectado con tag ${d.affiliateTag}`);
+            toast(`✅ "${d.product}" inyectado | Badge: ${d.badge || 'N/A'} | Tag: ${d.affiliateTag}`);
             cerrarModal(); cargarTodo();
         } else {
             toast('❌ ' + (d.error || 'Inténtalo de nuevo'), true);
