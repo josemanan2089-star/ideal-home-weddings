@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMMANDER MXL — Panel de Control v8.2</title>
+    <title>COMMANDER MXL — Panel de Control v8.2.1</title>
     <meta name="robots" content="noindex, nofollow">
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
@@ -25,17 +25,26 @@
         .btn-dark{background:#2d2d44;}
         .btn-red{background:#dc2626;padding:5px 10px;font-size:.72rem;}
         .btn-sm{padding:5px 11px;font-size:.72rem;}
+        .btn-green{background:#059669;}
 
         .panel{background:#1a1a2e;border-radius:12px;padding:20px;margin-top:16px;}
         .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
         .panel-head h3{color:#c9a87b;font-size:.9rem;}
         .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.65rem;background:#8b5cf6;margin-left:6px;}
+        .badge-green{background:#059669;}
+        .badge-orange{background:#d97706;}
 
         /* MODAL */
         .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);align-items:center;justify-content:center;z-index:1000;}
         .modal-box{background:#1a1a2e;padding:28px;border-radius:16px;max-width:530px;width:92%;max-height:88vh;overflow-y:auto;}
         .modal-box input,.modal-box select{width:100%;padding:11px;margin:7px 0 14px;border-radius:8px;border:1px solid #3d3d5c;background:#2d2d44;color:#fff;font-size:13px;}
         label{display:block;margin-bottom:2px;font-size:11px;color:#c9a87b;}
+
+        /* SECTION TOGGLE */
+        .sec-toggle{display:flex;gap:8px;margin:7px 0 16px;}
+        .sec-btn{flex:1;padding:11px 8px;border-radius:8px;border:2px solid #3d3d5c;background:#2d2d44;color:#c9a87b;font-size:.78rem;cursor:pointer;text-align:center;transition:all .2s;font-weight:600;}
+        .sec-btn.active-buy{border-color:#10b981;background:#0d2b1d;color:#10b981;}
+        .sec-btn.active-trend{border-color:#f59e0b;background:#1a1400;color:#f59e0b;}
 
         /* TOAST */
         .toast{position:fixed;bottom:20px;right:20px;background:#10b981;color:#fff;padding:11px 18px;border-radius:8px;z-index:2000;font-weight:bold;animation:slide .3s ease;}
@@ -52,6 +61,8 @@
         .tag-clicks{color:#ff4500;font-weight:bold;}
         .tag-ok{color:#10b981;font-size:.62rem;}
         .tag-badge{background:#8b5cf6;padding:2px 8px;border-radius:9px;font-size:.6rem;color:#fff;}
+        .tag-sec-buy{background:#0d2b1d;color:#10b981;padding:2px 8px;border-radius:9px;font-size:.6rem;border:1px solid #10b981;}
+        .tag-sec-trend{background:#1a1400;color:#f59e0b;padding:2px 8px;border-radius:9px;font-size:.6rem;border:1px solid #f59e0b;}
 
         /* TOP CLICKS */
         .top-row{padding:10px 13px;border-radius:10px;background:#16161e;margin-bottom:7px;display:flex;align-items:center;gap:12px;}
@@ -66,7 +77,7 @@
         .dot{width:7px;height:7px;border-radius:50%;background:#10b981;animation:blink 2s infinite;}
         @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-        /* v8.2 — TRACKING VALIDATOR */
+        /* TRACKING VALIDATOR */
         .track-log{background:#0d1117;border:1px solid #2d2d44;border-radius:10px;padding:14px;font-family:monospace;font-size:.72rem;max-height:160px;overflow-y:auto;margin-top:10px;}
         .track-log .ok{color:#10b981;}
         .track-log .err{color:#f87171;}
@@ -75,21 +86,31 @@
         .empty{text-align:center;padding:28px;color:#5a5a7a;font-size:.82rem;}
         .loading{text-align:center;padding:20px;color:#c9a87b;font-size:.82rem;}
 
-        /* NOTA IMPORTANTE */
+        /* SECTIONS SUMMARY */
+        .sec-summary{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+        .sec-pill{padding:6px 14px;border-radius:20px;font-size:.72rem;font-weight:bold;cursor:pointer;transition:opacity .2s;border:none;}
+        .sec-pill:hover{opacity:.8;}
+        .sec-pill.buy{background:#0d2b1d;color:#10b981;border:1px solid #10b981;}
+        .sec-pill.trend{background:#1a1400;color:#f59e0b;border:1px solid #f59e0b;}
+        .sec-pill.all{background:#2d2d44;color:#c9a87b;}
+        .sec-pill.active{box-shadow:0 0 0 2px #fff3;}
+
         .tip-box{background:#1a2010;border:1px solid #4a7c20;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.78rem;color:#8fbc50;line-height:1.7;}
         .tip-box strong{color:#aada70;}
-
-        /* PRICE STRATEGY HINT */
         .price-box{background:#0d1a2e;border:1px solid #1e4a7c;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.76rem;color:#7eb4e8;line-height:1.7;}
         .price-box strong{color:#a0d0ff;}
+
+        /* CRON STATUS */
+        .cron-pill{background:#0d2b1d;border:1px solid #10b981;padding:4px 10px;border-radius:20px;font-size:.65rem;color:#10b981;display:inline-flex;align-items:center;gap:5px;}
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>🎖️ COMMANDER MXL <span class="v-badge">v8.2</span></h1>
+    <h1>🎖️ COMMANDER MXL <span class="v-badge">v8.2.1</span></h1>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <div id="aff"><span class="dot"></span><span id="affLabel">Cargando...</span></div>
+        <span class="cron-pill">⏱ Auto cada 45 min</span>
         <button class="btn btn-purple" onclick="abrirModal()">💉 INYECTAR PRODUCTO</button>
         <button class="btn btn-dark" onclick="cargarTodo()">🔄 Refrescar</button>
         <a href="/" target="_blank" class="btn btn-dark" style="text-decoration:none;">🌐 Ver Sitio</a>
@@ -99,14 +120,15 @@
 <!-- CONSEJO EDITORIAL -->
 <div class="tip-box">
     💡 <strong>Consejo de copy:</strong> Escribe el nombre del producto <strong>en inglés</strong> para que el Motor 2.5 genere el mejor copy de venta.
-    Ej: en vez de "Enfriador de vino" escribe <em>"Dual zone luxury wine cooler"</em>. El badge, el copy y el link de afiliado se generan solos. ✅
+    Ej: en vez de "Picador de vegetales" escribe <em>"Vegetable chopper stainless steel"</em>. El badge, el copy y el link de afiliado se generan solos. ✅
 </div>
 
-<!-- ESTRATEGIA DE PRECIOS -->
+<!-- ESTRATEGIA DE SECCIONES -->
 <div class="price-box">
-    📊 <strong>Estrategia de precios v8.2:</strong> El piloto automático prioriza productos entre <strong>$25–$95 USD</strong> (80% del contenido auto-generado).
-    Este rango maximiza conversiones — bajo riesgo para el comprador, alta frecuencia de compra impulsiva.
-    Los productos premium (espresso machines, vacuums) siguen apareciendo como contenido aspiracional (20%).
+    📊 <strong>Secciones v8.2.1:</strong>
+    <span style="color:#10b981;">● "What They're Buying Right Now"</span> — Productos $25–$50 (impulso, alta conversión) · 60% del contenido auto.&nbsp;&nbsp;
+    <span style="color:#f59e0b;">● "Trending This Week"</span> — Productos aspiracionales $50–$95 · 40% del contenido auto.
+    <br>El Piloto Automático publica cada <strong>45 minutos</strong> (antes 15 min) — cuotas Gemini protegidas ✅
 </div>
 
 <!-- STATS -->
@@ -114,11 +136,12 @@
     <div class="stat-card">
         <div class="stat-num" id="sProds">–</div>
         <div class="stat-label">Productos</div>
+        <div class="stat-sub" id="sSecciones">–</div>
     </div>
     <div class="stat-card">
         <div class="stat-num" id="sInsights">–</div>
         <div class="stat-label">Artículos Auto</div>
-        <div class="stat-sub">⏱ cada 15 min</div>
+        <div class="stat-sub">⏱ cada 45 min</div>
     </div>
     <div class="stat-card">
         <div class="stat-num" id="sNews">–</div>
@@ -168,6 +191,12 @@
     <div class="panel-head">
         <h3>📦 TODOS LOS PRODUCTOS <span class="badge">MOTOR 2.5</span></h3>
     </div>
+    <!-- Section filter pills -->
+    <div class="sec-summary">
+        <button class="sec-pill all active" id="pill-all" onclick="filtrarSeccion(null)">Todos</button>
+        <button class="sec-pill buy" id="pill-buy" onclick="filtrarSeccion('buying_now')">🛒 What They're Buying Right Now (<span id="cntBuy">–</span>)</button>
+        <button class="sec-pill trend" id="pill-trend" onclick="filtrarSeccion('trending')">🔥 Trending This Week (<span id="cntTrend">–</span>)</button>
+    </div>
     <div id="prodList"><div class="loading">Cargando...</div></div>
 </div>
 
@@ -183,7 +212,7 @@
         </p>
 
         <label>🏷️ NOMBRE DEL PRODUCTO (en inglés) *</label>
-        <input type="text" id="fTitle" placeholder="Ej: Dual zone luxury wine cooler stainless steel">
+        <input type="text" id="fTitle" placeholder="Ej: Vegetable chopper stainless steel 14 cup">
 
         <label>🔗 URL de Amazon *</label>
         <input type="url" id="fUrl" placeholder="https://amazon.com/dp/ASIN...">
@@ -203,6 +232,19 @@
             <option value="OUTDOOR">OUTDOOR ELITE</option>
         </select>
 
+        <label>📌 SECCIÓN DE DESTINO</label>
+        <div class="sec-toggle">
+            <button class="sec-btn active-buy" id="secBtnBuy" onclick="setSeccion('buying_now')">
+                🛒 What They're Buying Right Now<br>
+                <small style="font-weight:normal;font-size:.67rem;">$25–$50 · Impulso · Alta conversión</small>
+            </button>
+            <button class="sec-btn" id="secBtnTrend" onclick="setSeccion('trending')">
+                🔥 Trending This Week<br>
+                <small style="font-weight:normal;font-size:.67rem;">$50–$95 · Aspiracional · Top picks</small>
+            </button>
+        </div>
+        <input type="hidden" id="fSeccion" value="buying_now">
+
         <button class="btn btn-purple" id="btnInject" onclick="inyectar()" style="width:100%;padding:13px;margin-top:6px;">
             🚀 EJECUTAR INYECCIÓN 2.5
         </button>
@@ -211,7 +253,7 @@
 </div>
 
 <script>
-// ── TRACK LOG (in-memory for this session) ──
+// ── TRACK LOG ──
 const trackEvents = [];
 
 function addTrackLog(msg, isErr=false){
@@ -220,24 +262,14 @@ function addTrackLog(msg, isErr=false){
     if(trackEvents.length > 50) trackEvents.pop();
     renderTrackLog();
 }
-
 function renderTrackLog(){
     const el = document.getElementById('trackLog');
-    if(!trackEvents.length){
-        el.innerHTML = '<span style="color:#4a5568;">Esperando eventos de clic...</span>';
-        return;
-    }
-    el.innerHTML = trackEvents.map(e =>
-        `<div class="${e.isErr?'err':'ok'}"><span class="ts">${e.ts}</span>${e.msg}</div>`
-    ).join('');
+    if(!trackEvents.length){ el.innerHTML = '<span style="color:#4a5568;">Esperando eventos de clic...</span>'; return; }
+    el.innerHTML = trackEvents.map(e => `<div class="${e.isErr?'err':'ok'}"><span class="ts">${e.ts}</span>${e.msg}</div>`).join('');
 }
+function limpiarLog(){ trackEvents.length = 0; renderTrackLog(); }
 
-function limpiarLog(){
-    trackEvents.length = 0;
-    renderTrackLog();
-}
-
-// ── Intercept fetch to track /api/track/click responses ──
+// ── Intercept fetch to track clicks ──
 const _origFetch = window.fetch;
 window.fetch = async function(...args){
     const res = await _origFetch(...args);
@@ -245,31 +277,48 @@ window.fetch = async function(...args){
     if(url.includes('/api/track/click')){
         const clone = res.clone();
         clone.json().then(data => {
-            if(data.ok){
-                addTrackLog(`✅ Clic registrado — ID: ${data.producto_id} | "${(data.titulo||'').slice(0,30)}" | Total: ${data.total_clics} clics`);
-            } else {
-                addTrackLog(`❌ Error tracking — ${data.error||'desconocido'}`, true);
-            }
+            if(data.ok) addTrackLog(`✅ Clic — ID: ${data.producto_id} | "${(data.titulo||'').slice(0,30)}" | Total: ${data.total_clics}`);
+            else addTrackLog(`❌ Error tracking — ${data.error||'desconocido'}`, true);
         }).catch(()=>{});
     }
     return res;
 };
 
-function toast(msg, err=false) {
+function toast(msg, err=false){
     const t = document.createElement('div');
-    t.className = 'toast' + (err ? ' err' : '');
+    t.className = 'toast' + (err?' err':'');
     t.textContent = msg;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 3500);
 }
 
-function abrirModal()  { document.getElementById('modal').style.display = 'flex'; }
-function cerrarModal() {
+// ── Modal ──
+function abrirModal(){ document.getElementById('modal').style.display = 'flex'; }
+function cerrarModal(){
     document.getElementById('modal').style.display = 'none';
     ['fTitle','fUrl','fImg'].forEach(id => document.getElementById(id).value = '');
+    setSeccion('buying_now');
 }
 
-async function cargarStats() {
+// ── Section selector in modal ──
+function setSeccion(sec){
+    document.getElementById('fSeccion').value = sec;
+    const buyBtn   = document.getElementById('secBtnBuy');
+    const trendBtn = document.getElementById('secBtnTrend');
+    buyBtn.className   = 'sec-btn' + (sec === 'buying_now' ? ' active-buy'   : '');
+    trendBtn.className = 'sec-btn' + (sec === 'trending'   ? ' active-trend' : '');
+}
+
+// ── Product list section filter ──
+let activeFilter = null;
+function filtrarSeccion(sec){
+    activeFilter = sec;
+    ['all','buy','trend'].forEach(k => document.getElementById('pill-'+k).classList.remove('active'));
+    document.getElementById(sec ? (sec==='buying_now'?'pill-buy':'pill-trend') : 'pill-all').classList.add('active');
+    cargarProductos();
+}
+
+async function cargarStats(){
     try {
         const d = await fetch('/api/stats').then(r => r.json());
         document.getElementById('sProds').textContent    = d.productos ?? '–';
@@ -283,17 +332,19 @@ async function cargarStats() {
         document.getElementById('tagVerif').textContent  = d.affiliateTag || '–';
         document.getElementById('sApis').innerHTML =
             `Pexels ${d.pexels} &nbsp; Unsplash ${d.unsplash}<br>Noticias ${d.newsApi} &nbsp; Google ${d.google}`;
+        if(d.secciones){
+            document.getElementById('sSecciones').textContent = `🛒 ${d.secciones.buying_now} · 🔥 ${d.secciones.trending}`;
+            document.getElementById('cntBuy').textContent   = d.secciones.buying_now;
+            document.getElementById('cntTrend').textContent = d.secciones.trending;
+        }
     } catch { document.getElementById('affLabel').textContent = 'Sin conexión'; }
 }
 
-async function cargarTopClics() {
+async function cargarTopClics(){
     try {
         const data = await fetch('/api/track/top').then(r => r.json());
         const el = document.getElementById('topClics');
-        if (!data.length) {
-            el.innerHTML = '<div class="empty">Sin clics aún. Comparte el sitio para generar tráfico.</div>';
-            return;
-        }
+        if(!data.length){ el.innerHTML = '<div class="empty">Sin clics aún. Comparte el sitio para generar tráfico.</div>'; return; }
         const max = data[0].clics || 1;
         const medallas = ['🥇','🥈','🥉'];
         el.innerHTML = data.map((p,i) => `
@@ -301,41 +352,45 @@ async function cargarTopClics() {
                 <span class="top-rank">${medallas[i] || `${i+1}`}</span>
                 <div class="top-info">
                     <div class="top-title">${p.titulo}</div>
-                    <div class="top-clicks">${p.clics} clics totales · ${p.clics_semana || 0} esta semana · ${p.clics_hoy || 0} hoy</div>
+                    <div class="top-clicks">${p.clics} clics · ${p.clics_semana||0} semana · ${p.clics_hoy||0} hoy</div>
                 </div>
                 <div class="bar"><div class="bar-fill" style="width:${Math.round((p.clics/max)*100)}%"></div></div>
                 <a href="${p.link}" target="_blank" rel="noopener" class="btn btn-sm btn-dark" style="text-decoration:none;">Ver →</a>
-            </div>
-        `).join('');
+            </div>`).join('');
     } catch { document.getElementById('topClics').innerHTML = '<div class="empty">Error cargando datos</div>'; }
 }
 
-async function eliminar(id) {
-    if (!confirm('¿Eliminar este producto y su historial de clics?')) return;
+async function eliminar(id){
+    if(!confirm('¿Eliminar este producto y su historial de clics?')) return;
     try {
         const d = await fetch(`/api/productos/${id}`, { method: 'DELETE' }).then(r => r.json());
-        if (d.success) { toast('✅ Producto eliminado'); cargarTodo(); }
+        if(d.success){ toast('✅ Producto eliminado'); cargarTodo(); }
     } catch { toast('❌ Error al eliminar', true); }
 }
 
-async function cargarProductos() {
-    const prods = await fetch('/api/productos').then(r => r.json());
+async function cargarProductos(){
+    let url = '/api/productos';
+    if(activeFilter) url += `?seccion=${activeFilter}`;
+    const prods = await fetch(url).then(r => r.json());
     const el = document.getElementById('prodList');
-    if (!prods.items?.length) {
-        el.innerHTML = '<div class="empty">Sin productos aún. ¡Inyecta el primero! ☝️</div>';
+    if(!prods.items?.length){
+        el.innerHTML = '<div class="empty">Sin productos en esta sección. ¡Inyecta el primero! ☝️</div>';
         return;
     }
     el.innerHTML = prods.items.map(p => {
-        // Parse badge from meta
         let badge = '';
         try { const m = JSON.parse(p.meta); badge = m.badge || ''; } catch {}
+        const secTag = p.seccion === 'buying_now'
+            ? `<span class="tag-sec-buy">🛒 Buying Now</span>`
+            : `<span class="tag-sec-trend">🔥 Trending</span>`;
         return `<div class="prod-row">
             <div class="prod-info">
                 <div class="prod-title">${p.titulo}</div>
                 <div class="prod-meta">
                     <span class="tag-cat">${p.categoria}</span>
+                    ${secTag}
                     ${badge ? `<span class="tag-badge">✦ ${badge}</span>` : ''}
-                    <span class="tag-clicks">🔥 ${p.clics || 0} clics</span>
+                    <span class="tag-clicks">🔥 ${p.clics||0} clics</span>
                     <span class="tag-ok">✅ tag activo</span>
                     <span style="color:#4a4a5a;">${new Date(p.fecha).toLocaleDateString('es-DO')}</span>
                 </div>
@@ -348,14 +403,15 @@ async function cargarProductos() {
     }).join('');
 }
 
-async function inyectar() {
-    const titulo = document.getElementById('fTitle').value.trim();
-    const url    = document.getElementById('fUrl').value.trim();
-    const img    = document.getElementById('fImg').value.trim();
-    const cat    = document.getElementById('fCat').value;
+async function inyectar(){
+    const titulo  = document.getElementById('fTitle').value.trim();
+    const url     = document.getElementById('fUrl').value.trim();
+    const img     = document.getElementById('fImg').value.trim();
+    const cat     = document.getElementById('fCat').value;
+    const seccion = document.getElementById('fSeccion').value;
 
-    if (!titulo) return toast('❌ Falta el nombre del producto', true);
-    if (!url)    return toast('❌ Falta la URL de Amazon', true);
+    if(!titulo) return toast('❌ Falta el nombre del producto', true);
+    if(!url)    return toast('❌ Falta la URL de Amazon', true);
 
     const btn = document.getElementById('btnInject');
     btn.disabled = true; btn.textContent = '⌛ MOTOR 2.5 TRABAJANDO...';
@@ -364,11 +420,12 @@ async function inyectar() {
         const d = await fetch('/api/commander/inject', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url, imagenUrl: img, categoria: cat, tituloReal: titulo })
+            body: JSON.stringify({ url, imagenUrl: img, categoria: cat, tituloReal: titulo, seccion })
         }).then(r => r.json());
 
-        if (d.success) {
-            toast(`✅ "${d.product}" inyectado | Badge: ${d.badge || 'N/A'} | Tag: ${d.affiliateTag}`);
+        if(d.success){
+            const secLabel = seccion === 'buying_now' ? 'Buying Now' : 'Trending';
+            toast(`✅ "${d.product}" → ${secLabel} | Badge: ${d.badge||'N/A'} | Tag: ${d.affiliateTag}`);
             cerrarModal(); cargarTodo();
         } else {
             toast('❌ ' + (d.error || 'Inténtalo de nuevo'), true);
@@ -377,7 +434,7 @@ async function inyectar() {
     finally { btn.disabled = false; btn.textContent = '🚀 EJECUTAR INYECCIÓN 2.5'; }
 }
 
-async function cargarTodo() {
+async function cargarTodo(){
     await Promise.all([cargarStats(), cargarTopClics(), cargarProductos()]);
 }
 
