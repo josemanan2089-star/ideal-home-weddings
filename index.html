@@ -40,6 +40,13 @@
         .pp-meta-text{font-size:.9rem;color:var(--muted);line-height:1.7;}
         .pp-teaser{font-size:1rem;line-height:1.8;border-left:3px solid var(--gold);padding-left:18px;color:var(--text);}
 
+        /* SHARE BUTTON */
+        .share-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#fff;border:2px solid var(--border);color:var(--dark);padding:12px 20px;border-radius:40px;font-weight:600;font-size:.85rem;cursor:pointer;transition:all .2s;margin-top:8px;}
+        .share-btn:hover{background:var(--gold);border-color:var(--gold);color:white;transform:translateY(-1px);}
+        .share-small{background:#f7f3f0;border:1px solid var(--border);padding:6px 12px;font-size:.7rem;margin-top:0;margin-left:8px;display:inline-flex;}
+        .share-small:hover{background:var(--gold);border-color:var(--gold);}
+        .card-share-wrap{display:flex;align-items:center;justify-content:flex-end;margin-top:8px;}
+
         /* v8.2 — URGENCY BADGES on product page */
         .pp-badge-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
         .trust-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:.68rem;font-weight:700;letter-spacing:.4px;}
@@ -232,6 +239,35 @@ function ago(d){
     return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'});
 }
 
+// ── WEB SHARE API (COMPARTIR) ──
+async function compartirProducto(producto, isCard = true) {
+    const shareUrl = `https://ideal-home-weddings-production.up.railway.app/product/${producto.id}`;
+    const shareData = {
+        title: `MXL Gold — ${producto.titulo}`,
+        text: producto.curiosidad || `✨ Descubre ${producto.titulo} en MXL Gold — el lujo que las mujeres elite están comprando.`,
+        url: shareUrl
+    };
+    
+    if (navigator.share) {
+        try {
+            await navigator.share(shareData);
+            console.log('[MXL Share ✅] Producto compartido:', producto.titulo);
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                console.error('[MXL Share ❌] Error al compartir:', err);
+                alert('❌ No se pudo compartir. Copia este enlace:\n' + shareUrl);
+            }
+        }
+    } else {
+        // Fallback para navegadores sin Web Share API (escritorio)
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            alert('🔗 Enlace copiado al portapapeles:\n' + shareUrl);
+        }).catch(() => {
+            prompt('📲 Copia este enlace para compartir:', shareUrl);
+        });
+    }
+}
+
 // ── v8.2: PARSE META (may contain badge JSON or plain text) ──
 function parseMeta(raw){
     if(!raw) return { badge:null, text:'' };
@@ -281,7 +317,6 @@ async function trackClick(id, url){
             body: JSON.stringify({ producto_id: id, tipo: 'amazon' })
         });
         const data = await res.json();
-        // Validate tracking worked — log to console for panel cross-check
         if(data.ok){
             console.info(`[MXL Track ✅] ID:${id} | Total clicks: ${data.total_clics} | ${data.timestamp}`);
         } else {
@@ -290,11 +325,10 @@ async function trackClick(id, url){
     } catch(e) {
         console.error('[MXL Track ❌] Failed to send click event:', e.message);
     }
-    // Always open in new tab — affiliate tag preserved in URL by server
     window.open(url, '_blank', 'noopener noreferrer');
 }
 
-// ── PRODUCT PAGE ──
+// ── PRODUCT PAGE (con botón compartir) ──
 function openPage(p){
     document.getElementById('productPage').style.display='block';
     document.getElementById('mainSite').style.display='none';
@@ -317,6 +351,9 @@ function openPage(p){
                 ${p.curiosidad ? `<blockquote class="pp-teaser">${p.curiosidad}</blockquote>` : ''}
                 <button class="pp-cta" onclick="trackClick(${p.id},'${p.link}')">
                     🛒 Buy on Amazon
+                </button>
+                <button class="share-btn" onclick="event.stopPropagation(); compartirProducto(${JSON.stringify(p).replace(/"/g, '&quot;')}, false)">
+                    🔗 Compartir producto
                 </button>
                 <p class="pp-cta-sub">Opens Amazon in a new tab · Affiliate link</p>
                 <p class="pp-date">Added ${ago(p.fecha)}</p>
@@ -351,7 +388,7 @@ function filterCat(cat,btn){
     loadProducts(true);
 }
 
-// ── v8.2: PRODUCT CARD with badge overlay + trust strip + Buy CTA ──
+// ── v8.2: PRODUCT CARD con badge + trust strip + Buy CTA + BOTÓN COMPARTIR ──
 function prodCard(p){
     const meta = parseMeta(p.meta);
     const esc = JSON.stringify(p).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
@@ -368,6 +405,11 @@ function prodCard(p){
             <button class="btn-primary" onclick="event.stopPropagation();trackClick(${p.id},'${p.link}')">
                 🛒 Buy on Amazon →
             </button>
+            <div class="card-share-wrap">
+                <button class="share-btn share-small" onclick="event.stopPropagation(); compartirProducto(${JSON.stringify(p).replace(/"/g, '&quot;')}, true)">
+                    🔗 Compartir
+                </button>
+            </div>
         </div>
     </article>`;
 }
