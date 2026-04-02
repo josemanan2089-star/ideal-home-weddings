@@ -36,10 +36,21 @@
         .pp-info{display:flex;flex-direction:column;gap:14px;}
         .pp-tag{display:inline-block;background:#f7ede8;color:var(--orange);font-size:.62rem;padding:4px 12px;border-radius:20px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;width:fit-content;}
         .pp-title{font-family:'Playfair Display',serif;font-size:1.75rem;line-height:1.3;}
-        .pp-meta{font-size:.9rem;color:var(--muted);line-height:1.7;}
+        .pp-meta-text{font-size:.9rem;color:var(--muted);line-height:1.7;}
         .pp-teaser{font-size:1rem;line-height:1.8;border-left:3px solid var(--gold);padding-left:18px;color:var(--text);}
-        .pp-cta{display:block;background:var(--dark);color:white;padding:15px;border-radius:40px;text-align:center;font-weight:700;font-size:.95rem;border:none;cursor:pointer;transition:background .25s;}
-        .pp-cta:hover{background:var(--orange);}
+
+        /* v8.2 — URGENCY BADGES on product page */
+        .pp-badge-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+        .trust-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:.68rem;font-weight:700;letter-spacing:.4px;}
+        .trust-badge.orange{background:#fff3ed;color:#ff4500;border:1px solid #ffcfb8;}
+        .trust-badge.green{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;}
+        .trust-badge.gold{background:#fefce8;color:#a16207;border:1px solid #fde68a;}
+
+        /* v8.2 — CTA BUY BUTTON */
+        .pp-cta{display:block;background:var(--dark);color:white;padding:16px;border-radius:40px;text-align:center;font-weight:700;font-size:1rem;border:none;cursor:pointer;transition:background .25s,transform .15s;}
+        .pp-cta:hover{background:var(--orange);transform:translateY(-2px);}
+        .pp-cta-sub{font-size:.68rem;color:#aaa;text-align:center;margin-top:6px;}
+
         .pp-date{font-size:.7rem;color:#bbb;}
         .pp-views{font-size:.75rem;color:#b07040;}
         @media(max-width:640px){.pp-grid{grid-template-columns:1fr;}.pp-title{font-size:1.4rem;}}
@@ -73,9 +84,9 @@
         .grid-news{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px;}
 
         /* CARD */
-        .card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.06);border:1px solid var(--border);transition:transform .3s,box-shadow .3s;cursor:pointer;}
+        .card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.06);border:1px solid var(--border);transition:transform .3s,box-shadow .3s;cursor:pointer;position:relative;}
         .card:hover{transform:translateY(-5px);box-shadow:0 14px 40px rgba(0,0,0,.12);}
-        .card-img{width:100%;height:210px;overflow:hidden;background:#faf7f3;}
+        .card-img{width:100%;height:210px;overflow:hidden;background:#faf7f3;position:relative;}
         .card-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
         .card:hover .card-img img{transform:scale(1.04);}
         .card-img.contain img{object-fit:contain;padding:18px;}
@@ -88,6 +99,15 @@
         .card-text{font-size:.84rem;color:var(--muted);line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
         .views{display:inline-flex;align-items:center;gap:4px;font-size:.67rem;color:#b07040;margin:5px 0;}
 
+        /* v8.2 — URGENCY BADGE OVERLAY on card */
+        .urgency-badge{position:absolute;top:10px;left:10px;background:rgba(255,69,0,.93);color:white;font-size:.58rem;font-weight:800;padding:4px 10px;border-radius:20px;letter-spacing:.6px;text-transform:uppercase;backdrop-filter:blur(4px);z-index:2;}
+        .urgency-badge.green{background:rgba(22,163,74,.92);}
+        .urgency-badge.gold{background:rgba(161,98,7,.92);}
+
+        /* v8.2 — TRUST STRIP below card image */
+        .trust-strip{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 4px;}
+        .trust-chip{display:inline-flex;align-items:center;gap:3px;font-size:.58rem;color:var(--muted);background:#f7f3f0;padding:3px 8px;border-radius:20px;border:1px solid #ede0d4;}
+
         /* RELATED inside insight */
         .related{margin-top:16px;padding:12px;background:#faf7f3;border-radius:12px;border:1px solid #ede0d4;display:flex;gap:10px;align-items:center;}
         .related img{width:52px;height:52px;object-fit:contain;border-radius:7px;background:white;padding:3px;flex-shrink:0;}
@@ -95,8 +115,8 @@
         .related-eye{font-size:.58rem;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;font-weight:700;}
         .related-name{font-size:.75rem;color:#1a1208;font-weight:600;margin:2px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-        /* BUTTONS */
-        .btn-primary{display:block;width:100%;background:var(--dark);color:white;padding:11px;border-radius:40px;text-align:center;text-decoration:none;font-weight:600;font-size:.83rem;margin-top:16px;border:none;cursor:pointer;transition:background .25s,transform .15s;}
+        /* v8.2 — BUY BUTTON (replaced "View on Amazon") */
+        .btn-primary{display:block;width:100%;background:var(--dark);color:white;padding:11px;border-radius:40px;text-align:center;text-decoration:none;font-weight:700;font-size:.85rem;margin-top:14px;border:none;cursor:pointer;transition:background .25s,transform .15s;letter-spacing:.3px;}
         .btn-primary:hover{background:var(--orange);transform:translateY(-1px);}
         .btn-pill{display:inline-block;background:var(--orange);color:white;padding:5px 12px;border-radius:20px;font-size:.7rem;font-weight:700;text-decoration:none;border:none;cursor:pointer;transition:background .2s;}
         .btn-pill:hover{background:var(--dark);}
@@ -211,10 +231,66 @@ function ago(d){
     return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'});
 }
 
-// ── CLICK TRACKING ──
+// ── v8.2: PARSE META (may contain badge JSON or plain text) ──
+function parseMeta(raw){
+    if(!raw) return { badge:null, text:'' };
+    try {
+        const obj = JSON.parse(raw);
+        return { badge: obj.badge || null, text: obj.text || '' };
+    } catch {
+        return { badge: null, text: raw };
+    }
+}
+
+// ── v8.2: BADGE CONFIG ──
+const BADGE_CONFIG = {
+    "Amazon's Choice": { cls:'orange', icon:'⭐' },
+    "Best Seller":      { cls:'orange', icon:'🔥' },
+    "Limited Stock":    { cls:'orange', icon:'⚡' },
+    "Editor's Pick":    { cls:'gold',   icon:'✦' },
+    "Top Rated":        { cls:'green',  icon:'★' },
+};
+function badgeHTML(badge, position='card'){
+    if(!badge) return '';
+    const cfg = BADGE_CONFIG[badge] || { cls:'orange', icon:'✦' };
+    if(position==='card'){
+        return `<div class="urgency-badge ${cfg.cls}">${cfg.icon} ${badge}</div>`;
+    }
+    // product page trust badge
+    return `<span class="trust-badge ${cfg.cls}">${cfg.icon} ${badge}</span>`;
+}
+
+// ── v8.2: TRUST STRIP (secondary trust signals) ──
+function trustStrip(p){
+    const chips = [];
+    if(p.clics > 5)  chips.push(`🔥 ${p.clics} people viewed this`);
+    chips.push('✓ Free Prime Delivery');
+    chips.push('✓ Easy Returns');
+    return chips.length
+        ? `<div class="trust-strip">${chips.map(c=>`<span class="trust-chip">${c}</span>`).join('')}</div>`
+        : '';
+}
+
+// ── v8.2: CLICK TRACKING with validation ──
 async function trackClick(id, url){
-    try{ await fetch('/api/track/click',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({producto_id:id,tipo:'amazon'})}); }catch(e){}
-    window.open(url,'_blank','noopener noreferrer');
+    try {
+        const res = await fetch('/api/track/click', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ producto_id: id, tipo: 'amazon' })
+        });
+        const data = await res.json();
+        // Validate tracking worked — log to console for panel cross-check
+        if(data.ok){
+            console.info(`[MXL Track ✅] ID:${id} | Total clicks: ${data.total_clics} | ${data.timestamp}`);
+        } else {
+            console.warn(`[MXL Track ⚠️] Click sent but server returned:`, data);
+        }
+    } catch(e) {
+        console.error('[MXL Track ❌] Failed to send click event:', e.message);
+    }
+    // Always open in new tab — affiliate tag preserved in URL by server
+    window.open(url, '_blank', 'noopener noreferrer');
 }
 
 // ── PRODUCT PAGE ──
@@ -222,18 +298,26 @@ function openPage(p){
     document.getElementById('productPage').style.display='block';
     document.getElementById('mainSite').style.display='none';
     window.scrollTo(0,0);
-    document.getElementById('pageTitle').textContent=p.titulo+' — MXL Gold';
-    document.getElementById('pageDesc').setAttribute('content', p.meta||p.curiosidad||'');
+    document.getElementById('pageTitle').textContent = p.titulo + ' — MXL Gold';
+    const meta = parseMeta(p.meta);
+    document.getElementById('pageDesc').setAttribute('content', meta.text || p.curiosidad || '');
     document.getElementById('ppContent').innerHTML=`
         <div class="pp-grid">
             <div class="pp-img"><img src="${p.imagen}" alt="${p.titulo}" onerror="this.src='${FB}'"></div>
             <div class="pp-info">
                 <span class="pp-tag">${p.categoria||'LUXURY'}</span>
-                ${p.clics>0?`<div class="pp-views">🔥 ${p.clics} people viewed this</div>`:''}
+                <div class="pp-badge-row">
+                    ${meta.badge ? badgeHTML(meta.badge,'page') : ''}
+                    ${p.clics>0 ? `<span class="trust-badge green">🔥 ${p.clics} people viewed this</span>` : ''}
+                    <span class="trust-badge gold">✓ Free Prime Delivery</span>
+                </div>
                 <h1 class="pp-title">${p.titulo}</h1>
-                ${p.meta?`<p class="pp-meta">${p.meta}</p>`:''}
-                ${p.curiosidad?`<blockquote class="pp-teaser">${p.curiosidad}</blockquote>`:''}
-                <button class="pp-cta" onclick="trackClick(${p.id},'${p.link}')">View on Amazon →</button>
+                ${meta.text ? `<p class="pp-meta-text">${meta.text}</p>` : ''}
+                ${p.curiosidad ? `<blockquote class="pp-teaser">${p.curiosidad}</blockquote>` : ''}
+                <button class="pp-cta" onclick="trackClick(${p.id},'${p.link}')">
+                    🛒 Buy on Amazon
+                </button>
+                <p class="pp-cta-sub">Opens Amazon in a new tab · Affiliate link</p>
                 <p class="pp-date">Added ${ago(p.fecha)}</p>
             </div>
         </div>`;
@@ -266,18 +350,23 @@ function filterCat(cat,btn){
     loadProducts(true);
 }
 
-// ── PRODUCTS ──
+// ── v8.2: PRODUCT CARD with badge overlay + trust strip + Buy CTA ──
 function prodCard(p){
-    // Escape for onclick attribute
-    const esc=JSON.stringify(p).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    const meta = parseMeta(p.meta);
+    const esc = JSON.stringify(p).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
     return `<article class="card" onclick="openPage(JSON.parse(this.dataset.p))" data-p="${esc}" itemscope itemtype="https://schema.org/Product">
-        <div class="card-img contain"><img src="${p.imagen}" alt="${p.titulo}" loading="lazy" itemprop="image" onerror="this.src='${FB}'"></div>
+        <div class="card-img contain">
+            ${meta.badge ? badgeHTML(meta.badge,'card') : ''}
+            <img src="${p.imagen}" alt="${p.titulo}" loading="lazy" itemprop="image" onerror="this.src='${FB}'">
+        </div>
         <div class="card-body">
             <div class="card-top"><span class="card-tag">${p.categoria||'LUXURY'}</span><span class="card-time">${ago(p.fecha)}</span></div>
-            ${p.clics>0?`<div class="views">🔥 ${p.clics} viewed today</div>`:''}
+            ${trustStrip(p)}
             <h3 class="card-title" itemprop="name">${p.titulo}</h3>
             <p class="card-text" itemprop="description">${p.curiosidad||''}</p>
-            <button class="btn-primary" onclick="event.stopPropagation();trackClick(${p.id},'${p.link}')">View on Amazon →</button>
+            <button class="btn-primary" onclick="event.stopPropagation();trackClick(${p.id},'${p.link}')">
+                🛒 Buy on Amazon →
+            </button>
         </div>
     </article>`;
 }
@@ -307,7 +396,7 @@ function insightCard(c){
         <div class="related-info">
             <div class="related-eye">✨ Found on Amazon</div>
             <div class="related-name">${c.producto_titulo||''}</div>
-            <button class="btn-pill" onclick="trackClick(${c.producto_id_ref},'${c.producto_link}')">See price →</button>
+            <button class="btn-pill" onclick="trackClick(${c.producto_id_ref},'${c.producto_link}')">Buy on Amazon →</button>
         </div>
     </div>`:'';
     return `<article class="card" itemscope itemtype="https://schema.org/Article">
@@ -364,7 +453,6 @@ loadCategories();
 loadInsights();
 loadProducts();
 loadNews();
-// Refresh news and insights every 5 min — products only on category change
 setInterval(()=>{ loadNews(); }, 300000);
 </script>
 </body>
