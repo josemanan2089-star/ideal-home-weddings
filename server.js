@@ -17,7 +17,6 @@ function addAffiliateTag(url) {
     try {
         const u = new URL(url);
         u.searchParams.set('tag', AFFILIATE_TAG);
-        // Ensure link opens correctly with affiliate parameters intact
         return u.toString();
     } catch { return url; }
 }
@@ -26,7 +25,7 @@ app.use(compression());
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-app.get('/health', (req, res) => res.json({ status: 'ok', version: '8.2' }));
+app.get('/health', (req, res) => res.json({ status: 'ok', version: '8.2.1' }));
 
 app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
@@ -66,13 +65,16 @@ async function initDB() {
             `ALTER TABLE articulos ADD COLUMN IF NOT EXISTS keyword TEXT`,
             `ALTER TABLE curiosidades ADD COLUMN IF NOT EXISTS keyword TEXT`,
             `ALTER TABLE curiosidades ADD COLUMN IF NOT EXISTS producto_id BIGINT`,
+            // v8.2.1: section targeting column
+            `ALTER TABLE curiosidades ADD COLUMN IF NOT EXISTS seccion VARCHAR(60) DEFAULT 'trending'`,
+            `ALTER TABLE articulos    ADD COLUMN IF NOT EXISTS seccion VARCHAR(60) DEFAULT 'trending'`,
         ]) { await db.query(sql).catch(() => {}); }
-        console.log('✅ DB Ready v8.2');
+        console.log('✅ DB Ready v8.2.1');
     } catch (e) { console.error('❌ DB Error:', e.message); }
 }
 
 // ============================================================
-// GEMINI — ROTATE 3 KEYS
+// GEMINI — ROTATE 3 KEYS  (v8.2.1: 10s delay on fail)
 // ============================================================
 const geminiKeys = [
     process.env.GEMINI_API_KEY_CONTENT,
@@ -81,6 +83,9 @@ const geminiKeys = [
 ].filter(Boolean);
 
 let geminiIndex = 0;
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 async function generateContent(prompt) {
     for (let i = 0; i < geminiKeys.length; i++) {
         try {
@@ -90,7 +95,14 @@ async function generateContent(prompt) {
             const result = await model.generateContent(prompt);
             geminiIndex = (geminiIndex + i + 1) % geminiKeys.length;
             return result.response.text().replace(/```json|```/g, '').trim();
-        } catch (e) { console.warn(`⚠️ Gemini key ${i} failed: ${e.message}`); }
+        } catch (e) {
+            console.warn(`⚠️ Gemini key ${i} failed: ${e.message}`);
+            // v8.2.1 — 10s delay before trying next key to avoid chain-429
+            if (i < geminiKeys.length - 1) {
+                console.log(`⏳ Waiting 10s before next Gemini key attempt...`);
+                await sleep(10000);
+            }
+        }
     }
     throw new Error('All Gemini keys failed');
 }
@@ -145,61 +157,71 @@ async function findRelatedProduct(keyword) {
 }
 
 // ============================================================
-// v8.2 — PRICE RANGE STRATEGY
-// 80% of auto-injected products target the $25–$95 sweet spot
-// (impulse-buy range: low risk, high conversion for affiliate)
+// v8.2.1 — SECTION STRATEGY
+//
+// "What They're Buying Right Now"  → impulse picks $25–$50
+// "Trending This Week"             → popular / aspirational
 // ============================================================
-const PRICE_STRATEGY = {
-    // Topics targeting $25–$95 impulse-buy range (80%)
-    impulse: [
-        { topic: 'best luxury scented candle home fragrance Amazon $30-$60', keyword: 'luxury scented candle home' },
-        { topic: 'heated towel warmer rack bathroom luxury $40-$80', keyword: 'heated towel rack luxury' },
-        { topic: 'luxury cashmere throw blanket Amazon $50-$90', keyword: 'cashmere throw blanket luxury' },
-        { topic: 'smart lighting luxury home $25-$70 Amazon', keyword: 'smart lighting luxury home' },
-        { topic: 'luxury kitchen gadgets Amazon $30-$75 bestseller', keyword: 'luxury kitchen gadgets' },
-        { topic: 'best luxury bath set spa gift Amazon $40-$85', keyword: 'luxury bath spa set' },
-        { topic: 'luxury desk accessories home office $35-$80 Amazon', keyword: 'luxury home office accessories' },
-        { topic: 'premium linen napkins tablecloth luxury Amazon $25-$60', keyword: 'luxury linen table decor' },
-        { topic: 'luxury pillow set sleep quality Amazon $45-$90', keyword: 'luxury sleep pillow set' },
-        { topic: 'aromatherapy diffuser luxury home $30-$70 Amazon', keyword: 'luxury aromatherapy diffuser' },
-        { topic: 'luxury wine glasses crystal set Amazon $40-$80', keyword: 'crystal luxury wine glasses' },
-        { topic: 'silk eye mask luxury sleep Amazon $25-$55', keyword: 'luxury silk sleep mask' },
-    ],
-    // Premium aspirational topics (20%)
-    premium: [
-        { topic: 'best luxury kitchen appliances Amazon 2026', keyword: 'luxury kitchen appliances' },
-        { topic: 'smart home gadgets wealthy women NYC buy', keyword: 'smart home luxury gadgets' },
-        { topic: 'luxury espresso machine coffee maker Amazon', keyword: 'luxury espresso machine' },
-        { topic: 'best air purifier luxury apartment 2026', keyword: 'luxury air purifier home' },
-        { topic: 'luxury mattress best sleep quality 2026', keyword: 'luxury mattress brand' },
-        { topic: 'best robotic vacuum luxury apartment women', keyword: 'luxury robotic vacuum' },
-    ]
-};
+
+// Products targeting the $25–$50 impulse-buy sweet spot
+// These feed the "What They're Buying Right Now" section
+const SECTION_BUYING_NOW = [
+    { topic: 'best luxury scented candle home fragrance Amazon $25-$45', keyword: 'luxury scented candle home', seccion: 'buying_now' },
+    { topic: 'silk eye mask luxury sleep quality Amazon $25-$40', keyword: 'luxury silk sleep mask', seccion: 'buying_now' },
+    { topic: 'premium linen napkins tablecloth luxury Amazon $25-$45', keyword: 'luxury linen table decor', seccion: 'buying_now' },
+    { topic: 'luxury bath salts spa set gift Amazon $28-$48', keyword: 'luxury bath spa salts set', seccion: 'buying_now' },
+    { topic: 'artisan ceramic mug luxury gift Amazon $22-$42', keyword: 'luxury ceramic mug artisan', seccion: 'buying_now' },
+    { topic: 'luxury hand cream gift set Amazon $25-$50', keyword: 'luxury hand cream gift set', seccion: 'buying_now' },
+    { topic: 'cashmere socks luxury women Amazon $30-$50', keyword: 'cashmere socks luxury women', seccion: 'buying_now' },
+    { topic: 'crystal luxury wine glasses set Amazon $35-$50', keyword: 'crystal luxury wine glasses', seccion: 'buying_now' },
+    { topic: 'luxury kitchen gadgets bestseller Amazon $28-$48', keyword: 'luxury kitchen gadgets', seccion: 'buying_now' },
+    { topic: 'aromatherapy diffuser luxury home Amazon $30-$48', keyword: 'luxury aromatherapy diffuser', seccion: 'buying_now' },
+];
+
+// Products for the "Trending This Week" section — higher price, aspirational
+const SECTION_TRENDING = [
+    { topic: 'smart lighting luxury home Amazon $50-$90', keyword: 'smart lighting luxury home', seccion: 'trending' },
+    { topic: 'luxury cashmere throw blanket Amazon $60-$95', keyword: 'cashmere throw blanket luxury', seccion: 'trending' },
+    { topic: 'heated towel warmer rack bathroom luxury $55-$85', keyword: 'heated towel rack luxury', seccion: 'trending' },
+    { topic: 'luxury pillow set sleep quality Amazon $55-$90', keyword: 'luxury sleep pillow set', seccion: 'trending' },
+    { topic: 'luxury desk accessories home office Amazon $45-$80', keyword: 'luxury home office accessories', seccion: 'trending' },
+    { topic: 'best luxury kitchen appliances Amazon 2026', keyword: 'luxury kitchen appliances', seccion: 'trending' },
+    { topic: 'luxury espresso machine coffee maker Amazon', keyword: 'luxury espresso machine', seccion: 'trending' },
+    { topic: 'best air purifier luxury apartment 2026', keyword: 'luxury air purifier home', seccion: 'trending' },
+    { topic: 'best robotic vacuum luxury apartment women', keyword: 'luxury robotic vacuum', seccion: 'trending' },
+    { topic: 'smart home gadgets wealthy women NYC buy', keyword: 'smart home luxury gadgets', seccion: 'trending' },
+];
 
 let topicIndex = 0;
 function getNextTopic() {
     topicIndex++;
-    // 80% impulse, 20% premium
-    if (topicIndex % 5 === 0) {
-        const i = Math.floor(Math.random() * PRICE_STRATEGY.premium.length);
-        return PRICE_STRATEGY.premium[i];
+    // 60% buying_now ($25–$50), 40% trending (aspirational)
+    if (topicIndex % 5 <= 1) {
+        const i = Math.floor(Math.random() * SECTION_TRENDING.length);
+        return SECTION_TRENDING[i];
     }
-    const i = topicIndex % PRICE_STRATEGY.impulse.length;
-    return PRICE_STRATEGY.impulse[i];
+    const i = topicIndex % SECTION_BUYING_NOW.length;
+    return SECTION_BUYING_NOW[i];
 }
 
 // ============================================================
-// AUTO-PILOT — Insights
+// AUTO-PILOT — Insights  (v8.2.1: every 45 min)
 // ============================================================
 async function publishInsight() {
     if (!geminiKeys.length) return;
     console.log('⏰ [CRON] Generating SEO insight...');
     try {
         const topic = getNextTopic();
+        const isBuyingNow = topic.seccion === 'buying_now';
+
+        const sectionContext = isBuyingNow
+            ? `SECTION: "What They're Buying Right Now" — impulse purchase, under $50, something a friend texts you about.`
+            : `SECTION: "Trending This Week" — aspirational, the item everyone in the know has discovered this month.`;
 
         const raw = await generateContent(`You are a senior editor at Architectural Digest and former features writer for The New York Times Style section. You have lived in Manhattan's Upper East Side for 15 years. You write naturally — confident, specific, a little witty, never stiff or translated.
 
 TOPIC: "${topic.topic}"
+${sectionContext}
 
 READER: A 42-year-old woman. Tribeca loft or Chelsea townhouse. Shops Amazon Prime but has high standards. Reads the Sunday Times, follows interior designers on Instagram, second home in the Hamptons or Cotswolds.
 
@@ -224,10 +246,10 @@ Respond ONLY raw JSON: {"title":"...","body":"...","keyword":"..."}`);
         const related = await findRelatedProduct(data.keyword || topic.keyword);
 
         await db.query(
-            `INSERT INTO curiosidades (id, titulo_es, texto_es, imagen, keyword, producto_id, fecha) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-            [Date.now(), data.title, data.body, image, data.keyword, related?.id || null, new Date().toISOString()]
+            `INSERT INTO curiosidades (id, titulo_es, texto_es, imagen, keyword, producto_id, seccion, fecha) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+            [Date.now(), data.title, data.body, image, data.keyword, related?.id || null, topic.seccion, new Date().toISOString()]
         );
-        console.log(`✨ Insight: "${data.title}" → linked: ${related?.titulo || 'none yet'}`);
+        console.log(`✨ [${topic.seccion.toUpperCase()}] Insight: "${data.title}" → linked: ${related?.titulo || 'none yet'}`);
     } catch (e) { console.error('❌ Insight error:', e.message); }
 }
 
@@ -271,7 +293,7 @@ Respond ONLY raw JSON: {"title":"...","summary":"...","keyword":"..."}`);
 // ENDPOINTS
 // ============================================================
 
-// Track click — v8.2: returns validation data for panel
+// Track click
 app.post('/api/track/click', async (req, res) => {
     const { producto_id, tipo = 'product' } = req.body;
     if (!producto_id) return res.status(400).json({ ok: false, error: 'Missing producto_id' });
@@ -283,7 +305,6 @@ app.post('/api/track/click', async (req, res) => {
             ok: true,
             producto_id,
             tipo,
-            // Return current click count so panel can validate without extra request
             total_clics: product?.clics || null,
             titulo: product?.titulo || null,
             timestamp: new Date().toISOString()
@@ -306,19 +327,24 @@ app.get('/api/track/top', async (req, res) => {
     } catch { res.status(500).json([]); }
 });
 
-// Products — paginated + category filter
+// Products — paginated + category + section filter
 app.get('/api/productos', async (req, res) => {
     const page      = Math.max(1, parseInt(req.query.page) || 1);
     const limit     = 12;
     const offset    = (page - 1) * limit;
     const categoria = req.query.categoria || null;
+    const seccion   = req.query.seccion   || null;
     try {
-        const where  = categoria ? `WHERE UPPER(categoria) = $3` : '';
-        const params = categoria ? [limit, offset, categoria.toUpperCase()] : [limit, offset];
+        const conditions = [];
+        const params = [limit, offset];
+        if (categoria) { conditions.push(`UPPER(categoria) = $${params.length + 1}`); params.push(categoria.toUpperCase()); }
+        if (seccion)   { conditions.push(`seccion = $${params.length + 1}`); params.push(seccion); }
+        const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+        const countParams = params.slice(2); // strip limit/offset
         const [rows, total] = await Promise.all([
             db.query(`SELECT * FROM articulos ${where} ORDER BY fecha DESC LIMIT $1 OFFSET $2`, params),
-            db.query(`SELECT COUNT(*) FROM articulos ${categoria ? `WHERE UPPER(categoria) = $1` : ''}`,
-                     categoria ? [categoria.toUpperCase()] : [])
+            db.query(`SELECT COUNT(*) FROM articulos ${where}`, countParams)
         ]);
         res.json({
             items:   rows.rows,
@@ -346,18 +372,23 @@ app.get('/api/categorias', async (req, res) => {
     } catch { res.status(500).json([]); }
 });
 
-// Insights — paginated + related product JOIN
+// Insights — paginated + section filter + related product JOIN
 app.get('/api/curiosidades', async (req, res) => {
-    const page  = Math.max(1, parseInt(req.query.page) || 1);
-    const limit = 9;
-    const offset = (page - 1) * limit;
+    const page    = Math.max(1, parseInt(req.query.page) || 1);
+    const limit   = 9;
+    const offset  = (page - 1) * limit;
+    const seccion = req.query.seccion || null;
     try {
+        const where = seccion ? `AND c.seccion = $3` : '';
+        const params = seccion ? [limit, offset, seccion] : [limit, offset];
+        const countParams = seccion ? [seccion] : [];
         const [rows, total] = await Promise.all([
             db.query(`SELECT c.*, a.titulo AS producto_titulo, a.link AS producto_link,
                              a.imagen AS producto_imagen, a.id AS producto_id_ref
                       FROM curiosidades c LEFT JOIN articulos a ON a.id = c.producto_id
-                      ORDER BY c.fecha DESC LIMIT $1 OFFSET $2`, [limit, offset]),
-            db.query(`SELECT COUNT(*) FROM curiosidades`)
+                      WHERE 1=1 ${where}
+                      ORDER BY c.fecha DESC LIMIT $1 OFFSET $2`, params),
+            db.query(`SELECT COUNT(*) FROM curiosidades ${seccion ? 'WHERE seccion = $1' : ''}`, countParams)
         ]);
         res.json({ items: rows.rows, total: parseInt(total.rows[0].count), page, hasMore: offset + limit < parseInt(total.rows[0].count) });
     } catch { res.status(500).json({ items:[], total:0, page:1, hasMore:false }); }
@@ -370,14 +401,20 @@ app.get('/api/noticias', async (req, res) => {
     } catch { res.status(500).json([]); }
 });
 
-// Inject product — v8.2: price-aware copy + urgency badges
+// Inject product — v8.2.1: section-aware injection
 app.post('/api/commander/inject', async (req, res) => {
-    const { url, imagenUrl, categoria, tituloReal } = req.body;
+    const { url, imagenUrl, categoria, tituloReal, seccion = 'buying_now' } = req.body;
     if (!geminiKeys.length || !tituloReal) return res.status(400).json({ success: false, error: 'Missing product name or AI engine' });
     try {
+        const isBuyingNow = seccion === 'buying_now';
+        const sectionHint = isBuyingNow
+            ? `SECTION TARGET: "What They're Buying Right Now" — under $50, impulse buy, feels like a friend's recommendation.`
+            : `SECTION TARGET: "Trending This Week" — aspirational item, the one everyone wants right now.`;
+
         const raw = await generateContent(`You are a shopping editor at The Cut and contributing writer for Domino Magazine. You write product recommendations the way a trusted friend texts them — direct, specific, genuinely enthusiastic but never pushy. Readers: women aged 35–55 in New York, Miami, Los Angeles, and London.
 
 PRODUCT: "${tituloReal}"
+${sectionHint}
 
 Write copy that sounds like YOU discovered this and can't stop recommending it:
 - title: Product name elevated. Sounds like a magazine gift guide. Specific adjectives. Max 10 words. NOT "luxury [product]" as a formula.
@@ -395,15 +432,13 @@ Write ONLY in natural American or British English. Respond ONLY raw JSON:
         const copy = JSON.parse(raw);
         const image = imagenUrl || await getImage(copy.keyword || tituloReal);
         const linkWithTag = addAffiliateTag(url);
-
-        // Store badge in the meta field as JSON prefix for easy parsing on frontend
         const metaWithBadge = JSON.stringify({ badge: copy.badge || 'Editor\'s Pick', text: copy.meta });
 
         await db.query(
-            `INSERT INTO articulos (id,asin,titulo,meta,curiosidad,imagen,categoria,link,keyword,clics,fecha) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,0,$10)`,
-            [Date.now(), 'MXL'+Date.now(), copy.title, metaWithBadge, copy.teaser, image, categoria, linkWithTag, copy.keyword, new Date().toISOString()]
+            `INSERT INTO articulos (id,asin,titulo,meta,curiosidad,imagen,categoria,link,keyword,seccion,clics,fecha) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,0,$11)`,
+            [Date.now(), 'MXL'+Date.now(), copy.title, metaWithBadge, copy.teaser, image, categoria, linkWithTag, copy.keyword, seccion, new Date().toISOString()]
         );
-        res.json({ success: true, product: copy.title, badge: copy.badge, affiliateTag: AFFILIATE_TAG, image });
+        res.json({ success: true, product: copy.title, badge: copy.badge, seccion, affiliateTag: AFFILIATE_TAG, image });
     } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
@@ -431,12 +466,14 @@ app.get('/api/commander/buscar', async (req, res) => {
 // Stats
 app.get('/api/stats', async (req, res) => {
     try {
-        const [prods, insights, news, topClick, clicksHoy] = await Promise.all([
+        const [prods, insights, news, topClick, clicksHoy, buyingNow, trending] = await Promise.all([
             db.query('SELECT COUNT(*) FROM articulos'),
             db.query('SELECT COUNT(*) FROM curiosidades'),
             db.query('SELECT COUNT(*) FROM noticias'),
             db.query('SELECT titulo, clics FROM articulos ORDER BY clics DESC LIMIT 1'),
-            db.query(`SELECT COUNT(*) FROM clics WHERE fecha > NOW() - INTERVAL '24 hours'`)
+            db.query(`SELECT COUNT(*) FROM clics WHERE fecha > NOW() - INTERVAL '24 hours'`),
+            db.query(`SELECT COUNT(*) FROM articulos WHERE seccion = 'buying_now'`),
+            db.query(`SELECT COUNT(*) FROM articulos WHERE seccion = 'trending'`),
         ]);
         res.json({
             productos:    parseInt(prods.rows[0].count),
@@ -445,12 +482,16 @@ app.get('/api/stats', async (req, res) => {
             clicsHoy:     parseInt(clicksHoy.rows[0].count),
             topProducto:  topClick.rows[0] || null,
             affiliateTag: AFFILIATE_TAG,
+            secciones: {
+                buying_now: parseInt(buyingNow.rows[0].count),
+                trending:   parseInt(trending.rows[0].count),
+            },
             motor: geminiKeys.length ? `Gemini 2.5 Flash ✅ (${geminiKeys.length} keys)` : '❌ No API Key',
             pexels:   process.env.PEXELS_API_KEY        ? '✅' : '❌',
             unsplash: process.env.UNSPLASH_ACCESS_KEY   ? '✅' : '❌',
             newsApi:  process.env.NEWS_API_KEY           ? '✅' : '❌',
             google:   (process.env.GOOGLE_API_KEY && process.env.GOOGLE_CX) ? '✅' : '❌',
-            version:  '8.2'
+            version:  '8.2.1'
         });
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -475,12 +516,15 @@ app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 async function start() {
     await initDB();
     console.log(`🔑 Gemini keys: ${geminiKeys.length}`);
-    cron.schedule('*/15 * * * *', () => publishInsight());
+
+    // v8.2.1 — publishInsight every 45 min (was 15 min)
+    cron.schedule('*/45 * * * *', () => publishInsight());
     cron.schedule('0 */2 * * *',  () => publishLuxuryNews());
+
     setTimeout(() => publishInsight(),    10000);
     setTimeout(() => publishLuxuryNews(), 30000);
     app.listen(PORT, '0.0.0.0', () =>
-        console.log(`🚀 MXL v8.2 — TAG:${AFFILIATE_TAG} — Keys:${geminiKeys.length} — Port:${PORT}`)
+        console.log(`🚀 MXL v8.2.1 — TAG:${AFFILIATE_TAG} — Keys:${geminiKeys.length} — Port:${PORT}`)
     );
 }
 start();
