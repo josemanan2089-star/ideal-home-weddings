@@ -1,7 +1,7 @@
 {
-  "name": "mxl-commander-triad",
-  "version": "3.0.3",
-  "description": "COMMANDER MXL - Protocolo Triple Núcleo con PostgreSQL",
+  "name": "mxl-gold-engine",
+  "version": "4.0.0",
+  "description": "MXL Gold - Motor de Ventas Automatizado con IA para Amazon Afiliados | Audiencia: Mujeres NYC, Miami, LA",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
