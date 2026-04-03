@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMMANDER MXL — Panel v9.0.0 | AGGRESSIVE CONVERSION</title>
+    <title>COMMANDER MXL — Panel v9.1.0 | AGGRESSIVE CONVERSION</title>
     <meta name="robots" content="noindex, nofollow">
     <style>
-        /* CSS Optimizado para Celular mxl */
+        /* CSS Optimizado para el Celular de mxl */
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:system-ui,sans-serif;background:#0f0f1a;color:#fff;padding:15px;font-size:14px;}
         .header{background:linear-gradient(135deg,#1a1a2e,#2d2d44);padding:15px;border-radius:12px;margin-bottom:15px;border:1px solid #3d3d5c;}
@@ -16,7 +16,8 @@
         .stat-card{background:#1a1a2e;padding:15px;border-radius:10px;border:1px solid #2d2d44;text-align:center;}
         .stat-num{font-size:1.5rem;font-weight:bold;color:#ff4500;}
         .stat-label{font-size:10px;color:#c9a87b;text-transform:uppercase;margin-top:4px;}
-        .btn{width:100%;padding:12px;border-radius:8px;border:none;font-weight:bold;cursor:pointer;margin-bottom:8px;font-size:13px;}
+        .btn{width:100%;padding:12px;border-radius:8px;border:none;font-weight:bold;cursor:pointer;margin-bottom:8px;font-size:13px;transition: 0.3s;}
+        .btn:active{transform: scale(0.95);}
         .btn-purple{background:#8b5cf6;color:#fff;}
         .btn-green{background:#059669;color:#fff;}
         .btn-amber{background:#d97706;color:#fff;}
@@ -24,51 +25,63 @@
         .panel-head{color:#c9a87b;font-size:0.9rem;margin-bottom:10px;font-weight:bold;display:flex;justify-content:space-between;}
         .audit-log{background:#0d1117;padding:10px;border-radius:8px;font-family:monospace;font-size:11px;max-height:200px;overflow-y:auto;color:#86efac;}
         .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:1000;padding:20px;overflow-y:auto;}
-        .modal-box{background:#1a1a2e;padding:20px;border-radius:15px;border:1px solid #8b5cf6;}
-        input, select{width:100%;padding:12px;margin:10px 0;background:#2d2d44;border:1px solid #3d3d5c;color:#fff;border-radius:8px;}
-        .toast{position:fixed;bottom:20px;left:20px;right:20px;background:#10b981;padding:15px;border-radius:8px;text-align:center;font-weight:bold;z-index:2000;}
+        .modal-box{background:#1a1a2e;padding:20px;border-radius:15px;border:1px solid #8b5cf6;max-width:500px;margin:auto;}
+        label{font-size: 11px; color: #c9a87b; margin-left: 5px; text-transform: uppercase;}
+        input, select{width:100%;padding:12px;margin:5px 0 15px;background:#2d2d44;border:1px solid #3d3d5c;color:#fff;border-radius:8px;font-size: 14px;}
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>🎖️ COMMANDER MXL <span class="v-badge">v9.0.0</span></h1>
+    <h1>🎖️ COMMANDER MXL <span class="v-badge">v9.1.0</span></h1>
     <div id="aff" style="font-size:12px; color:#10b981; margin-bottom:10px;">📡 Conectado: <span id="tagLabel">...</span></div>
     <button class="btn btn-purple" onclick="abrirModal()">💉 INYECTAR PRODUCTO</button>
-    <button class="btn btn-green" onclick="bulkUpgrade()">⚡ UPGRADE MASIVO</button>
-    <button class="btn btn-amber" onclick="limpiarMuertos()">🗑️ LIMPIAR PRODUCTOS</button>
+    <button class="btn btn-amber" onclick="cargarTodo()">🔄 REFRESCAR DATOS</button>
 </div>
 
 <div class="stats-grid">
     <div class="stat-card"><div class="stat-num" id="sProds">0</div><div class="stat-label">Productos</div></div>
     <div class="stat-card"><div class="stat-num" id="sClics">0</div><div class="stat-label">Clics Hoy</div></div>
     <div class="stat-card"><div class="stat-num" id="sConv">0%</div><div class="stat-label">Conversión</div></div>
-    <div class="stat-card"><div class="stat-num" id="sPremium">0</div><div class="stat-label">Lujo (Copy)</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#8b5cf6;" id="sPremium">USA</div><div class="stat-label">Mercado</div></div>
 </div>
 
 <div class="panel">
-    <div class="panel-head">📋 LOG DE ACTIVIDAD <span>EN VIVO</span></div>
+    <div class="panel-head">📋 LOG DE ACTIVIDAD</div>
     <div class="audit-log" id="auditLog">Esperando actividad...</div>
 </div>
 
 <div class="panel">
-    <div class="panel-head">📦 INVENTARIO RECIENTE</div>
+    <div class="panel-head">📦 INVENTARIO (PRECIOS EN VIVO)</div>
     <div id="prodList" style="font-size:12px;">Cargando...</div>
 </div>
 
-<!-- Modal Inyectar -->
+<!-- Modal Inyectar con campo de PRECIO -->
 <div id="modal" class="modal">
     <div class="modal-box">
-        <h3>💉 Inyección de Lujo</h3>
-        <input type="text" id="fTitle" placeholder="Nombre (en inglés)">
-        <input type="url" id="fUrl" placeholder="URL de Amazon">
-        <input type="url" id="fImg" placeholder="URL de Imagen">
+        <h3 style="margin-bottom: 15px; color: #8b5cf6;">💉 Inyección de Lujo</h3>
+        
+        <label>Nombre del Producto</label>
+        <input type="text" id="fTitle" placeholder="Ej: August Smart Lock Pro">
+        
+        <label>URL de Amazon</label>
+        <input type="url" id="fUrl" placeholder="https://www.amazon.com/dp/...">
+        
+        <label>💰 Precio Real (USD)</label>
+        <input type="number" id="fPrice" step="0.01" placeholder="Ej: 199.99">
+        
+        <label>URL de Imagen</label>
+        <input type="url" id="fImg" placeholder="https://m.media-amazon.com/...">
+        
+        <label>Categoría</label>
         <select id="fCat">
             <option value="LUXURY">LUXURY</option>
             <option value="SMART HOME">SMART HOME</option>
+            <option value="KITCHEN GOURMET">KITCHEN GOURMET</option>
             <option value="TECH PREMIUM">TECH PREMIUM</option>
         </select>
-        <button class="btn btn-purple" onclick="inyectar()">INYECTAR YA</button>
+        
+        <button class="btn btn-purple" id="btnInyectar" onclick="inyectar()">INYECTAR YA</button>
         <button class="btn" style="background:#444;" onclick="cerrarModal()">Cerrar</button>
     </div>
 </div>
@@ -85,47 +98,80 @@
             const prods = await fetch('/api/productos').then(r => r.json());
             const list = document.getElementById('prodList');
             list.innerHTML = (prods.items || []).map(p => `
-                <div style="border-bottom:1px solid #222; padding:10px 0;">
-                    <b>${p.titulo.substring(0,30)}...</b><br>
-                    <small style="color:#ff4500;">🔥 ${p.clics || 0} clics</small> | 
-                    <small style="color:#8b5cf6;">${p.categoria}</small>
+                <div style="border-bottom:1px solid #222; padding:10px 0; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <b>${p.titulo.substring(0,25)}...</b><br>
+                        <small style="color:#10b981;">💰 $${p.precio || '49.99'}</small> | 
+                        <small style="color:#ff4500;">🔥 ${p.clics || 0} clics</small>
+                    </div>
+                    <button onclick="eliminar(${p.id})" style="background: none; border: none; color: #dc2626; font-size: 18px; padding: 5px;">🗑️</button>
                 </div>
             `).join('') || 'No hay productos aún.';
 
             const logs = await fetch('/api/admin/audit?limit=10').then(r => r.json());
             document.getElementById('auditLog').innerHTML = logs.map(l => 
-                `<div>> ${l.accion}: ${l.titulo || ''}</div>`
-            ).join('');
+                `<div>> ${l.accion}: ${l.titulo ? l.titulo.substring(0,20) : ''}</div>`
+            ).join('') || 'Sin registros.';
             
         } catch(e) { console.error("Error cargando panel:", e); }
     }
 
     function abrirModal() { document.getElementById('modal').style.display = 'block'; }
-    function cerrarModal() { document.getElementById('modal').style.display = 'none'; }
+    function cerrarModal() { 
+        document.getElementById('modal').style.display = 'none';
+        document.getElementById('fTitle').value = '';
+        document.getElementById('fUrl').value = '';
+        document.getElementById('fPrice').value = '';
+        document.getElementById('fImg').value = '';
+    }
 
     async function inyectar() {
+        const btn = document.getElementById('btnInyectar');
+        const precio = document.getElementById('fPrice').value;
+        
+        if(!precio) { alert("⚠️ mxl, falta el precio socio!"); return; }
+
+        btn.disabled = true;
+        btn.innerText = "INYECTANDO...";
+
         const payload = {
             url: document.getElementById('fUrl').value,
             tituloReal: document.getElementById('fTitle').value,
             imagenUrl: document.getElementById('fImg').value,
             categoria: document.getElementById('fCat').value,
+            precio: precio,
             seccion: 'buying_now'
         };
-        const res = await fetch('/api/commander/inject', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload)
-        }).then(r => r.json());
-        
-        if(res.success) {
-            alert("✅ Inyectado con éxito");
-            cerrarModal();
-            cargarTodo();
+
+        try {
+            const res = await fetch('/api/commander/inject', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            }).then(r => r.json());
+            
+            if(res.success) {
+                alert("✅ Producto de lujo inyectado con precio $" + precio);
+                cerrarModal();
+                cargarTodo();
+            } else {
+                alert("❌ Error: " + res.error);
+            }
+        } catch(e) {
+            alert("❌ Error de conexión");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "INYECTAR YA";
         }
     }
 
+    async function eliminar(id) {
+        if(!confirm("¿Seguro que quieres borrar este producto, mxl?")) return;
+        await fetch(`/api/productos/${id}`, { method: 'DELETE' });
+        cargarTodo();
+    }
+
     cargarTodo();
-    setInterval(cargarTodo, 20000); // Auto-refresco cada 20 seg
 </script>
 </body>
 </html>
