@@ -756,23 +756,24 @@ app.get('/api/admin/audit-quality', async (req, res) => {
 });
 
 // ============================================================
-// HEALTH
+// HEALTH - RESPUESTA INMEDIATA (CORREGIDO)
 // ============================================================
-app.get('/health', async (req, res) => {
-    try {
-        await db.query('SELECT 1');
-        res.json({ status: 'healthy', timestamp: new Date().toISOString(), version: '7.0.0' });
-    } catch (e) {
-        res.status(500).json({ status: 'unhealthy' });
-    }
+// Healthcheck rápido para Railway - NO espera DB
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.get('/api/health', async (req, res) => {
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ status: 'ok' });
+});
+
+// Healthcheck completo con DB (para monitoreo manual)
+app.get('/health/full', async (req, res) => {
     try {
         await db.query('SELECT 1');
-        res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+        res.json({ status: 'healthy', database: 'connected', version: '7.0.0' });
     } catch (e) {
-        res.status(500).json({ status: 'unhealthy' });
+        res.status(500).json({ status: 'unhealthy', database: 'disconnected' });
     }
 });
 
