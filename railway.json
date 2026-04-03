@@ -1,4 +1,4 @@
-{
+}{
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
@@ -6,8 +6,9 @@
   },
   "deploy": {
     "startCommand": "node scripts/migrate.js && node server.js",
-    "healthcheckPath": "/health",
-    "healthcheckTimeout": 120,
+    "healthcheckPath": "/api/health",
+    "healthcheckTimeout": 300,
+    "healthcheckInterval": 30,
     "restartPolicyType": "ON_FAILURE"
   },
   "env": {
