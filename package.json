@@ -1,11 +1,12 @@
 {
   "name": "mxl-gold-engine",
   "version": "7.0.0",
-  "description": "MXL Gold - Aggressive Conversion Engine",
+  "description": "MXL Gold - Aggressive Conversion Engine | Amazon Affiliate USA",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "db:migrate": "node scripts/migrate.js"
+    "db:migrate": "node scripts/migrate.js",
+    "dev": "node --watch server.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
@@ -22,6 +23,10 @@
     "uuid": "^9.0.1"
   },
   "engines": {
-    "node": "18.x"
-  }
+    "node": "18.x",
+    "npm": ">=9.0.0"
+  },
+  "author": "MXL Gold",
+  "private": true,
+  "license": "MIT"
 }
