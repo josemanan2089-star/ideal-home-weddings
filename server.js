@@ -1,5 +1,5 @@
 // ============================================
-// MXL GOLD v7.1 AGGRESSIVE CONVERSION ENGINE
+// MXL GOLD v7.5 AGGRESSIVE CONVERSION ENGINE
 // MAXIMIZA CLICS → MAXIMIZA COMISIONES AMAZON
 // ============================================
 
@@ -12,7 +12,6 @@ const cors = require('cors');
 const session = require('express-session');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
-const NodeCache = require('node-cache');
 const { Pool } = require('pg');
 const crypto = require('crypto');
 require('dotenv').config();
@@ -21,19 +20,13 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const AFFILIATE_TAG = process.env.AMAZON_AFFILIATE_TAG || 'farolaldiauno-20';
 
-// REPARACIÓN CRÍTICA: Confiar en el proxy de Railway para evitar errores de IP
+// Confiar en el proxy de Railway
 app.set('trust proxy', 1);
 
-// ============================================================
-// HEALTHCHECK INMEDIATO (Para que Railway no apague la app)
-// ============================================================
-app.get(['/health', '/api/health'], (req, res) => {
-    res.status(200).send('OK');
-});
+// Healthchecks
+app.get(['/health', '/api/health'], (req, res) => res.status(200).send('OK'));
 
-// ============================================================
-// MIDDLEWARES
-// ============================================================
+// Middlewares
 app.use(compression());
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -46,28 +39,14 @@ app.use(session({
     cookie: { secure: false, maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax' }
 }));
 
-const limiter = rateLimit({
-    windowMs: 60 * 1000,
-    max: 200,
-    message: { error: 'Too many requests', ok: false },
-    skip: (req) => ['/api/track/click', '/api/track/impression', '/go/'].some(p => req.path.startsWith(p))
-});
-app.use('/api/', limiter);
-
-// ============================================================
-// DATABASE
-// ============================================================
+// Base de Datos
 const db = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false },
-    max: 25,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 10000
+    max: 25
 });
 
-// ============================================================
-// REPARACIÓN DE TABLAS (initDB)
-// ============================================================
+// Inicialización de Tablas
 async function initDB() {
     try {
         await db.query(`CREATE TABLE IF NOT EXISTS articulos (
@@ -88,87 +67,58 @@ async function initDB() {
             precio DECIMAL(10,2) DEFAULT 49.99,
             fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`);
-
-        // Columnas de seguridad por si ya existía la tabla
-        const cols = [
-            `ALTER TABLE articulos ADD COLUMN IF NOT EXISTS fake_stock INT DEFAULT 15`,
-            `ALTER TABLE articulos ADD COLUMN IF NOT EXISTS conversion_rate DECIMAL(5,4) DEFAULT 0`,
-            `ALTER TABLE articulos ADD COLUMN IF NOT EXISTS quality_score DECIMAL(5,2) DEFAULT 0`
-        ];
-        for (const sql of cols) { try { await db.query(sql); } catch (e) {} }
-
-        await db.query(`CREATE TABLE IF NOT EXISTS clics (id BIGSERIAL PRIMARY KEY, producto_id BIGINT, fecha TIMESTAMP DEFAULT NOW())`);
-        await db.query(`CREATE TABLE IF NOT EXISTS impresiones (id BIGSERIAL PRIMARY KEY, producto_id BIGINT, fecha TIMESTAMP DEFAULT NOW())`);
-        await db.query(`CREATE TABLE IF NOT EXISTS audit_log (id BIGSERIAL PRIMARY KEY, accion VARCHAR(60), titulo TEXT, fecha TIMESTAMP DEFAULT NOW())`);
-
-        console.log('✅ DB Lista y Reparada');
-    } catch (err) {
-        console.error('❌ Error inicializando DB (pero el servidor sigue vivo):', err.message);
-    }
+        console.log('✅ DB Lista y Blindada');
+    } catch (err) { console.error('❌ DB Error:', err.message); }
 }
 
 // ============================================================
-// LÓGICA DE IA (GEMINI)
-// ============================================================
-const geminiKeys = [process.env.GEMINI_API_KEY_1, process.env.GEMINI_API_KEY_2].filter(Boolean);
-let geminiIndex = 0;
-
-async function generateContent(prompt) {
-    if (!geminiKeys.length) return null;
-    const key = geminiKeys[geminiIndex % geminiKeys.length];
-    try {
-        const genAI = new GoogleGenerativeAI(key.trim());
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-        const result = await model.generateContent(prompt);
-        geminiIndex++;
-        return result.response.text();
-    } catch (e) { return null; }
-}
-
-// ============================================================
-// ENDPOINTS CLAVE
+// RUTAS COMANDER MXL (EL PODER TOTAL)
 // ============================================================
 
-// Redirección /go/
-app.get('/go/:id', async (req, res) => {
-    const productId = req.params.id;
-    try {
-        const product = await db.query(`SELECT link, titulo FROM articulos WHERE id = $1`, [productId]);
-        if (!product.rows.length) return res.redirect('/');
-        
-        await db.query(`UPDATE articulos SET clics = clics + 1 WHERE id = $1`, [productId]);
-        
-        let finalUrl = product.rows[0].link;
-        if (!finalUrl.includes('tag=')) {
-            const separator = finalUrl.includes('?') ? '&' : '?';
-            finalUrl += `${separator}tag=${AFFILIATE_TAG}`;
-        }
-        res.redirect(302, finalUrl);
-    } catch (e) { res.redirect('/'); }
-});
-
-// Inyectar producto
+// 1. INYECTAR NUEVO (Corregido con Precio)
 app.post('/api/commander/inject', async (req, res) => {
-    const { url, imagenUrl, categoria, tituloReal } = req.body;
+    const { url, imagenUrl, categoria, tituloReal, precio } = req.body;
     try {
         const id = Date.now();
         await db.query(`
-            INSERT INTO articulos (id, titulo, imagen, categoria, link, status) 
-            VALUES ($1, $2, $3, $4, $5, 'active')
-        `, [id, tituloReal, imagenUrl, categoria, url]);
-        res.json({ success: true, product: tituloReal, id });
+            INSERT INTO articulos (id, titulo, imagen, categoria, link, precio, status) 
+            VALUES ($1, $2, $3, $4, $5, $6, 'active')
+        `, [id, tituloReal, imagenUrl, categoria, url, precio || 49.99]);
+        res.json({ success: true, id });
     } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
-// Obtener productos
+// 2. EDITAR EXISTENTE (NUEVO)
+app.put('/api/productos/:id', async (req, res) => {
+    const { id } = req.params;
+    const { tituloReal, precio, url, imagenUrl, categoria } = req.body;
+    try {
+        await db.query(`
+            UPDATE articulos 
+            SET titulo = $1, precio = $2, link = $3, imagen = $4, categoria = $5
+            WHERE id = $6
+        `, [tituloReal, precio, url, imagenUrl, categoria, id]);
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// 3. BORRAR PRODUCTO (NUEVO)
+app.delete('/api/productos/:id', async (req, res) => {
+    try {
+        await db.query('DELETE FROM articulos WHERE id = $1', [req.params.id]);
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
+// 4. OBTENER TODO
 app.get('/api/productos', async (req, res) => {
     try {
-        const result = await db.query(`SELECT * FROM articulos ORDER BY fecha DESC LIMIT 50`);
+        const result = await db.query(`SELECT * FROM articulos ORDER BY fecha DESC`);
         res.json({ items: result.rows });
     } catch (e) { res.json({ items: [] }); }
 });
 
-// Stats para el panel
+// 5. STATS
 app.get('/api/stats', async (req, res) => {
     try {
         const count = await db.query('SELECT COUNT(*) FROM articulos');
@@ -181,20 +131,27 @@ app.get('/api/stats', async (req, res) => {
     } catch (e) { res.json({ productos: 0, clicsHoy: 0 }); }
 });
 
-// ============================================================
-// INICIO DEL SERVIDOR
-// ============================================================
-app.use(express.static(__dirname));
-
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+// Redirección con Tag de Afiliado
+app.get('/go/:id', async (req, res) => {
+    const productId = req.params.id;
+    try {
+        const product = await db.query(`SELECT link FROM articulos WHERE id = $1`, [productId]);
+        if (!product.rows.length) return res.redirect('/');
+        await db.query(`UPDATE articulos SET clics = clics + 1 WHERE id = $1`, [productId]);
+        let finalUrl = product.rows[0].link;
+        if (!finalUrl.includes('tag=')) {
+            finalUrl += (finalUrl.includes('?') ? '&' : '?') + `tag=${AFFILIATE_TAG}`;
+        }
+        res.redirect(302, finalUrl);
+    } catch (e) { res.redirect('/'); }
 });
+
+// Estáticos y SPA
+app.use(express.static(__dirname));
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 async function start() {
     await initDB();
-    app.listen(PORT, '0.0.0.0', () => {
-        console.log(`🚀 MXL GOLD v7.1 en Puerto ${PORT}`);
-    });
+    app.listen(PORT, '0.0.0.0', () => console.log(`🚀 MXL GOLD v7.5 | Port ${PORT}`));
 }
-
 start();
