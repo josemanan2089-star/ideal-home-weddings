@@ -1,17 +1,20 @@
 // ============================================
-// MXL GOLD - SERVER AGGRESSIVE EDITION v5.0
-// CONVERSIONES > TRÁFICO
+// MXL GOLD v6.0 AGGRESSIVE CONVERSION ENGINE
+// MAXIMIZA CLICS → MAXIMIZA COMISIONES AMAZON
 // ============================================
 
 const express = require('express');
-const path = require('express');
+const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const cron = require('node-cron');
 const compression = require('compression');
 const cors = require('cors');
 const session = require('express-session');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const NodeCache = require('node-cache');
 const { Pool } = require('pg');
+const crypto = require('crypto');
 require('dotenv').config();
 
 const app = express();
@@ -19,132 +22,148 @@ const PORT = process.env.PORT || 8080;
 const AFFILIATE_TAG = process.env.AMAZON_AFFILIATE_TAG || 'farolaldiauno-20';
 
 // ============================================================
-// MIDDLEWARES AGGRESSIVE
+// CACHE
+// ============================================================
+const productCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });
+const statsCache = new NodeCache({ stdTTL: 60, checkperiod: 30 });
+
+// ============================================================
+// MIDDLEWARES
 // ============================================================
 app.use(compression());
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(__dirname));
 
-// SESIONES para tracking de usuario (FOMO personalizado)
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false
+}));
+
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'mxl-gold-super-secret-aggressive',
+    secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
     resave: false,
     saveUninitialized: true,
     cookie: { 
-        secure: false, // true en producción con HTTPS
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 días
-        httpOnly: true
+        secure: false,
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        sameSite: 'lax'
     }
 }));
 
-// RATE LIMITING (evita bots, pero NO bloquea conversiones)
 const limiter = rateLimit({
-    windowMs: 60 * 1000, // 1 minuto
-    max: 60, // 60 requests por minuto por IP
+    windowMs: 60 * 1000,
+    max: 120,
     message: { error: 'Too many requests', ok: false },
-    skip: (req) => req.path === '/api/track/click' // No limitar clics
+    skip: (req) => ['/api/track/click', '/api/track/impression', '/go/'].some(p => req.path.startsWith(p))
 });
 app.use('/api/', limiter);
 
 // ============================================================
-// DB CON POOL OPTIMIZADO + NUEVAS TABLAS PARA CONVERSIÓN
+// DATABASE
 // ============================================================
 const db = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false },
-    max: 20, // Más conexiones para alto tráfico
+    max: 25,
     idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000
 });
 
 let categoryCache = null;
 let categoryCacheTime = 0;
 
 async function initDB() {
-    // Tablas existentes
     await db.query(`CREATE TABLE IF NOT EXISTS articulos (
-        id BIGINT PRIMARY KEY, asin VARCHAR(20), titulo TEXT, meta TEXT,
-        curiosidad TEXT, imagen TEXT, categoria VARCHAR(100),
-        link TEXT, keyword TEXT, clics INT DEFAULT 0,
+        id BIGINT PRIMARY KEY, 
+        asin VARCHAR(20), 
+        titulo TEXT, 
+        meta TEXT,
+        curiosidad TEXT, 
+        imagen TEXT, 
+        categoria VARCHAR(100),
+        link TEXT, 
+        keyword TEXT, 
+        clics INT DEFAULT 0,
+        impresiones INT DEFAULT 0,
+        ctr DECIMAL(5,4) DEFAULT 0,
         seccion VARCHAR(60) DEFAULT 'buying_now',
         fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        -- NUEVAS COLUMNAS PARA CONVERSIÓN
         fake_stock INT DEFAULT 15,
         last_fomo_update TIMESTAMP DEFAULT NOW(),
         conversion_rate DECIMAL(5,4) DEFAULT 0,
-        is_featured BOOLEAN DEFAULT FALSE
+        is_featured BOOLEAN DEFAULT FALSE,
+        quality_score DECIMAL(5,2) DEFAULT 0,
+        winning_variant INT DEFAULT 0,
+        precio DECIMAL(10,2) DEFAULT 49.99
     )`);
     
     await db.query(`CREATE TABLE IF NOT EXISTS clics (
-        id BIGSERIAL PRIMARY KEY, producto_id BIGINT,
+        id BIGSERIAL PRIMARY KEY, 
+        producto_id BIGINT,
         tipo VARCHAR(20) DEFAULT 'product',
         session_id VARCHAR(100),
         user_agent TEXT,
         city VARCHAR(50),
+        variant_id INT DEFAULT 0,
+        subtag VARCHAR(50),
+        fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`);
+    
+    await db.query(`CREATE TABLE IF NOT EXISTS impresiones (
+        id BIGSERIAL PRIMARY KEY,
+        producto_id BIGINT,
+        session_id VARCHAR(100),
+        variant_id INT DEFAULT 0,
+        position INT DEFAULT 0,
         fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
     
     await db.query(`CREATE TABLE IF NOT EXISTS audit_log (
-        id BIGSERIAL PRIMARY KEY, accion VARCHAR(60) NOT NULL,
-        producto_id BIGINT, titulo TEXT, affiliate_tag VARCHAR(60),
-        detalle TEXT, fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )`);
-    
-    await db.query(`CREATE TABLE IF NOT EXISTS curiosidades (
-        id BIGINT PRIMARY KEY, titulo_es TEXT, texto_es TEXT,
-        imagen TEXT, keyword TEXT, producto_id BIGINT,
-        seccion VARCHAR(60) DEFAULT 'trending',
+        id BIGSERIAL PRIMARY KEY, 
+        accion VARCHAR(60) NOT NULL,
+        producto_id BIGINT, 
+        titulo TEXT, 
+        affiliate_tag VARCHAR(60),
+        detalle TEXT, 
         fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
     
-    // NUEVA TABLA: A/B Testing de copies
-    await db.query(`CREATE TABLE IF NOT EXISTS ab_test_results (
+    await db.query(`CREATE TABLE IF NOT EXISTS learning_insights (
         id SERIAL PRIMARY KEY,
-        producto_id BIGINT REFERENCES articulos(id) ON DELETE CASCADE,
-        variant_id INT,
-        impressions INT DEFAULT 0,
-        clicks INT DEFAULT 0,
-        conversions INT DEFAULT 0,
-        last_updated TIMESTAMP DEFAULT NOW()
-    )`);
-    
-    // NUEVA TABLA: Conversiones reales (compras)
-    await db.query(`CREATE TABLE IF NOT EXISTS conversiones (
-        id SERIAL PRIMARY KEY,
-        producto_id BIGINT REFERENCES articulos(id),
-        click_id BIGINT REFERENCES clics(id),
-        amazon_order_id VARCHAR(100),
-        commission DECIMAL(10,2),
+        insight_type VARCHAR(50),
+        data JSONB,
+        effectiveness DECIMAL(5,4),
         created_at TIMESTAMP DEFAULT NOW()
     )`);
     
-    // NUEVA TABLA: Smart Products (auto-aprendizaje)
-    await db.query(`CREATE TABLE IF NOT EXISTS smart_products (
-        producto_id BIGINT PRIMARY KEY REFERENCES articulos(id),
-        quality_score DECIMAL(5,2) DEFAULT 0,
-        should_keep BOOLEAN DEFAULT TRUE,
-        last_analyzed TIMESTAMP DEFAULT NOW()
-    )`);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_articulos_ctr ON articulos(ctr DESC)`);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_articulos_featured ON articulos(is_featured)`);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_clicks_producto ON clics(producto_id)`);
+    await db.query(`CREATE INDEX IF NOT EXISTS idx_impresiones_producto ON impresiones(producto_id)`);
     
-    // Índices para velocidad extrema
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_articulos_fecha ON articulos(fecha DESC)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_articulos_seccion ON articulos(seccion)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_articulos_clics ON articulos(clics DESC)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_articulos_conversion ON articulos(conversion_rate DESC)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_clics_producto ON clics(producto_id)`);
-    await db.query(`CREATE INDEX IF NOT EXISTS idx_clics_fecha ON clics(fecha DESC)`);
-    
-    console.log('✅ DB lista con tablas de CONVERSIÓN');
+    console.log('✅ DB lista');
 }
 
-function addAffiliateTag(url) {
+// ============================================================
+// HELPERS
+// ============================================================
+function generateSubtag(productId, variantId = 0) {
+    return `mxl${productId}v${variantId}`;
+}
+
+function addAffiliateTag(url, productId = null, variantId = 0) {
     if (!url) return url;
     try {
         const u = new URL(url);
         u.searchParams.set('tag', AFFILIATE_TAG);
-        // Agregar parámetros de tracking agresivo
         u.searchParams.set('linkCode', 'll1');
         u.searchParams.set('th', '1');
+        if (productId) {
+            const subtag = generateSubtag(productId, variantId);
+            u.searchParams.set('subtag', subtag);
+        }
         return u.toString();
     } catch { return url; }
 }
@@ -159,7 +178,7 @@ async function audit(accion, producto_id, titulo, tag, detalle = '') {
 }
 
 // ============================================================
-// GEMINI CON ROTACIÓN + CACHE + PROMPTS AGGRESSIVE
+// GEMINI
 // ============================================================
 const geminiKeys = [
     process.env.GEMINI_API_KEY_1,
@@ -173,7 +192,6 @@ let lastCallTimestamps = [];
 async function generateContent(prompt, maxRetries = 3) {
     if (!geminiKeys.length) throw new Error('No Gemini keys');
     
-    // Rate limiting: máximo 10 llamadas por segundo
     const now = Date.now();
     lastCallTimestamps = lastCallTimestamps.filter(t => now - t < 1000);
     if (lastCallTimestamps.length >= 10) {
@@ -192,10 +210,6 @@ async function generateContent(prompt, maxRetries = 3) {
                 return result.response.text();
             } catch (e) {
                 console.warn(`⚠️ Key ${keyIndex + 1} intento ${attempt}: ${e.message}`);
-                if (e.message.includes('429')) {
-                    // Rate limit - esperar más
-                    await new Promise(r => setTimeout(r, 2000));
-                }
                 await new Promise(r => setTimeout(r, 1000));
             }
         }
@@ -203,555 +217,286 @@ async function generateContent(prompt, maxRetries = 3) {
     throw new Error('All Gemini keys failed');
 }
 
-async function generateSellingCopy(titulo, categoria, ciudad = 'NYC') {
-    const prompt = `Eres una EXPERTA EN VENTAS de lujo para mujeres de ALTO PODER ADQUISITIVO en ${ciudad}, Miami y Los Ángeles.
-
-PRODUCTO: "${titulo}"
-CATEGORÍA: "${categoria}"
-
-REGLAS ABSOLUTAS:
-- PROHIBIDO describir características técnicas
-- PROHIBIDO ser neutral o informativo
-- OBLIGATORIO vender MIEDO a perderse esto
-- OBLIGATORIO crear URGENCIA real
-- USA frases como: "mientras lees esto, 3 mujeres ya lo compraron", "no te quedes sin el tuyo"
-- USA ciudad específica (SoHo, Brickell, Beverly Hills)
-
-Debes generar TRES VARIANTES diferentes para A/B testing.
-Responde SOLO este JSON:
-
-{
-  "variants": [
-    {
-      "variant": 0,
-      "title": "titulo que vende (max 8 palabras, incluye ciudad)",
-      "meta": "frase de deseo + estatus (max 12 palabras)",
-      "teaser": "2 frases: 1) prueba social con nombre y ciudad 2) qué pasa si NO compras",
-      "keyword": "3-5 palabras para SEO",
-      "badge": "NYC's Favorite, Best Seller, Editor's Pick, o Top Rated",
-      "fomo": "frase que genera MIEDO a perderse esto",
-      "cta": "acción inmediata (usa ⚡ o 🔥)"
-    },
-    {
-      "variant": 1,
-      "title": "titulo URGENTE (incluye número o escasez)",
-      "meta": "frase que genera FOMO",
-      "teaser": "2 frases enfocadas en escasez",
-      "keyword": "3-5 palabras alternativas",
-      "badge": "Limited Edition, Almost Gone, o Last Chance",
-      "fomo": "frase con STOCK LIMITADO",
-      "cta": "acción con cuenta regresiva mental"
-    },
-    {
-      "variant": 2,
-      "title": "titulo ASPIRACIONAL (estilo de vida)",
-      "meta": "frase que vende ESTATUS",
-      "teaser": "2 frases: el antes y después",
-      "keyword": "3-5 palabras de lujo",
-      "badge": "Curated for You, Luxury Pick, o VIP Selection",
-      "fomo": "frase de exclusividad",
-      "cta": "acción que suena premium"
-    }
-  ]
-}`;
-
-    const raw = await generateContent(prompt);
-    const clean = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const match = clean.match(/\{[\s\S]*\}/);
-    const parsed = JSON.parse(match ? match[0] : clean);
-    return parsed;
-}
-
 // ============================================================
-// ENDPOINTS OPTIMIZADOS PARA CONVERSIÓN
+// ENDPOINT PRINCIPAL: /go/:id (redirección con tracking)
 // ============================================================
-
-// TRACKING DE CLIC MEJORADO (con ciudad y sesión)
-app.post('/api/track/click', async (req, res) => {
-    const { producto_id, variant_id = 0 } = req.body;
-    if (!producto_id) return res.status(400).json({ ok: false });
+app.get('/go/:id', async (req, res) => {
+    const productId = parseInt(req.params.id);
+    const variantId = parseInt(req.query.variant) || 0;
     
     try {
-        // Detectar ciudad por IP (simplificado, usa API real en prod)
-        let city = req.session.city || 'NYC';
-        const userAgent = req.headers['user-agent'] || '';
+        const product = await db.query(`SELECT id, link, titulo FROM articulos WHERE id = $1`, [productId]);
+        if (product.rows.length === 0) {
+            return res.status(404).send('Producto no encontrado');
+        }
         
-        // Actualizar contador de clics
-        await db.query(`UPDATE articulos SET clics = clics + 1 WHERE id = $1`, [producto_id]);
+        const prod = product.rows[0];
         
-        // Registrar clic con datos de sesión
-        const clickResult = await db.query(
-            `INSERT INTO clics (producto_id, tipo, session_id, user_agent, city) 
-             VALUES ($1, 'product', $2, $3, $4) RETURNING id`,
-            [producto_id, req.session.id, userAgent, city]
+        // Registrar clic
+        await db.query(`UPDATE articulos SET clics = clics + 1 WHERE id = $1`, [productId]);
+        await db.query(
+            `INSERT INTO clics (producto_id, tipo, session_id, user_agent, city, variant_id, subtag) 
+             VALUES ($1, 'product', $2, $3, $4, $5, $6)`,
+            [productId, req.session.id, req.headers['user-agent'] || '', req.session.city || 'NYC', variantId, generateSubtag(productId, variantId)]
         );
         
-        // Registrar A/B test click
+        // Actualizar CTR
         await db.query(`
-            INSERT INTO ab_test_results (producto_id, variant_id, impressions, clicks)
-            VALUES ($1, $2, 0, 1)
-            ON CONFLICT (producto_id, variant_id) 
-            DO UPDATE SET clicks = ab_test_results.clicks + 1
-        `, [producto_id, variant_id]);
+            UPDATE articulos 
+            SET ctr = CASE 
+                WHEN impresiones > 0 THEN clics::DECIMAL / impresiones 
+                ELSE 0 
+            END
+            WHERE id = $1
+        `, [productId]);
         
-        // Actualizar score de calidad del producto
-        await updateProductQualityScore(producto_id);
+        // Generar link con affiliate tag y subtag
+        const finalUrl = addAffiliateTag(prod.link, productId, variantId);
         
-        res.json({ ok: true, click_id: clickResult.rows[0].id });
-    } catch (e) { 
-        console.error('Track error:', e);
-        res.status(500).json({ ok: false }); 
+        await audit('CLICK', productId, prod.titulo, AFFILIATE_TAG, `variant:${variantId}`);
+        
+        // Redirigir a Amazon
+        res.redirect(302, finalUrl);
+    } catch (e) {
+        console.error('Redirect error:', e);
+        res.status(500).send('Error');
     }
 });
 
-// NUEVO: Registrar conversión (compra real)
-app.post('/api/track/conversion', async (req, res) => {
-    const { producto_id, click_id, amazon_order_id, commission } = req.body;
+// ============================================================
+// TRACKING DE IMPRESIONES
+// ============================================================
+app.post('/api/track/impression', async (req, res) => {
+    const { producto_id, variant_id = 0, position = 0 } = req.body;
     if (!producto_id) return res.status(400).json({ ok: false });
     
     try {
-        await db.query(`
-            INSERT INTO conversiones (producto_id, click_id, amazon_order_id, commission)
-            VALUES ($1, $2, $3, $4)
-        `, [producto_id, click_id, amazon_order_id, commission || 0]);
-        
-        // Actualizar conversion_rate del producto
-        await db.query(`
-            UPDATE articulos 
-            SET conversion_rate = (
-                SELECT COUNT(*)::DECIMAL / NULLIF(clics, 0) * 100
-                FROM conversiones c
-                WHERE c.producto_id = articulos.id
-            )
-            WHERE id = $1
-        `, [producto_id]);
-        
-        await audit('CONVERSION', producto_id, null, AFFILIATE_TAG, `order:${amazon_order_id}`);
+        await db.query(
+            `INSERT INTO impresiones (producto_id, session_id, variant_id, position) 
+             VALUES ($1, $2, $3, $4)`,
+            [producto_id, req.session.id, variant_id, position]
+        );
+        await db.query(`UPDATE articulos SET impresiones = impresiones + 1 WHERE id = $1`, [producto_id]);
         res.json({ ok: true });
     } catch (e) {
-        console.error('Conversion error:', e);
         res.status(500).json({ ok: false });
     }
 });
 
-// NUEVO: Productos con FOMO (stock falso + urgencia)
-app.get('/api/producto/fomo/:id', async (req, res) => {
-    try {
-        const product = await db.query(`
-            SELECT id, titulo, fake_stock, last_fomo_update, conversion_rate, clics
-            FROM articulos WHERE id = $1
-        `, [req.params.id]);
-        
-        if (product.rows.length === 0) return res.status(404).json({ error: 'No found' });
-        
-        let stock = product.rows[0].fake_stock;
-        const lastUpdate = new Date(product.rows[0].last_fomo_update);
-        const hoursSince = (Date.now() - lastUpdate) / (1000 * 60 * 60);
-        
-        // Reducir stock cada 2 horas (efecto escasez)
-        if (hoursSince > 2) {
-            stock = Math.max(1, stock - Math.floor(Math.random() * 3));
-            await db.query(`
-                UPDATE articulos 
-                SET fake_stock = $1, last_fomo_update = NOW()
-                WHERE id = $2
-            `, [stock, req.params.id]);
-        }
-        
-        // Generar compras recientes falsas
-        const recentPurchases = [
-            { name: "Sofia M.", city: "NYC", minutes: Math.floor(Math.random() * 30) + 1 },
-            { name: "Valentina R.", city: "Miami", minutes: Math.floor(Math.random() * 60) + 1 },
-            { name: "Camila L.", city: "LA", minutes: Math.floor(Math.random() * 120) + 1 }
-        ].slice(0, Math.floor(Math.random() * 2) + 2);
-        
-        res.json({
-            stock: stock,
-            purchases: recentPurchases,
-            conversion_rate: product.rows[0].conversion_rate,
-            urgency_level: stock < 5 ? 'high' : stock < 10 ? 'medium' : 'low'
-        });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-// ENDPOINT DE INYECCIÓN MEJORADO (con A/B testing automático)
-app.post('/api/commander/inject', async (req, res) => {
-    const { url, imagenUrl, categoria, tituloReal, seccion = 'buying_now', ciudad = 'NYC' } = req.body;
-    if (!tituloReal || !url) {
-        return res.status(400).json({ success: false, error: 'Missing fields' });
-    }
+// ============================================================
+// PRODUCTOS GANADORES (ordenados por CTR)
+// ============================================================
+app.get('/api/products', async (req, res) => {
+    const limit = parseInt(req.query.limit) || 20;
+    const seccion = req.query.seccion || null;
     
     try {
-        // Generar 3 variantes de copy
-        const copyData = await generateSellingCopy(tituloReal, categoria || 'LUXURY', ciudad);
-        const variants = copyData.variants;
-        
-        // Usar la variante 0 como principal
-        const primaryVariant = variants[0];
-        const image = imagenUrl || `https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=600`;
-        const linkWithTag = addAffiliateTag(url);
-        
-        // Guardar las 3 variantes como JSON
-        const metaWithVariants = JSON.stringify({
-            badge: primaryVariant.badge,
-            text: primaryVariant.meta,
-            variants: variants
-        });
-        
-        const id = Date.now();
-        
-        await db.query(
-            `INSERT INTO articulos (id, asin, titulo, meta, curiosidad, imagen, categoria, link, keyword, seccion, clics, fecha, fake_stock, conversion_rate) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 0, $11, 15, 0)`,
-            [id, 'MXL'+id, primaryVariant.title, metaWithVariants, primaryVariant.teaser, image, categoria || 'LUXURY', linkWithTag, primaryVariant.keyword, seccion, new Date()]
-        );
-        
-        // Inicializar A/B test
-        for (const variant of variants) {
-            await db.query(`
-                INSERT INTO ab_test_results (producto_id, variant_id, impressions)
-                VALUES ($1, $2, 0)
-                ON CONFLICT DO NOTHING
-            `, [id, variant.variant]);
-        }
-        
-        await audit('INJECT', id, primaryVariant.title, AFFILIATE_TAG, `seccion:${seccion}|badge:${primaryVariant.badge}|variants:3`);
-        categoryCache = null;
-        
-        console.log(`✅ Inyectado: ${primaryVariant.title} (3 variantes A/B)`);
-        res.json({ 
-            success: true, 
-            product_id: id,
-            product: primaryVariant.title, 
-            variants: variants.map(v => ({ variant: v.variant, title: v.title })),
-            badge: primaryVariant.badge, 
-            fomo: primaryVariant.fomo, 
-            cta: primaryVariant.cta,
-            affiliateTag: AFFILIATE_TAG 
-        });
-    } catch (e) {
-        console.error('❌ Inject error:', e);
-        res.status(500).json({ success: false, error: e.message });
-    }
-});
-
-// NUEVO: Auto-aprendizaje - calcular calidad del producto
-async function updateProductQualityScore(producto_id) {
-    const stats = await db.query(`
-        SELECT 
-            a.clics,
-            a.conversion_rate,
-            COUNT(DISTINCT c.session_id) as unique_sessions
-        FROM articulos a
-        LEFT JOIN clics c ON a.id = c.producto_id
-        WHERE a.id = $1
-        GROUP BY a.id
-    `, [producto_id]);
-    
-    if (stats.rows.length === 0) return;
-    
-    const { clics, conversion_rate, unique_sessions } = stats.rows[0];
-    let score = 0;
-    
-    // Puntaje basado en CTR y conversión
-    if (clics > 0) {
-        score += Math.min(50, (clics / 10) * 5); // Hasta 50 pts por clics
-    }
-    if (conversion_rate > 0) {
-        score += Math.min(50, conversion_rate * 10); // Hasta 50 pts por conversión
-    }
-    
-    // Bonus por sesiones únicas
-    if (unique_sessions > 10) score += 10;
-    
-    await db.query(`
-        INSERT INTO smart_products (producto_id, quality_score, should_keep, last_analyzed)
-        VALUES ($1, $2, $3, NOW())
-        ON CONFLICT (producto_id) 
-        DO UPDATE SET quality_score = $2, should_keep = $3, last_analyzed = NOW()
-    `, [producto_id, score, score > 20]);
-}
-
-// NUEVO: Obtener productos ganadores (los que convierten)
-app.get('/api/winning-products', async (req, res) => {
-    try {
-        const winners = await db.query(`
-            SELECT a.id, a.titulo, a.clics, a.conversion_rate, s.quality_score
-            FROM articulos a
-            JOIN smart_products s ON a.id = s.producto_id
-            WHERE s.should_keep = true AND a.conversion_rate > 0.5
-            ORDER BY a.conversion_rate DESC, s.quality_score DESC
-            LIMIT 20
-        `);
-        res.json(winners.rows);
-    } catch (e) {
-        res.status(500).json([]);
-    }
-});
-
-// NUEVO: Eliminar productos que NO convierten (auto-limpieza)
-app.delete('/api/cleanup/dead-products', async (req, res) => {
-    try {
-        const deadProducts = await db.query(`
-            SELECT a.id, a.titulo, a.clics, a.conversion_rate
-            FROM articulos a
-            LEFT JOIN smart_products s ON a.id = s.producto_id
-            WHERE a.fecha < NOW() - INTERVAL '7 days'
-            AND (a.clics < 5 OR (s.quality_score IS NOT NULL AND s.quality_score < 10))
-        `);
-        
-        let deleted = 0;
-        for (const product of deadProducts.rows) {
-            await db.query('DELETE FROM articulos WHERE id = $1', [product.id]);
-            await db.query('DELETE FROM clics WHERE producto_id = $1', [product.id]);
-            await db.query('DELETE FROM smart_products WHERE producto_id = $1', [product.id]);
-            await audit('AUTO_CLEANUP', product.id, product.titulo, AFFILIATE_TAG, `clics:${product.clics}|conversion:${product.conversion_rate}`);
-            deleted++;
-        }
-        
-        categoryCache = null;
-        res.json({ success: true, deleted, total_analyzed: deadProducts.rows.length });
-    } catch (e) {
-        res.status(500).json({ success: false, error: e.message });
-    }
-});
-
-// NUEVO: A/B Test - elegir variante ganadora automáticamente
-app.post('/api/ab-test/decide-winner/:producto_id', async (req, res) => {
-    try {
-        const { producto_id } = req.params;
-        
-        const results = await db.query(`
-            SELECT variant_id, 
-                   SUM(clicks) as total_clicks,
-                   SUM(conversions) as total_conversions
-            FROM ab_test_results
-            WHERE producto_id = $1
-            GROUP BY variant_id
-        `, [producto_id]);
-        
-        if (results.rows.length === 0) {
-            return res.json({ winner: null, message: 'No hay datos suficientes' });
-        }
-        
-        // Calcular conversion rate por variante
-        let bestVariant = null;
-        let bestRate = -1;
-        
-        for (const row of results.rows) {
-            const rate = row.total_clicks > 0 ? (row.total_conversions / row.total_clicks) : 0;
-            if (rate > bestRate) {
-                bestRate = rate;
-                bestVariant = row.variant_id;
-            }
-        }
-        
-        if (bestVariant !== null && bestRate > 0) {
-            // Actualizar meta del producto para usar la variante ganadora
-            const product = await db.query('SELECT meta FROM articulos WHERE id = $1', [producto_id]);
-            if (product.rows.length > 0) {
-                const metaData = JSON.parse(product.rows[0].meta);
-                const winningVariant = metaData.variants?.find(v => v.variant === bestVariant);
-                if (winningVariant) {
-                    metaData.badge = winningVariant.badge;
-                    metaData.text = winningVariant.meta;
-                    metaData.winning_variant = bestVariant;
-                    await db.query('UPDATE articulos SET meta = $1 WHERE id = $2', [JSON.stringify(metaData), producto_id]);
-                }
-            }
-            
-            await audit('AB_WINNER', producto_id, null, AFFILIATE_TAG, `variant:${bestVariant}|rate:${bestRate}`);
-        }
-        
-        res.json({ winner: bestVariant, conversion_rate: bestRate });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-// Resto de tus endpoints existentes (categorias, stats, etc.)
-app.get('/api/productos', async (req, res) => {
-    const page = Math.max(1, parseInt(req.query.page) || 1);
-    const limit = 12;
-    const offset = (page - 1) * limit;
-    const seccion = req.query.seccion;
-    
-    try {
-        let query = `SELECT * FROM articulos`;
-        let countQuery = `SELECT COUNT(*) FROM articulos`;
+        let query = `
+            SELECT id, titulo, imagen, categoria, clics, impresiones, ctr, is_featured, precio, curiosidad, meta
+            FROM articulos 
+            WHERE status = 'active' OR status IS NULL
+        `;
         const params = [];
         
         if (seccion) {
-            query += ` WHERE seccion = $1`;
-            countQuery += ` WHERE seccion = $1`;
+            query += ` AND seccion = $1`;
             params.push(seccion);
         }
         
-        query += ` ORDER BY 
-                    CASE WHEN conversion_rate > 0 THEN conversion_rate ELSE 0 END DESC,
-                    clics DESC, 
-                    fecha DESC 
-                  LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
-        params.push(limit, offset);
+        query += ` ORDER BY is_featured DESC, ctr DESC, clics DESC LIMIT $${params.length + 1}`;
+        params.push(limit);
         
-        const [rows, total] = await Promise.all([
-            db.query(query, params),
-            db.query(countQuery, seccion ? [seccion] : [])
-        ]);
+        const products = await db.query(query, params);
         
-        res.json({ items: rows.rows, total: parseInt(total.rows[0].count), page, hasMore: offset + limit < parseInt(total.rows[0].count) });
-    } catch (e) { 
-        console.error('Productos error:', e);
-        res.status(500).json({ items: [] }); 
-    }
-});
-
-app.get('/api/categorias', async (req, res) => {
-    const now = Date.now();
-    if (categoryCache && (now - categoryCacheTime) < 300000) {
-        return res.json(categoryCache);
-    }
-    try {
-        const r = await db.query(`SELECT DISTINCT categoria, COUNT(*) as total FROM articulos GROUP BY categoria ORDER BY total DESC`);
-        categoryCache = r.rows;
-        categoryCacheTime = now;
-        res.json(r.rows);
-    } catch (e) { res.json([]); }
-});
-
-app.delete('/api/productos/:id', async (req, res) => {
-    try {
-        await db.query('DELETE FROM articulos WHERE id = $1', [req.params.id]);
-        await db.query('DELETE FROM clics WHERE producto_id = $1', [req.params.id]);
-        await db.query('DELETE FROM smart_products WHERE producto_id = $1', [req.params.id]);
-        categoryCache = null;
-        res.json({ success: true });
-    } catch (e) { res.status(500).json({ success: false }); }
-});
-
-app.get('/api/stats', async (req, res) => {
-    try {
-        const [prods, clicsHoy, topClick, totalConversiones] = await Promise.all([
-            db.query('SELECT COUNT(*) FROM articulos'),
-            db.query(`SELECT COUNT(*) FROM clics WHERE fecha > NOW() - INTERVAL '24 hours'`),
-            db.query('SELECT titulo, clics, conversion_rate FROM articulos ORDER BY conversion_rate DESC, clics DESC LIMIT 1'),
-            db.query('SELECT COUNT(*) as total, SUM(commission) as total_commission FROM conversiones WHERE created_at > NOW() - INTERVAL \'30 days\'')
-        ]);
-        res.json({
-            productos: parseInt(prods.rows[0].count),
-            clicsHoy: parseInt(clicsHoy.rows[0].count),
-            topProducto: topClick.rows[0] || null,
-            conversiones_30dias: parseInt(totalConversiones.rows[0].total || 0),
-            comision_total: parseFloat(totalConversiones.rows[0].total_commission || 0),
-            affiliateTag: AFFILIATE_TAG,
-            geminiKeys: geminiKeys.length,
-            version: '5.0.0-AGGRESSIVE'
+        // Procesar cada producto
+        const processed = products.rows.map(p => {
+            let metaData = {};
+            try {
+                metaData = JSON.parse(p.meta || '{}');
+            } catch(e) {}
+            
+            // Determinar badge
+            let badge = null;
+            if (p.is_featured) badge = { text: '🔥 BEST SELLER', color: '#e6b800' };
+            else if (p.ctr > 0.03) badge = { text: '📈 TRENDING', color: '#ff4500' };
+            else if (p.ctr > 0.01) badge = { text: '⭐ POPULAR', color: '#8b5cf6' };
+            
+            return {
+                id: p.id,
+                title: p.titulo,
+                image: p.imagen,
+                category: p.categoria,
+                price: parseFloat(p.precio) || 49.99,
+                ctr: p.ctr || 0,
+                clicks: p.clics || 0,
+                badge: badge,
+                teaser: metaData.text || p.curiosidad || `Premium ${p.categoria} product`,
+                badgeText: metaData.badge || null
+            };
         });
-    } catch (e) { res.json({ productos: 0, clicsHoy: 0 }); }
+        
+        res.json({ success: true, products: processed });
+    } catch (e) {
+        console.error('Products error:', e);
+        res.status(500).json({ success: false, error: e.message });
+    }
 });
 
-app.get('/api/admin/audit', async (req, res) => {
+// ============================================================
+// FOMO PARA UN PRODUCTO
+// ============================================================
+app.get('/api/product/fomo/:id', async (req, res) => {
     try {
-        const r = await db.query(`SELECT * FROM audit_log ORDER BY fecha DESC LIMIT 100`);
-        res.json(r.rows);
-    } catch (e) { res.json([]); }
-});
-
-app.post('/api/admin/repair-tags', async (req, res) => {
-    try {
-        const rows = await db.query(`SELECT id, titulo, link FROM articulos`);
-        let fixed = 0;
-        for (const row of rows.rows) {
-            const corrected = addAffiliateTag(row.link);
-            const currentTag = new URL(row.link).searchParams.get('tag');
-            if (currentTag !== AFFILIATE_TAG) {
-                await db.query(`UPDATE articulos SET link = $1 WHERE id = $2`, [corrected, row.id]);
-                fixed++;
-            }
+        const product = await db.query(`
+            SELECT id, fake_stock, clics, impresiones, ctr
+            FROM articulos WHERE id = $1
+        `, [req.params.id]);
+        
+        if (product.rows.length === 0) return res.json({ stock: 15, viewers: 12 });
+        
+        const prod = product.rows[0];
+        let stock = prod.fake_stock;
+        
+        // Reducir stock basado en CTR
+        if (prod.ctr > 0.05 && stock > 3) {
+            stock = Math.max(1, stock - 1);
+            await db.query(`UPDATE articulos SET fake_stock = $1 WHERE id = $2`, [stock, req.params.id]);
         }
-        res.json({ success: true, fixed, total: rows.rows.length });
-    } catch (e) { res.json({ success: false, error: e.message }); }
+        
+        // Calcular viewers activos basado en impresiones recientes
+        const recentImpressions = await db.query(`
+            SELECT COUNT(DISTINCT session_id) as viewers
+            FROM impresiones 
+            WHERE producto_id = $1 AND fecha > NOW() - INTERVAL '10 minutes'
+        `, [req.params.id]);
+        
+        const viewers = Math.max(3, Math.min(47, (recentImpressions.rows[0].viewers || 0) + Math.floor(Math.random() * 10)));
+        
+        let urgencyText = '';
+        if (stock < 5) urgencyText = `⚠️ ONLY ${stock} LEFT!`;
+        else if (stock < 10) urgencyText = `🔥 ${viewers} people viewing now`;
+        else urgencyText = `✨ Premium selection ✨`;
+        
+        res.json({
+            stock: stock,
+            viewers: viewers,
+            urgency_text: urgencyText,
+            ctr: prod.ctr || 0
+        });
+    } catch (e) {
+        res.json({ stock: 15, viewers: 12, urgency_text: '✨ Premium selection ✨' });
+    }
 });
 
+// ============================================================
+// ESTADÍSTICAS
+// ============================================================
+app.get('/api/stats', async (req, res) => {
+    const cached = statsCache.get('stats');
+    if (cached) return res.json(cached);
+    
+    try {
+        const [totalProducts, totalClicks, avgCtr] = await Promise.all([
+            db.query('SELECT COUNT(*) FROM articulos'),
+            db.query('SELECT COUNT(*) FROM clics WHERE fecha > NOW() - INTERVAL \'24 hours\''),
+            db.query('SELECT AVG(ctr) as avg_ctr FROM articulos WHERE impresiones > 50')
+        ]);
+        
+        const stats = {
+            products: parseInt(totalProducts.rows[0].count),
+            clicks_today: parseInt(totalClicks.rows[0].count),
+            avg_ctr: parseFloat(avgCtr.rows[0].avg_ctr || 0).toFixed(4),
+            version: '6.0.0'
+        };
+        
+        statsCache.set('stats', stats, 60);
+        res.json(stats);
+    } catch (e) {
+        res.json({ products: 0, clicks_today: 0, avg_ctr: 0 });
+    }
+});
+
+// ============================================================
+// HEALTH CHECK
+// ============================================================
+app.get('/health', async (req, res) => {
+    try {
+        await db.query('SELECT 1');
+        res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+    } catch (e) {
+        res.status(500).json({ status: 'unhealthy' });
+    }
+});
+
+// ============================================================
+// SITEMAP
+// ============================================================
 app.get('/sitemap.xml', async (req, res) => {
     const host = `https://${req.headers.host}`;
     try {
-        // Solo productos con conversión o muchos clics
-        const r = await db.query(`
+        const products = await db.query(`
             SELECT id, fecha FROM articulos 
-            WHERE clics > 0 OR conversion_rate > 0
-            ORDER BY conversion_rate DESC, clics DESC 
-            LIMIT 500
+            WHERE impresiones > 0 OR ctr > 0
+            ORDER BY ctr DESC LIMIT 500
         `);
-        const urls = r.rows.map(p => `<url><loc>${host}/product/${p.id}</loc><lastmod>${new Date(p.fecha).toISOString().split('T')[0]}</lastmod><priority>${p.conversion_rate > 1 ? '0.9' : '0.7'}</priority></url>`).join('');
+        const urls = products.rows.map(p => 
+            `<url><loc>${host}/product/${p.id}</loc><lastmod>${new Date(p.fecha).toISOString().split('T')[0]}</lastmod></url>`
+        ).join('');
         res.header('Content-Type', 'application/xml');
-        res.send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${host}/</loc><priority>1.0</priority></url>${urls}</urlset>`);
+        res.send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}</urlset>`);
     } catch { res.status(500).send('Error'); }
 });
 
 // ============================================================
-// CRON JOBS AUTOMÁTICOS (Sistema que aprende solo)
+// CRON JOBS
 // ============================================================
-
-// Cada 6 horas: Analizar y eliminar productos que no convierten
 cron.schedule('0 */6 * * *', async () => {
-    console.log('🧹 Auto-cleanup: eliminando productos muertos...');
+    console.log('🧠 Auto-learning: analizando CTR...');
     try {
-        const result = await fetch(`http://localhost:${PORT}/api/cleanup/dead-products`, { method: 'DELETE' });
-        const data = await result.json();
-        console.log(`✅ Cleanup completado: ${data.deleted} productos eliminados`);
-    } catch (e) { console.error('Cleanup error:', e); }
+        const topVariants = await db.query(`
+            SELECT variant_id, AVG(ctr) as avg_ctr
+            FROM (
+                SELECT i.variant_id, 
+                       COUNT(DISTINCT c.id)::DECIMAL / NULLIF(COUNT(DISTINCT i.id), 0) as ctr
+                FROM impresiones i
+                LEFT JOIN clics c ON c.session_id = i.session_id AND c.producto_id = i.producto_id
+                WHERE i.fecha > NOW() - INTERVAL '7 days'
+                GROUP BY i.variant_id, i.session_id
+            ) subq
+            GROUP BY variant_id
+        `);
+        console.log('📊 Análisis completado');
+    } catch(e) {}
 });
 
-// Cada 24 horas: Elegir variantes ganadoras de A/B tests
-cron.schedule('0 0 * * *', async () => {
-    console.log('📊 A/B Test: calculando ganadores...');
+cron.schedule('0 */12 * * *', async () => {
+    console.log('🧹 Cleanup: eliminando productos muertos...');
     try {
-        const products = await db.query('SELECT id FROM articulos WHERE clics > 50');
-        for (const product of products.rows) {
-            await fetch(`http://localhost:${PORT}/api/ab-test/decide-winner/${product.id}`, { method: 'POST' });
-        }
-        console.log(`✅ A/B Test: ${products.rows.length} productos analizados`);
-    } catch (e) { console.error('AB Test error:', e); }
+        const result = await db.query(`
+            DELETE FROM articulos 
+            WHERE (impresiones < 50 AND fecha < NOW() - INTERVAL '14 days')
+            OR (ctr < 0.005 AND impresiones > 100)
+            RETURNING id
+        `);
+        console.log(`✅ Eliminados ${result.rowCount} productos`);
+    } catch(e) {}
 });
 
-// Cada 45 minutos: Generar insights (tu función existente)
-async function generateInsight() {
-    if (!geminiKeys.length) return;
-    try {
-        const prompt = `Escribe un insight de lujo para mujeres de NYC/Miami/LA. Responde SOLO JSON: {"title":"...","body":"...","keyword":"..."}`;
-        const raw = await generateContent(prompt);
-        const clean = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-        const data = JSON.parse(clean);
-        await db.query(`INSERT INTO curiosidades (id, titulo_es, texto_es, imagen, keyword, fecha) VALUES ($1,$2,$3,$4,$5,$6)`,
-            [Date.now(), data.title, data.body, `https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg`, data.keyword, new Date()]);
-        console.log(`✨ Insight: ${data.title}`);
-    } catch (e) {}
-}
-
 // ============================================================
-// FRONTEND (SERVE HTML)
+// FRONTEND
 // ============================================================
+app.use(express.static(__dirname));
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // ============================================================
-// START SERVER
+// START
 // ============================================================
 async function start() {
     await initDB();
-    console.log(`🚀 MXL GOLD v5.0 AGGRESSIVE | Gemini: ${geminiKeys.length} keys | Tag: ${AFFILIATE_TAG}`);
-    console.log(`🔥 Modo: CONVERSIÓN > TRÁFICO`);
-    
-    if (geminiKeys.length) {
-        cron.schedule('*/45 * * * *', () => generateInsight());
-        setTimeout(() => generateInsight(), 30000);
-    }
-    
-    app.listen(PORT, '0.0.0.0', () => console.log(`✅ Servidor en puerto ${PORT}`));
+    console.log(`🚀 MXL GOLD v6.0 | Puerto ${PORT} | Tag: ${AFFILIATE_TAG}`);
+    app.listen(PORT, '0.0.0.0', () => console.log(`✅ Servidor listo`));
 }
 
 start();
