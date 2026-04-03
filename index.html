@@ -2,112 +2,254 @@
 <html lang="en-US">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MXL Gold | Elite Selection</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MXL Gold | 🔥 Trending Luxury Finds — NYC · MIA · LA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <style>
-        :root { --black: #0a0a0a; --gold: #c9a87b; --fire: #ff3300; --surface: #f8f7f5; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--black); }
-        
-        nav { background: #fff; padding: 15px; text-align: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
-        .logo { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: bold; }
-        
-        .hero { background: var(--black); color: #fff; padding: 40px 20px; text-align: center; }
-        .hero h1 { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; }
-        
-        /* GRID CENTRADO MXL */
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 25px; 
-            max-width: 1200px; 
-            margin: 40px auto; 
-            padding: 0 20px;
-            justify-content: center;
+        :root {
+            --black: #0a0a0a;
+            --gold: #d4af37;
+            --fire: #ff3b30;
+            --safe: #34c759;
+            --gray: #f2f2f7;
+            --text: #1c1c1e;
         }
 
-        .card { 
-            background: #fff; 
-            border-radius: 20px; 
-            overflow: hidden; 
-            border: 1px solid #eee; 
-            transition: 0.3s; 
-            position: relative;
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: #fff; color: var(--text); line-height: 1.5; }
+
+        /* 🔥 TOP URGENCY BAR */
+        .top-bar {
+            background: var(--black);
+            color: #fff;
+            padding: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .top-bar span { color: var(--gold); }
+
+        /* 🚀 NAVIGATION */
+        nav {
+            padding: 15px 20px;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
         }
-        .card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .logo { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 800; letter-spacing: -1px; }
+        .logo span { color: var(--gold); }
         
-        .card-img { width: 100%; aspect-ratio: 1; background: #fafafa; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .card-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
-        
-        .badge { position: absolute; top: 15px; left: 15px; background: var(--fire); color: #fff; padding: 4px 12px; border-radius: 50px; font-size: 10px; font-weight: bold; }
+        .live-status { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--safe); }
+        .dot { width: 8px; height: 8px; background: var(--safe); border-radius: 50%; animation: pulse 1.5s infinite; }
 
-        .card-body { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
-        .card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; margin-bottom: 10px; min-height: 2.8rem; }
-        .fomo-text { color: var(--fire); font-size: 11px; font-weight: bold; margin-bottom: 10px; }
-        .card-price { font-size: 1.4rem; font-weight: 700; margin-bottom: 15px; margin-top: auto; }
-
-        .btn-cta { 
-            width: 100%; 
+        /* 💎 HERO SECTION (ESTILO USA) */
+        .hero { padding: 40px 20px; text-align: center; background: var(--gray); }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: 32px; margin-bottom: 10px; line-height: 1.1; }
+        .hero p { font-size: 14px; color: #666; margin-bottom: 20px; }
+        .trending-badge { 
+            display: inline-block; 
             background: var(--black); 
             color: #fff; 
-            border: none; 
-            padding: 14px; 
-            border-radius: 50px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            font-size: 12px; 
+            padding: 5px 15px; 
+            border-radius: 20px; 
+            font-size: 10px; 
+            font-weight: 800; 
+            text-transform: uppercase;
         }
-        .btn-cta:hover { background: var(--fire); }
 
-        footer { text-align: center; padding: 30px; color: #888; font-size: 11px; }
+        /* 📦 PRODUCT GRID */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); 
+            gap: 20px; 
+            padding: 20px; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+
+        /* 🃏 LUXURY CARD */
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid #efefef;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+        .card:active { transform: scale(0.98); }
+
+        /* BADGES */
+        .badge-hot { 
+            position: absolute; top: 15px; left: 15px; 
+            background: var(--fire); color: #fff; 
+            padding: 4px 10px; border-radius: 4px; 
+            font-size: 11px; font-weight: 800; z-index: 10;
+        }
+
+        .card-img { width: 100%; aspect-ratio: 1; background: #fff; display: flex; align-items: center; justify-content: center; padding: 10px; }
+        .card-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        .card-content { padding: 20px; }
+        .rating { color: #ffcc00; font-size: 13px; margin-bottom: 5px; }
+        .rating span { color: #888; font-size: 11px; margin-left: 5px; }
+
+        .product-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; height: 44px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        
+        /* 🔥 FOMO & URGENCY */
+        .fomo-box { 
+            background: #fff0f0; 
+            border-radius: 8px; 
+            padding: 8px; 
+            margin-bottom: 15px; 
+            border-left: 3px solid var(--fire); 
+        }
+        .fomo-text { font-size: 12px; font-weight: 700; color: var(--fire); display: flex; align-items: center; gap: 5px; }
+        .stock-bar { width: 100%; height: 4px; background: #e0e0e0; border-radius: 10px; margin-top: 5px; overflow: hidden; }
+        .stock-progress { width: 30%; height: 100%; background: var(--fire); border-radius: 10px; }
+
+        .price-box { display: flex; align-items: baseline; gap: 10px; margin-bottom: 15px; }
+        .price-now { font-size: 24px; font-weight: 800; color: var(--black); }
+        .price-old { font-size: 16px; text-decoration: line-through; color: #888; }
+        .discount { color: var(--safe); font-size: 14px; font-weight: 700; }
+
+        /* 💰 CONVERSION BUTTON */
+        .btn-buy {
+            width: 100%;
+            background: var(--black);
+            color: #fff;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .btn-buy:hover { background: #333; }
+
+        /* 📱 MOBILE FIXES */
+        @media (max-width: 480px) {
+            .grid { grid-template-columns: 1fr; padding: 15px; }
+            .hero h1 { font-size: 28px; }
+        }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<nav><div class="logo">MXL <span style="color:var(--gold)">Gold</span></div></nav>
-<header class="hero"><h1>Elite Selection <em>NYC & Miami</em></h1></header>
+<div class="top-bar">🔥 <span>Flash Sale:</span> 50% OFF TODAY · FREE SHIPPING TO USA 📦</div>
 
-<main class="grid" id="productGrid"></main>
+<nav>
+    <div class="logo">MXL <span>GOLD</span></div>
+    <div class="live-status">
+        <div class="dot"></div>
+        <span id="viewer-count">124</span> Browsing Now
+    </div>
+</nav>
 
-<footer>© 2026 MXL Gold. We earn from qualifying purchases on Amazon.</footer>
+<header class="hero">
+    <div class="trending-badge">Verified USA Trends</div>
+    <h1>The Luxury Edit <em>2026</em></h1>
+    <p>Handpicked by AI from NYC, Miami & LA elite wishlists.</p>
+</header>
+
+<main class="grid" id="mainGrid">
+    <!-- PRODUCT SKELETON (LOADER) -->
+    <div style="text-align:center; grid-column: 1/-1; padding: 50px; color: #888;">
+        Loading Elite Selection...
+    </div>
+</main>
+
+<footer style="padding: 40px 20px; text-align: center; border-top: 1px solid #eee; font-size: 12px; color: #888;">
+    <p>© 2026 MXL GOLD USA. As an Amazon Associate, we earn from qualifying purchases.</p>
+</footer>
 
 <script>
-    async function loadProducts() {
-        const grid = document.getElementById('productGrid');
+    const STORAGE_KEY = 'mxl_gold_visited';
+
+    async function loadEngine() {
         try {
             const res = await fetch('/api/productos');
-            const { items } = await res.json();
+            const data = await res.json();
+            const items = data.items || [];
             
-            grid.innerHTML = items.map((p, index) => {
-                const viewers = Math.floor(Math.random() * 25) + 8;
-                
-                // DISPARAR TRACKING DE IMPRESIÓN REAL
+            const grid = document.getElementById('mainGrid');
+            grid.innerHTML = '';
+
+            items.forEach(p => {
+                // PSICOLOGÍA DE DATOS
+                const rating = (4.5 + Math.random() * 0.4).toFixed(1);
+                const reviews = Math.floor(Math.random() * 3000) + 500;
+                const fakeOldPrice = (parseFloat(p.precio) * 1.5).toFixed(2);
+                const stockLeft = Math.floor(Math.random() * 5) + 2;
+                const peopleViewing = Math.floor(Math.random() * 40) + 12;
+
+                // TRACK IMPRESSION
                 fetch('/api/track/impression', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({id: p.id})
                 });
 
-                return `
+                const card = `
                 <article class="card">
-                    ${p.ctr > 0.05 ? '<div class="badge">🔥 BEST SELLER</div>' : ''}
-                    <div class="card-img"><img src="${p.imagen}" alt="${p.titulo}"></div>
-                    <div class="card-body">
-                        <h3 class="card-title">${p.titulo}</h3>
-                        <div class="fomo-text">🔥 ${viewers} people buying right now</div>
-                        <div class="card-price">$${parseFloat(p.precio).toFixed(2)} <span style="font-size:10px; color:#888;">USD</span></div>
-                        <button class="btn-cta" onclick="window.open('/go/${p.id}', '_blank')">🔥 View on Amazon</button>
+                    <div class="badge-hot">🔥 SELLING FAST</div>
+                    <div class="card-img">
+                        <img src="${p.imagen}" alt="${p.titulo}">
+                    </div>
+                    <div class="card-content">
+                        <div class="rating">⭐⭐⭐⭐⭐ <span>(${reviews} reviews)</span></div>
+                        <h2 class="product-title">${p.titulo}</h2>
+                        
+                        <div class="fomo-box">
+                            <div class="fomo-text">⚡ ${peopleViewing} people viewing right now</div>
+                            <div style="font-size: 10px; color: #ff3b30; font-weight: 800; margin-top: 5px;">
+                                ONLY ${stockLeft} LEFT IN STOCK
+                            </div>
+                            <div class="stock-bar"><div class="stock-progress" style="width: ${stockLeft * 20}%"></div></div>
+                        </div>
+
+                        <div class="price-box">
+                            <span class="price-now">$${p.precio}</span>
+                            <span class="price-old">$${fakeOldPrice}</span>
+                            <span class="discount">Save 50%</span>
+                        </div>
+
+                        <button class="btn-buy" onclick="window.open('/go/${p.id}', '_blank')">
+                            View on Amazon ⚡
+                        </button>
                     </div>
                 </article>
                 `;
-            }).join('');
-        } catch(e) { console.log("Error cargando"); }
+                grid.innerHTML += card;
+            });
+        } catch (e) {
+            console.error("Engine Error");
+        }
     }
-    loadProducts();
+
+    // DINAMISMO EN VIVO
+    setInterval(() => {
+        const count = Math.floor(Math.random() * 50) + 100;
+        document.getElementById('viewer-count').innerText = count;
+    }, 5000);
+
+    // INICIAR
+    loadEngine();
 </script>
 </body>
 </html>
