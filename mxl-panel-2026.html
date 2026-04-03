@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en-US">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMMANDER MXL — Panel de Control v8.4.0</title>
+    <title>COMMANDER MXL — Panel de Control v9.0.0 | AGGRESSIVE CONVERSION</title>
     <meta name="robots" content="noindex, nofollow">
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
@@ -29,6 +29,7 @@
         .btn-green{background:#059669;}
         .btn-amber{background:#d97706;}
         .btn-gold{background:#b45309;}
+        .btn-danger{background:#991b1b;}
 
         .panel{background:#1a1a2e;border-radius:12px;padding:20px;margin-top:16px;}
         .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
@@ -36,6 +37,7 @@
         .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.65rem;background:#8b5cf6;margin-left:6px;}
         .badge-green{background:#059669;}
         .badge-orange{background:#d97706;}
+        .badge-red{background:#dc2626;}
 
         .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);align-items:center;justify-content:center;z-index:1000;}
         .modal-box{background:#1a1a2e;padding:28px;border-radius:16px;max-width:700px;width:92%;max-height:88vh;overflow-y:auto;}
@@ -45,6 +47,7 @@
         .quality-premium{color:#10b981;font-weight:bold;}
         .quality-basic{color:#d97706;font-weight:bold;}
         .quality-poor{color:#dc2626;font-weight:bold;}
+        .quality-converter{color:#8b5cf6;font-weight:bold;}
 
         .sec-toggle{display:flex;gap:8px;margin:7px 0 16px;}
         .sec-btn{flex:1;padding:11px 8px;border-radius:8px;border:2px solid #3d3d5c;background:#2d2d44;color:#c9a87b;font-size:.78rem;cursor:pointer;text-align:center;transition:all .2s;font-weight:600;}
@@ -62,6 +65,7 @@
         .prod-meta{font-size:.7rem;color:#c9a87b;display:flex;gap:9px;flex-wrap:wrap;align-items:center;}
         .tag-cat{background:#2d2d44;padding:2px 7px;border-radius:9px;font-size:.62rem;}
         .tag-clicks{color:#ff4500;font-weight:bold;}
+        .tag-conversion{color:#8b5cf6;font-weight:bold;}
         .tag-ok{color:#10b981;font-size:.62rem;}
         .tag-badge{background:#8b5cf6;padding:2px 8px;border-radius:9px;font-size:.6rem;color:#fff;}
         .tag-sec-buy{background:#0d2b1d;color:#10b981;padding:2px 8px;border-radius:9px;font-size:.6rem;border:1px solid #10b981;}
@@ -93,6 +97,7 @@
         .ac-AUTO_INSIGHT{background:#1a2d0d;color:#86efac;}
         .ac-REPAIR_TAG{background:#3b0d0d;color:#fca5a5;}
         .ac-DELETE{background:#3b1a0d;color:#fed7aa;}
+        .ac-CLEANUP_DEAD{background:#4a0d0d;color:#fca5a5;}
         .audit-titulo{color:#c9a87b;flex:1;min-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
         .audit-detalle{color:#5a5a7a;font-size:.62rem;flex-shrink:0;}
 
@@ -106,22 +111,27 @@
 
         .loading{text-align:center;padding:20px;color:#c9a87b;font-size:.82rem;}
         .empty{text-align:center;padding:28px;color:#5a5a7a;font-size:.82rem;}
+        
+        .winner-card{background:linear-gradient(135deg,#0d2b1d,#1a2d0d);border:1px solid #10b981;border-radius:12px;padding:15px;margin-bottom:15px;}
+        .winner-title{font-size:.9rem;font-weight:bold;color:#10b981;}
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>🎖️ COMMANDER MXL <span class="v-badge">v8.4.0</span> <span class="v-badge-gold" style="background:#d97706;">✨ LUXURY COPY ENGINE</span></h1>
+    <h1>🎖️ COMMANDER MXL <span class="v-badge">v9.0.0</span> <span class="v-badge-gold" style="background:#d97706;">🔥 AGGRESSIVE CONVERSION</span></h1>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <div id="aff"><span class="dot"></span><span id="affLabel">Cargando...</span></div>
         <button class="btn btn-purple" onclick="abrirModal()">💉 INYECTAR PRODUCTO</button>
         <button class="btn btn-amber" onclick="auditoriaCalidad()">🔍 AUDITORÍA DE CALIDAD</button>
+        <button class="btn btn-green" onclick="bulkUpgrade()">⚡ UPGRADE MASIVO (Básico→Premium)</button>
+        <button class="btn btn-danger" onclick="cleanupDeadProducts()">🗑️ LIMPIAR PRODUCTOS MUERTOS</button>
         <button class="btn btn-dark" onclick="cargarTodo()">🔄 Refrescar</button>
         <a href="/" target="_blank" class="btn btn-dark" style="text-decoration:none;">🌐 Ver Sitio</a>
     </div>
 </div>
 
-<!-- STATS -->
+<!-- STATS MEJORADOS -->
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-num" id="sProds">–</div>
@@ -143,6 +153,20 @@
         <div class="stat-label">Clics Hoy</div>
         <div class="stat-sub">📡 Amazon tracking</div>
     </div>
+    <div class="stat-card">
+        <div class="stat-num" style="color:#8b5cf6;" id="sConversionRate">–</div>
+        <div class="stat-label">Tasa Conversión</div>
+        <div class="stat-sub">📈 productos que venden</div>
+    </div>
+</div>
+
+<!-- WINNERS SECTION (productos que convierten) -->
+<div class="panel">
+    <div class="panel-head">
+        <h3>🏆 WINNERS — PRODUCTOS QUE SÍ CONVIERTEN <span class="badge badge-green">TOP CONVERSIÓN</span></h3>
+        <button class="btn btn-dark btn-sm" onclick="cargarWinners()">↻ Actualizar</button>
+    </div>
+    <div id="winnersList"><div class="loading">Cargando winners...</div></div>
 </div>
 
 <!-- AUDIT LOG PANEL -->
@@ -161,6 +185,10 @@
 <div class="panel">
     <div class="panel-head">
         <h3>📦 PRODUCTOS — CALIDAD COPY <span class="badge badge-orange">PREMIUM VS BÁSICO</span></h3>
+        <div>
+            <button class="btn btn-sm btn-green" onclick="ordenarPorConversion()">📈 Ordenar por Conversión</button>
+            <button class="btn btn-sm btn-amber" onclick="ordenarPorClics()">🔥 Ordenar por Clics</button>
+        </div>
     </div>
     <div id="prodList"><div class="loading">Cargando...</div></div>
 </div>
@@ -173,6 +201,18 @@
         <div style="display:flex;gap:10px;margin-top:20px;">
             <button class="btn btn-green" id="confirmUpgradeBtn" onclick="confirmarUpgrade()" style="flex:1;">✅ APLICAR CAMBIO</button>
             <button class="btn btn-dark" onclick="cerrarPreviewModal()" style="flex:1;">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CONFIRMACIÓN BULK UPGRADE -->
+<div id="bulkModal" class="modal">
+    <div class="modal-box">
+        <h3 style="margin-bottom:16px;">⚡ UPGRADE MASIVO</h3>
+        <div id="bulkContent"></div>
+        <div style="display:flex;gap:10px;margin-top:20px;">
+            <button class="btn btn-green" id="confirmBulkBtn" onclick="confirmarBulkUpgrade()" style="flex:1;">✅ UPGRADE ALL</button>
+            <button class="btn btn-dark" onclick="cerrarBulkModal()" style="flex:1;">Cancelar</button>
         </div>
     </div>
 </div>
@@ -218,6 +258,8 @@
 
 <script>
 let currentUpgradeProduct = null;
+let currentBulkProducts = [];
+let currentProductsList = [];
 
 function toast(msg, err=false){
     const t = document.createElement('div');
@@ -235,6 +277,7 @@ function cerrarModal(){
     setSeccion('buying_now');
 }
 function cerrarPreviewModal(){ document.getElementById('previewModal').style.display = 'none'; }
+function cerrarBulkModal(){ document.getElementById('bulkModal').style.display = 'none'; }
 
 function setSeccion(sec){
     document.getElementById('fSeccion').value = sec;
@@ -245,12 +288,14 @@ function setSeccion(sec){
 }
 
 // ── Evaluar calidad de copy ──
-function evaluarCalidadCopy(meta, curiosidad){
+function evaluarCalidadCopy(meta, curiosidad, conversionRate){
     const text = (meta + ' ' + curiosidad).toLowerCase();
     const cheapWords = ['amazing', 'great', 'good', 'nice', 'high quality', 'very good', 'excellent'];
     const hasCheap = cheapWords.some(w => text.includes(w));
     const length = (meta || '').length + (curiosidad || '').length;
     
+    // Si tiene conversión > 0, es ganador
+    if(conversionRate > 0.5) return { level: 'converter', text: '🏆 CONVIERTE', class: 'quality-converter' };
     if(!hasCheap && length > 100) return { level: 'premium', text: '✨ Premium', class: 'quality-premium' };
     if(hasCheap || length < 50) return { level: 'basic', text: '🟡 Básico', class: 'quality-basic' };
     return { level: 'poor', text: '🔴 Pobre', class: 'quality-poor' };
@@ -264,12 +309,19 @@ async function cargarStats(){
         document.getElementById('sClicsHoy').textContent = d.clicsHoy ?? '–';
         document.getElementById('affLabel').textContent = `TAG: ${d.affiliateTag}`;
         
+        // Tasa de conversión promedio
+        if(d.conversion_rate_avg){
+            document.getElementById('sConversionRate').textContent = d.conversion_rate_avg + '%';
+        } else {
+            document.getElementById('sConversionRate').textContent = '0%';
+        }
+        
         // Cargar productos para contar calidad
         const prods = await fetch('/api/productos').then(r => r.json());
         let premium = 0, basic = 0;
         for(const p of (prods.items || [])){
             const meta = parseMeta(p.meta);
-            const calidad = evaluarCalidadCopy(meta.text, p.curiosidad);
+            const calidad = evaluarCalidadCopy(meta.text, p.curiosidad, p.conversion_rate || 0);
             if(calidad.level === 'premium') premium++;
             else if(calidad.level === 'basic') basic++;
         }
@@ -281,6 +333,108 @@ async function cargarStats(){
 function parseMeta(raw){
     if(!raw) return { badge: null, text: '' };
     try { return JSON.parse(raw); } catch { return { badge: null, text: raw }; }
+}
+
+// ── Cargar Winners (productos que convierten) ──
+async function cargarWinners(){
+    try {
+        const res = await fetch('/api/winning-products');
+        const winners = await res.json();
+        const el = document.getElementById('winnersList');
+        if(!winners.length){
+            el.innerHTML = '<div class="empty">Aún no hay productos que conviertan. Sigue inyectando!</div>';
+            return;
+        }
+        el.innerHTML = winners.map((w, idx) => `
+            <div class="winner-card">
+                <div class="winner-title">🏆 #${idx+1} ${escapeHtml(w.titulo)}</div>
+                <div style="display:flex;gap:15px;margin-top:8px;flex-wrap:wrap;">
+                    <span>🔥 ${w.clics || 0} clics</span>
+                    <span>📈 ${(w.conversion_rate || 0).toFixed(2)}% conversión</span>
+                    <span>⭐ Calidad: ${(w.quality_score || 0).toFixed(0)} pts</span>
+                </div>
+            </div>
+        `).join('');
+    } catch(e) {
+        document.getElementById('winnersList').innerHTML = '<div class="empty">Error cargando winners</div>';
+    }
+}
+
+// ── Cleanup productos muertos ──
+async function cleanupDeadProducts(){
+    if(!confirm('🗑️ ¿Eliminar productos con 0 clics en los últimos 7 días? Esta acción es irreversible.')) return;
+    try {
+        const res = await fetch('/api/cleanup/dead-products', { method: 'DELETE' });
+        const data = await res.json();
+        if(data.success){
+            toast(`✅ Eliminados ${data.deleted} productos muertos`);
+            cargarTodo();
+        } else {
+            toast('❌ Error: ' + data.error, true);
+        }
+    } catch(e) {
+        toast('❌ Error: ' + e.message, true);
+    }
+}
+
+// ── Bulk Upgrade (todos los productos básicos a premium) ──
+async function bulkUpgrade(){
+    try {
+        const prods = await fetch('/api/productos').then(r => r.json());
+        const basicProducts = [];
+        for(const p of (prods.items || [])){
+            const meta = parseMeta(p.meta);
+            const calidad = evaluarCalidadCopy(meta.text, p.curiosidad, p.conversion_rate || 0);
+            if(calidad.level === 'basic' || calidad.level === 'poor'){
+                basicProducts.push(p);
+            }
+        }
+        if(basicProducts.length === 0){
+            toast('✨ No hay productos que necesiten upgrade! Todos son premium.', false);
+            return;
+        }
+        currentBulkProducts = basicProducts;
+        document.getElementById('bulkContent').innerHTML = `
+            <p>Se actualizarán <strong>${basicProducts.length}</strong> productos de básico/pobre a PREMIUM:</p>
+            <ul style="margin:15px 0;max-height:200px;overflow-y:auto;">
+                ${basicProducts.map(p => `<li style="margin-bottom:5px;">📦 ${escapeHtml(p.titulo)}</li>`).join('')}
+            </ul>
+            <p>⚠️ Este proceso puede tomar varios minutos dependiendo de la IA.</p>
+        `;
+        document.getElementById('bulkModal').style.display = 'flex';
+    } catch(e) {
+        toast('❌ Error: ' + e.message, true);
+    }
+}
+
+async function confirmarBulkUpgrade(){
+    document.getElementById('bulkModal').style.display = 'none';
+    toast('⚡ Iniciando upgrade masivo... puede tomar varios minutos');
+    let successCount = 0;
+    let failCount = 0;
+    
+    for(const product of currentBulkProducts){
+        try {
+            const res = await fetch('/api/admin/upgrade-to-luxury', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId: product.id })
+            });
+            const data = await res.json();
+            if(data.success){
+                successCount++;
+                toast(`✅ Mejorado: ${data.newCopy.title.substring(0, 40)}...`);
+            } else {
+                failCount++;
+            }
+            // Pequeña pausa para no saturar la API
+            await new Promise(r => setTimeout(r, 2000));
+        } catch(e) {
+            failCount++;
+        }
+    }
+    toast(`✨ Upgrade masivo completado: ${successCount} mejorados, ${failCount} fallaron`);
+    cargarTodo();
 }
 
 // ── Upgrade individual con preview ──
@@ -353,8 +507,9 @@ async function auditoriaCalidad(){
         msg += `✨ Copy Premium: ${res.premium}\n`;
         msg += `🟡 Copy Básico (requiere mejora): ${res.basic}\n`;
         msg += `🔴 Copy Pobre: ${res.poor}\n`;
+        msg += `🏆 Conversión alta: ${res.converters || 0}\n`;
         if(res.basic + res.poor > 0){
-            msg += `\n💡 Usa el botón ✨ junto a cada producto para mejorarlo individualmente, o pide upgrade masivo.`;
+            msg += `\n💡 Usa el botón ✨ junto a cada producto para mejorarlo individualmente, o usa UPGRADE MASIVO.`;
         }
         alert(msg);
         await cargarProductos();
@@ -363,20 +518,33 @@ async function auditoriaCalidad(){
     }
 }
 
-// ── Product List con botón de upgrade ──
-async function cargarProductos(){
-    const prods = await fetch('/api/productos').then(r => r.json());
+// ── Ordenar productos ──
+let currentSort = 'default';
+function ordenarPorConversion(){
+    currentSort = 'conversion';
+    const sorted = [...currentProductsList].sort((a,b) => (b.conversion_rate || 0) - (a.conversion_rate || 0));
+    renderProductList(sorted);
+}
+function ordenarPorClics(){
+    currentSort = 'clicks';
+    const sorted = [...currentProductsList].sort((a,b) => (b.clics || 0) - (a.clics || 0));
+    renderProductList(sorted);
+}
+
+function renderProductList(products){
     const el = document.getElementById('prodList');
-    if(!prods.items?.length){
+    if(!products.length){
         el.innerHTML = '<div class="empty">Sin productos. ¡Inyecta el primero! ☝️</div>';
         return;
     }
-    el.innerHTML = prods.items.map(p => {
+    el.innerHTML = products.map(p => {
         const meta = parseMeta(p.meta);
-        const calidad = evaluarCalidadCopy(meta.text, p.curiosidad);
+        const calidad = evaluarCalidadCopy(meta.text, p.curiosidad, p.conversion_rate || 0);
         const secTag = p.seccion === 'buying_now'
             ? `<span class="tag-sec-buy">🛒 Buying Now</span>`
             : `<span class="tag-sec-trend">🔥 Trending</span>`;
+        
+        const conversionDisplay = p.conversion_rate ? `📈 ${(p.conversion_rate * 100).toFixed(1)}% conv` : '';
         
         return `<div class="prod-row">
             <div class="prod-info">
@@ -386,16 +554,24 @@ async function cargarProductos(){
                     ${secTag}
                     ${meta.badge ? `<span class="tag-badge">✦ ${meta.badge}</span>` : ''}
                     <span class="tag-clicks">🔥 ${p.clics||0} clics</span>
+                    ${conversionDisplay ? `<span class="tag-conversion">${conversionDisplay}</span>` : ''}
                     <span class="${calidad.class}">${calidad.text}</span>
                 </div>
             </div>
             <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
-                ${calidad.level !== 'premium' ? `<button class="btn btn-gold btn-sm" onclick="upgradeProducto(${p.id})">✨ Mejorar copy</button>` : ''}
+                ${calidad.level !== 'premium' && calidad.level !== 'converter' ? `<button class="btn btn-gold btn-sm" onclick="upgradeProducto(${p.id})">✨ Mejorar copy</button>` : ''}
                 <a href="${p.link}" target="_blank" class="btn btn-sm btn-dark" style="text-decoration:none;">Ver →</a>
                 <button class="btn btn-red" onclick="eliminar(${p.id})">🗑️</button>
             </div>
         </div>`;
     }).join('');
+}
+
+// ── Product List con botón de upgrade ──
+async function cargarProductos(){
+    const prods = await fetch('/api/productos').then(r => r.json());
+    currentProductsList = prods.items || [];
+    renderProductList(currentProductsList);
 }
 
 function escapeHtml(str){
@@ -425,10 +601,10 @@ async function cargarAudit(){
         if(!rows.length){ el.innerHTML = '<span style="color:#4a5568;">Sin eventos aún.</span>'; return; }
         el.innerHTML = rows.map(r => {
             const ts = new Date(r.fecha).toLocaleString('es-DO', { dateStyle:'short', timeStyle:'short' });
-            let accionClass = 'ac-' + r.accion.replace(/-/g, '_');
+            let accionClass = 'ac-' + (r.accion || 'UNKNOWN').replace(/-/g, '_');
             return `<div class="audit-row">
                 <span class="audit-ts">${ts}</span>
-                <span class="audit-accion ${accionClass}">${r.accion}</span>
+                <span class="audit-accion ${accionClass}">${r.accion || 'UNKNOWN'}</span>
                 <span class="audit-titulo" title="${r.titulo||''}">${(r.titulo||'–').slice(0,45)}</span>
                 <span class="audit-detalle">${r.detalle||''}</span>
             </div>`;
@@ -461,7 +637,7 @@ async function inyectar(){
 }
 
 async function cargarTodo(){
-    await Promise.all([cargarStats(), cargarProductos(), cargarAudit()]);
+    await Promise.all([cargarStats(), cargarProductos(), cargarAudit(), cargarWinners()]);
 }
 
 cargarTodo();
