@@ -77,14 +77,14 @@
 
 <main class="grid" id="mainGrid"></main>
 
-<!-- VIP POPUP -->
+<!-- VIP POPUP (AHORA CONECTADO) -->
 <div class="popup-overlay" id="vipPopup">
     <div class="popup-box">
         <div style="font-size: 40px;">🎁</div>
         <h2>Secret Deals?</h2>
         <p>Get **10% OFF** and access to VIP-only luxury finds in Miami & NYC.</p>
         <input type="email" placeholder="Enter your email" id="vipEmail">
-        <button class="btn-vip" onclick="closePopup()">GET MY DISCOUNT ⚡</button>
+        <button class="btn-vip" onclick="subscribeVIP()">GET MY DISCOUNT ⚡</button>
         <p style="font-size: 10px; color: #aaa; margin-top: 10px;">We respect your privacy. No spam, ever.</p>
     </div>
 </div>
@@ -130,7 +130,6 @@
             `;
             grid.innerHTML += card;
 
-            // SCROLL TRAP BANNER CADA 3 PRODUCTOS
             if ((index + 1) % 3 === 0) {
                 grid.innerHTML += `
                     <div class="trap-banner">
@@ -142,7 +141,35 @@
         });
     }
 
-    // TIMER DE URGENCIA
+    // 📧 FUNCIÓN PARA ENVIAR CORREO A LA DB
+    async function subscribeVIP() {
+        const email = document.getElementById('vipEmail').value;
+        if (!email || !email.includes('@')) {
+            alert("Please enter a valid email address.");
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/subscribe', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                alert("WELCOME VIP! Your secret discount code is: MXLGOLD10");
+                closePopup();
+            } else {
+                alert("This email is already in our VIP list!");
+                closePopup();
+            }
+        } catch (e) {
+            console.error("Sub Error:", e);
+            closePopup(); // Cerramos igual para no molestar al usuario
+        }
+    }
+
     function startTimer(duration, display) {
         let timer = duration, minutes, seconds;
         setInterval(() => {
@@ -153,7 +180,6 @@
         }, 1000);
     }
 
-    // POPUP LOGIC
     window.onload = () => {
         loadEngine();
         startTimer(900, document.querySelector('#timer'));
