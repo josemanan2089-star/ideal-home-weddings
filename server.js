@@ -1,157 +1,113 @@
-// ============================================
-// MXL GOLD v7.5 AGGRESSIVE CONVERSION ENGINE
-// MAXIMIZA CLICS → MAXIMIZA COMISIONES AMAZON
-// ============================================
-
-const express = require('express');
-const path = require('path');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const cron = require('node-cron');
-const compression = require('compression');
-const cors = require('cors');
-const session = require('express-session');
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
-const { Pool } = require('pg');
-const crypto = require('crypto');
-require('dotenv').config();
-
-const app = express();
-const PORT = process.env.PORT || 8080;
-const AFFILIATE_TAG = process.env.AMAZON_AFFILIATE_TAG || 'farolaldiauno-20';
-
-// Confiar en el proxy de Railway
-app.set('trust proxy', 1);
-
-// Healthchecks
-app.get(['/health', '/api/health'], (req, res) => res.status(200).send('OK'));
-
-// Middlewares
-app.use(compression());
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
-
-app.use(session({
-    secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false, maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax' }
-}));
-
-// Base de Datos
-const db = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false },
-    max: 25
-});
-
-// Inicialización de Tablas
-async function initDB() {
-    try {
-        await db.query(`CREATE TABLE IF NOT EXISTS articulos (
-            id BIGSERIAL PRIMARY KEY,
-            asin VARCHAR(20),
-            titulo TEXT,
-            meta TEXT,
-            curiosidad TEXT,
-            imagen TEXT,
-            categoria VARCHAR(100),
-            link TEXT,
-            clics INT DEFAULT 0,
-            impresiones INT DEFAULT 0,
-            ctr DECIMAL(5,4) DEFAULT 0,
-            seccion VARCHAR(60) DEFAULT 'buying_now',
-            status VARCHAR(20) DEFAULT 'active',
-            is_featured BOOLEAN DEFAULT FALSE,
-            precio DECIMAL(10,2) DEFAULT 49.99,
-            fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`);
-        console.log('✅ DB Lista y Blindada');
-    } catch (err) { console.error('❌ DB Error:', err.message); }
-}
-
-// ============================================================
-// RUTAS COMANDER MXL (EL PODER TOTAL)
-// ============================================================
-
-// 1. INYECTAR NUEVO (Corregido con Precio)
-app.post('/api/commander/inject', async (req, res) => {
-    const { url, imagenUrl, categoria, tituloReal, precio } = req.body;
-    try {
-        const id = Date.now();
-        await db.query(`
-            INSERT INTO articulos (id, titulo, imagen, categoria, link, precio, status) 
-            VALUES ($1, $2, $3, $4, $5, $6, 'active')
-        `, [id, tituloReal, imagenUrl, categoria, url, precio || 49.99]);
-        res.json({ success: true, id });
-    } catch (e) { res.status(500).json({ success: false, error: e.message }); }
-});
-
-// 2. EDITAR EXISTENTE (NUEVO)
-app.put('/api/productos/:id', async (req, res) => {
-    const { id } = req.params;
-    const { tituloReal, precio, url, imagenUrl, categoria } = req.body;
-    try {
-        await db.query(`
-            UPDATE articulos 
-            SET titulo = $1, precio = $2, link = $3, imagen = $4, categoria = $5
-            WHERE id = $6
-        `, [tituloReal, precio, url, imagenUrl, categoria, id]);
-        res.json({ success: true });
-    } catch (e) { res.status(500).json({ success: false, error: e.message }); }
-});
-
-// 3. BORRAR PRODUCTO (NUEVO)
-app.delete('/api/productos/:id', async (req, res) => {
-    try {
-        await db.query('DELETE FROM articulos WHERE id = $1', [req.params.id]);
-        res.json({ success: true });
-    } catch (e) { res.status(500).json({ success: false, error: e.message }); }
-});
-
-// 4. OBTENER TODO
-app.get('/api/productos', async (req, res) => {
-    try {
-        const result = await db.query(`SELECT * FROM articulos ORDER BY fecha DESC`);
-        res.json({ items: result.rows });
-    } catch (e) { res.json({ items: [] }); }
-});
-
-// 5. STATS
-app.get('/api/stats', async (req, res) => {
-    try {
-        const count = await db.query('SELECT COUNT(*) FROM articulos');
-        const clics = await db.query('SELECT SUM(clics) FROM articulos');
-        res.json({ 
-            productos: count.rows[0].count, 
-            clicsHoy: clics.rows[0].sum || 0,
-            affiliateTag: AFFILIATE_TAG 
-        });
-    } catch (e) { res.json({ productos: 0, clicsHoy: 0 }); }
-});
-
-// Redirección con Tag de Afiliado
-app.get('/go/:id', async (req, res) => {
-    const productId = req.params.id;
-    try {
-        const product = await db.query(`SELECT link FROM articulos WHERE id = $1`, [productId]);
-        if (!product.rows.length) return res.redirect('/');
-        await db.query(`UPDATE articulos SET clics = clics + 1 WHERE id = $1`, [productId]);
-        let finalUrl = product.rows[0].link;
-        if (!finalUrl.includes('tag=')) {
-            finalUrl += (finalUrl.includes('?') ? '&' : '?') + `tag=${AFFILIATE_TAG}`;
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MXL Gold | Elite Selection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --black: #0a0a0a; --gold: #c9a87b; --fire: #ff3300; --surface: #f8f7f5; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--black); }
+        
+        nav { background: #fff; padding: 15px; text-align: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
+        .logo { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: bold; }
+        
+        .hero { background: var(--black); color: #fff; padding: 40px 20px; text-align: center; }
+        .hero h1 { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; }
+        
+        /* GRID CENTRADO MXL */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 25px; 
+            max-width: 1200px; 
+            margin: 40px auto; 
+            padding: 0 20px;
+            justify-content: center;
         }
-        res.redirect(302, finalUrl);
-    } catch (e) { res.redirect('/'); }
-});
 
-// Estáticos y SPA
-app.use(express.static(__dirname));
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+        .card { 
+            background: #fff; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            border: 1px solid #eee; 
+            transition: 0.3s; 
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        
+        .card-img { width: 100%; aspect-ratio: 1; background: #fafafa; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .card-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        
+        .badge { position: absolute; top: 15px; left: 15px; background: var(--fire); color: #fff; padding: 4px 12px; border-radius: 50px; font-size: 10px; font-weight: bold; }
 
-async function start() {
-    await initDB();
-    app.listen(PORT, '0.0.0.0', () => console.log(`🚀 MXL GOLD v7.5 | Port ${PORT}`));
-}
-start();
+        .card-body { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; margin-bottom: 10px; min-height: 2.8rem; }
+        .fomo-text { color: var(--fire); font-size: 11px; font-weight: bold; margin-bottom: 10px; }
+        .card-price { font-size: 1.4rem; font-weight: 700; margin-bottom: 15px; margin-top: auto; }
+
+        .btn-cta { 
+            width: 100%; 
+            background: var(--black); 
+            color: #fff; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 50px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            font-size: 12px; 
+        }
+        .btn-cta:hover { background: var(--fire); }
+
+        footer { text-align: center; padding: 30px; color: #888; font-size: 11px; }
+    </style>
+</head>
+<body>
+
+<nav><div class="logo">MXL <span style="color:var(--gold)">Gold</span></div></nav>
+<header class="hero"><h1>Elite Selection <em>NYC & Miami</em></h1></header>
+
+<main class="grid" id="productGrid"></main>
+
+<footer>© 2026 MXL Gold. We earn from qualifying purchases on Amazon.</footer>
+
+<script>
+    async function loadProducts() {
+        const grid = document.getElementById('productGrid');
+        try {
+            const res = await fetch('/api/productos');
+            const { items } = await res.json();
+            
+            grid.innerHTML = items.map((p, index) => {
+                const viewers = Math.floor(Math.random() * 25) + 8;
+                
+                // DISPARAR TRACKING DE IMPRESIÓN REAL
+                fetch('/api/track/impression', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({id: p.id})
+                });
+
+                return `
+                <article class="card">
+                    ${p.ctr > 0.05 ? '<div class="badge">🔥 BEST SELLER</div>' : ''}
+                    <div class="card-img"><img src="${p.imagen}" alt="${p.titulo}"></div>
+                    <div class="card-body">
+                        <h3 class="card-title">${p.titulo}</h3>
+                        <div class="fomo-text">🔥 ${viewers} people buying right now</div>
+                        <div class="card-price">$${parseFloat(p.precio).toFixed(2)} <span style="font-size:10px; color:#888;">USD</span></div>
+                        <button class="btn-cta" onclick="window.open('/go/${p.id}', '_blank')">🔥 View on Amazon</button>
+                    </div>
+                </article>
+                `;
+            }).join('');
+        } catch(e) { console.log("Error cargando"); }
+    }
+    loadProducts();
+</script>
+</body>
+</html>
