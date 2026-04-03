@@ -2,19 +2,12 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "npm install"
+    "buildCommand": "npm install --production"
   },
   "deploy": {
-    "startCommand": "npm run db:migrate && npm start",
-    "healthcheckPath": "/health",
-    "healthcheckTimeout": 600,
-    "healthcheckInterval": 30,
-    "restartPolicyType": "ON_FAILURE",
-    "numReplicas": 1
-  },
-  "env": {
-    "NODE_ENV": "production",
-    "NODE_VERSION": "18.x",
-    "NODE_OPTIONS": "--max-old-space-size=512"
+    "startCommand": "node server.js",
+    "healthcheckPath": "/api/health",
+    "healthcheckTimeout": 300,
+    "restartPolicyType": "ON_FAILURE"
   }
 }
