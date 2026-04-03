@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMMANDER MXL — Panel de Control v8.3.0</title>
+    <title>COMMANDER MXL — Panel de Control v8.4.0</title>
     <meta name="robots" content="noindex, nofollow">
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
@@ -12,6 +12,7 @@
         .header{background:linear-gradient(135deg,#1a1a2e,#2d2d44);padding:20px;border-radius:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
         h1{font-size:1.3rem;display:flex;align-items:center;gap:10px;}
         .v-badge{background:#8b5cf6;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:normal;}
+        .v-badge-gold{background:#d97706;color:#fff;}
 
         .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:20px;}
         .stat-card{background:#1a1a2e;padding:18px;border-radius:12px;text-align:center;}
@@ -27,6 +28,7 @@
         .btn-sm{padding:5px 11px;font-size:.72rem;}
         .btn-green{background:#059669;}
         .btn-amber{background:#d97706;}
+        .btn-gold{background:#b45309;}
 
         .panel{background:#1a1a2e;border-radius:12px;padding:20px;margin-top:16px;}
         .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
@@ -36,9 +38,13 @@
         .badge-orange{background:#d97706;}
 
         .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);align-items:center;justify-content:center;z-index:1000;}
-        .modal-box{background:#1a1a2e;padding:28px;border-radius:16px;max-width:530px;width:92%;max-height:88vh;overflow-y:auto;}
-        .modal-box input,.modal-box select{width:100%;padding:11px;margin:7px 0 14px;border-radius:8px;border:1px solid #3d3d5c;background:#2d2d44;color:#fff;font-size:13px;}
+        .modal-box{background:#1a1a2e;padding:28px;border-radius:16px;max-width:700px;width:92%;max-height:88vh;overflow-y:auto;}
+        .modal-box input,.modal-box select,.modal-box textarea{width:100%;padding:11px;margin:7px 0 14px;border-radius:8px;border:1px solid #3d3d5c;background:#2d2d44;color:#fff;font-size:13px;}
         label{display:block;margin-bottom:2px;font-size:11px;color:#c9a87b;}
+
+        .quality-premium{color:#10b981;font-weight:bold;}
+        .quality-basic{color:#d97706;font-weight:bold;}
+        .quality-poor{color:#dc2626;font-weight:bold;}
 
         .sec-toggle{display:flex;gap:8px;margin:7px 0 16px;}
         .sec-btn{flex:1;padding:11px 8px;border-radius:8px;border:2px solid #3d3d5c;background:#2d2d44;color:#c9a87b;font-size:.78rem;cursor:pointer;text-align:center;transition:all .2s;font-weight:600;}
@@ -60,6 +66,7 @@
         .tag-badge{background:#8b5cf6;padding:2px 8px;border-radius:9px;font-size:.6rem;color:#fff;}
         .tag-sec-buy{background:#0d2b1d;color:#10b981;padding:2px 8px;border-radius:9px;font-size:.6rem;border:1px solid #10b981;}
         .tag-sec-trend{background:#1a1400;color:#f59e0b;padding:2px 8px;border-radius:9px;font-size:.6rem;border:1px solid #f59e0b;}
+        .tag-quality{font-size:.6rem;padding:2px 8px;border-radius:9px;}
 
         .top-row{padding:10px 13px;border-radius:10px;background:#16161e;margin-bottom:7px;display:flex;align-items:center;gap:12px;}
         .top-rank{font-size:1.05rem;width:26px;text-align:center;flex-shrink:0;}
@@ -73,79 +80,45 @@
         .dot{width:7px;height:7px;border-radius:50%;background:#10b981;animation:blink 2s infinite;}
         @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-        .track-log{background:#0d1117;border:1px solid #2d2d44;border-radius:10px;padding:14px;font-family:monospace;font-size:.72rem;max-height:160px;overflow-y:auto;margin-top:10px;}
-        .track-log .ok{color:#10b981;}
-        .track-log .err{color:#f87171;}
-        .track-log .ts{color:#4a5568;margin-right:8px;}
-
-        /* AUDIT LOG */
         .audit-log{background:#0d1117;border:1px solid #2d2d44;border-radius:10px;padding:14px;font-family:monospace;font-size:.7rem;max-height:280px;overflow-y:auto;margin-top:10px;}
         .audit-row{padding:6px 0;border-bottom:1px solid #1a1a2e;display:flex;gap:10px;flex-wrap:wrap;align-items:baseline;}
         .audit-row:last-child{border-bottom:none;}
         .audit-ts{color:#4a5568;flex-shrink:0;font-size:.65rem;}
         .audit-accion{padding:1px 7px;border-radius:8px;font-size:.62rem;font-weight:bold;flex-shrink:0;}
+        .ac-MANUAL_UPGRADE_LUXURY{background:#3b1a0d;color:#fed7aa;}
+        .ac-AUTO_UPGRADE_LUXURY{background:#1a2d0d;color:#86efac;}
+        .ac-BULK_UPGRADE{background:#1e3a5f;color:#60a5fa;}
         .ac-INJECT_MANUAL{background:#1e3a5f;color:#60a5fa;}
+        .ac-INJECT_LUXURY{background:#0d2b1d;color:#10b981;}
         .ac-AUTO_INSIGHT{background:#1a2d0d;color:#86efac;}
-        .ac-AUTO_NEWS{background:#1a1a00;color:#fde68a;}
         .ac-REPAIR_TAG{background:#3b0d0d;color:#fca5a5;}
         .ac-DELETE{background:#3b1a0d;color:#fed7aa;}
         .audit-titulo{color:#c9a87b;flex:1;min-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-        .audit-tag{color:#10b981;font-size:.62rem;flex-shrink:0;}
         .audit-detalle{color:#5a5a7a;font-size:.62rem;flex-shrink:0;}
 
-        /* REPAIR RESULT */
-        .repair-result{background:#0d1117;border:1px solid #2d2d44;border-radius:10px;padding:14px;font-size:.72rem;margin-top:12px;display:none;}
-        .repair-summary{display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap;}
-        .rep-pill{padding:5px 12px;border-radius:20px;font-size:.7rem;font-weight:bold;}
-        .rep-fixed{background:#0d2b1d;color:#10b981;border:1px solid #10b981;}
-        .rep-skip{background:#2d2d44;color:#c9a87b;}
-        .rep-err{background:#3b0d0d;color:#fca5a5;}
-        .repair-log{max-height:180px;overflow-y:auto;font-family:monospace;font-size:.68rem;}
-        .rep-row-fixed{color:#10b981;}
-        .rep-row-ok{color:#4a5568;}
-        .rep-row-error{color:#f87171;}
+        .compare-box{background:#0d1117;border-radius:10px;padding:15px;margin:10px 0;}
+        .compare-old{color:#f87171;text-decoration:line-through;font-size:.8rem;padding:5px;background:#2d2d44;border-radius:6px;margin-bottom:8px;}
+        .compare-new{color:#10b981;font-size:.8rem;padding:5px;background:#0d2b1d;border-radius:6px;margin-bottom:8px;}
+        .compare-label{font-size:.65rem;color:#c9a87b;margin-bottom:4px;}
 
-        .empty{text-align:center;padding:28px;color:#5a5a7a;font-size:.82rem;}
+        .audit-summary{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+        .audit-pill{padding:4px 12px;border-radius:20px;font-size:.65rem;background:#2d2d44;}
+
         .loading{text-align:center;padding:20px;color:#c9a87b;font-size:.82rem;}
-
-        .sec-summary{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
-        .sec-pill{padding:6px 14px;border-radius:20px;font-size:.72rem;font-weight:bold;cursor:pointer;transition:opacity .2s;border:none;}
-        .sec-pill:hover{opacity:.8;}
-        .sec-pill.buy{background:#0d2b1d;color:#10b981;border:1px solid #10b981;}
-        .sec-pill.trend{background:#1a1400;color:#f59e0b;border:1px solid #f59e0b;}
-        .sec-pill.all{background:#2d2d44;color:#c9a87b;}
-        .sec-pill.active{box-shadow:0 0 0 2px #fff3;}
-
-        .tip-box{background:#1a2010;border:1px solid #4a7c20;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.78rem;color:#8fbc50;line-height:1.7;}
-        .tip-box strong{color:#aada70;}
-        .price-box{background:#0d1a2e;border:1px solid #1e4a7c;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.76rem;color:#7eb4e8;line-height:1.7;}
-        .price-box strong{color:#a0d0ff;}
-        .cron-pill{background:#0d2b1d;border:1px solid #10b981;padding:4px 10px;border-radius:20px;font-size:.65rem;color:#10b981;display:inline-flex;align-items:center;gap:5px;}
+        .empty{text-align:center;padding:28px;color:#5a5a7a;font-size:.82rem;}
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>🎖️ COMMANDER MXL <span class="v-badge">v8.3.0</span></h1>
+    <h1>🎖️ COMMANDER MXL <span class="v-badge">v8.4.0</span> <span class="v-badge-gold" style="background:#d97706;">✨ LUXURY COPY ENGINE</span></h1>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <div id="aff"><span class="dot"></span><span id="affLabel">Cargando...</span></div>
-        <span class="cron-pill">⏱ Auto cada 45 min</span>
         <button class="btn btn-purple" onclick="abrirModal()">💉 INYECTAR PRODUCTO</button>
+        <button class="btn btn-amber" onclick="auditoriaCalidad()">🔍 AUDITORÍA DE CALIDAD</button>
         <button class="btn btn-dark" onclick="cargarTodo()">🔄 Refrescar</button>
         <a href="/" target="_blank" class="btn btn-dark" style="text-decoration:none;">🌐 Ver Sitio</a>
     </div>
-</div>
-
-<div class="tip-box">
-    💡 <strong>Consejo de copy:</strong> Escribe el nombre del producto <strong>en inglés</strong> para que el Motor 2.5 genere el mejor copy de venta.
-    Ej: en vez de "Picador de vegetales" escribe <em>"Vegetable chopper stainless steel"</em>. El badge, el copy y el link de afiliado se generan solos. ✅
-</div>
-
-<div class="price-box">
-    📊 <strong>Secciones v8.3.0:</strong>
-    <span style="color:#10b981;">● "What They're Buying Right Now"</span> — Productos $25–$50 (impulso, alta conversión) · 60% del contenido auto.&nbsp;&nbsp;
-    <span style="color:#f59e0b;">● "Trending This Week"</span> — Productos aspiracionales $50–$95 · 40% del contenido auto.
-    <br>El Piloto Automático publica cada <strong>45 minutos</strong> — cuotas Gemini protegidas ✅ · Audit log activo ✅
 </div>
 
 <!-- STATS -->
@@ -156,105 +129,60 @@
         <div class="stat-sub" id="sSecciones">–</div>
     </div>
     <div class="stat-card">
-        <div class="stat-num" id="sInsights">–</div>
-        <div class="stat-label">Artículos Auto</div>
-        <div class="stat-sub">⏱ cada 45 min</div>
+        <div class="stat-num" id="sPremium">–</div>
+        <div class="stat-label">Copy Premium</div>
+        <div class="stat-sub">✨ calidad lujo</div>
     </div>
     <div class="stat-card">
-        <div class="stat-num" id="sNews">–</div>
-        <div class="stat-label">Noticias</div>
+        <div class="stat-num" id="sBasic">–</div>
+        <div class="stat-label">Requieren mejora</div>
+        <div class="stat-sub">🟡 copy básico</div>
     </div>
     <div class="stat-card">
         <div class="stat-num" style="color:#10b981;" id="sClicsHoy">–</div>
         <div class="stat-label">Clics Hoy</div>
         <div class="stat-sub">📡 Amazon tracking</div>
     </div>
-    <div class="stat-card">
-        <div class="stat-num" style="font-size:.9rem;color:#10b981;" id="sMotor">–</div>
-        <div class="stat-label">Motor IA</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-num" style="font-size:.8rem;color:#c9a87b;margin-top:4px;line-height:1.5;" id="sTop">–</div>
-        <div class="stat-label">🏆 Producto Top</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-num" style="color:#8b5cf6;" id="sAudit">–</div>
-        <div class="stat-label">Eventos Auditados</div>
-        <div class="stat-sub">📋 audit_log</div>
-    </div>
-    <div class="stat-card" style="font-size:.68rem;line-height:2.2;">
-        <div id="sApis" style="margin-top:4px;color:#c9a87b;">Cargando...</div>
-        <div class="stat-label" style="margin-top:8px;">Estado APIs</div>
-    </div>
-</div>
-
-<!-- TRACKING VALIDATOR -->
-<div class="panel">
-    <div class="panel-head">
-        <h3>📡 VALIDACIÓN DE TRACKING <span class="badge">EN VIVO</span></h3>
-        <small style="color:#5a5a7a;font-size:.7rem;">Compara estos clics con tu dashboard de Amazon Associates</small>
-    </div>
-    <p style="font-size:.72rem;color:#5a5a7a;margin-bottom:8px;">Los clics registrados abajo deben aparecer en Amazon Associates → Reports → Clicks. Tag activo: <strong id="tagVerif" style="color:#10b981;">–</strong></p>
-    <div class="track-log" id="trackLog"><span style="color:#4a5568;">Esperando eventos de clic...</span></div>
-    <button class="btn btn-dark btn-sm" onclick="limpiarLog()" style="margin-top:8px;">Limpiar log</button>
-</div>
-
-<!-- REPAIR TAGS PANEL -->
-<div class="panel">
-    <div class="panel-head">
-        <h3>🔧 REPARACIÓN DE TAGS <span class="badge badge-orange">CONTROL MANUAL</span></h3>
-        <small style="color:#5a5a7a;font-size:.7rem;">Solo tú decides cuándo se ejecuta</small>
-    </div>
-    <p style="font-size:.75rem;color:#c9a87b;margin-bottom:14px;">
-        Escanea todos los productos en la DB y corrige cualquier link que no tenga el tag <strong id="tagRepair" style="color:#10b981;">–</strong> activo.
-        Cada reparación queda registrada en el audit log.
-    </p>
-    <button class="btn btn-amber" id="btnRepair" onclick="ejecutarRepair()">🔧 EJECUTAR REPARACIÓN DE TAGS</button>
-    <div class="repair-result" id="repairResult">
-        <div class="repair-summary" id="repairSummary"></div>
-        <div class="repair-log" id="repairLog"></div>
-    </div>
 </div>
 
 <!-- AUDIT LOG PANEL -->
 <div class="panel">
     <div class="panel-head">
-        <h3>📋 AUDIT LOG <span class="badge" style="background:#8b5cf6;">SUPERVISIÓN</span></h3>
+        <h3>📋 AUDIT LOG — UPGRADES DE LUJO <span class="badge" style="background:#d97706;">✨ EN VIVO</span></h3>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <small style="color:#5a5a7a;font-size:.7rem;">Cada INSERT, inyección y reparación queda registrado aquí</small>
+            <small style="color:#5a5a7a;font-size:.7rem;">Cada upgrade de copy queda registrado aquí</small>
             <button class="btn btn-dark btn-sm" onclick="cargarAudit()">↻ Actualizar</button>
         </div>
     </div>
     <div class="audit-log" id="auditLog"><span style="color:#4a5568;">Cargando audit log...</span></div>
 </div>
 
-<!-- TOP CLICS -->
+<!-- TODOS LOS PRODUCTOS CON CALIDAD VISIBLE -->
 <div class="panel">
     <div class="panel-head">
-        <h3>📊 TOP PRODUCTOS POR CLICS <span class="badge">EN VIVO</span></h3>
-    </div>
-    <div id="topClics"><div class="loading">Cargando datos...</div></div>
-</div>
-
-<!-- TODOS LOS PRODUCTOS -->
-<div class="panel">
-    <div class="panel-head">
-        <h3>📦 TODOS LOS PRODUCTOS <span class="badge">MOTOR 2.5</span></h3>
-    </div>
-    <div class="sec-summary">
-        <button class="sec-pill all active" id="pill-all" onclick="filtrarSeccion(null)">Todos</button>
-        <button class="sec-pill buy" id="pill-buy" onclick="filtrarSeccion('buying_now')">🛒 What They're Buying Right Now (<span id="cntBuy">–</span>)</button>
-        <button class="sec-pill trend" id="pill-trend" onclick="filtrarSeccion('trending')">🔥 Trending This Week (<span id="cntTrend">–</span>)</button>
+        <h3>📦 PRODUCTOS — CALIDAD COPY <span class="badge badge-orange">PREMIUM VS BÁSICO</span></h3>
     </div>
     <div id="prodList"><div class="loading">Cargando...</div></div>
+</div>
+
+<!-- MODAL PREVISUALIZACIÓN UPGRADE -->
+<div id="previewModal" class="modal">
+    <div class="modal-box">
+        <h3 style="margin-bottom:16px;">✨ UPGRADE A LUXURY COPY</h3>
+        <div id="previewContent"></div>
+        <div style="display:flex;gap:10px;margin-top:20px;">
+            <button class="btn btn-green" id="confirmUpgradeBtn" onclick="confirmarUpgrade()" style="flex:1;">✅ APLICAR CAMBIO</button>
+            <button class="btn btn-dark" onclick="cerrarPreviewModal()" style="flex:1;">Cancelar</button>
+        </div>
+    </div>
 </div>
 
 <!-- MODAL INYECCIÓN -->
 <div id="modal" class="modal">
     <div class="modal-box">
-        <h3 style="margin-bottom:6px;">💉 INYECCIÓN DE PRODUCTO — MOTOR 2.5</h3>
-        <p style="font-size:.72rem;color:#c9a87b;margin-bottom:6px;">El affiliate tag se añade y verifica automáticamente antes del INSERT.</p>
-        <p style="font-size:.72rem;color:#8fbc50;margin-bottom:18px;">⚠️ Escribe el nombre del producto <strong>en inglés</strong> — la IA generará mejor copy para tu audiencia de USA/Europa.</p>
+        <h3 style="margin-bottom:6px;">💉 INYECCIÓN DE PRODUCTO — MOTOR LUJO</h3>
+        <p style="font-size:.72rem;color:#c9a87b;margin-bottom:6px;">✨ El motor genera automáticamente copy de lujo (estilo NYC/Miami/LA)</p>
+        <p style="font-size:.72rem;color:#8fbc50;margin-bottom:18px;">⚠️ Escribe el nombre del producto <strong>en inglés</strong> para mejor resultado.</p>
 
         <label>🏷️ NOMBRE DEL PRODUCTO (en inglés) *</label>
         <input type="text" id="fTitle" placeholder="Ej: Vegetable chopper stainless steel 14 cup">
@@ -262,7 +190,7 @@
         <label>🔗 URL de Amazon *</label>
         <input type="url" id="fUrl" placeholder="https://amazon.com/dp/ASIN...">
 
-        <label>🖼️ URL de Imagen (opcional — la IA la busca si no pones)</label>
+        <label>🖼️ URL de Imagen (opcional)</label>
         <input type="url" id="fImg" placeholder="https://m.media-amazon.com/images/...">
 
         <label>📁 Categoría</label>
@@ -271,61 +199,25 @@
             <option value="SMART HOME">SMART HOME</option>
             <option value="KITCHEN">KITCHEN GOURMET</option>
             <option value="WELLNESS">WELLNESS & SPA</option>
-            <option value="FASHION">FASHION ELITE</option>
             <option value="TECH">TECH PREMIUM</option>
-            <option value="BEDROOM">BEDROOM LUXURY</option>
-            <option value="OUTDOOR">OUTDOOR ELITE</option>
         </select>
 
-        <label>📌 SECCIÓN DE DESTINO</label>
+        <label>📌 SECCIÓN</label>
         <div class="sec-toggle">
-            <button class="sec-btn active-buy" id="secBtnBuy" onclick="setSeccion('buying_now')">
-                🛒 What They're Buying Right Now<br>
-                <small style="font-weight:normal;font-size:.67rem;">$25–$50 · Impulso · Alta conversión</small>
-            </button>
-            <button class="sec-btn" id="secBtnTrend" onclick="setSeccion('trending')">
-                🔥 Trending This Week<br>
-                <small style="font-weight:normal;font-size:.67rem;">$50–$95 · Aspiracional · Top picks</small>
-            </button>
+            <button class="sec-btn active-buy" id="secBtnBuy" onclick="setSeccion('buying_now')">🛒 What They're Buying Right Now</button>
+            <button class="sec-btn" id="secBtnTrend" onclick="setSeccion('trending')">🔥 Trending This Week</button>
         </div>
         <input type="hidden" id="fSeccion" value="buying_now">
 
         <button class="btn btn-purple" id="btnInject" onclick="inyectar()" style="width:100%;padding:13px;margin-top:6px;">
-            🚀 EJECUTAR INYECCIÓN 2.5
+            ✨ INYECTAR CON COPY DE LUJO
         </button>
         <button class="btn btn-dark" onclick="cerrarModal()" style="width:100%;margin-top:8px;">Cancelar</button>
     </div>
 </div>
 
 <script>
-// ── TRACK LOG ──
-const trackEvents = [];
-function addTrackLog(msg, isErr=false){
-    const ts = new Date().toLocaleTimeString('es-DO');
-    trackEvents.unshift({ ts, msg, isErr });
-    if(trackEvents.length > 50) trackEvents.pop();
-    renderTrackLog();
-}
-function renderTrackLog(){
-    const el = document.getElementById('trackLog');
-    if(!trackEvents.length){ el.innerHTML = '<span style="color:#4a5568;">Esperando eventos de clic...</span>'; return; }
-    el.innerHTML = trackEvents.map(e => `<div class="${e.isErr?'err':'ok'}"><span class="ts">${e.ts}</span>${e.msg}</div>`).join('');
-}
-function limpiarLog(){ trackEvents.length = 0; renderTrackLog(); }
-
-const _origFetch = window.fetch;
-window.fetch = async function(...args){
-    const res = await _origFetch(...args);
-    const url = typeof args[0]==='string' ? args[0] : args[0]?.url || '';
-    if(url.includes('/api/track/click')){
-        const clone = res.clone();
-        clone.json().then(data => {
-            if(data.ok) addTrackLog(`✅ Clic — ID: ${data.producto_id} | "${(data.titulo||'').slice(0,30)}" | Total: ${data.total_clics}`);
-            else addTrackLog(`❌ Error tracking — ${data.error||'desconocido'}`, true);
-        }).catch(()=>{});
-    }
-    return res;
-};
+let currentUpgradeProduct = null;
 
 function toast(msg, err=false){
     const t = document.createElement('div');
@@ -342,46 +234,187 @@ function cerrarModal(){
     ['fTitle','fUrl','fImg'].forEach(id => document.getElementById(id).value = '');
     setSeccion('buying_now');
 }
+function cerrarPreviewModal(){ document.getElementById('previewModal').style.display = 'none'; }
+
 function setSeccion(sec){
     document.getElementById('fSeccion').value = sec;
     const b = document.getElementById('secBtnBuy');
     const t = document.getElementById('secBtnTrend');
-    b.className = 'sec-btn' + (sec === 'buying_now' ? ' active-buy'   : '');
-    t.className = 'sec-btn' + (sec === 'trending'   ? ' active-trend' : '');
+    b.className = 'sec-btn' + (sec === 'buying_now' ? ' active-buy' : '');
+    t.className = 'sec-btn' + (sec === 'trending' ? ' active-trend' : '');
 }
 
-// ── Section filter ──
-let activeFilter = null;
-function filtrarSeccion(sec){
-    activeFilter = sec;
-    ['all','buy','trend'].forEach(k => document.getElementById('pill-'+k).classList.remove('active'));
-    document.getElementById(sec ? (sec==='buying_now'?'pill-buy':'pill-trend') : 'pill-all').classList.add('active');
-    cargarProductos();
+// ── Evaluar calidad de copy ──
+function evaluarCalidadCopy(meta, curiosidad){
+    const text = (meta + ' ' + curiosidad).toLowerCase();
+    const cheapWords = ['amazing', 'great', 'good', 'nice', 'high quality', 'very good', 'excellent'];
+    const hasCheap = cheapWords.some(w => text.includes(w));
+    const length = (meta || '').length + (curiosidad || '').length;
+    
+    if(!hasCheap && length > 100) return { level: 'premium', text: '✨ Premium', class: 'quality-premium' };
+    if(hasCheap || length < 50) return { level: 'basic', text: '🟡 Básico', class: 'quality-basic' };
+    return { level: 'poor', text: '🔴 Pobre', class: 'quality-poor' };
 }
 
-// ── Stats ──
+// ── Stats con calidad ──
 async function cargarStats(){
     try {
         const d = await fetch('/api/stats').then(r => r.json());
-        document.getElementById('sProds').textContent    = d.productos ?? '–';
-        document.getElementById('sInsights').textContent = d.curiosidades ?? '–';
-        document.getElementById('sNews').textContent     = d.noticias ?? '–';
+        document.getElementById('sProds').textContent = d.productos ?? '–';
         document.getElementById('sClicsHoy').textContent = d.clicsHoy ?? '–';
-        document.getElementById('sMotor').textContent    = d.motor ?? '–';
-        document.getElementById('sAudit').textContent    = d.auditTotal ?? '–';
-        document.getElementById('sTop').textContent      = d.topProducto
-            ? `${d.topProducto.titulo.slice(0,22)}… (${d.topProducto.clics} clics)` : 'Sin datos aún';
-        document.getElementById('affLabel').textContent  = `TAG: ${d.affiliateTag}`;
-        document.getElementById('tagVerif').textContent  = d.affiliateTag || '–';
-        document.getElementById('tagRepair').textContent = d.affiliateTag || '–';
-        document.getElementById('sApis').innerHTML =
-            `Pexels ${d.pexels} &nbsp; Unsplash ${d.unsplash}<br>Noticias ${d.newsApi} &nbsp; Google ${d.google}`;
-        if(d.secciones){
-            document.getElementById('sSecciones').textContent = `🛒 ${d.secciones.buying_now} · 🔥 ${d.secciones.trending}`;
-            document.getElementById('cntBuy').textContent   = d.secciones.buying_now;
-            document.getElementById('cntTrend').textContent = d.secciones.trending;
+        document.getElementById('affLabel').textContent = `TAG: ${d.affiliateTag}`;
+        
+        // Cargar productos para contar calidad
+        const prods = await fetch('/api/productos').then(r => r.json());
+        let premium = 0, basic = 0;
+        for(const p of (prods.items || [])){
+            const meta = parseMeta(p.meta);
+            const calidad = evaluarCalidadCopy(meta.text, p.curiosidad);
+            if(calidad.level === 'premium') premium++;
+            else if(calidad.level === 'basic') basic++;
         }
-    } catch { document.getElementById('affLabel').textContent = 'Sin conexión'; }
+        document.getElementById('sPremium').textContent = premium;
+        document.getElementById('sBasic').textContent = basic;
+    } catch { }
+}
+
+function parseMeta(raw){
+    if(!raw) return { badge: null, text: '' };
+    try { return JSON.parse(raw); } catch { return { badge: null, text: raw }; }
+}
+
+// ── Upgrade individual con preview ──
+async function upgradeProducto(productId){
+    currentUpgradeProduct = productId;
+    try {
+        const res = await fetch('/api/admin/preview-upgrade', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId })
+        });
+        const data = await res.json();
+        if(!data.success) throw new Error(data.error);
+        
+        document.getElementById('previewContent').innerHTML = `
+            <div class="compare-box">
+                <div class="compare-label">📝 TÍTULO ACTUAL:</div>
+                <div class="compare-old">${escapeHtml(data.current.title)}</div>
+                <div class="compare-label">✨ NUEVO TÍTULO (LUJO):</div>
+                <div class="compare-new">${escapeHtml(data.preview.title)}</div>
+            </div>
+            <div class="compare-box">
+                <div class="compare-label">📖 DESCRIPCIÓN ACTUAL:</div>
+                <div class="compare-old">${escapeHtml(data.current.teaser || data.current.metaText || '—')}</div>
+                <div class="compare-label">✨ NUEVA DESCRIPCIÓN (EMOCIONAL):</div>
+                <div class="compare-new">${escapeHtml(data.preview.teaser)}</div>
+            </div>
+            <div class="compare-box">
+                <div class="compare-label">🏷️ BADGE ACTUAL:</div>
+                <div class="compare-old">${data.current.badge || '—'}</div>
+                <div class="compare-label">✨ NUEVO BADGE:</div>
+                <div class="compare-new">${data.preview.badge || 'Editor\'s Pick'}</div>
+            </div>
+        `;
+        document.getElementById('previewModal').style.display = 'flex';
+    } catch(e) {
+        toast('❌ Error al generar preview: ' + e.message, true);
+    }
+}
+
+async function confirmarUpgrade(){
+    if(!currentUpgradeProduct) return;
+    try {
+        const res = await fetch('/api/admin/upgrade-to-luxury', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId: currentUpgradeProduct })
+        });
+        const data = await res.json();
+        if(data.success){
+            toast(`✨ Producto actualizado a Luxury Copy: ${data.newCopy.title}`);
+            cerrarPreviewModal();
+            cargarTodo();
+        } else {
+            toast('❌ ' + (data.error || 'Error al actualizar'), true);
+        }
+    } catch(e) {
+        toast('❌ Error: ' + e.message, true);
+    }
+}
+
+// ── Auditoría de calidad masiva ──
+async function auditoriaCalidad(){
+    if(!confirm('🔍 ¿Ejecutar auditoría de calidad? Se escanearán todos los productos y se mostrarán los que tienen copy básico/pobre.')) return;
+    try {
+        const res = await fetch('/api/admin/audit-quality').then(r => r.json());
+        if(!res.success) throw new Error(res.error);
+        
+        let msg = `📊 Auditoría completada:\n`;
+        msg += `✨ Copy Premium: ${res.premium}\n`;
+        msg += `🟡 Copy Básico (requiere mejora): ${res.basic}\n`;
+        msg += `🔴 Copy Pobre: ${res.poor}\n`;
+        if(res.basic + res.poor > 0){
+            msg += `\n💡 Usa el botón ✨ junto a cada producto para mejorarlo individualmente, o pide upgrade masivo.`;
+        }
+        alert(msg);
+        await cargarProductos();
+    } catch(e) {
+        toast('❌ Error en auditoría: ' + e.message, true);
+    }
+}
+
+// ── Product List con botón de upgrade ──
+async function cargarProductos(){
+    const prods = await fetch('/api/productos').then(r => r.json());
+    const el = document.getElementById('prodList');
+    if(!prods.items?.length){
+        el.innerHTML = '<div class="empty">Sin productos. ¡Inyecta el primero! ☝️</div>';
+        return;
+    }
+    el.innerHTML = prods.items.map(p => {
+        const meta = parseMeta(p.meta);
+        const calidad = evaluarCalidadCopy(meta.text, p.curiosidad);
+        const secTag = p.seccion === 'buying_now'
+            ? `<span class="tag-sec-buy">🛒 Buying Now</span>`
+            : `<span class="tag-sec-trend">🔥 Trending</span>`;
+        
+        return `<div class="prod-row">
+            <div class="prod-info">
+                <div class="prod-title">${escapeHtml(p.titulo)}</div>
+                <div class="prod-meta">
+                    <span class="tag-cat">${p.categoria}</span>
+                    ${secTag}
+                    ${meta.badge ? `<span class="tag-badge">✦ ${meta.badge}</span>` : ''}
+                    <span class="tag-clicks">🔥 ${p.clics||0} clics</span>
+                    <span class="${calidad.class}">${calidad.text}</span>
+                </div>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
+                ${calidad.level !== 'premium' ? `<button class="btn btn-gold btn-sm" onclick="upgradeProducto(${p.id})">✨ Mejorar copy</button>` : ''}
+                <a href="${p.link}" target="_blank" class="btn btn-sm btn-dark" style="text-decoration:none;">Ver →</a>
+                <button class="btn btn-red" onclick="eliminar(${p.id})">🗑️</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function escapeHtml(str){
+    if(!str) return '';
+    return str.replace(/[&<>]/g, function(m){
+        if(m === '&') return '&amp;';
+        if(m === '<') return '&lt;';
+        if(m === '>') return '&gt;';
+        return m;
+    });
+}
+
+async function eliminar(id){
+    if(!confirm('¿Eliminar este producto?')) return;
+    try {
+        await fetch(`/api/productos/${id}`, { method: 'DELETE' });
+        toast('✅ Producto eliminado');
+        cargarTodo();
+    } catch { toast('❌ Error', true); }
 }
 
 // ── Audit Log ──
@@ -392,129 +425,27 @@ async function cargarAudit(){
         if(!rows.length){ el.innerHTML = '<span style="color:#4a5568;">Sin eventos aún.</span>'; return; }
         el.innerHTML = rows.map(r => {
             const ts = new Date(r.fecha).toLocaleString('es-DO', { dateStyle:'short', timeStyle:'short' });
+            let accionClass = 'ac-' + r.accion.replace(/-/g, '_');
             return `<div class="audit-row">
                 <span class="audit-ts">${ts}</span>
-                <span class="audit-accion ac-${r.accion}">${r.accion}</span>
-                <span class="audit-titulo" title="${r.titulo||''}">${(r.titulo||'–').slice(0,38)}</span>
-                <span class="audit-tag">${r.affiliate_tag||''}</span>
+                <span class="audit-accion ${accionClass}">${r.accion}</span>
+                <span class="audit-titulo" title="${r.titulo||''}">${(r.titulo||'–').slice(0,45)}</span>
                 <span class="audit-detalle">${r.detalle||''}</span>
             </div>`;
         }).join('');
-    } catch { document.getElementById('auditLog').innerHTML = '<span style="color:#f87171;">Error cargando audit log</span>'; }
+    } catch { }
 }
 
-// ── Repair Tags ──
-async function ejecutarRepair(){
-    if(!confirm('¿Ejecutar reparación de affiliate tags en TODOS los productos? Esta acción queda registrada en el audit log.')) return;
-    const btn = document.getElementById('btnRepair');
-    btn.disabled = true; btn.textContent = '⌛ Escaneando productos...';
-    const resultBox = document.getElementById('repairResult');
-    resultBox.style.display = 'none';
-    try {
-        const d = await fetch('/api/admin/repair-tags', { method: 'POST' }).then(r => r.json());
-        if(!d.success) throw new Error(d.error || 'Error desconocido');
-
-        const s = d.summary;
-        document.getElementById('repairSummary').innerHTML = `
-            <span class="rep-pill rep-fixed">✅ Reparados: ${s.fixed}</span>
-            <span class="rep-pill rep-skip">✓ Ya correctos: ${s.skipped}</span>
-            ${s.errors ? `<span class="rep-pill rep-err">❌ Errores: ${s.errors}</span>` : ''}
-            <span style="color:#5a5a7a;font-size:.68rem;">Total: ${s.total} · Tag activo: ${d.activeTag}</span>
-        `;
-        document.getElementById('repairLog').innerHTML = d.log.map(row => {
-            if(row.status === 'fixed') return `<div class="rep-row-fixed">✅ [${row.id}] ${row.titulo} — ${row.old} → ${row.new}</div>`;
-            if(row.status === 'ok')    return `<div class="rep-row-ok">· [${row.id}] ${row.titulo}</div>`;
-            return `<div class="rep-row-error">❌ [${row.id}] ${row.titulo}</div>`;
-        }).join('');
-        resultBox.style.display = 'block';
-
-        const msg = s.fixed > 0
-            ? `✅ ${s.fixed} tag(s) reparado(s) · ${s.skipped} ya correctos`
-            : `✅ Todos los tags ya están correctos (${s.skipped} productos)`;
-        toast(msg);
-        await cargarAudit();
-        await cargarStats();
-    } catch(e) { toast('❌ Error: ' + e.message, true); }
-    finally { btn.disabled = false; btn.textContent = '🔧 EJECUTAR REPARACIÓN DE TAGS'; }
-}
-
-// ── Top Clics ──
-async function cargarTopClics(){
-    try {
-        const data = await fetch('/api/track/top').then(r => r.json());
-        const el = document.getElementById('topClics');
-        if(!data.length){ el.innerHTML = '<div class="empty">Sin clics aún. Comparte el sitio para generar tráfico.</div>'; return; }
-        const max = data[0].clics || 1;
-        const medallas = ['🥇','🥈','🥉'];
-        el.innerHTML = data.map((p,i) => `
-            <div class="top-row">
-                <span class="top-rank">${medallas[i] || `${i+1}`}</span>
-                <div class="top-info">
-                    <div class="top-title">${p.titulo}</div>
-                    <div class="top-clicks">${p.clics} clics · ${p.clics_semana||0} semana · ${p.clics_hoy||0} hoy</div>
-                </div>
-                <div class="bar"><div class="bar-fill" style="width:${Math.round((p.clics/max)*100)}%"></div></div>
-                <a href="${p.link}" target="_blank" rel="noopener" class="btn btn-sm btn-dark" style="text-decoration:none;">Ver →</a>
-            </div>`).join('');
-    } catch { document.getElementById('topClics').innerHTML = '<div class="empty">Error cargando datos</div>'; }
-}
-
-// ── Delete ──
-async function eliminar(id){
-    if(!confirm('¿Eliminar este producto y su historial de clics?')) return;
-    try {
-        const d = await fetch(`/api/productos/${id}`, { method: 'DELETE' }).then(r => r.json());
-        if(d.success){ toast('✅ Producto eliminado'); cargarTodo(); cargarAudit(); }
-    } catch { toast('❌ Error al eliminar', true); }
-}
-
-// ── Product List ──
-async function cargarProductos(){
-    let url = '/api/productos';
-    if(activeFilter) url += `?seccion=${activeFilter}`;
-    const prods = await fetch(url).then(r => r.json());
-    const el = document.getElementById('prodList');
-    if(!prods.items?.length){
-        el.innerHTML = '<div class="empty">Sin productos en esta sección. ¡Inyecta el primero! ☝️</div>';
-        return;
-    }
-    el.innerHTML = prods.items.map(p => {
-        let badge = '';
-        try { const m = JSON.parse(p.meta); badge = m.badge || ''; } catch {}
-        const secTag = p.seccion === 'buying_now'
-            ? `<span class="tag-sec-buy">🛒 Buying Now</span>`
-            : `<span class="tag-sec-trend">🔥 Trending</span>`;
-        return `<div class="prod-row">
-            <div class="prod-info">
-                <div class="prod-title">${p.titulo}</div>
-                <div class="prod-meta">
-                    <span class="tag-cat">${p.categoria}</span>
-                    ${secTag}
-                    ${badge ? `<span class="tag-badge">✦ ${badge}</span>` : ''}
-                    <span class="tag-clicks">🔥 ${p.clics||0} clics</span>
-                    <span class="tag-ok">✅ tag activo</span>
-                    <span style="color:#4a4a5a;">${new Date(p.fecha).toLocaleDateString('es-DO')}</span>
-                </div>
-            </div>
-            <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
-                <a href="${p.link}" target="_blank" rel="noopener" class="btn btn-sm btn-dark" style="text-decoration:none;">Ver →</a>
-                <button class="btn btn-red" onclick="eliminar(${p.id})">🗑️</button>
-            </div>
-        </div>`;
-    }).join('');
-}
-
-// ── Inject ──
 async function inyectar(){
-    const titulo  = document.getElementById('fTitle').value.trim();
-    const url     = document.getElementById('fUrl').value.trim();
-    const img     = document.getElementById('fImg').value.trim();
-    const cat     = document.getElementById('fCat').value;
+    const titulo = document.getElementById('fTitle').value.trim();
+    const url = document.getElementById('fUrl').value.trim();
+    const img = document.getElementById('fImg').value.trim();
+    const cat = document.getElementById('fCat').value;
     const seccion = document.getElementById('fSeccion').value;
-    if(!titulo) return toast('❌ Falta el nombre del producto', true);
-    if(!url)    return toast('❌ Falta la URL de Amazon', true);
+    if(!titulo) return toast('❌ Falta el nombre', true);
+    if(!url) return toast('❌ Falta la URL', true);
     const btn = document.getElementById('btnInject');
-    btn.disabled = true; btn.textContent = '⌛ MOTOR 2.5 TRABAJANDO...';
+    btn.disabled = true; btn.textContent = '✨ GENERANDO COPY DE LUJO...';
     try {
         const d = await fetch('/api/commander/inject', {
             method: 'POST',
@@ -522,22 +453,19 @@ async function inyectar(){
             body: JSON.stringify({ url, imagenUrl: img, categoria: cat, tituloReal: titulo, seccion })
         }).then(r => r.json());
         if(d.success){
-            const secLabel = seccion === 'buying_now' ? 'Buying Now' : 'Trending';
-            toast(`✅ "${d.product}" → ${secLabel} | Badge: ${d.badge||'N/A'} | Tag: ${d.affiliateTag}`);
-            cerrarModal(); cargarTodo(); cargarAudit();
-        } else { toast('❌ ' + (d.error || 'Inténtalo de nuevo'), true); }
+            toast(`✨ "${d.product}" → Copy de lujo generado | Badge: ${d.badge}`);
+            cerrarModal(); cargarTodo();
+        } else { toast('❌ ' + (d.error || 'Error'), true); }
     } catch { toast('❌ Error de red', true); }
-    finally { btn.disabled = false; btn.textContent = '🚀 EJECUTAR INYECCIÓN 2.5'; }
+    finally { btn.disabled = false; btn.textContent = '✨ INYECTAR CON COPY DE LUJO'; }
 }
 
 async function cargarTodo(){
-    await Promise.all([cargarStats(), cargarTopClics(), cargarProductos(), cargarAudit()]);
+    await Promise.all([cargarStats(), cargarProductos(), cargarAudit()]);
 }
 
 cargarTodo();
-setInterval(cargarStats,    30000);
-setInterval(cargarTopClics, 60000);
-setInterval(cargarAudit,    60000);
+setInterval(cargarStats, 30000);
 </script>
 </body>
 </html>
