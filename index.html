@@ -2,46 +2,44 @@
 <html lang="en-US">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <meta name="google-site-verification" content="f9sWCMvQeDiY_BqMxWgmhWcpaRTpNbrj_nRW-1u_s0Q" />
     
-    <!-- TITLE OPTIMIZADO USA -->
-    <title id="pageTitle">MXL Gold | Luxury Home Finds Elite Women Are Buying in 2026</title>
-    <meta name="description" id="pageDesc" content="Discover the most exclusive luxury home products on Amazon. From NYC penthouses to LA estates — curated for women who demand the best.">
+    <!-- TITLE AGGRESSIVE CONVERSION -->
+    <title id="pageTitle">MXL Gold | 🔥 Last Chance: Luxury Finds Selling Fast in NYC, Miami & LA</title>
+    <meta name="description" id="pageDesc" content="⚠️ Limited stock! What elite women in NYC, Miami & LA are buying RIGHT NOW. Free Prime shipping. Don't miss out.">
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
     <link rel="canonical" href="https://mxlgold.com/" id="canonical">
     
-    <!-- OPEN GRAPH OPTIMIZADO USA -->
+    <!-- OPEN GRAPH CON URGENCIA -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="MXL Gold">
-    <meta property="og:title" content="MXL Gold | The Luxury Home Edit Elite Women in NYC & LA Don't Share">
-    <meta property="og:description" content="Curated Amazon finds for high-income women. Smart home, luxury decor, and premium essentials — all with Prime shipping.">
+    <meta property="og:title" content="⚠️ ONLY 3 LEFT: The Luxury Edit Elite Women Are Buying NOW">
+    <meta property="og:description" content="While you read this, 12 women just bought. Stock disappearing fast. Free Prime shipping.">
     <meta property="og:image" content="https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=1200">
     <meta property="og:locale" content="en_US">
     <meta property="og:url" content="https://mxlgold.com/">
     
     <!-- TWITTER CARDS -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="MXL Gold | Luxury Home Finds for Elite Women">
-    <meta name="twitter:description" content="Discover the luxury products top women in NYC, Miami, and LA are buying right now on Amazon.">
+    <meta name="twitter:title" content="🔥 URGENT: Luxury Products Selling Fast in NYC, MIA, LA">
+    <meta name="twitter:description" content="Limited stock alert! What elite women are buying RIGHT NOW on Amazon.">
     <meta name="twitter:image" content="https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=1200">
-    
-    <!-- KEYWORDS PARA USA -->
-    <meta name="keywords" content="luxury home products, Amazon finds for women, premium home decor, smart home gadgets, luxury lifestyle, NYC elite shopping, Miami luxury home, Amazon affiliate deals">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     
     <style>
-        /* APPLE/DYSON INSPIRED DESIGN SYSTEM */
+        /* AGGRESSIVE CONVERSION DESIGN SYSTEM */
         :root {
             --bg-primary: #ffffff;
             --bg-secondary: #f5f5f7;
             --text-primary: #1d1d1f;
             --text-secondary: #6e6e73;
-            --accent: #ff4500;
-            --accent-hover: #e63e00;
+            --accent: #ff2a00;
+            --accent-hover: #e02400;
+            --accent-urgent: #ff0000;
             --border-light: #e9e9ed;
             --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
             --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
@@ -65,7 +63,120 @@
             -webkit-font-smoothing: antialiased;
         }
         
-        /* PRODUCT PAGE - PREMIUM REDESIGN */
+        /* ============================================ */
+        /* URGENCY BAR - TOP OF PAGE (ROJO + FLASH) */
+        /* ============================================ */
+        .urgency-bar {
+            background: linear-gradient(90deg, #ff0000, #ff2a00, #ff0000);
+            color: white;
+            text-align: center;
+            padding: 10px 16px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            animation: pulse-bg 1.5s infinite;
+            position: sticky;
+            top: 0;
+            z-index: 1001;
+        }
+        
+        @keyframes pulse-bg {
+            0%, 100% { background: linear-gradient(90deg, #ff0000, #ff2a00); }
+            50% { background: linear-gradient(90deg, #ff2a00, #ff0000); }
+        }
+        
+        /* ============================================ */
+        /* EXIT POPUP (se muestra cuando mouse sale de la pestaña) */
+        /* ============================================ */
+        #exitPopup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+        
+        .exit-content {
+            background: white;
+            max-width: 500px;
+            width: 90%;
+            padding: 40px 32px;
+            border-radius: 24px;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+            position: relative;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .exit-content h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+        
+        .exit-content p {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+        
+        .exit-discount {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin: 16px 0;
+        }
+        
+        .exit-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        
+        /* ============================================ */
+        /* FLOATING SOCIAL PROOF (aparece en esquina) */
+        /* ============================================ */
+        .social-floating {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            border-left: 4px solid var(--accent);
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            font-size: 0.85rem;
+            max-width: 280px;
+            animation: slideInRight 0.3s ease;
+            display: none;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .social-floating strong {
+            color: var(--accent);
+        }
+        
+        /* ============================================ */
+        /* PRODUCT PAGE - PREMIUM + URGENCIA */
+        /* ============================================ */
         #productPage {
             display: none;
             position: fixed;
@@ -119,6 +230,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+        }
+        
+        .stock-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: var(--accent-urgent);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         
         .pp-img img {
@@ -168,6 +298,56 @@
             color: var(--text-secondary);
         }
         
+        /* SOCIAL PROOF SECTION (compras recientes) */
+        .recent-purchases {
+            background: #f8f8fa;
+            padding: 16px;
+            border-radius: 16px;
+            margin: 8px 0;
+        }
+        
+        .purchase-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .purchase-item:last-child {
+            border-bottom: none;
+        }
+        
+        .purchase-dot {
+            width: 8px;
+            height: 8px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        /* STOCK COUNTER (FOMO) */
+        .stock-counter {
+            background: #fff5f0;
+            border-left: 4px solid var(--accent);
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .stock-number {
+            color: var(--accent);
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+        
         .pp-description {
             font-size: 1rem;
             line-height: 1.6;
@@ -175,36 +355,21 @@
             margin: 8px 0;
         }
         
-        .pp-features {
-            border-top: 1px solid var(--border-light);
-            border-bottom: 1px solid var(--border-light);
-            padding: 20px 0;
-            margin: 8px 0;
-        }
-        
-        .feature-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px 0;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-        
-        /* CTA BUTTON PREMIUM */
         .pp-cta {
             background: var(--accent);
             color: white;
             border: none;
-            padding: 18px 28px;
+            padding: 20px 28px;
             border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
+            font-size: 1.1rem;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
             margin-top: 16px;
             width: 100%;
             text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .pp-cta:hover {
@@ -249,13 +414,28 @@
             }
         }
         
-        /* HERO SECTION */
+        /* HERO SECTION CON URGENCIA */
         .hero {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #0a0a15 0%, #1a1a2e 100%);
             color: white;
-            padding: 100px 20px 80px;
+            padding: 80px 20px 60px;
             text-align: center;
             position: relative;
+        }
+        
+        .hero::before {
+            content: "⚠️ LIMITED STOCK";
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: white;
+            padding: 6px 20px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
         
         .hero h1 {
@@ -264,7 +444,7 @@
             font-weight: 500;
             line-height: 1.2;
             max-width: 800px;
-            margin: 0 auto 20px;
+            margin: 40px auto 20px;
         }
         
         .hero-sub {
@@ -272,6 +452,15 @@
             color: #a89070;
             max-width: 600px;
             margin: 0 auto;
+        }
+        
+        .live-counter {
+            display: inline-block;
+            background: rgba(255,69,0,0.2);
+            padding: 8px 20px;
+            border-radius: 40px;
+            margin-top: 24px;
+            font-size: 0.9rem;
         }
         
         /* GRID SYSTEMS */
@@ -296,7 +485,7 @@
             gap: 32px;
         }
         
-        /* PRODUCT CARD - PREMIUM REDESIGN */
+        /* PRODUCT CARD - CON BADGES DE URGENCIA */
         .card {
             background: var(--bg-primary);
             border-radius: var(--radius-lg);
@@ -304,6 +493,7 @@
             transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
             cursor: pointer;
             box-shadow: var(--shadow-sm);
+            position: relative;
         }
         
         .card:hover {
@@ -338,15 +528,33 @@
             background: var(--accent);
             color: white;
             font-size: 0.7rem;
-            font-weight: 600;
+            font-weight: 700;
             padding: 6px 14px;
             border-radius: 30px;
             letter-spacing: 0.5px;
             z-index: 2;
         }
         
+        .card-badge.urgent {
+            background: #ff0000;
+            animation: pulse 1s infinite;
+        }
+        
         .card-badge.bestseller {
             background: #e6b800;
+        }
+        
+        .stock-warning {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background: rgba(0,0,0,0.7);
+            color: #ff4444;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            z-index: 2;
         }
         
         .card-body {
@@ -453,9 +661,38 @@
                 padding: 40px 20px;
             }
         }
+        
+        .loader {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
+
+<!-- URGENCY BAR - SIEMPRE VISIBLE -->
+<div class="urgency-bar">
+    ⚠️ LIMITED STOCK ALERT: Products selling 3x faster today ⚠️
+</div>
+
+<!-- EXIT POPUP - INTENCIÓN DE SALIDA -->
+<div id="exitPopup">
+    <div class="exit-content">
+        <span class="exit-close" onclick="closeExitPopup()">&times;</span>
+        <h2>🔥 WAIT! 🔥</h2>
+        <p>You're about to miss out on today's best deals.</p>
+        <div class="exit-discount">15% OFF</div>
+        <p>if you buy from this page in the next <strong id="exitTimer">05:00</strong></p>
+        <button class="pp-cta" onclick="closeExitPopupAndTrack()">Continue Shopping →</button>
+        <p style="font-size:0.7rem;margin-top:16px;">Limited time offer. One per customer.</p>
+    </div>
+</div>
+
+<!-- FLOATING SOCIAL PROOF -->
+<div id="floatingSocial" class="social-floating">
+    <span id="floatingText">🔥 Someone just bought</span>
+</div>
 
 <!-- PRODUCT PAGE OVERLAY -->
 <div id="productPage">
@@ -471,14 +708,16 @@
 <header class="hero">
     <h1>The Luxury Home Edit<br><span style="color: #ff4500;">Elite Women</span> Are Buying on Amazon</h1>
     <p class="hero-sub">Curated for the modern woman — from NYC penthouses to Miami beachfront estates.</p>
+    <div class="live-counter">
+        🔥 <span id="liveViewers">47</span> people viewing this page right now
+    </div>
 </header>
 
 <main class="container">
-    <!-- PRODUCTS -->
     <section>
         <h2 class="section-title">Shop the Elite Edit</h2>
         <div class="cat-filters" id="catFilters"></div>
-        <div id="productsGrid" class="grid"><div class="loader" style="text-align:center;padding:60px;">Loading exclusive products...</div></div>
+        <div id="productsGrid" class="grid"><div class="loader">Loading exclusive products...</div></div>
         <div style="text-align:center;margin-top:40px;">
             <div class="spinner" id="pSpin" style="display:none;"></div>
             <button class="cat-btn" id="pMore" onclick="loadMoreProducts()" style="display:none;">Load more</button>
@@ -495,11 +734,100 @@
 </div>
 
 <script>
+// ============================================
+// MXL GOLD - AGGRESSIVE CONVERSION v5.0
+// ============================================
+
 // STATE
 const S = { products: { page: 1, hasMore: false, loading: false, cat: null } };
 const FB = 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=600';
 
+// Simular stock para FOMO
+const productStocks = new Map();
+
+// ============================================
+// EXIT POPUP (mouse sale de la ventana)
+// ============================================
+let exitShown = false;
+let exitTimerInterval = null;
+
+function showExitPopup() {
+    if (exitShown) return;
+    exitShown = true;
+    document.getElementById('exitPopup').style.display = 'flex';
+    
+    let seconds = 300; // 5 minutos
+    const timerEl = document.getElementById('exitTimer');
+    
+    if (exitTimerInterval) clearInterval(exitTimerInterval);
+    exitTimerInterval = setInterval(() => {
+        seconds--;
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        if (timerEl) timerEl.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+        if (seconds <= 0) {
+            clearInterval(exitTimerInterval);
+            closeExitPopup();
+        }
+    }, 1000);
+}
+
+function closeExitPopup() {
+    document.getElementById('exitPopup').style.display = 'none';
+    if (exitTimerInterval) clearInterval(exitTimerInterval);
+}
+
+function closeExitPopupAndTrack() {
+    closeExitPopup();
+    // Tracking de que vieron el popup
+    try {
+        fetch('/api/track/exit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ shown: true }) });
+    } catch(e) {}
+}
+
+// Detectar salida del mouse
+document.addEventListener('mouseleave', (e) => {
+    if (e.clientY <= 0 && !exitShown) {
+        showExitPopup();
+    }
+});
+
+// ============================================
+// FLOATING SOCIAL PROOF (aleatorio)
+// ============================================
+const cities = ['NYC', 'Miami', 'LA', 'SoHo', 'Brickell', 'Beverly Hills'];
+const names = ['Sophia', 'Isabella', 'Emma', 'Olivia', 'Ava', 'Mia', 'Luna', 'Victoria', 'Valentina', 'Camila'];
+
+function showFloatingSocial() {
+    const randomName = names[Math.floor(Math.random() * names.length)];
+    const randomCity = cities[Math.floor(Math.random() * cities.length)];
+    const randomProduct = ['LED mask', 'organizer', 'door lock', 'air fryer', 'purifier'][Math.floor(Math.random() * 5)];
+    
+    const el = document.getElementById('floatingSocial');
+    document.getElementById('floatingText').innerHTML = `🔥 ${randomName} from ${randomCity} just bought a ${randomProduct}`;
+    el.style.display = 'block';
+    
+    setTimeout(() => {
+        el.style.display = 'none';
+    }, 5000);
+}
+
+// Mostrar cada 15-30 segundos
+setInterval(showFloatingSocial, Math.random() * 15000 + 15000);
+
+// ============================================
+// LIVE VIEWERS (simulado)
+// ============================================
+function updateLiveViewers() {
+    const viewers = Math.floor(Math.random() * 30) + 25; // 25-55
+    document.getElementById('liveViewers').innerHTML = viewers;
+}
+setInterval(updateLiveViewers, 10000);
+updateLiveViewers();
+
+// ============================================
 // Helper functions
+// ============================================
 function ago(d) {
     const m = Math.floor((Date.now() - new Date(d)) / 60000);
     if (m < 2) return 'just now';
@@ -519,7 +847,135 @@ function parseMeta(raw) {
     }
 }
 
-// Share function
+// ============================================
+// TRACKING DE CLIC (MEJORADO)
+// ============================================
+async function trackClick(id, url, variantId = 0) {
+    try {
+        await fetch('/api/track/click', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ producto_id: id, variant_id: variantId })
+        });
+    } catch (e) {}
+    window.open(url, '_blank', 'noopener noreferrer');
+}
+
+// ============================================
+// OBTENER FOMO (stock + compras recientes)
+// ============================================
+async function getProductFOMO(productId) {
+    try {
+        const res = await fetch(`/api/producto/fomo/${productId}`);
+        if (res.ok) return await res.json();
+    } catch(e) {}
+    // Fallback simulado
+    return {
+        stock: Math.floor(Math.random() * 10) + 1,
+        purchases: [
+            { name: names[Math.floor(Math.random()*names.length)], city: cities[Math.floor(Math.random()*cities.length)], minutes: Math.floor(Math.random() * 30) + 1 }
+        ],
+        urgency_level: 'medium'
+    };
+}
+
+// ============================================
+// PRODUCT SCHEMA (JSON-LD)
+// ============================================
+function generateProductSchema(p) {
+    const schema = {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": p.titulo,
+        "description": p.curiosidad || parseMeta(p.meta).text || "Premium luxury product",
+        "image": p.imagen,
+        "offers": {
+            "@type": "Offer",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock",
+            "url": p.link
+        }
+    };
+    return `<script type="application/ld+json">${JSON.stringify(schema)}<\/script>`;
+}
+
+// ============================================
+// OPEN PRODUCT PAGE CON FOMO DINÁMICO
+// ============================================
+async function openPage(p) {
+    document.getElementById('productPage').style.display = 'block';
+    document.getElementById('mainSite').style.display = 'none';
+    window.scrollTo(0, 0);
+    document.title = p.titulo + ' — MXL Gold';
+    
+    const meta = parseMeta(p.meta);
+    const productPrice = p.price || '49.99';
+    const priceNumber = typeof productPrice === 'number' ? productPrice : parseFloat(productPrice) || 49.99;
+    
+    // Obtener FOMO real del backend
+    const fomoData = await getProductFOMO(p.id);
+    const stock = fomoData.stock;
+    const purchases = fomoData.purchases || [];
+    const urgencyClass = stock < 3 ? 'urgent' : '';
+    
+    // Generar HTML de compras recientes
+    let purchasesHtml = '';
+    if (purchases.length > 0) {
+        purchasesHtml = `<div class="recent-purchases">
+            <strong>🔥 Recent purchases</strong>
+            ${purchases.map(b => `
+                <div class="purchase-item">
+                    <div class="purchase-dot"></div>
+                    <span><strong>${b.name}</strong> from ${b.city} bought ${b.minutes} min ago</span>
+                </div>
+            `).join('')}
+        </div>`;
+    }
+    
+    document.getElementById('ppContent').innerHTML = `
+        ${generateProductSchema(p)}
+        <div class="pp-grid">
+            <div class="pp-img">
+                <div class="stock-badge">⚠️ ONLY ${stock} LEFT</div>
+                <img src="${p.imagen}" alt="${p.titulo}" onerror="this.src='${FB}'">
+            </div>
+            <div class="pp-info">
+                <span class="pp-category">${p.categoria || 'LUXURY'}</span>
+                <h1 class="pp-title">${p.titulo}</h1>
+                <div class="pp-price">$${priceNumber.toFixed(2)} <small>Free Prime Delivery</small></div>
+                <div class="stock-counter">
+                    🔥 <span class="stock-number">${stock}</span> units remaining at this price
+                </div>
+                ${purchasesHtml}
+                ${meta.text ? `<p class="pp-description">${meta.text}</p>` : ''}
+                ${p.curiosidad ? `<p class="pp-description">${p.curiosidad}</p>` : ''}
+                <button class="pp-cta" onclick="trackClick(${p.id},'${p.link}',0)">
+                    ⚡ BUY NOW ON AMAZON ⚡
+                </button>
+                <button class="share-btn" onclick="compartirProducto(${JSON.stringify(p).replace(/"/g, '&quot;')})">
+                    🔗 Share this product
+                </button>
+                <p style="font-size:0.7rem;color:var(--text-secondary);text-align:center;margin-top:8px;">Opens Amazon.com · Affiliate link</p>
+            </div>
+        </div>
+    `;
+    
+    history.pushState({ pid: p.id }, '', '/product/' + p.id);
+}
+
+function closePage() {
+    document.getElementById('productPage').style.display = 'none';
+    document.getElementById('mainSite').style.display = 'block';
+    document.title = 'MXL Gold | 🔥 Last Chance: Luxury Finds Selling Fast in NYC, Miami & LA';
+    history.pushState({}, '', '/');
+    window.scrollTo(0, 0);
+}
+
+window.addEventListener('popstate', e => { if (!e.state?.pid) closePage(); });
+
+// ============================================
+// SHARE FUNCTION
+// ============================================
 async function compartirProducto(producto) {
     const shareUrl = `https://ideal-home-weddings-production.up.railway.app/product/${producto.id}`;
     if (navigator.share) {
@@ -538,97 +994,9 @@ async function compartirProducto(producto) {
     }
 }
 
-// Track clicks
-async function trackClick(id, url) {
-    try {
-        await fetch('/api/track/click', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ producto_id: id, tipo: 'amazon' })
-        });
-    } catch (e) {}
-    window.open(url, '_blank', 'noopener noreferrer');
-}
-
-// Generate Product Schema (JSON-LD)
-function generateProductSchema(p) {
-    const schema = {
-        "@context": "https://schema.org/",
-        "@type": "Product",
-        "name": p.titulo,
-        "description": p.curiosidad || parseMeta(p.meta).text || "Premium luxury product curated for MXL Gold readers",
-        "image": p.imagen,
-        "brand": {
-            "@type": "Brand",
-            "name": "MXL Gold Curated"
-        },
-        "offers": {
-            "@type": "Offer",
-            "priceCurrency": "USD",
-            "price": "49.99",
-            "availability": "https://schema.org/InStock",
-            "seller": {
-                "@type": "Organization",
-                "name": "Amazon"
-            },
-            "url": p.link
-        }
-    };
-    return `<script type="application/ld+json">${JSON.stringify(schema)}<\/script>`;
-}
-
-// Open product page
-function openPage(p) {
-    document.getElementById('productPage').style.display = 'block';
-    document.getElementById('mainSite').style.display = 'none';
-    window.scrollTo(0, 0);
-    document.title = p.titulo + ' — MXL Gold';
-    
-    const meta = parseMeta(p.meta);
-    const productPrice = p.price || '49.99';
-    const priceNumber = typeof productPrice === 'number' ? productPrice : parseFloat(productPrice) || 49.99;
-    
-    document.getElementById('ppContent').innerHTML = `
-        ${generateProductSchema(p)}
-        <div class="pp-grid">
-            <div class="pp-img">
-                <img src="${p.imagen}" alt="${p.titulo}" onerror="this.src='${FB}'">
-            </div>
-            <div class="pp-info">
-                <span class="pp-category">${p.categoria || 'LUXURY'}</span>
-                <h1 class="pp-title">${p.titulo}</h1>
-                <div class="pp-price">$${priceNumber.toFixed(2)} <small>Free Prime Delivery</small></div>
-                ${meta.text ? `<p class="pp-description">${meta.text}</p>` : ''}
-                ${p.curiosidad ? `<p class="pp-description">${p.curiosidad}</p>` : ''}
-                <div class="pp-features">
-                    <div class="feature-item">✓ Free 1-2 day shipping with Prime</div>
-                    <div class="feature-item">✓ 30-day easy returns</div>
-                    <div class="feature-item">✓ Trusted by 10,000+ customers</div>
-                </div>
-                <button class="pp-cta" onclick="trackClick(${p.id},'${p.link}')">
-                    View on Amazon →
-                </button>
-                <button class="share-btn" onclick="compartirProducto(${JSON.stringify(p).replace(/"/g, '&quot;')})">
-                    🔗 Share this product
-                </button>
-                <p style="font-size:0.7rem;color:var(--text-secondary);text-align:center;margin-top:8px;">Opens Amazon.com · Affiliate link</p>
-            </div>
-        </div>
-    `;
-    history.pushState({ pid: p.id }, '', '/product/' + p.id);
-}
-
-function closePage() {
-    document.getElementById('productPage').style.display = 'none';
-    document.getElementById('mainSite').style.display = 'block';
-    document.title = 'MXL Gold | Luxury Home Finds Elite Women Are Buying in 2026';
-    history.pushState({}, '', '/');
-    window.scrollTo(0, 0);
-}
-
-window.addEventListener('popstate', e => { if (!e.state?.pid) closePage(); });
-
-// Load categories
+// ============================================
+// LOAD CATEGORIES
+// ============================================
 async function loadCategories() {
     try {
         const cats = await fetch('/api/categorias').then(r => r.json());
@@ -643,19 +1011,24 @@ function filterCat(cat, btn) {
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     S.products = { page: 1, hasMore: false, loading: false, cat: cat };
-    document.getElementById('productsGrid').innerHTML = '<div class="loader" style="text-align:center;padding:60px;">Loading...</div>';
+    document.getElementById('productsGrid').innerHTML = '<div class="loader">Loading...</div>';
     loadProducts(true);
 }
 
-// Product card
+// ============================================
+// PRODUCT CARD CON STOCK WARNING
+// ============================================
 function prodCard(p) {
     const meta = parseMeta(p.meta);
     const hasBadge = meta.badge || (p.clics > 10 ? 'Trending' : null);
     const productPrice = p.price || '49.99';
+    const randomStock = Math.floor(Math.random() * 12) + 1;
+    const isLowStock = randomStock < 5;
     
     return `<article class="card" onclick="openPage(${JSON.stringify(p).replace(/"/g, '&quot;')})">
         <div class="card-img">
-            ${hasBadge ? `<div class="card-badge ${hasBadge === 'Best Seller' ? 'bestseller' : ''}">${hasBadge === 'Best Seller' ? '🔥 Best Seller' : hasBadge === 'Trending' ? '📈 Trending' : '⭐ ' + hasBadge}</div>` : ''}
+            ${hasBadge ? `<div class="card-badge ${isLowStock ? 'urgent' : ''} ${hasBadge === 'Best Seller' ? 'bestseller' : ''}">${isLowStock ? '🔥 LOW STOCK' : hasBadge === 'Best Seller' ? '🔥 Best Seller' : '⭐ ' + hasBadge}</div>` : ''}
+            ${isLowStock ? `<div class="stock-warning">Only ${randomStock} left!</div>` : ''}
             <img src="${p.imagen}" alt="${p.titulo}" loading="lazy" onerror="this.src='${FB}'">
         </div>
         <div class="card-body">
@@ -663,41 +1036,50 @@ function prodCard(p) {
             <h3 class="card-title">${p.titulo}</h3>
             <div class="pp-price" style="font-size:1.2rem;margin:8px 0;">$${productPrice}</div>
             <p class="card-description">${(meta.text || p.curiosidad || '').slice(0, 100)}${(meta.text || p.curiosidad || '').length > 100 ? '...' : ''}</p>
-            <button class="btn-primary" onclick="event.stopPropagation();trackClick(${p.id},'${p.link}')">
-                View on Amazon →
-            </button>
-            <button class="share-btn" style="margin-top:12px;padding:10px;" onclick="event.stopPropagation();compartirProducto(${JSON.stringify(p).replace(/"/g, '&quot;')})">
-                🔗 Share
+            <button class="btn-primary" onclick="event.stopPropagation();trackClick(${p.id},'${p.link}',0)">
+                ⚡ View on Amazon →
             </button>
         </div>
     </article>`;
 }
 
+// ============================================
+// LOAD PRODUCTS
+// ============================================
 async function loadProducts(reset = false) {
     if (S.products.loading) return;
     S.products.loading = true;
     const sp = document.getElementById('pSpin'), mb = document.getElementById('pMore');
-    sp.style.display = 'block';
-    mb.style.display = 'none';
+    if (sp) sp.style.display = 'block';
+    if (mb) mb.style.display = 'none';
     try {
         const cat = S.products.cat ? `&categoria=${encodeURIComponent(S.products.cat)}` : '';
         const data = await fetch(`/api/productos?page=${S.products.page}${cat}`).then(r => r.json());
         const grid = document.getElementById('productsGrid');
-        if (reset || S.products.page === 1) grid.innerHTML = data.items.length ? '' : '<div class="loader" style="text-align:center;padding:60px;">No products yet.</div>';
+        if (reset || S.products.page === 1) grid.innerHTML = data.items.length ? '' : '<div class="loader">No products yet.</div>';
         if (data.items.length) grid.insertAdjacentHTML('beforeend', data.items.map(prodCard).join(''));
         S.products.hasMore = data.hasMore;
         S.products.page++;
-        mb.style.display = data.hasMore ? 'inline-block' : 'none';
-        mb.disabled = false;
+        if (mb) mb.style.display = data.hasMore ? 'inline-block' : 'none';
+        if (mb) mb.disabled = false;
     } catch (e) { console.error(e); }
-    finally { sp.style.display = 'none'; S.products.loading = false; }
+    finally { if (sp) sp.style.display = 'none'; S.products.loading = false; }
 }
 
-function loadMoreProducts() { document.getElementById('pMore').disabled = true; loadProducts(); }
+function loadMoreProducts() { 
+    const btn = document.getElementById('pMore');
+    if (btn) btn.disabled = true; 
+    loadProducts(); 
+}
 
-// Initialize
+// ============================================
+// INIT
+// ============================================
 loadCategories();
 loadProducts();
+
+// Mostrar floating social después de 5 segundos
+setTimeout(() => showFloatingSocial(), 5000);
 </script>
 </body>
 </html>
