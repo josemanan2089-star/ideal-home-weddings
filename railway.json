@@ -2,7 +2,7 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "npm install --production --no-audit --no-fund --no-progress",
+    "buildCommand": "npm install --production --no-audit --no-fund --no-progress && npm run db:migrate",
     "nixpacksConfig": {
       "setup": {
         "aptPackages": ["curl", "ca-certificates"]
@@ -11,7 +11,7 @@
   },
   "deploy": {
     "startCommand": "node server.js",
-    "healthcheckPath": "/api/stats",
+    "healthcheckPath": "/api/health",
     "healthcheckTimeout": 120,
     "healthcheckInterval": 30,
     "restartPolicyType": "ON_FAILURE",
@@ -30,18 +30,11 @@
   "cron": [
     {
       "schedule": "0 */6 * * *",
-      "command": "node scripts/cleanup.js",
-      "path": "/"
+      "command": "node scripts/cleanup.js"
     },
     {
       "schedule": "0 0 * * *",
-      "command": "node scripts/ab-test-analyzer.js",
-      "path": "/"
-    },
-    {
-      "schedule": "*/15 * * * *",
-      "command": "curl -f https://tu-app.railway.app/api/health || exit 1",
-      "path": "/"
+      "command": "node scripts/ab-test-analyzer.js"
     }
   ]
 }
