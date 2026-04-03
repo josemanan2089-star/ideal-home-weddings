@@ -2,39 +2,17 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "npm install --production --no-audit --no-fund --no-progress && npm run db:migrate",
-    "nixpacksConfig": {
-      "setup": {
-        "aptPackages": ["curl", "ca-certificates"]
-      }
-    }
+    "buildCommand": "npm install --production --no-audit"
   },
   "deploy": {
-    "startCommand": "node server.js",
-    "healthcheckPath": "/api/health",
+    "startCommand": "node scripts/migrate.js && node server.js",
+    "healthcheckPath": "/health",
     "healthcheckTimeout": 120,
-    "healthcheckInterval": 30,
-    "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10,
-    "restartWindow": 300,
-    "numReplicas": 1,
-    "sleepApplication": false,
-    "timeout": 600
+    "restartPolicyType": "ON_FAILURE"
   },
   "env": {
     "NODE_ENV": "production",
     "NODE_VERSION": "18.x",
-    "NPM_CONFIG_PRODUCTION": "true",
     "NODE_OPTIONS": "--max-old-space-size=512"
-  },
-  "cron": [
-    {
-      "schedule": "0 */6 * * *",
-      "command": "node scripts/cleanup.js"
-    },
-    {
-      "schedule": "0 0 * * *",
-      "command": "node scripts/ab-test-analyzer.js"
-    }
-  ]
+  }
 }
