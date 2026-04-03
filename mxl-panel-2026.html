@@ -3,174 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMMANDER MXL — Panel v9.1.0 | AGGRESSIVE CONVERSION</title>
-    <meta name="robots" content="noindex, nofollow">
+    <title>COMMANDER MXL — Panel v9.5.0 | EDIT MODE</title>
     <style>
-        /* CSS Optimizado para el Celular de mxl */
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:system-ui,sans-serif;background:#0f0f1a;color:#fff;padding:15px;font-size:14px;}
         .header{background:linear-gradient(135deg,#1a1a2e,#2d2d44);padding:15px;border-radius:12px;margin-bottom:15px;border:1px solid #3d3d5c;}
         h1{font-size:1.1rem;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
         .v-badge{background:#8b5cf6;padding:2px 8px;border-radius:10px;font-size:10px;}
-        .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:15px;}
-        .stat-card{background:#1a1a2e;padding:15px;border-radius:10px;border:1px solid #2d2d44;text-align:center;}
-        .stat-num{font-size:1.5rem;font-weight:bold;color:#ff4500;}
-        .stat-label{font-size:10px;color:#c9a87b;text-transform:uppercase;margin-top:4px;}
-        .btn{width:100%;padding:12px;border-radius:8px;border:none;font-weight:bold;cursor:pointer;margin-bottom:8px;font-size:13px;transition: 0.3s;}
-        .btn:active{transform: scale(0.95);}
+        .btn{width:100%;padding:12px;border-radius:8px;border:none;font-weight:bold;cursor:pointer;margin-bottom:8px;font-size:13px;transition: 0.2s;}
+        .btn:active{transform: scale(0.98);}
         .btn-purple{background:#8b5cf6;color:#fff;}
         .btn-green{background:#059669;color:#fff;}
-        .btn-amber{background:#d97706;color:#fff;}
+        .btn-blue{background:#2563eb;color:#fff; padding: 8px; font-size: 11px;}
+        .btn-red{background:#dc2626;color:#fff; padding: 8px; font-size: 11px;}
         .panel{background:#1a1a2e;border-radius:12px;padding:15px;margin-bottom:15px;border:1px solid #2d2d44;}
-        .panel-head{color:#c9a87b;font-size:0.9rem;margin-bottom:10px;font-weight:bold;display:flex;justify-content:space-between;}
-        .audit-log{background:#0d1117;padding:10px;border-radius:8px;font-family:monospace;font-size:11px;max-height:200px;overflow-y:auto;color:#86efac;}
+        .panel-head{color:#c9a87b;font-size:0.9rem;margin-bottom:10px;font-weight:bold;}
+        .prod-row{border-bottom:1px solid #222; padding:15px 0; display: flex; flex-direction: column; gap: 10px;}
+        .prod-info b{color: #fff; font-size: 14px;}
+        .prod-meta{display: flex; gap: 10px; color: #10b981; font-weight: bold; font-size: 12px;}
+        .actions{display: flex; gap: 8px;}
         .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:1000;padding:20px;overflow-y:auto;}
-        .modal-box{background:#1a1a2e;padding:20px;border-radius:15px;border:1px solid #8b5cf6;max-width:500px;margin:auto;}
-        label{font-size: 11px; color: #c9a87b; margin-left: 5px; text-transform: uppercase;}
-        input, select{width:100%;padding:12px;margin:5px 0 15px;background:#2d2d44;border:1px solid #3d3d5c;color:#fff;border-radius:8px;font-size: 14px;}
+        .modal-box{background:#1a1a2e;padding:20px;border-radius:15px;border:1px solid #8b5cf6; max-width: 500px; margin: auto;}
+        label{font-size: 11px; color: #c9a87b; text-transform: uppercase; display: block; margin-top: 10px;}
+        input, select{width:100%;padding:12px;margin:5px 0;background:#2d2d44;border:1px solid #3d3d5c;color:#fff;border-radius:8px;}
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>🎖️ COMMANDER MXL <span class="v-badge">v9.1.0</span></h1>
-    <div id="aff" style="font-size:12px; color:#10b981; margin-bottom:10px;">📡 Conectado: <span id="tagLabel">...</span></div>
-    <button class="btn btn-purple" onclick="abrirModal()">💉 INYECTAR PRODUCTO</button>
-    <button class="btn btn-amber" onclick="cargarTodo()">🔄 REFRESCAR DATOS</button>
-</div>
-
-<div class="stats-grid">
-    <div class="stat-card"><div class="stat-num" id="sProds">0</div><div class="stat-label">Productos</div></div>
-    <div class="stat-card"><div class="stat-num" id="sClics">0</div><div class="stat-label">Clics Hoy</div></div>
-    <div class="stat-card"><div class="stat-num" id="sConv">0%</div><div class="stat-label">Conversión</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:#8b5cf6;" id="sPremium">USA</div><div class="stat-label">Mercado</div></div>
+    <h1>🎖️ COMMANDER MXL <span class="v-badge">v9.5.0</span></h1>
+    <button class="btn btn-purple" onclick="abrirModalInyectar()">💉 INYECTAR NUEVO PRODUCTO</button>
+    <button class="btn btn-green" onclick="cargarTodo()">🔄 REFRESCAR INVENTARIO</button>
 </div>
 
 <div class="panel">
-    <div class="panel-head">📋 LOG DE ACTIVIDAD</div>
-    <div class="audit-log" id="auditLog">Esperando actividad...</div>
+    <div class="panel-head">📦 INVENTARIO EDITABLE (USA MARKET)</div>
+    <div id="prodList">Cargando productos...</div>
 </div>
 
-<div class="panel">
-    <div class="panel-head">📦 INVENTARIO (PRECIOS EN VIVO)</div>
-    <div id="prodList" style="font-size:12px;">Cargando...</div>
-</div>
-
-<!-- Modal Inyectar con campo de PRECIO -->
+<!-- MODAL INYECTAR / EDITAR -->
 <div id="modal" class="modal">
     <div class="modal-box">
-        <h3 style="margin-bottom: 15px; color: #8b5cf6;">💉 Inyección de Lujo</h3>
+        <h3 id="modalTitle" style="color: #8b5cf6;">💉 Inyectar Producto</h3>
+        <input type="hidden" id="fId">
         
-        <label>Nombre del Producto</label>
-        <input type="text" id="fTitle" placeholder="Ej: August Smart Lock Pro">
+        <label>Título del Producto</label>
+        <input type="text" id="fTitle" placeholder="Ej: August Smart Lock">
         
-        <label>URL de Amazon</label>
-        <input type="url" id="fUrl" placeholder="https://www.amazon.com/dp/...">
+        <label>💰 Precio USD</label>
+        <input type="number" id="fPrice" step="0.01">
         
-        <label>💰 Precio Real (USD)</label>
-        <input type="number" id="fPrice" step="0.01" placeholder="Ej: 199.99">
+        <label>URL Amazon</label>
+        <input type="url" id="fUrl">
         
-        <label>URL de Imagen</label>
-        <input type="url" id="fImg" placeholder="https://m.media-amazon.com/...">
-        
+        <label>URL Imagen</label>
+        <input type="url" id="fImg">
+
         <label>Categoría</label>
         <select id="fCat">
             <option value="LUXURY">LUXURY</option>
             <option value="SMART HOME">SMART HOME</option>
-            <option value="KITCHEN GOURMET">KITCHEN GOURMET</option>
             <option value="TECH PREMIUM">TECH PREMIUM</option>
         </select>
         
-        <button class="btn btn-purple" id="btnInyectar" onclick="inyectar()">INYECTAR YA</button>
-        <button class="btn" style="background:#444;" onclick="cerrarModal()">Cerrar</button>
+        <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <button class="btn btn-purple" id="btnGuardar" onclick="guardar()">GUARDAR CAMBIOS</button>
+            <button class="btn" style="background:#444;" onclick="cerrarModal()">CANCELAR</button>
+        </div>
     </div>
 </div>
 
 <script>
+    let productosCache = [];
+
     async function cargarTodo() {
         try {
-            const stats = await fetch('/api/stats').then(r => r.json());
-            document.getElementById('sProds').innerText = stats.productos || 0;
-            document.getElementById('sClics').innerText = stats.clicsHoy || 0;
-            document.getElementById('sConv').innerText = (stats.conversion_rate_avg || 0) + '%';
-            document.getElementById('tagLabel').innerText = stats.affiliateTag || 'farolaldiauno-20';
-
-            const prods = await fetch('/api/productos').then(r => r.json());
+            const res = await fetch('/api/productos').then(r => r.json());
+            productosCache = res.items || [];
             const list = document.getElementById('prodList');
-            list.innerHTML = (prods.items || []).map(p => `
-                <div style="border-bottom:1px solid #222; padding:10px 0; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <b>${p.titulo.substring(0,25)}...</b><br>
-                        <small style="color:#10b981;">💰 $${p.precio || '49.99'}</small> | 
-                        <small style="color:#ff4500;">🔥 ${p.clics || 0} clics</small>
-                    </div>
-                    <button onclick="eliminar(${p.id})" style="background: none; border: none; color: #dc2626; font-size: 18px; padding: 5px;">🗑️</button>
-                </div>
-            `).join('') || 'No hay productos aún.';
-
-            const logs = await fetch('/api/admin/audit?limit=10').then(r => r.json());
-            document.getElementById('auditLog').innerHTML = logs.map(l => 
-                `<div>> ${l.accion}: ${l.titulo ? l.titulo.substring(0,20) : ''}</div>`
-            ).join('') || 'Sin registros.';
             
-        } catch(e) { console.error("Error cargando panel:", e); }
+            list.innerHTML = productosCache.map(p => `
+                <div class="prod-row">
+                    <div class="prod-info">
+                        <b>${p.titulo}</b>
+                        <div class="prod-meta">
+                            <span>💰 $${p.precio}</span>
+                            <span style="color:#ff4500;">🔥 ${p.clics || 0} clics</span>
+                            <span style="color:#8b5cf6;">📂 ${p.categoria}</span>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-blue" onclick="prepararEdicion(${p.id})">📝 EDITAR PRECIO/TEXTO</button>
+                        <button class="btn btn-red" onclick="eliminar(${p.id})">🗑️ BORRAR</button>
+                    </div>
+                </div>
+            `).join('') || 'No hay productos.';
+        } catch(e) { alert("Error al cargar"); }
     }
 
-    function abrirModal() { document.getElementById('modal').style.display = 'block'; }
-    function cerrarModal() { 
-        document.getElementById('modal').style.display = 'none';
-        document.getElementById('fTitle').value = '';
-        document.getElementById('fUrl').value = '';
-        document.getElementById('fPrice').value = '';
-        document.getElementById('fImg').value = '';
+    function abrirModalInyectar() {
+        document.getElementById('modalTitle').innerText = "💉 Inyectar Nuevo";
+        document.getElementById('fId').value = "";
+        document.getElementById('fTitle').value = "";
+        document.getElementById('fPrice').value = "";
+        document.getElementById('fUrl').value = "";
+        document.getElementById('fImg').value = "";
+        document.getElementById('modal').style.display = 'block';
     }
 
-    async function inyectar() {
-        const btn = document.getElementById('btnInyectar');
-        const precio = document.getElementById('fPrice').value;
+    function prepararEdicion(id) {
+        const p = productosCache.find(item => item.id == id);
+        if(!p) return;
         
-        if(!precio) { alert("⚠️ mxl, falta el precio socio!"); return; }
+        document.getElementById('modalTitle').innerText = "📝 Editando Producto";
+        document.getElementById('fId').value = p.id;
+        document.getElementById('fTitle').value = p.titulo;
+        document.getElementById('fPrice').value = p.precio;
+        document.getElementById('fUrl').value = p.link;
+        document.getElementById('fImg').value = p.imagen;
+        document.getElementById('fCat').value = p.categoria;
+        document.getElementById('modal').style.display = 'block';
+    }
 
-        btn.disabled = true;
-        btn.innerText = "INYECTANDO...";
-
+    async function guardar() {
+        const id = document.getElementById('fId').value;
         const payload = {
-            url: document.getElementById('fUrl').value,
+            id: id || null,
             tituloReal: document.getElementById('fTitle').value,
+            url: document.getElementById('fUrl').value,
+            precio: document.getElementById('fPrice').value,
             imagenUrl: document.getElementById('fImg').value,
-            categoria: document.getElementById('fCat').value,
-            precio: precio,
-            seccion: 'buying_now'
+            categoria: document.getElementById('fCat').value
         };
 
-        try {
-            const res = await fetch('/api/commander/inject', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
-            }).then(r => r.json());
-            
-            if(res.success) {
-                alert("✅ Producto de lujo inyectado con precio $" + precio);
-                cerrarModal();
-                cargarTodo();
-            } else {
-                alert("❌ Error: " + res.error);
-            }
-        } catch(e) {
-            alert("❌ Error de conexión");
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "INYECTAR YA";
+        const endpoint = id ? `/api/productos/${id}` : '/api/commander/inject';
+        const method = id ? 'PUT' : 'POST';
+
+        const res = await fetch(endpoint, {
+            method: method,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        }).then(r => r.json());
+
+        if(res.success) {
+            alert("✅ ¡Hecho, mxl!");
+            cerrarModal();
+            cargarTodo();
+        } else {
+            alert("❌ Falló: " + res.error);
         }
     }
 
     async function eliminar(id) {
-        if(!confirm("¿Seguro que quieres borrar este producto, mxl?")) return;
-        await fetch(`/api/productos/${id}`, { method: 'DELETE' });
-        cargarTodo();
+        if(confirm("¿Seguro, socio?")) {
+            await fetch(`/api/productos/${id}`, { method: 'DELETE' });
+            cargarTodo();
+        }
     }
 
+    function cerrarModal() { document.getElementById('modal').style.display = 'none'; }
+    
     cargarTodo();
 </script>
 </body>
