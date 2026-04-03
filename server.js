@@ -1,7 +1,7 @@
-// ============================================
-// MXL GOLD v10.0 — ELITE CONVERSION ENGINE
-// INGENIERÍA DE ALTO RENDIMIENTO PARA AMAZON USA
-// ============================================
+// ============================================================
+// MXL GOLD v11.0 — ELITE CONVERSION & LEAD ENGINE
+// OPTIMIZADO PARA DINERO REAL Y CAPTURA DE CLIENTES VIP
+// ============================================================
 
 const express = require('express');
 const path = require('path');
@@ -15,16 +15,13 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const AFFILIATE_TAG = process.env.AMAZON_AFFILIATE_TAG || 'farolaldiauno-20';
 
-// Configuración de Base de Datos con Pool Optimizado
 const db = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false },
     max: 30,
-    idleTimeoutMillis: 10000,
-    connectionTimeoutMillis: 5000
+    idleTimeoutMillis: 10000
 });
 
-// Middlewares de Guerra (Performance & Security)
 app.use(compression());
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
@@ -32,11 +29,11 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.set('trust proxy', 1);
 
 // ============================================================
-// 📊 ESQUEMA DE DATOS DINÁMICO (AUTO-PARCHEO v10.0)
+// 📊 ESTRUCTURA DE DATOS v11.0 (CON TABLA DE LEADS)
 // ============================================================
 async function initDB() {
     try {
-        // 1. Crear tabla si no existe
+        // Tabla de Productos
         await db.query(`
             CREATE TABLE IF NOT EXISTS articulos (
                 id BIGSERIAL PRIMARY KEY,
@@ -55,160 +52,117 @@ async function initDB() {
             );
         `);
 
-        // 2. PARCHEO DINÁMICO: Agrega columnas si vienes de una versión vieja
+        // NUEVA TABLA: Captura de Emails VIP
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS leads_vip (
+                id BIGSERIAL PRIMARY KEY,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                origen VARCHAR(100) DEFAULT 'Popup VIP',
+                fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        // Parcheo de columnas por seguridad
         await db.query(`ALTER TABLE articulos ADD COLUMN IF NOT EXISTS impresiones INT DEFAULT 0`);
         await db.query(`ALTER TABLE articulos ADD COLUMN IF NOT EXISTS ctr DECIMAL(12,8) DEFAULT 0`);
-        await db.query(`ALTER TABLE articulos ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE`);
         
-        // 3. Índices para velocidad de carga
-        await db.query(`CREATE INDEX IF NOT EXISTS idx_articulos_performance ON articulos (is_featured DESC, ctr DESC, clics DESC)`);
-        
-        console.log('✅ MOTOR MXL GOLD v10.0: BASE DE DATOS OPTIMIZADA Y ACTUALIZADA');
+        console.log('✅ ENGINE v11.0: BASE DE DATOS Y TABLA DE LEADS LISTAS');
     } catch (err) {
         console.error('❌ FATAL ERROR DB:', err.message);
     }
 }
 
 // ============================================================
-// 💰 REDIRECCIÓN INTELIGENTE (SUBTAGS DE DINERO REAL)
+// 📧 ENDPOINT: CAPTURA DE CORREOS VIP
 // ============================================================
-app.get('/go/:id', async (req, res) => {
-    const { id } = req.params;
-    const sessionID = Math.random().toString(36).substring(2, 8);
-    const ts = Date.now();
+app.post('/api/subscribe', async (req, res) => {
+    const { email } = req.body;
+    if (!email || !email.includes('@')) return res.status(400).json({ success: false });
 
     try {
-        const result = await db.query(`
-            UPDATE articulos 
-            SET clics = clics + 1,
-                ctr = CASE 
-                    WHEN impresiones > 0 THEN (clics + 1)::decimal / NULLIF(impresiones, 0)
-                    ELSE 0 
-                END
-            WHERE id = $1 
-            RETURNING link, titulo
-        `, [id]);
-
-        if (result.rows.length > 0) {
-            let url = result.rows[0].link;
-            const prodRef = result.rows[0].titulo.substring(0, 10).replace(/[^a-z0-9]/gi, '_');
-            const separator = url.includes('?') ? '&' : '?';
-            const subtag = `mxl_${prodRef}_${sessionID}_${ts}`;
-            const finalUrl = `${url}${separator}tag=${AFFILIATE_TAG}&ascsubtag=${subtag}`;
-            res.redirect(302, finalUrl);
-        } else {
-            res.status(404).redirect('/');
-        }
-    } catch (e) {
-        res.status(500).redirect('/');
-    }
-});
-
-// ============================================================
-// 👀 TRACKING DE IMPRESIONES (DATA PARA CRECIMIENTO)
-// ============================================================
-app.post('/api/track/impression', async (req, res) => {
-    const { id } = req.body;
-    if (!id) return res.status(400).send();
-    try {
-        await db.query(`
-            UPDATE articulos 
-            SET impresiones = impresiones + 1,
-                ctr = CASE 
-                    WHEN (impresiones + 1) > 0 THEN clics::decimal / (impresiones + 1)
-                    ELSE 0 
-                END
-            WHERE id = $1
-        `, [id]);
-        res.json({ success: true });
-    } catch (e) {
-        res.status(500).send();
-    }
-});
-
-// ============================================================
-// 🏆 API PRODUCTOS (ORDEN DE CONVERSIÓN AGRESIVA)
-// ============================================================
-app.get('/api/productos', async (req, res) => {
-    try {
-        const result = await db.query(`
-            SELECT id, titulo, imagen, categoria, precio, clics, impresiones, ctr, is_featured
-            FROM articulos 
-            WHERE status = 'active' 
-            ORDER BY is_featured DESC, ctr DESC, clics DESC, fecha DESC
-            LIMIT 100
-        `);
-        res.json({ items: result.rows });
-    } catch (e) {
-        res.status(500).json({ items: [] });
-    }
-});
-
-// ============================================================
-// 💉 PANEL COMMANDER (CRUD SEGURO)
-// ============================================================
-app.post('/api/commander/inject', async (req, res) => {
-    const { tituloReal, imagenUrl, categoria, url, precio } = req.body;
-    try {
-        const id = Date.now();
-        await db.query(`
-            INSERT INTO articulos (id, titulo, imagen, categoria, link, precio) 
-            VALUES ($1, $2, $3, $4, $5, $6)
-        `, [id, tituloReal, imagenUrl, categoria, url, precio || 49.99]);
-        res.json({ success: true, id });
-    } catch (e) {
-        res.status(500).json({ success: false, error: e.message });
-    }
-});
-
-app.put('/api/productos/:id', async (req, res) => {
-    const { id } = req.params;
-    const { tituloReal, precio, url, imagenUrl, categoria, is_featured } = req.body;
-    try {
-        await db.query(`
-            UPDATE articulos 
-            SET titulo = $1, precio = $2, link = $3, imagen = $4, categoria = $5, is_featured = $6
-            WHERE id = $7
-        `, [tituloReal, precio, url, imagenUrl, categoria, is_featured || false, id]);
-        res.json({ success: true });
-    } catch (e) {
-        res.status(500).json({ success: false, error: e.message });
-    }
-});
-
-app.delete('/api/productos/:id', async (req, res) => {
-    try {
-        await db.query('DELETE FROM articulos WHERE id = $1', [req.params.id]);
-        res.json({ success: true });
+        await db.query(`INSERT INTO leads_vip (email) VALUES ($1) ON CONFLICT (email) DO NOTHING`, [email.toLowerCase()]);
+        res.json({ success: true, message: "Welcome to the VIP club!" });
     } catch (e) {
         res.status(500).json({ success: false });
     }
 });
 
-app.get('/api/stats', async (req, res) => {
+// ============================================================
+// 💰 REDIRECCIÓN CON SUBTAGS
+// ============================================================
+app.get('/go/:id', async (req, res) => {
+    const { id } = req.params;
     try {
-        const stats = await db.query(`
-            SELECT COUNT(*) as total, SUM(clics) as clics_total, AVG(ctr) as ctr_avg FROM articulos
-        `);
-        res.json({ 
-            productos: stats.rows[0].total, 
-            clicsHoy: stats.rows[0].clics_total || 0,
-            ctrGlobal: (parseFloat(stats.rows[0].ctr_avg || 0) * 100).toFixed(2) + '%',
-            affiliateTag: AFFILIATE_TAG 
-        });
-    } catch (e) { res.json({ productos: 0, clicsHoy: 0 }); }
+        const result = await db.query(`
+            UPDATE articulos SET clics = clics + 1,
+                ctr = CASE WHEN impresiones > 0 THEN (clics + 1)::decimal / NULLIF(impresiones, 0) ELSE 0 END
+            WHERE id = $1 RETURNING link, titulo
+        `, [id]);
+
+        if (result.rows.length > 0) {
+            const prodRef = result.rows[0].titulo.substring(0, 10).replace(/[^a-z0-9]/gi, '_');
+            const separator = result.rows[0].link.includes('?') ? '&' : '?';
+            const finalUrl = `${result.rows[0].link}${separator}tag=${AFFILIATE_TAG}&ascsubtag=mxl_${id}_${prodRef}`;
+            res.redirect(302, finalUrl);
+        } else { res.redirect('/'); }
+    } catch (e) { res.redirect('/'); }
 });
 
 // ============================================================
-// 🚀 LANZAMIENTO
+// 👀 TRACKING IMPRESIONES
 // ============================================================
+app.post('/api/track/impression', async (req, res) => {
+    const { id } = req.body;
+    try {
+        await db.query(`
+            UPDATE articulos SET impresiones = impresiones + 1,
+                ctr = CASE WHEN (impresiones + 1) > 0 THEN clics::decimal / (impresiones + 1) ELSE 0 END
+            WHERE id = $1
+        `, [id]);
+        res.json({ success: true });
+    } catch (e) { res.status(500).send(); }
+});
+
+// ============================================================
+// 🏆 API PRODUCTOS Y STATS
+// ============================================================
+app.get('/api/productos', async (req, res) => {
+    const result = await db.query(`SELECT * FROM articulos WHERE status = 'active' ORDER BY is_featured DESC, ctr DESC, clics DESC LIMIT 100`);
+    res.json({ items: result.rows });
+});
+
+app.get('/api/stats', async (req, res) => {
+    try {
+        const s = await db.query(`SELECT COUNT(*) as total, SUM(clics) as clics_total FROM articulos`);
+        const l = await db.query(`SELECT COUNT(*) as leads FROM leads_vip`);
+        res.json({ 
+            productos: s.rows[0].total, 
+            clicsHoy: s.rows[0].clics_total || 0,
+            leadsVIP: l.rows[0].leads || 0, // <--- NUEVO: Ver cuántos correos tienes
+            affiliateTag: AFFILIATE_TAG 
+        });
+    } catch (e) { res.json({ productos: 0, clicsHoy: 0, leadsVIP: 0 }); }
+});
+
+// ============================================================
+// 💉 CRUD PANEL
+// ============================================================
+app.post('/api/commander/inject', async (req, res) => {
+    const { tituloReal, imagenUrl, categoria, url, precio } = req.body;
+    await db.query(`INSERT INTO articulos (id, titulo, imagen, categoria, link, precio) VALUES ($1,$2,$3,$4,$5,$6)`, [Date.now(), tituloReal, imagenUrl, categoria, url, precio]);
+    res.json({ success: true });
+});
+
+app.delete('/api/productos/:id', async (req, res) => {
+    await db.query('DELETE FROM articulos WHERE id = $1', [req.params.id]);
+    res.json({ success: true });
+});
+
 app.use(express.static(__dirname));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 async function start() {
     await initDB();
-    app.listen(PORT, '0.0.0.0', () => {
-        console.log(`💎 MXL GOLD v10.0 | DINERO REAL | PORT: ${PORT}`);
-    });
+    app.listen(PORT, '0.0.0.0', () => console.log(`🚀 MXL GOLD v11.0 ACTIVE ON PORT ${PORT}`));
 }
 start();
