@@ -1,113 +1,103 @@
-<!DOCTYPE html>
-<html lang="en-US">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MXL Gold | Elite Selection</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root { --black: #0a0a0a; --gold: #c9a87b; --fire: #ff3300; --surface: #f8f7f5; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--black); }
-        
-        nav { background: #fff; padding: 15px; text-align: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
-        .logo { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: bold; }
-        
-        .hero { background: var(--black); color: #fff; padding: 40px 20px; text-align: center; }
-        .hero h1 { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; }
-        
-        /* GRID CENTRADO MXL */
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 25px; 
-            max-width: 1200px; 
-            margin: 40px auto; 
-            padding: 0 20px;
-            justify-content: center;
-        }
+const express = require('express');
+const path = require('path');
+const { Pool } = require('pg');
+const compression = require('compression');
+const cors = require('cors');
+require('dotenv').config();
 
-        .card { 
-            background: #fff; 
-            border-radius: 20px; 
-            overflow: hidden; 
-            border: 1px solid #eee; 
-            transition: 0.3s; 
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-        .card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
-        
-        .card-img { width: 100%; aspect-ratio: 1; background: #fafafa; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .card-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
-        
-        .badge { position: absolute; top: 15px; left: 15px; background: var(--fire); color: #fff; padding: 4px 12px; border-radius: 50px; font-size: 10px; font-weight: bold; }
+const app = express();
+const PORT = process.env.PORT || 8080;
+const AFFILIATE_TAG = process.env.AMAZON_AFFILIATE_TAG || 'farolaldiauno-20';
 
-        .card-body { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
-        .card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; margin-bottom: 10px; min-height: 2.8rem; }
-        .fomo-text { color: var(--fire); font-size: 11px; font-weight: bold; margin-bottom: 10px; }
-        .card-price { font-size: 1.4rem; font-weight: 700; margin-bottom: 15px; margin-top: auto; }
+const db = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+});
 
-        .btn-cta { 
-            width: 100%; 
-            background: var(--black); 
-            color: #fff; 
-            border: none; 
-            padding: 14px; 
-            border-radius: 50px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            font-size: 12px; 
-        }
-        .btn-cta:hover { background: var(--fire); }
+// MIDDLEWARES DE ALTA VELOCIDAD
+app.use(compression());
+app.use(cors());
+app.use(express.json());
 
-        footer { text-align: center; padding: 30px; color: #888; font-size: 11px; }
-    </style>
-</head>
-<body>
+// ==========================================
+// 1. TRACKING REAL (IMPRESIONES + CTR) - PIEZA CLAVE 💰
+// ==========================================
+app.post('/api/track/impression', async (req, res) => {
+    const { id } = req.body;
+    try {
+        await db.query(`
+            UPDATE articulos 
+            SET impresiones = impresiones + 1,
+                ctr = CASE 
+                    WHEN (impresiones + 1) > 0 THEN clics::decimal / (impresiones + 1)
+                    ELSE 0 
+                END
+            WHERE id = $1
+        `, [id]);
+        res.json({ success: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
 
-<nav><div class="logo">MXL <span style="color:var(--gold)">Gold</span></div></nav>
-<header class="hero"><h1>Elite Selection <em>NYC & Miami</em></h1></header>
+// ==========================================
+// 2. REDIRECCIÓN INTELIGENTE (TRACKING DE COMISIONES)
+// ==========================================
+app.get('/go/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        // Registramos el clic y recalculamos CTR al instante
+        const result = await db.query(`
+            UPDATE articulos 
+            SET clics = clics + 1,
+                ctr = CASE 
+                    WHEN impresiones > 0 THEN (clics + 1)::decimal / impresiones
+                    ELSE 0 
+                END
+            WHERE id = $1 
+            RETURNING link, titulo
+        `, [id]);
 
-<main class="grid" id="productGrid"></main>
-
-<footer>© 2026 MXL Gold. We earn from qualifying purchases on Amazon.</footer>
-
-<script>
-    async function loadProducts() {
-        const grid = document.getElementById('productGrid');
-        try {
-            const res = await fetch('/api/productos');
-            const { items } = await res.json();
+        if (result.rows.length > 0) {
+            let url = result.rows[0].link;
+            const cleanTitle = result.rows[0].titulo.substring(0, 20).replace(/\s+/g, '_');
+            const separator = url.includes('?') ? '&' : '?';
             
-            grid.innerHTML = items.map((p, index) => {
-                const viewers = Math.floor(Math.random() * 25) + 8;
-                
-                // DISPARAR TRACKING DE IMPRESIÓN REAL
-                fetch('/api/track/impression', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({id: p.id})
-                });
+            // Subtag dinámico para saber EXACTAMENTE qué producto generó la comisión
+            const finalUrl = `${url}${separator}tag=${AFFILIATE_TAG}&ascsubtag=mxl_${id}_${cleanTitle}`;
+            res.redirect(302, finalUrl);
+        } else {
+            res.redirect('/');
+        }
+    } catch (e) { res.redirect('/'); }
+});
 
-                return `
-                <article class="card">
-                    ${p.ctr > 0.05 ? '<div class="badge">🔥 BEST SELLER</div>' : ''}
-                    <div class="card-img"><img src="${p.imagen}" alt="${p.titulo}"></div>
-                    <div class="card-body">
-                        <h3 class="card-title">${p.titulo}</h3>
-                        <div class="fomo-text">🔥 ${viewers} people buying right now</div>
-                        <div class="card-price">$${parseFloat(p.precio).toFixed(2)} <span style="font-size:10px; color:#888;">USD</span></div>
-                        <button class="btn-cta" onclick="window.open('/go/${p.id}', '_blank')">🔥 View on Amazon</button>
-                    </div>
-                </article>
-                `;
-            }).join('');
-        } catch(e) { console.log("Error cargando"); }
-    }
-    loadProducts();
-</script>
-</body>
-</html>
+// ==========================================
+// 3. PRIORIZACIÓN POR DINERO (ORDEN INTELIGENTE)
+// ==========================================
+app.get('/api/productos', async (req, res) => {
+    try {
+        const result = await db.query(`
+            SELECT * FROM articulos 
+            WHERE status = 'active' 
+            ORDER BY 
+                ctr DESC,    -- Lo que más clics genera primero
+                clics DESC,  -- Popularidad
+                fecha DESC   -- Novedad
+            LIMIT 50
+        `);
+        res.json({ items: result.rows });
+    } catch (e) { res.json({ items: [] }); }
+});
+
+// RUTAS DE PANEL COMMANDER (MANTENIENDO PODER DE EDICIÓN)
+app.post('/api/commander/inject', async (req, res) => {
+    const { tituloReal, imagenUrl, categoria, url, precio } = req.body;
+    const id = Date.now();
+    await db.query(`INSERT INTO articulos (id, titulo, imagen, categoria, link, precio) VALUES ($1,$2,$3,$4,$5,$6)`, 
+    [id, tituloReal, imagenUrl, categoria, url, precio]);
+    res.json({ success: true });
+});
+
+app.use(express.static(__dirname));
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+
+app.listen(PORT, '0.0.0.0', () => console.log(`💰 MACHINE ACTIVE ON PORT ${PORT}`));
