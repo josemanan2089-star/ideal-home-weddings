@@ -32,10 +32,11 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.set('trust proxy', 1);
 
 // ============================================================
-// 📊 ESQUEMA DE DATOS DINÁMICO (SOPORTE CTR)
+// 📊 ESQUEMA DE DATOS DINÁMICO (AUTO-PARCHEO v10.0)
 // ============================================================
 async function initDB() {
     try {
+        // 1. Crear tabla si no existe
         await db.query(`
             CREATE TABLE IF NOT EXISTS articulos (
                 id BIGSERIAL PRIMARY KEY,
@@ -52,10 +53,17 @@ async function initDB() {
                 is_featured BOOLEAN DEFAULT FALSE,
                 fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
-            CREATE INDEX IF NOT EXISTS idx_articulos_performance ON articulos (is_featured DESC, ctr DESC, clics DESC);
-            CREATE INDEX IF NOT EXISTS idx_articulos_status ON articulos (status);
         `);
-        console.log('✅ MOTOR MXL GOLD v10.0: BASE DE DATOS OPTIMIZADA');
+
+        // 2. PARCHEO DINÁMICO: Agrega columnas si vienes de una versión vieja
+        await db.query(`ALTER TABLE articulos ADD COLUMN IF NOT EXISTS impresiones INT DEFAULT 0`);
+        await db.query(`ALTER TABLE articulos ADD COLUMN IF NOT EXISTS ctr DECIMAL(12,8) DEFAULT 0`);
+        await db.query(`ALTER TABLE articulos ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE`);
+        
+        // 3. Índices para velocidad de carga
+        await db.query(`CREATE INDEX IF NOT EXISTS idx_articulos_performance ON articulos (is_featured DESC, ctr DESC, clics DESC)`);
+        
+        console.log('✅ MOTOR MXL GOLD v10.0: BASE DE DATOS OPTIMIZADA Y ACTUALIZADA');
     } catch (err) {
         console.error('❌ FATAL ERROR DB:', err.message);
     }
@@ -70,7 +78,6 @@ app.get('/go/:id', async (req, res) => {
     const ts = Date.now();
 
     try {
-        // Registro de Clic + Recálculo Instantáneo de CTR (Evita desfases)
         const result = await db.query(`
             UPDATE articulos 
             SET clics = clics + 1,
@@ -86,11 +93,8 @@ app.get('/go/:id', async (req, res) => {
             let url = result.rows[0].link;
             const prodRef = result.rows[0].titulo.substring(0, 10).replace(/[^a-z0-9]/gi, '_');
             const separator = url.includes('?') ? '&' : '?';
-            
-            // Generación de Subtag Único para Amazon Reports (Tracking de conversión exacto)
             const subtag = `mxl_${prodRef}_${sessionID}_${ts}`;
             const finalUrl = `${url}${separator}tag=${AFFILIATE_TAG}&ascsubtag=${subtag}`;
-            
             res.redirect(302, finalUrl);
         } else {
             res.status(404).redirect('/');
@@ -106,7 +110,6 @@ app.get('/go/:id', async (req, res) => {
 app.post('/api/track/impression', async (req, res) => {
     const { id } = req.body;
     if (!id) return res.status(400).send();
-
     try {
         await db.query(`
             UPDATE articulos 
@@ -132,11 +135,7 @@ app.get('/api/productos', async (req, res) => {
             SELECT id, titulo, imagen, categoria, precio, clics, impresiones, ctr, is_featured
             FROM articulos 
             WHERE status = 'active' 
-            ORDER BY 
-                is_featured DESC, 
-                ctr DESC,        -- Maximiza ingresos mostrando lo que más convierte
-                clics DESC,      -- Social Proof
-                fecha DESC       -- Freshness
+            ORDER BY is_featured DESC, ctr DESC, clics DESC, fecha DESC
             LIMIT 100
         `);
         res.json({ items: result.rows });
@@ -186,20 +185,15 @@ app.delete('/api/productos/:id', async (req, res) => {
     }
 });
 
-// Stats para Panel de Control
 app.get('/api/stats', async (req, res) => {
     try {
         const stats = await db.query(`
-            SELECT 
-                COUNT(*) as total, 
-                SUM(clics) as clics_total, 
-                AVG(ctr) as ctr_avg 
-            FROM articulos
+            SELECT COUNT(*) as total, SUM(clics) as clics_total, AVG(ctr) as ctr_avg FROM articulos
         `);
         res.json({ 
             productos: stats.rows[0].total, 
             clicsHoy: stats.rows[0].clics_total || 0,
-            ctrGlobal: (stats.rows[0].ctr_avg * 100).toFixed(2) + '%',
+            ctrGlobal: (parseFloat(stats.rows[0].ctr_avg || 0) * 100).toFixed(2) + '%',
             affiliateTag: AFFILIATE_TAG 
         });
     } catch (e) { res.json({ productos: 0, clicsHoy: 0 }); }
@@ -209,10 +203,7 @@ app.get('/api/stats', async (req, res) => {
 // 🚀 LANZAMIENTO
 // ============================================================
 app.use(express.static(__dirname));
-
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 async function start() {
     await initDB();
@@ -220,5 +211,4 @@ async function start() {
         console.log(`💎 MXL GOLD v10.0 | DINERO REAL | PORT: ${PORT}`);
     });
 }
-
 start();
