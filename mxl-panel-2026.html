@@ -3,40 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMMANDER MXL — Panel v11.2 | CRYSTAL CONTROL</title>
+    <title>COMMANDER MXL — Panel v11.3 | INJECTION READY</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:system-ui,sans-serif;background:#05050a;color:#fff;padding:15px;}
         .header{background:linear-gradient(135deg,#1a1a2e,#000);padding:20px;border-radius:15px;margin-bottom:15px;border:1px solid #8b5cf6;text-align:center;}
-        
-        /* 📊 STATS VISIBLES */
         .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
         .stat-box { background: #111; padding: 15px; border-radius: 12px; border: 1px solid #222; text-align: center; }
         .stat-val { font-size: 1.2rem; font-weight: 800; color: #10b981; }
         .stat-lbl { font-size: 9px; color: #aaa; text-transform: uppercase; margin-top: 5px; }
-
         .btn-purple{width:100%; padding:16px; background:#8b5cf6; color:#fff; border:none; border-radius:12px; font-weight:800; margin-bottom:20px; cursor:pointer;}
-        
         .panel{background:#0f0f1a; border-radius:15px; padding:15px; border:1px solid #1a1a2e; margin-bottom:20px;}
         .panel-head{color:#c9a87b; font-size:0.8rem; font-weight:bold; text-transform:uppercase; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid #222;}
-
-        /* 📦 FILAS DE PRODUCTO CORREGIDAS */
         .prod-row{background:#161625; border-radius:12px; padding:15px; margin-bottom:12px; border:1px solid #333;}
-        .prod-title { color: #fff; font-weight: bold; font-size: 14px; display: block; margin-bottom: 10px; }
-        
         .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: #000; padding: 12px; border-radius: 10px; }
-        .m-item { text-align: center; }
-        .m-val { display: block; font-weight: bold; font-size: 14px; color: #fff; }
-        .m-lbl { font-size: 9px; color: #8b5cf6; text-transform: uppercase; font-weight: 800; } /* Morado brillante para que se lea */
+        .m-val { display: block; font-weight: bold; font-size: 14px; color: #fff; text-align:center;}
+        .m-lbl { font-size: 9px; color: #8b5cf6; text-transform: uppercase; font-weight: 800; text-align:center;}
+        .btn-delete{width:100%; background:#dc2626; color:#fff; border:none; padding:10px; border-radius:8px; margin-top:10px; font-weight:bold;}
 
-        .btn-delete{width:100%; background:#dc2626; color:#fff; border:none; padding:10px; border-radius:8px; margin-top:10px; font-weight:bold; font-size:11px;}
+        /* 💉 EL MODAL (LO QUE NO ABRÍA) */
+        .modal{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; padding:20px; overflow-y:auto;}
+        .modal-box{background:#0f0f1a; padding:25px; border-radius:20px; border:1px solid #8b5cf6; max-width: 500px; margin: auto;}
+        input, select{width:100%; padding:14px; margin:8px 0; background:#161625; border:1px solid #222; color:#fff; border-radius:10px; font-size:14px;}
+        label{font-size:10px; color:#8b5cf6; font-weight:800; text-transform:uppercase;}
     </style>
 </head>
 <body>
 
-<div class="header">
-    <h1 style="font-size:1.2rem;">🎖️ COMMANDER MXL <span style="background:#8b5cf6; padding:2px 8px; border-radius:10px; font-size:10px;">v11.2</span></h1>
-</div>
+<div class="header"><h1>🎖️ COMMANDER MXL <span style="font-size:10px; background:#8b5cf6; padding:2px 8px; border-radius:10px;">v11.3</span></h1></div>
 
 <div class="stats-bar">
     <div class="stat-box"><div class="stat-val" id="totalProds">0</div><div class="stat-lbl">Productos</div></div>
@@ -46,43 +40,72 @@
 
 <button class="btn-purple" onclick="abrirModal()">💉 INYECTAR NUEVO GANADOR</button>
 
-<div class="panel">
-    <div class="panel-head">📦 PERFORMANCE DE INVENTARIO</div>
-    <div id="prodList">Conectando motor...</div>
+<div class="panel"><div class="panel-head">📦 PERFORMANCE</div><div id="prodList">Loading...</div></div>
+
+<!-- 💉 MODAL DE INYECCIÓN -->
+<div id="modal" class="modal">
+    <div class="modal-box">
+        <h3 style="margin-bottom:15px;">Inject New Gold</h3>
+        <label>Título del Producto</label>
+        <input type="text" id="fTitle" placeholder="Ej: Walking Pad Elite">
+        <label>Precio USD</label>
+        <input type="number" id="fPrice" step="0.01">
+        <label>Link Amazon</label>
+        <input type="url" id="fUrl">
+        <label>Imagen URL</label>
+        <input type="url" id="fImg">
+        <button class="btn-purple" onclick="guardar()">SUBIR A LA VITRINA ⚡</button>
+        <button onclick="cerrarModal()" style="background:transparent; color:#888; border:none; width:100%; cursor:pointer;">CANCELAR</button>
+    </div>
 </div>
 
 <script>
     async function cargarTodo() {
-        try {
-            const stats = await fetch('/api/stats').then(r => r.json());
-            document.getElementById('totalProds').innerText = stats.productos || 0;
-            document.getElementById('totalClicks').innerText = stats.clicsHoy || 0;
-            document.getElementById('totalLeads').innerText = stats.leadsVIP || 0;
+        const stats = await fetch('/api/stats').then(r => r.json());
+        document.getElementById('totalProds').innerText = stats.productos || 0;
+        document.getElementById('totalClicks').innerText = stats.clicsHoy || 0;
+        document.getElementById('totalLeads').innerText = stats.leadsVIP || 0;
 
-            const res = await fetch('/api/productos').then(r => r.json());
-            const list = document.getElementById('prodList');
-            
-            list.innerHTML = (res.items || []).map(p => {
-                const ctr = p.impresiones > 0 ? ((p.clics / p.impresiones) * 100).toFixed(2) : "0.00";
-                return `
-                <div class="prod-row">
-                    <span class="prod-title">${p.titulo}</span>
-                    <div class="metrics-grid">
-                        <div class="m-item"><span class="m-val">$${p.precio}</span><span class="m-lbl">Precio USD</span></div>
-                        <div class="m-item"><span class="m-val">${p.impresiones}</span><span class="m-lbl">Vistas</span></div>
-                        <div class="m-item"><span class="m-val" style="color:#10b981">${ctr}%</span><span class="m-lbl">CTR</span></div>
-                    </div>
-                    <button class="btn-delete" onclick="eliminar(${p.id})">ELIMINAR PRODUCTO</button>
-                </div>`;
-            }).join('') || 'Vitrina vacía.';
-        } catch(e) { console.error(e); }
+        const res = await fetch('/api/productos').then(r => r.json());
+        const list = document.getElementById('prodList');
+        list.innerHTML = (res.items || []).map(p => {
+            const ctr = p.impresiones > 0 ? ((p.clics / p.impresiones) * 100).toFixed(2) : "0.00";
+            return `
+            <div class="prod-row">
+                <span style="display:block;margin-bottom:10px;font-weight:bold;">${p.titulo}</span>
+                <div class="metrics-grid">
+                    <div class="m-item"><span class="m-val">$${p.precio}</span><span class="m-lbl">USD</span></div>
+                    <div class="m-item"><span class="m-val">${p.impresiones}</span><span class="m-lbl">Views</span></div>
+                    <div class="m-item"><span class="m-val" style="color:#10b981">${ctr}%</span><span class="m-lbl">CTR</span></div>
+                </div>
+                <button class="btn-delete" onclick="eliminar(${p.id})">DELETE</button>
+            </div>`;
+        }).join('') || 'No products.';
+    }
+
+    // 🗝️ LAS LLAVES QUE ABREN EL PANEL
+    function abrirModal() { document.getElementById('modal').style.display = 'flex'; }
+    function cerrarModal() { document.getElementById('modal').style.display = 'none'; }
+
+    async function guardar() {
+        const payload = {
+            tituloReal: document.getElementById('fTitle').value,
+            url: document.getElementById('fUrl').value,
+            precio: document.getElementById('fPrice').value,
+            imagenUrl: document.getElementById('fImg').value,
+            categoria: 'LUXURY'
+        };
+        const res = await fetch('/api/commander/inject', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        }).then(r => r.json());
+
+        if(res.success) { cerrarModal(); cargarTodo(); }
     }
 
     async function eliminar(id) {
-        if(confirm("¿Seguro, socio?")) {
-            await fetch(`/api/productos/${id}`, { method: 'DELETE' });
-            cargarTodo();
-        }
+        if(confirm("¿Eliminar?")) { await fetch(`/api/productos/${id}`, { method: 'DELETE' }); cargarTodo(); }
     }
 
     cargarTodo();
